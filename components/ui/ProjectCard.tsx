@@ -1,0 +1,93 @@
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { Reveal } from "@/components/Reveal";
+import type { Project } from "@/lib/projects";
+
+function Cover({ project }: { project: Project }) {
+  const shape =
+    project.accent === "accent" ? "bg-accent/15" : "bg-primary/15";
+
+  return (
+    <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-border bg-surface-2">
+      {/* solid accent shape (no gradient) — scales on hover */}
+      <div
+        aria-hidden
+        className={cn(
+          "absolute -right-10 -top-10 h-40 w-40 rounded-full transition-transform duration-700 ease-out group-hover:scale-[1.7]",
+          shape,
+        )}
+      />
+      <span className="absolute left-5 top-5 rounded-full border border-ink/10 bg-bg/50 px-3 py-1 text-xs text-ink backdrop-blur-sm">
+        {project.category}
+      </span>
+      {!project.placeholder ? (
+        <span
+          aria-hidden
+          className="absolute right-5 top-5 grid h-9 w-9 place-items-center rounded-full border border-ink/10 bg-bg/50 text-ink backdrop-blur-sm transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M5 11L11 5M11 5H6M11 5V10"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </span>
+      ) : null}
+      <span className="absolute bottom-5 left-5 right-5 font-display text-2xl font-semibold tracking-tight transition-transform duration-500 group-hover:-translate-y-1 sm:text-3xl">
+        {project.name}
+      </span>
+    </div>
+  );
+}
+
+export function ProjectCard({
+  project,
+  index = 0,
+}: {
+  project: Project;
+  index?: number;
+}) {
+  const inner = (
+    <article className="group flex flex-col gap-4">
+      <div className="transition-transform duration-500 ease-out group-hover:-translate-y-1">
+        <Cover project={project} />
+      </div>
+      <div className="flex items-start justify-between gap-4 px-1">
+        <div>
+          <h3 className="font-display text-lg">{project.name}</h3>
+          <p className="text-sm text-muted">
+            {project.client} · {project.year}
+          </p>
+        </div>
+        <ul className="flex flex-wrap justify-end gap-1.5">
+          {project.services.map((s) => (
+            <li
+              key={s}
+              className="rounded-full border border-border px-2.5 py-1 text-xs text-muted"
+            >
+              {s}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </article>
+  );
+
+  return (
+    <Reveal delay={index * 0.06}>
+      {project.placeholder ? (
+        <div className="cursor-default opacity-70">{inner}</div>
+      ) : (
+        <Link
+          href={`/portfolio/${project.slug}`}
+          className="block rounded-2xl focus-visible:outline-none"
+        >
+          {inner}
+        </Link>
+      )}
+    </Reveal>
+  );
+}

@@ -1,26 +1,173 @@
 @import "tailwindcss";
 
+/* ------------------------------------------------------------------
+   XquisiteVision — design tokens
+   Warm near-black canvas. Orange = primary energy. Green = accent.
+   OKLCH throughout. Body copy stays high-contrast (never muted-gray).
+   No cream default, no gradient-text, no glass-by-default (per impeccable).
+------------------------------------------------------------------- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
+
+  /* Canvas & surfaces — warm near-black, faint chroma toward amber */
+  --bg: oklch(0.15 0.011 56);
+  --surface: oklch(0.19 0.013 56);
+  --surface-2: oklch(0.23 0.015 56);
+  --border: oklch(0.31 0.016 56);
+
+  /* Ink */
+  --ink: oklch(0.97 0.006 80);
+  --muted: oklch(0.77 0.012 80);
+
+  /* Brand — orange (primary) */
+  --primary: oklch(0.72 0.188 50);
+  --primary-strong: oklch(0.67 0.202 47);
+  --primary-ink: oklch(0.17 0.03 50);
+
+  /* Brand — green (accent) */
+  --accent: oklch(0.77 0.158 154);
+  --accent-strong: oklch(0.71 0.152 156);
+  --accent-ink: oklch(0.17 0.03 156);
+
+  /* Signature gradient — surfaces/rules only, never text */
+  --grad: linear-gradient(100deg, var(--primary) 0%, var(--accent) 100%);
+
+  --radius: 0.875rem; /* 14px — cards stay <=16px */
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-ink: var(--primary-ink);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-ink: var(--accent-ink);
+
+  --font-display: var(--font-space-grotesk);
+  --font-sans: var(--font-inter);
+
+  --radius-lg: var(--radius);
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.75rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Default border color to our token (Tailwind v4 defaults to currentColor) */
+*,
+*::before,
+*::after {
+  border-color: var(--color-border);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  letter-spacing: -0.02em; /* >= -0.04em floor */
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+::selection {
+  background: var(--color-primary);
+  color: var(--color-primary-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* ------------------------------------------------------------------
+   Motion & texture utilities — for the kinetic, less-corporate pass.
+   (Gradients are now reserved for the logo mark only.)
+------------------------------------------------------------------- */
+
+/* Film-grain overlay: breaks the flat dark surface without gradients */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Infinite marquee (content is duplicated, so -50% loops seamlessly) */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: marquee var(--marquee-duration, 32s) linear infinite;
+  will-change: transform;
+}
+
+/* Slow continuous spin for decorative marks */
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animate-spin-slow {
+  animation: spin-slow 18s linear infinite;
+}
+
+/* Lenis smooth scroll (official recommended styles) */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* Respect reduced motion everywhere */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
