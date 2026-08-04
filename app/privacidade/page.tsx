@@ -1,26 +1,27 @@
+/** docs: docs/01-marca.md — o nome e o email vêm de lib/site.ts. */
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { PageHero } from "@/components/PageHero";
+import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Política de Privacidade",
-  description:
-    "Como a XquisiteVision trata os teus dados pessoais quando usas este site ou nos contactas.",
+  description: `Como a ${site.name} trata os teus dados pessoais quando usas este site ou nos contactas.`,
 };
 
 const sections: [string, React.ReactNode][] = [
   [
     "Responsável pelo tratamento",
     <>
-      A XquisiteVision (&quot;nós&quot;) é responsável pelo tratamento dos dados
+      A {site.name} (&quot;nós&quot;) é responsável pelo tratamento dos dados
       pessoais recolhidos através deste site. Para qualquer questão sobre
       privacidade, escreve para{" "}
       <a
-        href="mailto:ola@xquisitevision.pt"
-        className="text-ink underline-offset-4 hover:underline"
+        href={`mailto:${site.email}`}
+        className="break-all text-ink underline-offset-4 hover:underline"
       >
-        ola@xquisitevision.pt
+        {site.email}
       </a>
       .
     </>,
@@ -51,10 +52,10 @@ const sections: [string, React.ReactNode][] = [
       Podes aceder, corrigir, apagar ou limitar o tratamento dos teus dados, bem
       como opor-te ao mesmo. Para exercer estes direitos, escreve para{" "}
       <a
-        href="mailto:ola@xquisitevision.pt"
-        className="text-ink underline-offset-4 hover:underline"
+        href={`mailto:${site.email}`}
+        className="break-all text-ink underline-offset-4 hover:underline"
       >
-        ola@xquisitevision.pt
+        {site.email}
       </a>
       . Tens também o direito de apresentar reclamação à CNPD.
     </>,

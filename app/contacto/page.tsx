@@ -1,19 +1,16 @@
+/** docs: docs/01-marca.md — o email e as redes vêm de lib/site.ts. */
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { PageHero } from "@/components/PageHero";
 import { ContactForm } from "@/components/ContactForm";
+import { site, socials } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Contacto",
   description:
     "Vamos falar sobre o teu projeto. Conta-nos a tua ideia e respondemos em 24 a 48 horas úteis.",
 };
-
-const socials = [
-  { href: "https://www.instagram.com/xquisitevision", label: "Instagram" },
-  { href: "https://www.linkedin.com/company/xquisitevision", label: "LinkedIn" },
-];
 
 export default function ContactoPage() {
   return (
@@ -32,10 +29,10 @@ export default function ContactoPage() {
                 <div>
                   <h2 className="text-sm font-medium text-muted">Email</h2>
                   <a
-                    href="mailto:ola@xquisitevision.pt"
-                    className="mt-1 block font-display text-xl transition-colors hover:text-primary"
+                    href={`mailto:${site.email}`}
+                    className="mt-1 block break-all font-display text-xl transition-colors hover:text-primary"
                   >
-                    ola@xquisitevision.pt
+                    {site.email}
                   </a>
                 </div>
                 <div>
@@ -54,17 +51,25 @@ export default function ContactoPage() {
                   <ul className="mt-2 flex flex-col gap-2">
                     {socials.map((s) => (
                       <li key={s.label}>
-                        <a
-                          href={s.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-ink transition-colors hover:text-primary"
-                        >
-                          {s.label}
-                        </a>
+                        {s.href ? (
+                          <a
+                            href={s.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-ink transition-colors hover:text-primary"
+                          >
+                            {s.label}
+                          </a>
+                        ) : (
+                          <span className="text-muted">{s.label}</span>
+                        )}
                       </li>
                     ))}
                   </ul>
+                  <p className="mt-2.5 text-sm text-muted">
+                    Ainda a preparar as contas. Até lá, o email é o caminho mais
+                    rápido para nos chegares.
+                  </p>
                 </div>
               </div>
             </div>

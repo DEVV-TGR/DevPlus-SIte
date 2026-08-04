@@ -1,9 +1,11 @@
+/** docs: docs/01-marca.md — títulos, descrições e Open Graph vêm de lib/site.ts. */
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { site } from "@/lib/site";
 
 const display = Space_Grotesk({
   subsets: ["latin"],
@@ -17,18 +19,21 @@ const sans = Inter({
   display: "swap",
 });
 
+const fullTitle = `${site.name} — ${site.tagline}`;
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://xquisitevision.pt"),
+  metadataBase: new URL(site.url),
   title: {
-    default: "XquisiteVision — Estúdio de Web Design & Desenvolvimento",
-    template: "%s · XquisiteVision",
+    default: fullTitle,
+    template: `%s · ${site.name}`,
   },
-  description:
-    "XquisiteVision é um estúdio independente de web design e desenvolvimento. Desenhamos e construímos sites e produtos digitais ao detalhe — rápidos, acessíveis e pensados para converter.",
+  description: site.description,
   keywords: [
     "web design",
     "desenvolvimento web",
     "criação de sites",
+    "menu digital",
+    "painel de gestão",
     "Next.js",
     "branding",
     "estúdio de design",
@@ -36,19 +41,18 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: "/" },
   openGraph: {
-    title: "XquisiteVision — Estúdio de Web Design & Desenvolvimento",
-    description:
-      "Desenhamos e construímos sites e produtos digitais ao detalhe — rápidos, acessíveis e pensados para converter.",
-    url: "https://xquisitevision.pt",
-    siteName: "XquisiteVision",
-    locale: "pt_PT",
+    title: fullTitle,
+    description: site.description,
+    url: site.url,
+    siteName: site.name,
+    locale: site.locale,
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "XquisiteVision — Estúdio de Web Design & Desenvolvimento",
+    title: fullTitle,
     description:
-      "Desenhamos e construímos sites e produtos digitais ao detalhe.",
+      "Sites, plataformas e menus digitais — com painel de gestão para atualizares tudo sozinho.",
   },
 };
 
@@ -58,7 +62,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt" className={`${display.variable} ${sans.variable}`}>
+    <html lang={site.lang} className={`${display.variable} ${sans.variable}`}>
       <body className="flex min-h-dvh flex-col antialiased">
         <a
           href="#main"

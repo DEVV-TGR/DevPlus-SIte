@@ -1,6 +1,6 @@
+/** docs: docs/01-marca.md — o domínio vem de lib/site.ts. */
 import type { MetadataRoute } from "next";
-
-const base = "https://xquisitevision.pt";
+import { site } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: `${base}/sitemap.xml`,
-    host: base,
+    sitemap: `${site.url}/sitemap.xml`,
+    host: site.url,
   };
 }

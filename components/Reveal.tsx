@@ -1,4 +1,5 @@
 "use client";
+/** docs: docs/04-componentes-e-padroes.md — durações e easing são especificados aí. */
 
 import { motion, type Variants } from "motion/react";
 

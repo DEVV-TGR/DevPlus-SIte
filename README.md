@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DevPlus
 
-## Getting Started
+Site da **DevPlus** — estúdio de web design e desenvolvimento.
+Next.js 16 (App Router), React 19, Tailwind v4, Motion, Lenis. Conteúdo em PT-PT.
 
-First, run the development server:
+## Arrancar
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
+npm run build    # build de produção
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Antes de mexeres no site
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Lê [`docs/README.md`](docs/README.md) primeiro.** A pasta `docs/` é a fonte de
+verdade da marca, das cores, dos componentes, dos serviços e dos projetos — não é
+documentação de arquivo, é especificação viva. Se alterares um doc, aplica a
+alteração no código na mesma sessão (e vice-versa).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Atalhos para o que se muda mais vezes:
 
-## Learn More
+| Quero mudar… | Vai a… |
+| --- | --- |
+| nome, domínio, email, redes | `lib/site.ts` |
+| cores e tipografia | `app/globals.css` (tokens) |
+| o símbolo "+" | `lib/brand.ts` → `PLUS_PATH` |
+| serviços | `lib/services.ts` |
+| projetos do portfólio | `lib/projects.ts` |
 
-To learn more about Next.js, take a look at the following resources:
+## Estrutura
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+app/          rotas (App Router) — /, /servicos, /portfolio, /sobre, /contacto, /privacidade
+components/   componentes; ui/ tem os primitivos (Button, Container, Section, ProjectCard)
+lib/          site.ts (marca), brand.ts (símbolo), services.ts, projects.ts, utils.ts
+docs/         a especificação — lê primeiro
+public/       estáticos; portfolio/ tem as capas dos projetos
+```

@@ -1,3 +1,4 @@
+/** docs: docs/04-componentes-e-padroes.md */
 import { cn } from "@/lib/utils";
 
 export function Section({
