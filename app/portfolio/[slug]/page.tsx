@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
@@ -9,9 +10,7 @@ import { projects, getProject } from "@/lib/projects";
 import { cn } from "@/lib/utils";
 
 export function generateStaticParams() {
-  return projects
-    .filter((p) => !p.placeholder)
-    .map((p) => ({ slug: p.slug }));
+  return projects.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({
@@ -32,7 +31,7 @@ export default async function CaseStudyPage({
 }) {
   const { slug } = await params;
   const project = getProject(slug);
-  if (!project || project.placeholder) notFound();
+  if (!project) notFound();
 
   const idx = projects.findIndex((p) => p.slug === slug);
   const next = projects[(idx + 1) % projects.length];
@@ -63,6 +62,14 @@ export default async function CaseStudyPage({
               <span>{project.category}</span>
               <span aria-hidden>·</span>
               <span>{project.year}</span>
+              {project.status === "em-curso" ? (
+                <>
+                  <span aria-hidden>·</span>
+                  <span className="rounded-full border border-accent/30 px-2.5 py-0.5 text-xs text-accent">
+                    Em curso
+                  </span>
+                </>
+              ) : null}
             </div>
           </Reveal>
         </Container>
@@ -71,13 +78,24 @@ export default async function CaseStudyPage({
       <Container className="pt-10">
         <Reveal>
           <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-border bg-surface-2">
-            <div
-              aria-hidden
-              className={cn(
-                "absolute -right-16 -top-16 h-72 w-72 rounded-full",
-                shape,
-              )}
-            />
+            {project.image ? (
+              <Image
+                src={project.image}
+                alt={project.imageAlt ?? ""}
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover"
+              />
+            ) : (
+              <div
+                aria-hidden
+                className={cn(
+                  "absolute -right-16 -top-16 h-72 w-72 rounded-full",
+                  shape,
+                )}
+              />
+            )}
             <span className="absolute bottom-6 left-6 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
               {project.name}
             </span>
@@ -131,7 +149,7 @@ export default async function CaseStudyPage({
         </Container>
       </Section>
 
-      {!next.placeholder && next.slug !== slug ? (
+      {next.slug !== slug ? (
         <Section className="pt-0">
           <Container>
             <div className="border-t border-border pt-10">

@@ -1,3 +1,4 @@
+/** docs: docs/04-componentes-e-padroes.md */
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/Reveal";
 

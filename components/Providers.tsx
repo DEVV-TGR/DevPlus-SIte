@@ -1,4 +1,5 @@
 "use client";
+/** docs: docs/04-componentes-e-padroes.md */
 
 import { ReactLenis } from "lenis/react";
 import { MotionConfig } from "motion/react";

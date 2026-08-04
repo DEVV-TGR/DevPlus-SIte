@@ -1,3 +1,4 @@
+/** docs: docs/04-componentes-e-padroes.md */
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 

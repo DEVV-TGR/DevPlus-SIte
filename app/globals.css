@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------
-   XquisiteVision — design tokens
+   DevPlus — design tokens · docs: docs/02-cores-e-tipografia.md
    Warm near-black canvas. Orange = primary energy. Green = accent.
    OKLCH throughout. Body copy stays high-contrast (never muted-gray).
    No cream default, no gradient-text, no glass-by-default (per impeccable).

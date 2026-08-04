@@ -1,4 +1,5 @@
 "use client";
+/** docs: docs/04-componentes-e-padroes.md — ver "Nota conhecida": este formulário ainda não envia. */
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";

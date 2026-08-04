@@ -1,11 +1,5 @@
+<!-- docs: docs/03-simbolo-e-logotipo.md — o `d` é copiado de PLUS_PATH em lib/brand.ts. -->
 <svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
   <rect width="100" height="100" rx="22" fill="#1a1613" />
-  <g stroke="#F2762B" stroke-width="22">
-    <line x1="16" y1="16" x2="84" y2="84" />
-    <line x1="84" y1="16" x2="16" y2="84" />
-  </g>
-  <path d="M33 50 Q50 35 67 50 Q50 65 33 50 Z" fill="#000000" />
-  <path d="M38 50 Q50 41 62 50 Q50 59 38 50 Z" fill="#ffffff" />
-  <circle cx="50" cy="50" r="10" fill="#000000" />
-  <circle cx="50" cy="50" r="3.6" fill="#ffffff" />
+  <path transform="translate(50,50) scale(0.85) translate(-50,-50)" d="M37 18 A8 8 0 0 1 45 10 L55 10 A8 8 0 0 1 63 18 L63 29 A8 8 0 0 0 71 37 L82 37 A8 8 0 0 1 90 45 L90 55 A8 8 0 0 1 82 63 L71 63 A8 8 0 0 0 63 71 L63 82 A8 8 0 0 1 55 90 L45 90 A8 8 0 0 1 37 82 L37 71 A8 8 0 0 0 29 63 L18 63 A8 8 0 0 1 10 55 L10 45 A8 8 0 0 1 18 37 L29 37 A8 8 0 0 0 37 29 Z" fill="#F2762B" />
 </svg>

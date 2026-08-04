@@ -1,3 +1,4 @@
+/** docs: docs/05-servicos.md */
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
@@ -11,7 +12,7 @@ import { cn } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "Serviços",
   description:
-    "Web design, desenvolvimento, branding e motion. Acompanhamos o teu projeto do primeiro esboço ao lançamento.",
+    "Web design, desenvolvimento, menus e ecrãs digitais, painel de gestão, branding e motion. Acompanhamos o teu projeto do primeiro esboço ao lançamento.",
 };
 
 const packages: {
@@ -86,7 +87,7 @@ export default function ServicosPage() {
       <PageHero
         eyebrow="Serviços"
         title="Tudo o que a tua marca precisa para se destacar online."
-        intro="Da primeira ideia ao site no ar — design, desenvolvimento, branding e motion, tratados pela mesma equipa e com o mesmo cuidado."
+        intro="Da primeira ideia ao site no ar — design, desenvolvimento, menus digitais e painel de gestão, tratados pela mesma equipa e com o mesmo cuidado."
       />
 
       <Section>

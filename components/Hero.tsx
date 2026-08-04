@@ -1,9 +1,11 @@
 "use client";
+/** docs: docs/04-componentes-e-padroes.md — o motivo de fundo é o "+" (ver docs/03). */
 
 import { motion, type Variants } from "motion/react";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { Logo } from "@/components/Logo";
+import { site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 const container: Variants = {
@@ -23,17 +25,17 @@ const item: Variants = {
 const words: { t: string; accent?: boolean }[] = [
   { t: "Web" },
   { t: "design" },
-  { t: "com" },
-  { t: "visão,", accent: true },
-  { t: "construído" },
+  { t: "que" },
+  { t: "soma", accent: true },
   { t: "ao" },
-  { t: "detalhe." },
+  { t: "teu" },
+  { t: "negócio." },
 ];
 
 export function Hero() {
   return (
     <section className="relative overflow-hidden">
-      {/* Eye-X background motif — the "logo no fundo" */}
+      {/* O "+" em contorno, a rodar devagar — o logo no fundo */}
       <div
         aria-hidden
         className="pointer-events-none absolute -right-[12%] -top-[18%] z-0 w-[78%] max-w-[42rem] text-primary opacity-[0.06] sm:opacity-[0.07]"
@@ -72,9 +74,9 @@ export function Hero() {
             variants={item}
             className="mt-6 max-w-xl text-base text-muted sm:text-lg"
           >
-            Somos a XquisiteVision, um estúdio independente que desenha e
-            desenvolve sites e produtos digitais. Construímos cada projeto de
-            raiz — rápido, acessível e pensado para converter.
+            Somos a {site.name}, um estúdio independente que desenha e desenvolve
+            sites, plataformas e menus digitais. Construímos cada projeto de raiz
+            — rápido, acessível e pensado para converter.
           </motion.p>
 
           <motion.div

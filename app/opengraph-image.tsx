@@ -1,11 +1,18 @@
+/** docs: docs/01-marca.md (texto) · docs/03-simbolo-e-logotipo.md (o mark) */
 import { ImageResponse } from "next/og";
+import { site } from "@/lib/site";
+import { BRAND_HEX } from "@/lib/brand";
 
-export const alt = "XquisiteVision — Estúdio de web design & desenvolvimento";
+export const alt = `${site.name} — ${site.tagline}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-// Branded Open Graph / Twitter card. Uses the default next/og font (no custom
-// font file needed) and flexbox-only layout (Satori does not support grid).
+// Cartão Open Graph / Twitter. Usa a fonte default do next/og (sem ficheiro de
+// fonte) e só flexbox — o Satori não suporta grid.
+//
+// O "+" aqui é feito com duas barras em vez do PLUS_PATH: o Satori não desenha
+// SVG complexo. Os cantos interiores ficam vivos em vez de arredondados — a
+// 64px a diferença é sub-pixel. É uma aproximação assumida (ver docs/03).
 export default function Image() {
   return new ImageResponse(
     (
@@ -17,9 +24,9 @@ export default function Image() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "#1a1613",
+          background: BRAND_HEX.bg,
           padding: "80px",
-          color: "#f7f2ec",
+          color: BRAND_HEX.ink,
         }}
       >
         <div
@@ -29,56 +36,44 @@ export default function Image() {
             left: 0,
             right: 0,
             height: 12,
-            background: "#F2762B",
+            background: BRAND_HEX.primary,
           }}
         />
 
-        <div style={{ display: "flex", alignItems: "center", gap: 22 }}>
+        {/* Lockup: "Dev" + o "+" a laranja, como em components/Wordmark.tsx */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ fontSize: 40, fontWeight: 600 }}>Dev</div>
           <div
             style={{
-              width: 64,
-              height: 64,
-              borderRadius: 16,
+              position: "relative",
+              width: 34,
+              height: 34,
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "#F2762B",
             }}
           >
             <div
               style={{
-                width: 40,
-                height: 24,
-                borderRadius: "50%",
-                background: "#000000",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                position: "absolute",
+                left: 0,
+                top: 11,
+                width: 34,
+                height: 12,
+                borderRadius: 3,
+                background: BRAND_HEX.primary,
               }}
-            >
-              <div
-                style={{
-                  width: 16,
-                  height: 16,
-                  borderRadius: "50%",
-                  background: "#ffffff",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <div
-                  style={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: "50%",
-                    background: "#000000",
-                  }}
-                />
-              </div>
-            </div>
+            />
+            <div
+              style={{
+                position: "absolute",
+                left: 11,
+                top: 0,
+                width: 12,
+                height: 34,
+                borderRadius: 3,
+                background: BRAND_HEX.primary,
+              }}
+            />
           </div>
-          <div style={{ fontSize: 34, fontWeight: 600 }}>XquisiteVision</div>
         </div>
 
         <div
@@ -91,7 +86,7 @@ export default function Image() {
             maxWidth: 920,
           }}
         >
-          Web design com visão, construído ao detalhe.
+          Web design que soma ao teu negócio.
         </div>
 
         <div
@@ -100,11 +95,11 @@ export default function Image() {
             justifyContent: "space-between",
             alignItems: "center",
             fontSize: 26,
-            color: "#c8bdb0",
+            color: BRAND_HEX.muted,
           }}
         >
-          <div>Estúdio de web design &amp; desenvolvimento</div>
-          <div>xquisitevision.pt</div>
+          <div>Sites, plataformas e menus digitais</div>
+          <div>{site.domain}</div>
         </div>
       </div>
     ),

@@ -3,11 +3,11 @@ import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Reveal } from "@/components/Reveal";
 import { PageHero } from "@/components/PageHero";
+import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Sobre",
-  description:
-    "A XquisiteVision é um estúdio independente de web design e desenvolvimento, movido por detalhe, performance e parceria.",
+  description: `A ${site.name} é um estúdio independente de web design e desenvolvimento, movido por detalhe, performance e parceria.`,
 };
 
 const values: [string, string][] = [
@@ -45,8 +45,8 @@ export default function SobrePage() {
     <>
       <PageHero
         eyebrow="Sobre"
-        title="Um estúdio movido por detalhe e visão."
-        intro="A XquisiteVision nasceu de uma ideia simples: a maioria dos sites podia ser muito melhor. Existimos para construir os que se destacam."
+        title="Um estúdio movido por detalhe e por fazer mais."
+        intro={`A ${site.name} nasceu de uma ideia simples: a maioria dos sites podia ser muito melhor. Existimos para acrescentar o que falta.`}
       />
 
       <Section>
@@ -57,8 +57,8 @@ export default function SobrePage() {
                 <p>
                   Somos um estúdio independente de web design e desenvolvimento.
                   Trabalhamos com marcas que querem mais do que um site bonito —
-                  querem uma presença digital rápida, clara e pensada para
-                  crescer.
+                  querem uma presença digital rápida, clara e que consigam gerir
+                  sozinhas.
                 </p>
                 <p>
                   Cada projeto é tratado pela mesma equipa, do primeiro esboço à

@@ -7,6 +7,7 @@ import { Hero } from "@/components/Hero";
 import { Marquee } from "@/components/Marquee";
 import { projects } from "@/lib/projects";
 import { services } from "@/lib/services";
+import { site } from "@/lib/site";
 
 const steps: [string, string, string][] = [
   [
@@ -49,6 +50,8 @@ const differentiators: [string, string][] = [
 const disciplines = [
   "Web Design",
   "Desenvolvimento",
+  "Menus digitais",
+  "Painel de gestão",
   "Branding",
   "Motion",
   "UI / UX",
@@ -59,7 +62,6 @@ const disciplines = [
 
 export default function Home() {
   const [featured, ...rest] = projects;
-  const clients = projects.filter((p) => !p.placeholder);
 
   return (
     <>
@@ -86,10 +88,10 @@ export default function Home() {
           <Reveal delay={0.1}>
             <div className="mt-12 flex flex-col gap-x-10 gap-y-4 border-t border-border pt-8 sm:flex-row sm:items-center">
               <p className="shrink-0 text-xs uppercase tracking-[0.18em] text-muted">
-                Já confiaram em nós
+                Confiam em nós
               </p>
               <ul className="flex flex-wrap items-center gap-x-8 gap-y-3">
-                {clients.map((c) => (
+                {projects.map((c) => (
                   <li
                     key={c.slug}
                     className="font-display text-lg font-medium text-ink/80"
@@ -181,7 +183,7 @@ export default function Home() {
           <Reveal>
             <div className="rounded-2xl border border-border bg-surface p-8 sm:p-12">
               <h2 className="max-w-md font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                Porquê a XquisiteVision
+                Porquê a {site.name}
               </h2>
               <div className="mt-10 grid gap-8 sm:grid-cols-3">
                 {differentiators.map(([title, blurb], i) => (

@@ -1,3 +1,5 @@
+/** docs: docs/05-servicos.md — como se escreve um serviço novo está aí. */
+
 export type Service = {
   title: string;
   blurb: string;
@@ -16,6 +18,18 @@ export const services: Service[] = [
     blurb:
       "Construímos em Next.js e React, com código limpo e a performance como prioridade. Sites rápidos, acessíveis e simples de manter ou expandir.",
     items: ["Next.js", "Performance", "Headless CMS"],
+  },
+  {
+    title: "Menus & Ecrãs Digitais",
+    blurb:
+      "Levamos a tua ementa para onde os clientes olham: no telemóvel por QR code e num ecrã dentro do espaço, em loop. Mudas o preço num sítio e muda em todo o lado.",
+    items: ["Menu digital", "QR code", "Ecrã em loop"],
+  },
+  {
+    title: "Painel de Gestão",
+    blurb:
+      "Um backoffice à tua medida para atualizares o site sozinho, sem nos ligares e sem mexer em código. Publica, edita, apaga e agenda o que quiseres.",
+    items: ["Backoffice", "Base de dados", "Agendamento"],
   },
   {
     title: "Branding",

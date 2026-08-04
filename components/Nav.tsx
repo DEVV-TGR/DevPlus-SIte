@@ -1,3 +1,4 @@
+/** docs: docs/04-componentes-e-padroes.md */
 "use client";
 
 import Link from "next/link";
