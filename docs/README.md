@@ -26,7 +26,7 @@ Se um doc e o código discordarem, é um bug, não uma questão de gosto.
 | `app/opengraph-image.tsx` | 01 (texto) + 03 (o mark) |
 | `components/ui/*`, `components/Reveal.tsx`, `components/Marquee.tsx` | 04 |
 | `lib/services.ts` | 05 |
-| `lib/projects.ts`, `components/ui/ProjectCard.tsx`, `public/portfolio/` | 06 |
+| `lib/projects.ts`, `components/ui/ProjectCard.tsx`, `public/capas/` | 06 |
 
 ## Como isto se mantém vivo
 

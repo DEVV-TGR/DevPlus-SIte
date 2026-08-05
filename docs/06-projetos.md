@@ -7,7 +7,7 @@ controla:
   - app/portfolio/page.tsx
   - app/portfolio/[slug]/page.tsx
   - app/page.tsx#projetos
-  - public/portfolio/
+  - public/capas/
 relacionado:
   - docs/05-servicos.md
 ---
@@ -53,12 +53,55 @@ com um card sozinho, o que é aceitável numa lista completa mas não no teaser.
 
 ## Capas
 
-O campo `image` aponta para um ficheiro em `public/portfolio/`
-(ex.: `/portfolio/miramar.jpg`). Sem `image`, o card cai na forma sólida gerada em
+O campo `image` aponta para um ficheiro em `public/capas/`
+(ex.: `/capas/mira-mar.jpg`). Sem `image`, o card cai na forma sólida gerada em
 CSS, tingida pelo `accent` — que continua a ser um fallback legítimo, não um erro.
+
+A pasta chama-se `capas/` e não `portfolio/` só por clareza — `public/` tem
+precedência sobre a rota `/portfolio/[slug]`, por isso `portfolio/` também
+funcionaria (testado). Não há armadilha aqui.
+
+> **Se uma capa não aparecer, confirma primeiro que estás a ver o servidor
+> certo.** Um `next start` antigo continua a servir a build velha, e as imagens
+> dão 404 como se não existissem. O `pkill -f "next start"` **não os apanha** —
+> os processos chamam-se `next-server`. Usa `pgrep -fl next-server` e mata o PID.
 
 Põe sempre `imageAlt` quando houver `image`. Deixa-o vazio (`""`) só se a imagem
 for puramente decorativa e o nome do projeto já estiver no texto ao lado.
+
+### Como preparar uma capa nova
+
+Os **originais** (prints em cheio, fotos do telemóvel) vão para `images/` na raiz,
+que está no `.gitignore` — não são versionados, porque um print retina anda pelos
+5–8 MB e o repositório inchava depressa. O que vai para o site é a versão
+otimizada.
+
+```bash
+# 1728px de largura, JPEG q82 — de ~5 MB para ~200 KB
+sips -Z 1728 --setProperty format jpeg --setProperty formatOptions 82 \
+  images/OPrint.png --out public/capas/o-projeto.jpg
+```
+
+O nome do ficheiro deve ser o `slug` do projeto.
+
+**Print de um site que já está no ar** — usa o Chrome em headless. O
+`--user-agent` de browser real **não é opcional**: sem ele há sites que não
+servem as imagens e o print sai com o layout partido (aconteceu com o do
+António).
+
+```bash
+CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+UA="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+"$CHROME" --headless=new --disable-gpu --hide-scrollbars \
+  --force-device-scale-factor=2 --window-size=1728,993 \
+  --virtual-time-budget=30000 --user-agent="$UA" \
+  --screenshot=images/OPrint.png https://exemplo.pt
+```
+
+**Foto de um espaço físico** (um ecrã na parede, por exemplo): tira em horizontal,
+enquadra de forma a que o conteúdo do ecrã se leia, e evita contraluz. O card
+recorta a 16/10 e o topo do caso de estudo a 16/9 — o que importa deve ficar ao
+centro.
 
 ## Checklist — adicionar um caso de estudo
 
@@ -67,7 +110,7 @@ for puramente decorativa e o nome do projeto já estiver no texto ao lado.
 3. `accent` a alternar com o vizinho.
 4. `services` com nomes que existam em `lib/services.ts`.
 5. `url` só se estiver no ar.
-6. Capa em `public/portfolio/` + `image` e `imageAlt` — ou nenhum dos dois.
+6. Capa em `public/capas/` + `image` e `imageAlt` — ou nenhum dos dois.
 7. Confere as grelhas (tabela acima).
 8. Nada mais: o `sitemap`, o `generateStaticParams` e a navegação "próximo
    projeto" leem todos do array e atualizam-se sozinhos.
@@ -76,16 +119,17 @@ for puramente decorativa e o nome do projeto já estiver no texto ao lado.
 
 Isto é trabalho conhecido em falta. Apaga a linha quando estiver feita.
 
-- [ ] **Império Auto Concept** — sem capa. Procurei online e não encontrei a
-      empresa; as contas com nomes parecidos ("Império Automóvel", Trofa) são
-      outros negócios e **não devem ser usadas**. Falta o logo/fotos.
-- [ ] **Miramar** — sem capa.
-- [ ] **A Barraquinha Nova** — sem capa. Existe Instagram: `@a_barraquinha_nova`.
-      Morada confirmada: Esplanada Fernando Ermida, 5, Praia da Granja,
-      São Félix da Marinha.
-- [ ] **URLs** dos três — nenhum está no ar. Acrescentar `url` quando estiverem.
-- [ ] **Estado** dos três — passar a `"concluido"` e virar o texto para o passado
-      quando forem entregues.
+- [ ] **A Barraquinha Nova** — sem capa. Falta a **foto da televisão no espaço a
+      passar a ementa** — é o que torna este projeto legível num relance, porque
+      metade da entrega é física. Instagram: `@a_barraquinha_nova`. Morada:
+      Esplanada Fernando Ermida, 5, Praia da Granja, São Félix da Marinha.
+- [ ] **URLs** do Império, do Mira Mar e da Barraquinha — nenhum está no ar.
+      Acrescentar `url` quando estiverem.
+- [ ] **Estado** desses três — passar a `"concluido"` e virar o texto para o
+      passado quando forem entregues.
+
+Já resolvido: as capas do Império Auto Concept, do Mira Mar, da JSK e da António
+Home Repair.
 
 ## Ao alterar este documento
 
