@@ -79,14 +79,21 @@ export default async function CaseStudyPage({
         <Reveal>
           <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-border bg-surface-2">
             {project.image ? (
-              <Image
-                src={project.image}
-                alt={project.imageAlt ?? ""}
-                fill
-                priority
-                sizes="100vw"
-                className="object-cover"
-              />
+              <>
+                <Image
+                  src={project.image}
+                  alt={project.imageAlt ?? ""}
+                  fill
+                  priority
+                  sizes="100vw"
+                  className="object-cover"
+                />
+                {/* Véu por baixo, para o nome se ler sobre capas claras. */}
+                <div
+                  aria-hidden
+                  className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-bg via-bg/70 to-transparent"
+                />
+              </>
             ) : (
               <div
                 aria-hidden

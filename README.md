@@ -36,5 +36,5 @@ app/          rotas (App Router) — /, /servicos, /portfolio, /sobre, /contacto
 components/   componentes; ui/ tem os primitivos (Button, Container, Section, ProjectCard)
 lib/          site.ts (marca), brand.ts (símbolo), services.ts, projects.ts, utils.ts
 docs/         a especificação — lê primeiro
-public/       estáticos; portfolio/ tem as capas dos projetos
+public/       estáticos; capas/ tem as capas dos projetos
 ```

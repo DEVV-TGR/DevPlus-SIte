@@ -14,7 +14,7 @@ export type Project = {
   accent: "primary" | "accent";
   /** "em-curso" mostra a etiqueta no card e no caso de estudo. */
   status: "em-curso" | "concluido";
-  /** Capa do card, em /public/portfolio. Sem imagem, cai na forma gerada em CSS. */
+  /** Capa do card, em /public/capas. Sem imagem, cai na forma gerada em CSS. */
   image?: string;
   imageAlt?: string;
   /** Corpo do caso de estudo. */
@@ -34,6 +34,9 @@ export const projects: Project[] = [
     category: "Stand automóvel",
     year: "2026",
     status: "em-curso",
+    image: "/capas/imperio-auto-concept.jpg",
+    imageAlt:
+      "Página inicial do Império Auto Concept, com filtro de pesquisa por marca, modelo e combustível sobre uma fotografia de uma viatura.",
     summary:
       "Um stand virtual com página própria para cada viatura e um painel de gestão que deixa a equipa publicar, editar e retirar anúncios sozinha.",
     services: ["Web Design", "Desenvolvimento", "Painel de Gestão"],
@@ -44,20 +47,23 @@ export const projects: Project[] = [
       "Estamos a desenhar e a construir o site de raiz, com base de dados própria e um painel de gestão completo. A partir de um formulário, a equipa publica novos anúncios, edita os que já existem, gere as fotografias de cada viatura e retira do site o que já foi vendido — tudo sem tocar em código.",
   },
   {
-    slug: "miramar",
-    name: "Miramar",
-    client: "Miramar",
+    slug: "mira-mar",
+    name: "Mira Mar",
+    client: "Mira Mar",
     category: "Restaurante",
     year: "2026",
     status: "em-curso",
+    image: "/capas/mira-mar.jpg",
+    imageAlt:
+      "Página inicial do Mira Mar, com o nome do restaurante sobre uma fotografia da praia e acessos rápidos à ementa, take away e pool bar.",
     summary:
       "Landing page com avaliações do Google e ementas digitais que o restaurante atualiza e programa sozinho, com QR codes na sala e na explanada.",
     services: ["Landing Page", "Menu Digital", "Painel de Gestão", "QR Code"],
     accent: "accent",
     overview:
-      "O Miramar, em Angeiras, queria uma presença online que fizesse duas coisas ao mesmo tempo: apresentar o restaurante a quem ainda não o conhece e substituir a ementa impressa por uma versão digital sempre atualizada.",
+      "O Mira Mar, em Angeiras, queria uma presença online que fizesse duas coisas ao mesmo tempo: apresentar o restaurante a quem ainda não o conhece e substituir a ementa impressa por uma versão digital sempre atualizada.",
     contribution:
-      "Estamos a construir uma landing page com todas as secções numa só página, incluindo as avaliações do Google, e uma área separada para as ementas — a do dia, os menus e a da explanada. O painel de gestão permite à equipa criar, editar, apagar e programar os menus diários com antecedência. Os QR codes, em suportes na sala e colados nas mesas da explanada, levam o cliente diretamente à ementa digital.",
+      "Estamos a construir uma landing page com todas as secções numa só página — sobre, fotos, localização e as avaliações do Google — com acesso direto à ementa, ao take away e ao pool bar, e disponível em mais do que um idioma. Numa área separada ficam as ementas: a do dia, os menus e a da explanada. O painel de gestão permite à equipa criar, editar, apagar e programar os menus diários com antecedência. Os QR codes, em suportes na sala e colados nas mesas da explanada, levam o cliente diretamente à ementa digital.",
   },
   {
     slug: "a-barraquinha-nova",
@@ -66,6 +72,7 @@ export const projects: Project[] = [
     category: "Restauração",
     year: "2026",
     status: "em-curso",
+    // Falta a capa: foto da televisão no espaço a passar a ementa (ver docs/06).
     summary:
       "Menu digital acessível por QR code e uma televisão no espaço a passar a ementa em loop — sempre atualizada, sem reimprimir nada.",
     services: ["Menu Digital", "Ecrã Digital"],
@@ -83,6 +90,9 @@ export const projects: Project[] = [
     year: "2025",
     status: "concluido",
     url: "https://jsk.pt",
+    image: "/capas/jsk.jpg",
+    imageAlt:
+      "Página inicial da JSK, com o título de boas-vindas sobre uma fotografia de equipamento de videovigilância e um formulário de orçamento.",
     summary:
       "Várias áreas de negócio reunidas numa só plataforma, com uma identidade coerente e navegação que se mantém simples à medida que cresce.",
     services: ["Web Design", "Desenvolvimento", "SEO"],
@@ -100,6 +110,9 @@ export const projects: Project[] = [
     year: "2025",
     status: "concluido",
     url: "https://antoniohomerepairservices.pt",
+    image: "/capas/antonio-home-repair.jpg",
+    imageAlt:
+      "Página inicial da António Home Repair Services, com o título a laranja sobre um fundo preto com ilustrações de ferramentas.",
     summary:
       "Um site de apresentação para serviços de reparação e manutenção ao domicílio, pensado para transmitir confiança e gerar contactos.",
     services: ["Web Design", "Desenvolvimento"],

@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# originais dos prints (ficam só no disco — o que vai para o site são as
+# versões otimizadas em public/portfolio/). Ver docs/06-projetos.md.
+/images/

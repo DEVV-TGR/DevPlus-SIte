@@ -11,13 +11,21 @@ function Cover({ project }: { project: Project }) {
   return (
     <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-border bg-surface-2">
       {project.image ? (
-        <Image
-          src={project.image}
-          alt={project.imageAlt ?? ""}
-          fill
-          sizes="(min-width: 768px) 50vw, 100vw"
-          className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-        />
+        <>
+          <Image
+            src={project.image}
+            alt={project.imageAlt ?? ""}
+            fill
+            sizes="(min-width: 768px) 50vw, 100vw"
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+          />
+          {/* Véu por baixo: o nome do projeto tem de se ler sobre qualquer capa,
+              incluindo as claras. Superfície, não texto — ver docs/02. */}
+          <div
+            aria-hidden
+            className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-bg via-bg/70 to-transparent"
+          />
+        </>
       ) : (
         /* Sem imagem: forma sólida da cor do projeto (sem gradiente) */
         <div

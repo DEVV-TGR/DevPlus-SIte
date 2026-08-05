@@ -1,0 +1,3 @@
+# Capas dos projetos do portfólio.
+# O nome do ficheiro entra no campo `image` em lib/projects.ts, ex: /capas/mira-mar.jpg
+# Ver docs/06-projetos.md para como preparar uma capa nova.
