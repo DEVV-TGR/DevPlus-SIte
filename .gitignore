@@ -42,4 +42,7 @@ next-env.d.ts
 
 # originais dos prints (ficam só no disco — o que vai para o site são as
 # versões otimizadas em public/portfolio/). Ver docs/06-projetos.md.
-/images/
+/images/*
+# exceção: o original do logótipo é versionado — é o input de
+# scripts/vectorizar-logo.py. Ver docs/03-simbolo-e-logotipo.md.
+!/images/Dev+-logosimples.png

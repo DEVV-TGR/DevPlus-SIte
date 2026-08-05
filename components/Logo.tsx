@@ -8,7 +8,11 @@ type LogoProps = {
 };
 
 /**
- * A marca da DevPlus — o "+".
+ * O símbolo da DevPlus — o "+" do logótipo, isolado.
+ *
+ * O logótipo completo (o "D" com o "+" por cima) é o `Lockup`. Este componente
+ * é o "+" sozinho: favicon, motivo de fundo, sítios pequenos onde o lockup
+ * inteiro não se leria.
  *
  * Usa sempre `currentColor`: a cor vem de quem chama (`className="text-primary"`),
  * para o símbolo poder aparecer a branco sobre laranja sem duplicar geometria.
@@ -27,7 +31,6 @@ export function Logo({ className, outline = false }: LogoProps) {
         fill={outline ? "none" : "currentColor"}
         stroke={outline ? "currentColor" : "none"}
         strokeWidth={outline ? 2.5 : undefined}
-        strokeLinejoin="round"
       />
     </svg>
   );

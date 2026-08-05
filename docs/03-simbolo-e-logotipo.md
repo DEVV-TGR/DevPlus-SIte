@@ -3,10 +3,15 @@ doc: simbolo-e-logotipo
 fonte-de-verdade: doc
 controla:
   - lib/brand.ts#plus-path
+  - lib/brand.ts#d-path
+  - lib/brand.ts#lockup
   - components/Logo.tsx
+  - components/Lockup.tsx
   - components/Wordmark.tsx
   - app/icon.svg
   - app/opengraph-image.tsx#marca
+  - scripts/vectorizar-logo.py
+  - images/Dev+-logosimples.png
 relacionado:
   - docs/01-marca.md
   - docs/02-cores-e-tipografia.md
@@ -14,89 +19,137 @@ relacionado:
 
 # O símbolo e o logótipo
 
-O símbolo da DevPlus é um **"+"**. Substituiu o "X com um olho" da identidade
-anterior (XquisiteVision), descontinuada em agosto de 2026. Os ficheiros originais
-do logótipo antigo continuam no histórico: `git show 95499e0 -- assets/`.
+O logótipo da DevPlus é o monograma **"D+"**: um "D" com um "+" laranja
+sobreposto. Substituiu, em agosto de 2026, a cruz de cantos arredondados que
+tinha vindo do rebrand de XquisiteVision — que por sua vez substituíra o "X com
+um olho". Os ficheiros de ambas as identidades anteriores continuam no
+histórico: `git show 95499e0 -- assets/`.
+
+## O ficheiro de origem
+
+**`images/Dev+-logosimples.png`** (2000×2000, alfa) é o desenho original. Não é
+servido ao browser — nada no site o carrega. Existe por duas razões: é a prova
+do que o vetor tem de reproduzir, e é o input de `scripts/vectorizar-logo.py`.
+
+Se o logótipo mudar, substitui esse PNG e volta a correr o script:
+
+```
+python3 scripts/vectorizar-logo.py
+```
+
+O script imprime o `D_PATH` novo (para colar em `lib/brand.ts`), as medidas do
+"+", e a sobreposição com o bitmap. **Se a sobreposição descer abaixo de 99.5%,
+não colas** — o traçado falhou e há que perceber porquê. Só usa a stdlib do
+Python; não é preciso instalar nada.
 
 ## Geometria
 
-Cruz de braços iguais em `viewBox 0 0 100 100`:
+### O "+"
 
-- **vão** 10 → 90
-- **barra** 26 (de 37 a 63 em ambos os eixos)
-- **proporção barra/vão = 0.325** ← é este o número que se preserva ao escalar
-- **raio 8 em todos os 12 cantos**, incluindo os 4 côncavos
+Um "+" tipográfico de **cantos vivos** — os quatro cantos côncavos arredondados
+da versão anterior desapareceram, é essa a diferença que se vê.
 
-Os cantos côncavos arredondados são o que distingue o símbolo de um "+" de
-teclado. Sem eles lê-se como texto, não como marca. Não os tires.
+Medido no PNG: caixa 562×542, barras de 175 e 166 px — ou seja proporções de
+0.311 e 0.306. Em `PLUS_PATH` (viewBox `0 0 100 100`) ficam ambas **0.31**, com
+a barra dos 34.5 aos 65.5. Arredondar torna o símbolo quadrado, e um símbolo
+quadrado pode rodar sem mudar de silhueta — é o que a nav e o Hero fazem.
 
-O `d` canónico está em **`lib/brand.ts` → `PLUS_PATH`**. É a origem; tudo o resto
-copia ou aproxima.
+### O "D"
 
-## As três renderizações
+`D_PATH` em `lib/brand.ts`, em coordenadas onde a **altura do "D" é 1000**.
+Vetorizado do PNG (99.9% de sobreposição), não é o glifo de nenhuma fonte
+instalada — a Space Grotesk do site tem um "D" bem mais leve.
 
-O mesmo símbolo existe em três sítios, por razões técnicas. **Não é descuido — é
-uma duplicação necessária**, e é por isso que está registada aqui.
+Precisa de **`fill-rule="evenodd"`**: o segundo contorno do path é a
+contra-forma. Sem isso o "D" sai como uma mancha cheia.
+
+### O lockup
+
+`LOCKUP` em `lib/brand.ts`: viewBox `0 0 1507.6 1000`, portanto **1.5076 de
+largura por 1 de altura**. O "+" ocupa 657.3×633.9 e **sobrepõe-se** ao "D" —
+não fica ao lado dele. É essa sobreposição que faz o monograma ser um objeto só.
+
+O "D" está desenhado **por inteiro** por baixo do "+" (a parte que o "+" tapa
+foi reconstruída por simetria vertical durante a vetorização). É isso que
+permite ao "+" rodar por cima sem abrir buracos no "D".
+
+`LOCKUP.plusPath` é o mesmo "+" já nas coordenadas do lockup, com as medidas
+exatas em vez do 0.31 arredondado. Vem escrito assim, e não como um `transform`,
+porque o Satori não desenha `<g transform>` de forma fiável.
+
+## As renderizações
+
+O mesmo desenho existe em quatro sítios, por razões técnicas. **Não é descuido —
+é uma duplicação necessária**, e é por isso que está registada aqui.
 
 | Onde | Como | Porquê |
 | --- | --- | --- |
-| `components/Logo.tsx` | importa `PLUS_PATH` | é o único que pode importar |
-| `app/icon.svg` | `d` copiado à mão | ficheiro estático, não executa JS |
-| `app/opengraph-image.tsx` | duas `div` (44×14 e 14×44, raio 4) | o Satori não desenha SVG complexo |
+| `components/Lockup.tsx` | importa `D_PATH` + `LOCKUP.plusPath` | é o logótipo, e o único que pode importar |
+| `components/Logo.tsx` | importa `PLUS_PATH` | o "+" isolado, para o favicon e o motivo |
+| `app/icon.svg` | `d` do "+" copiado à mão | ficheiro estático, não executa JS |
+| `app/opengraph-image.tsx` | dois `<path>` sem `<g>` | o Satori é frágil com transforms |
 
-**Aproximação assumida no cartão social:** as barras têm proporção 14/44 = 0.318
-(a canónica é 0.325, menos de 1% de diferença) e os cantos interiores ficam vivos
-em vez de arredondados. A 64px isso é sub-pixel. Não vale a pena tentar corrigir.
+**No `icon.svg` não recalcules coordenadas** para dar margem dentro do quadrado
+— usa `transform="translate(50,50) scale(0.68) translate(-50,-50)"`. Foi a
+recopiar coordenadas à mão que a identidade anterior divergiu entre ficheiros.
 
-**No `icon.svg` não recalcules coordenadas** para dar margem dentro do quadrado —
-usa `transform="translate(50,50) scale(0.85) translate(-50,-50)"`. Foi a recopiar
-coordenadas à mão que a identidade anterior divergiu entre ficheiros.
+O favicon é o **"+" sozinho**, não o lockup: a 16px um "D+" de proporção 1.5:1
+dentro de um quadrado fica ilegível.
+
+## `components/Lockup.tsx`
+
+Duas cores, portanto duas fontes de cor:
+
+- o **"D"** usa `fill="currentColor"` — a cor vem de quem chama, e no site
+  herda o `--ink` do header;
+- o **"+"** usa a classe `fill-primary` — é sempre laranja, em qualquer fundo.
+
+É `aria-hidden`; quem o usa tem de dar o rótulo. Com `animated`, o "+" roda 90°
+no hover do `group` pai — precisa de `[transform-box:fill-box]` para rodar à
+volta do próprio centro e não do centro do lockup.
 
 ## `components/Logo.tsx`
 
-Um único `<path>` serve as duas variantes — nunca as desenhes em separado:
+O "+" isolado. Um único `<path>` serve as duas variantes — nunca as desenhes em
+separado:
 
 - **sólida**: `fill="currentColor"`
 - **outline**: `fill="none" stroke="currentColor" strokeWidth={2.5}`
 
-Usa **`currentColor`**, não `var(--color-primary)`. A cor vem de quem chama
-(`className="text-primary"`), para o símbolo poder aparecer a branco sobre laranja
-sem se duplicar geometria. É `aria-hidden` — quem o usa tem de dar o rótulo.
+Sem `strokeLinejoin="round"`: com cantos vivos, arredondar o traço contradiz o
+desenho.
 
 A variante `outline` é o motivo rotativo no fundo do Hero
-(`components/Hero.tsx`), a 6-7% de opacidade e 120s por volta. Aos 45° lê-se como
-"×" — continuidade discreta com a identidade anterior, de graça.
+(`components/Hero.tsx`), a 6-7% de opacidade e 120s por volta. Aos 45° lê-se
+como "×" — continuidade discreta com a identidade original, de graça.
 
-## O lockup
+## `components/Wordmark.tsx`
 
-`components/Wordmark.tsx`: a palavra **"Dev"** seguida do `Logo` a fazer de "+",
-a `0.78em` e `text-primary`.
+A marca clicável: o `Lockup` dentro de um `<Link href="/">`, a `h-6`, usado na
+nav e no rodapé.
 
-O "+" do lockup **é o símbolo**, não o caractere da fonte. É isso que faz o
-favicon, a nav e o cartão social serem o mesmo objeto. Se usasses o glifo do Space
-Grotesk (fino, cantos vivos) ao lado do símbolo (grosso, arredondado), a
-inconsistência via-se lado a lado.
-
-- `aria-label` obrigatório no `<Link>` — o `Logo` é `aria-hidden`, sem ele o
-  leitor de ecrã lê só "Dev".
-- Alinhamento por `items-center` com `gap-1`. **Não uses `items-baseline`** — não
-  funciona bem com SVG.
-- Hover: `rotate-90` (o "+" roda para "×" e volta). Não voltes ao `scale`.
+- `aria-label` obrigatório no `<Link>` — o `Lockup` é `aria-hidden`, sem ele o
+  leitor de ecrã anuncia só "link".
+- O nome escrito **DevPlus** já não aparece na nav; continua no `<title>`, no
+  `aria-label` e no copyright do rodapé.
 
 ## Tamanhos e área de proteção
 
-- **Mínimo**: 16px (favicon). Abaixo disso os raios de 8/100 desaparecem.
-- **Nav**: ~28px. **Cartão social**: 64px. **Motivo de fundo**: até ~600px.
-- **Área de proteção**: pelo menos metade da largura da barra (13/100 do lado) de
-  espaço livre à volta. No lockup, o `gap-1` já a garante.
+- **Lockup, mínimo**: 20px de altura. Abaixo disso a contra-forma do "D" fecha.
+- **Nav e rodapé**: 24px (`h-6`). **Cartão social**: 56px.
+- **"+" isolado, mínimo**: 16px (favicon). **Motivo de fundo**: até ~600px.
+- **Área de proteção**: metade da largura da barra do "+" (≈100/1000 da altura
+  do lockup) de espaço livre à volta.
 
 ## Ao alterar este documento
 
 | Se mudares… | Faz também |
 | --- | --- |
-| a geometria do "+" | `PLUS_PATH` em `lib/brand.ts`; copia o mesmo `d` para `app/icon.svg`; ajusta as duas barras em `app/opengraph-image.tsx` |
-| a espessura da barra | os três sítios acima — a proporção 0.325 tem de se manter |
-| a cor do símbolo | nada aqui: vem de `--primary` via `currentColor` (ver `docs/02`) |
-| o lockup ("Dev" + o mark) | `components/Wordmark.tsx` e o `aria-label` do link |
-| o raio dos cantos | `PLUS_PATH`, `app/icon.svg`, e o `borderRadius` das barras do OG |
+| o desenho do logótipo | substitui `images/Dev+-logosimples.png`, corre `scripts/vectorizar-logo.py`, cola o `D_PATH` e as medidas do "+" em `lib/brand.ts` |
+| a geometria do "+" | `PLUS_PATH` e `LOCKUP.plusPath` em `lib/brand.ts`; copia o `d` novo para `app/icon.svg` |
+| a espessura da barra | os dois paths do "+" acima — a proporção 0.31 tem de se manter em ambos |
+| a cor do "+" | nada aqui: vem de `--primary` (ver `docs/02`) |
+| a cor do "D" | nada aqui: é `currentColor`, vem de quem chama |
+| o que a nav mostra (logótipo vs nome escrito) | `components/Wordmark.tsx` e o seu `aria-label` |
+| o tamanho do lockup no cartão social | `app/opengraph-image.tsx` (a altura passa por `LOCKUP.ratio`) |
 | o motivo de fundo do Hero | `components/Hero.tsx` (opacidade, duração, posição) |
