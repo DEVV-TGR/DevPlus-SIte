@@ -5,7 +5,9 @@ import { cn } from "@/lib/utils";
 import { Reveal } from "@/components/Reveal";
 import type { Project } from "@/lib/projects";
 
-function Cover({ project }: { project: Project }) {
+const DEFAULT_SIZES = "(min-width: 768px) 50vw, 100vw";
+
+function Cover({ project, sizes }: { project: Project; sizes: string }) {
   const shape = project.accent === "accent" ? "bg-accent/15" : "bg-primary/15";
 
   return (
@@ -16,7 +18,7 @@ function Cover({ project }: { project: Project }) {
             src={project.image}
             alt={project.imageAlt ?? ""}
             fill
-            sizes="(min-width: 768px) 50vw, 100vw"
+            sizes={sizes}
             className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
           />
           {/* Véu por baixo: o nome do projeto tem de se ler sobre qualquer capa,
@@ -73,40 +75,51 @@ function Cover({ project }: { project: Project }) {
 export function ProjectCard({
   project,
   index = 0,
+  reveal = true,
+  sizes = DEFAULT_SIZES,
 }: {
   project: Project;
   index?: number;
+  /** `false` dentro do `ProjectsMarquee`: num track em movimento o
+   *  `whileInView` do `Reveal` dispara em posições imprevisíveis. */
+  reveal?: boolean;
+  sizes?: string;
 }) {
-  return (
-    <Reveal delay={index * 0.06}>
-      <Link
-        href={`/portfolio/${project.slug}`}
-        className="block rounded-2xl focus-visible:outline-none"
-      >
-        <article className="group flex flex-col gap-4">
-          <div className="transition-transform duration-500 ease-out group-hover:-translate-y-1">
-            <Cover project={project} />
+  const card = (
+    <Link
+      href={`/portfolio/${project.slug}`}
+      className="block rounded-2xl focus-visible:outline-none"
+    >
+      {/* `@container`: o rodapé reage à largura do próprio card, não à do ecrã —
+          na faixa contínua o card é estreito e o nome não cabe ao lado das
+          etiquetas, mas na grelha do portfólio cabe. */}
+      <article className="group @container flex flex-col gap-4">
+        <div className="transition-transform duration-500 ease-out group-hover:-translate-y-1">
+          <Cover project={project} sizes={sizes} />
+        </div>
+        <div className="flex flex-col gap-2 px-1 @md:flex-row @md:items-start @md:justify-between @md:gap-4">
+          <div>
+            <h3 className="font-display text-lg">{project.name}</h3>
+            <p className="text-sm text-muted">
+              {project.client} · {project.year}
+            </p>
           </div>
-          <div className="flex items-start justify-between gap-4 px-1">
-            <div>
-              <h3 className="font-display text-lg">{project.name}</h3>
-              <p className="text-sm text-muted">
-                {project.client} · {project.year}
-              </p>
-            </div>
-            <ul className="flex flex-wrap justify-end gap-1.5">
-              {project.services.map((s) => (
-                <li
-                  key={s}
-                  className="rounded-full border border-border px-2.5 py-1 text-xs text-muted"
-                >
-                  {s}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </article>
-      </Link>
-    </Reveal>
+          <ul className="flex flex-wrap gap-1.5 @md:justify-end">
+            {project.services.map((s) => (
+              <li
+                key={s}
+                className="rounded-full border border-border px-2.5 py-1 text-xs text-muted"
+              >
+                {s}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </article>
+    </Link>
   );
+
+  if (!reveal) return card;
+
+  return <Reveal delay={index * 0.06}>{card}</Reveal>;
 }

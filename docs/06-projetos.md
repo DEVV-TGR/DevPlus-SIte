@@ -4,6 +4,7 @@ fonte-de-verdade: codigo
 controla:
   - lib/projects.ts
   - components/ui/ProjectCard.tsx
+  - components/ProjectsMarquee.tsx
   - app/portfolio/page.tsx
   - app/portfolio/[slug]/page.tsx
   - app/page.tsx#projetos
@@ -19,9 +20,11 @@ copia. Vai lá ver quais são e em que estado estão.
 
 ## Regras que não estão no código
 
-**O primeiro do array é o destaque.** `app/page.tsx` faz
-`const [featured, ...rest] = projects` — o primeiro sai num card grande, os
-restantes na grelha por baixo. Reordenar o array reordena o site.
+**O primeiro do array é o primeiro a entrar em cena.** Na página inicial os
+projetos passam todos numa faixa contínua (`ProjectsMarquee`), ao mesmo tamanho —
+já não há card de destaque. Reordenar o array continua a reordenar o site, mas o
+primeiro lugar deixou de valer tamanho: vale só a ordem de aparição. Um destaque
+por tamanho, se voltar a fazer falta, tem de ser reintroduzido de propósito.
 
 **A cor alterna.** O campo `accent` (`primary` | `accent`) tinge a capa. Alterna
 ao longo do array para as capas não ficarem todas da mesma cor lado a lado.
@@ -43,13 +46,17 @@ coisas ao mesmo tempo — o campo e o tempo verbal.
 
 | Onde | Classe | Conta |
 | --- | --- | --- |
-| `app/page.tsx` (projetos) | 1 destaque + `md:grid-cols-2` | `rest` tem de ser **par** |
+| `app/page.tsx` (projetos) | faixa contínua | qualquer número — ver abaixo |
 | `app/portfolio/page.tsx` | `sm:grid-cols-2` | o total tem de ser **par** |
 | `app/page.tsx` (clientes) | `flex-wrap` | qualquer número |
 
-Com 5 projetos: `rest` = 4 (2 linhas certas) e o portfólio tem 5 → uma linha fica
-com um card sozinho, o que é aceitável numa lista completa mas não no teaser.
-**Ao chegar a 6, confere as duas.**
+A página inicial deixou de ter grelha de projetos, e com ela caiu a regra de o
+resto ter de ser par. A faixa aceita qualquer número, mas **abaixo de 3 projetos
+não a uses**: com dois, a cópia que fecha o ciclo entra no ecrã ao mesmo tempo
+que o original e a repetição fica à vista.
+
+Com 5 projetos o portfólio tem uma linha com um card sozinho — aceitável numa
+lista completa. **Ao chegar a 6, confere `app/portfolio/page.tsx`.**
 
 ## Capas
 

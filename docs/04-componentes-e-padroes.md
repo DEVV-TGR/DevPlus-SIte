@@ -8,6 +8,7 @@ controla:
   - components/ui/ProjectCard.tsx
   - components/Reveal.tsx
   - components/Marquee.tsx
+  - components/ProjectsMarquee.tsx
   - components/PageHero.tsx
   - components/Providers.tsx
   - components/Nav.tsx
@@ -35,6 +36,7 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `ui/ProjectCard` | um projeto na grelha (capa, etiquetas, serviços) | duplicar o card noutra página |
 | `Reveal` | aparecer no scroll (fade + 16px) | envolver cada elemento; envolve o bloco |
 | `Marquee` | faixa horizontal infinita, decorativa | pôr lá conteúdo que importe — é `aria-hidden` |
+| `ProjectsMarquee` | a faixa de projetos da página inicial: mesma técnica, mas conteúdo real e focável | usá-lo para decoração — para isso é o `Marquee`; e pôr `gap` no track, que parte o ciclo |
 | `PageHero` | cabeçalho das páginas internas (eyebrow + h1 + intro) | escrever um h1 solto numa página interna |
 | `Hero` | só a página inicial | reutilizar noutro sítio |
 | `Wordmark` | o logótipo com link para "/" | ver `docs/03` |
@@ -53,6 +55,16 @@ espaçamento não duplicar. É o padrão em toda a homepage.
 - **Movimento reduzido está tratado globalmente**: `MotionConfig reducedMotion="user"`
   em `Providers`, mais uma regra em `app/globals.css` que neutraliza o marquee e o
   spin. Não escrevas `prefers-reduced-motion` novo sem verificar se já está coberto.
+  **Uma exceção:** o `ProjectsMarquee` transporta conteúdo navegável, e congelá-lo
+  deixaria três projetos fora do ecrã sem forma de lá chegar. Por isso `globals.css`
+  transforma-o num carrossel de scroll manual com snap (`.carousel-*`) nesse modo.
+- **Nenhuma animação pode ser a condição de o conteúdo existir.** Tudo o que nasce
+  invisível à espera de animar leva `data-reveal`, e `globals.css` mostra esses
+  elementos enquanto o `<html>` não tiver a classe `js` — posta por um script inline
+  em `app/layout.tsx`. Sem isto, o HTML pré-renderizado sai com dezenas de elementos
+  a `opacity:0` e quem não executa JavaScript vê uma página em branco. O `Reveal`
+  tem ainda um temporizador de segurança: se o observador de viewport não disparar
+  (renderizadores headless, separadores em segundo plano), mostra-se ao fim de 1,2 s.
 - Hover em cards: `-translate-y-1` no grupo. Botões: `active:scale-[0.97]`.
 
 ## Acessibilidade
