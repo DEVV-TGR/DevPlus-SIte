@@ -38,6 +38,7 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `PageHero` | cabeçalho das páginas internas (eyebrow + h1 + intro) | escrever um h1 solto numa página interna |
 | `Hero` | só a página inicial | reutilizar noutro sítio |
 | `Wordmark` | o logótipo com link para "/" | ver `docs/03` |
+| `Lockup` / `Logo` | o logótipo "D+" e o "+" isolado | desenhar o logótipo à mão em SVG — ver `docs/03` |
 | `Providers` | Lenis + `MotionConfig` | acrescentar providers sem necessidade |
 
 Secções encadeadas levam `className="pt-0"` na segunda em diante, para o

@@ -1,7 +1,7 @@
 /** docs: docs/01-marca.md (texto) · docs/03-simbolo-e-logotipo.md (o mark) */
 import { ImageResponse } from "next/og";
 import { site } from "@/lib/site";
-import { BRAND_HEX } from "@/lib/brand";
+import { BRAND_HEX, D_PATH, LOCKUP } from "@/lib/brand";
 
 export const alt = `${site.name} — ${site.tagline}`;
 export const size = { width: 1200, height: 630 };
@@ -10,9 +10,8 @@ export const contentType = "image/png";
 // Cartão Open Graph / Twitter. Usa a fonte default do next/og (sem ficheiro de
 // fonte) e só flexbox — o Satori não suporta grid.
 //
-// O "+" aqui é feito com duas barras em vez do PLUS_PATH: o Satori não desenha
-// SVG complexo. Os cantos interiores ficam vivos em vez de arredondados — a
-// 64px a diferença é sub-pixel. É uma aproximação assumida (ver docs/03).
+// O logótipo é o mesmo `D_PATH` + `LOCKUP.plusPath` do site: dois `<path>`
+// simples, sem `<g transform>` (que o Satori não desenha de forma fiável).
 export default function Image() {
   return new ImageResponse(
     (
@@ -40,40 +39,17 @@ export default function Image() {
           }}
         />
 
-        {/* Lockup: "Dev" + o "+" a laranja, como em components/Wordmark.tsx */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ fontSize: 40, fontWeight: 600 }}>Dev</div>
-          <div
-            style={{
-              position: "relative",
-              width: 34,
-              height: 34,
-              display: "flex",
-            }}
+        {/* O logótipo "D+", o mesmo path de components/Lockup.tsx */}
+        <div style={{ display: "flex" }}>
+          <svg
+            width={Math.round(56 * LOCKUP.ratio)}
+            height={56}
+            viewBox={LOCKUP.viewBox}
+            xmlns="http://www.w3.org/2000/svg"
           >
-            <div
-              style={{
-                position: "absolute",
-                left: 0,
-                top: 11,
-                width: 34,
-                height: 12,
-                borderRadius: 3,
-                background: BRAND_HEX.primary,
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                left: 11,
-                top: 0,
-                width: 12,
-                height: 34,
-                borderRadius: 3,
-                background: BRAND_HEX.primary,
-              }}
-            />
-          </div>
+            <path d={D_PATH} fill={BRAND_HEX.ink} fillRule="evenodd" />
+            <path d={LOCKUP.plusPath} fill={BRAND_HEX.primary} />
+          </svg>
         </div>
 
         <div

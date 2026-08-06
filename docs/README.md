@@ -10,7 +10,7 @@ Se um doc e o código discordarem, é um bug, não uma questão de gosto.
 | --- | --- |
 | nome, domínio, email, redes, metadata, SEO | [01-marca.md](01-marca.md) |
 | cores, tokens, fontes, cantos, espaçamento | [02-cores-e-tipografia.md](02-cores-e-tipografia.md) |
-| logótipo, favicon, o "+", cartão social | [03-simbolo-e-logotipo.md](03-simbolo-e-logotipo.md) |
+| o logótipo "D+", favicon, o "+", cartão social | [03-simbolo-e-logotipo.md](03-simbolo-e-logotipo.md) |
 | botões, cards, secções, animações | [04-componentes-e-padroes.md](04-componentes-e-padroes.md) |
 | a lista de serviços | [05-servicos.md](05-servicos.md) |
 | o portfólio, um cliente novo, capas | [06-projetos.md](06-projetos.md) |
@@ -22,7 +22,8 @@ Se um doc e o código discordarem, é um bug, não uma questão de gosto.
 | `lib/site.ts` | 01 |
 | `app/layout.tsx`, `app/sitemap.ts`, `app/robots.ts` | 01 |
 | `app/globals.css` | 02 |
-| `lib/brand.ts`, `components/Logo.tsx`, `components/Wordmark.tsx`, `app/icon.svg` | 03 |
+| `lib/brand.ts`, `components/Logo.tsx`, `components/Lockup.tsx`, `components/Wordmark.tsx`, `app/icon.svg` | 03 |
+| `scripts/vectorizar-logo.py`, `images/Dev+-logosimples.png` | 03 |
 | `app/opengraph-image.tsx` | 01 (texto) + 03 (o mark) |
 | `components/ui/*`, `components/Reveal.tsx`, `components/Marquee.tsx` | 04 |
 | `lib/services.ts` | 05 |
