@@ -134,6 +134,17 @@ html:not(.js) [data-reveal] {
   transform: none !important;
 }
 
+/* O carrossel de projetos faz scroll a sério (é o que o torna arrastável), mas
+   a barra estragava a faixa. Esconder aqui é seguro: o conteúdo continua
+   alcançável por arrasto, roda, teclado e — em movimento reduzido — snap. */
+.carousel-viewport {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.carousel-viewport::-webkit-scrollbar {
+  display: none;
+}
+
 /* Infinite marquee (content is duplicated, so -50% loops seamlessly) */
 @keyframes marquee {
   from {
@@ -190,18 +201,13 @@ html.lenis body {
     scroll-behavior: auto !important;
   }
 
-  /* A regra acima congela o carrossel de projetos no primeiro card, e os
-     restantes ficariam fora do ecrã sem forma de lá chegar. Ao contrário do
-     marquee decorativo, aqui o conteúdo é navegável — por isso passa a
-     carrossel de scroll manual, e a cópia inerte sai da frente. */
+  /* O carrossel de projetos não é decorativo: o avanço automático pára (o
+     componente verifica esta mesma preferência), mas continua a arrastar-se
+     e a fazer scroll. Com snap, para parar sempre num card inteiro. */
   .carousel-viewport {
-    overflow-x: auto;
     scroll-snap-type: x mandatory;
   }
   .carousel-item {
     scroll-snap-align: center;
-  }
-  .carousel-clone {
-    display: none;
   }
 }

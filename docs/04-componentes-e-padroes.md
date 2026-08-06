@@ -28,20 +28,20 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 
 ## Os primitivos
 
-| Componente        | Para que serve                                                                    | Nunca                                                                                      |
-| ----------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `ui/Container`    | largura máxima (`max-w-6xl`) e padding lateral                                    | criar outro wrapper de largura                                                             |
-| `ui/Section`      | espaçamento vertical entre blocos (`py-16/24/32`)                                 | pôr padding vertical à mão numa `<section>`                                                |
-| `ui/Button`       | 3 variantes: `primary`, `outline`, `ghost`                                        | usar `<a>` cru com classes de botão; links externos já são detetados pelo `http` no `href` |
-| `ui/ProjectCard`  | um projeto na grelha (capa, etiquetas, serviços)                                  | duplicar o card noutra página                                                              |
-| `Reveal`          | aparecer no scroll (fade + 16px)                                                  | envolver cada elemento; envolve o bloco                                                    |
-| `Marquee`         | faixa horizontal infinita, decorativa                                             | pôr lá conteúdo que importe — é `aria-hidden`                                              |
-| `ProjectsMarquee` | a faixa de projetos da página inicial: mesma técnica, mas conteúdo real e focável | usá-lo para decoração — para isso é o `Marquee`; e pôr `gap` no track, que parte o ciclo   |
-| `PageHero`        | cabeçalho das páginas internas (eyebrow + h1 + intro)                             | escrever um h1 solto numa página interna                                                   |
-| `Hero`            | só a página inicial                                                               | reutilizar noutro sítio                                                                    |
-| `Wordmark`        | o logótipo com link para "/"                                                      | ver `docs/03`                                                                              |
-| `Lockup` / `Logo` | o logótipo "D+" e o "+" isolado                                                   | desenhar o logótipo à mão em SVG — ver `docs/03`                                           |
-| `Providers`       | Lenis + `MotionConfig`                                                            | acrescentar providers sem necessidade                                                      |
+| Componente        | Para que serve                                                             | Nunca                                                                                      |
+| ----------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `ui/Container`    | largura máxima (`max-w-6xl`) e padding lateral                             | criar outro wrapper de largura                                                             |
+| `ui/Section`      | espaçamento vertical entre blocos (`py-16/24/32`)                          | pôr padding vertical à mão numa `<section>`                                                |
+| `ui/Button`       | 3 variantes: `primary`, `outline`, `ghost`                                 | usar `<a>` cru com classes de botão; links externos já são detetados pelo `http` no `href` |
+| `ui/ProjectCard`  | um projeto na grelha (capa, etiquetas, serviços)                           | duplicar o card noutra página                                                              |
+| `Reveal`          | aparecer no scroll (fade + 16px)                                           | envolver cada elemento; envolve o bloco                                                    |
+| `Marquee`         | faixa horizontal infinita, decorativa                                      | pôr lá conteúdo que importe — é `aria-hidden`                                              |
+| `ProjectsMarquee` | a faixa de projetos da página inicial: conteúdo real, focável e arrastável | usá-lo para decoração — para isso é o `Marquee`; e pôr `gap` no track, que parte o ciclo   |
+| `PageHero`        | cabeçalho das páginas internas (eyebrow + h1 + intro)                      | escrever um h1 solto numa página interna                                                   |
+| `Hero`            | só a página inicial                                                        | reutilizar noutro sítio                                                                    |
+| `Wordmark`        | o logótipo com link para "/"                                               | ver `docs/03`                                                                              |
+| `Lockup` / `Logo` | o logótipo "D+" e o "+" isolado                                            | desenhar o logótipo à mão em SVG — ver `docs/03`                                           |
+| `Providers`       | Lenis + `MotionConfig`                                                     | acrescentar providers sem necessidade                                                      |
 
 Secções encadeadas levam `className="pt-0"` na segunda em diante, para o
 espaçamento não duplicar. É o padrão em toda a homepage.
@@ -56,8 +56,16 @@ espaçamento não duplicar. É o padrão em toda a homepage.
   em `Providers`, mais uma regra em `app/globals.css` que neutraliza o marquee e o
   spin. Não escrevas `prefers-reduced-motion` novo sem verificar se já está coberto.
   **Uma exceção:** o `ProjectsMarquee` transporta conteúdo navegável, e congelá-lo
-  deixaria três projetos fora do ecrã sem forma de lá chegar. Por isso `globals.css`
-  transforma-o num carrossel de scroll manual com snap (`.carousel-*`) nesse modo.
+  deixaria três projetos fora do ecrã sem forma de lá chegar. Aí o componente
+  desliga o avanço automático (lê a mesma preferência em JS, porque o movimento é
+  scroll e não animação CSS) e `globals.css` acrescenta-lhe snap: continua a
+  arrastar-se, só não anda sozinho.
+- **A faixa de projetos move-se por `scrollLeft`, não por `translateX`.** É o que a
+  torna agarrável: quem quer voltar a um projeto que passou arrasta-o de volta em
+  vez de esperar pela volta. Vem de borla o dedo, o trackpad, a roda com shift e as
+  setas; o arrasto com o rato é o único que precisa de código. O ciclo fecha-se
+  pondo o `scrollLeft` sempre dentro da primeira metade — sem isso o browser
+  encravava no extremo esquerdo, que nunca deixa passar de 0.
 - **Nenhuma animação pode ser a condição de o conteúdo existir.** Tudo o que nasce
   invisível à espera de animar leva `data-reveal`, e `globals.css` mostra esses
   elementos enquanto o `<html>` não tiver a classe `js` — posta por um script inline
