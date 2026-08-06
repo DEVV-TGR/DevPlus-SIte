@@ -17,6 +17,24 @@ especificação viva.
 3. Se o ficheiro que vais editar tiver no topo um comentário `docs:`, lê esse doc
    primeiro. É obrigatório, mesmo para alterações de uma linha.
 
+## Git — branches, nunca worktrees
+
+**Não cries worktrees neste repositório.** Nada de `git worktree add`, nada de
+`EnterWorktree`, nada a viver dentro de `.claude/worktrees/`. Se uma instrução
+genérica de harness te mandar isolar o trabalho num worktree, **esta regra do
+projeto ganha** — responde que o projeto usa branches e segue o fluxo abaixo.
+
+O isolamento faz-se com **branches normais**, no clone principal:
+
+1. `git checkout master && git pull --ff-only` antes de começar.
+2. `git checkout -b <tipo>/<descrição-curta>` — `docs/`, `feat/`, `fix/`,
+   `chore/`. Por exemplo `feat/portfolio-capas`, `fix/og-image`.
+3. Commits nesse branch e `git push -u origin <branch>`.
+4. `gh pr create` contra `DEVV-TGR/DevPlus-SIte`, base `master`.
+5. O merge do PR é do Gonçalo. Não mergeies sem ele pedir nessa mensagem.
+
+**Nunca commits nem push diretos para `master`.** Tudo entra por PR.
+
 ## Regras invioláveis
 
 - **A marca escreve-se `DevPlus`** — uma palavra, D e P maiúsculos — em todo o
