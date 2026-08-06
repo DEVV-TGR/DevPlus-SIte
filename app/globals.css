@@ -60,8 +60,11 @@
   --color-accent-ink: var(--accent-ink);
   --color-danger: var(--danger);
 
-  --font-display: var(--font-space-grotesk);
-  --font-sans: var(--font-inter);
+  /* A mesma família nos dois papéis — ver docs/02. `font-display` e
+     `font-sans` continuam a existir porque marcam a intenção no markup, e
+     porque se um dia voltar a haver duas fontes só se mexe aqui. */
+  --font-display: var(--font-bricolage);
+  --font-sans: var(--font-bricolage);
 
   --radius-lg: var(--radius);
   --radius-xl: 1.25rem;
@@ -83,6 +86,9 @@ body {
   background: var(--color-bg);
   color: var(--color-ink);
   font-family: var(--font-sans), system-ui, sans-serif;
+  /* Eixo óptico baixo: em corpo pequeno o desenho abre e lê-se melhor. É isto
+     que deixa a mesma família servir de título e de texto — ver docs/02. */
+  font-variation-settings: "opsz" 14;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -92,6 +98,8 @@ h2,
 h3,
 h4 {
   font-family: var(--font-display), var(--font-sans), sans-serif;
+  /* Eixo óptico alto: em tamanho grande fecha e ganha o carácter da família. */
+  font-variation-settings: "opsz" 48;
   letter-spacing: -0.02em; /* >= -0.04em floor */
   text-wrap: balance;
 }

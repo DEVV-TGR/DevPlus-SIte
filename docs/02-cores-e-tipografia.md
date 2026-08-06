@@ -105,15 +105,35 @@ dois sítios ou o cartão social passa a ter uma cor diferente do site.
 
 ## Tipografia
 
-| Papel   | Fonte         | Token          | Uso                        |
-| ------- | ------------- | -------------- | -------------------------- |
-| Display | Space Grotesk | `font-display` | títulos, wordmark, números |
-| Corpo   | Inter         | `font-sans`    | tudo o resto               |
+**Uma família só: Bricolage Grotesque.**
 
-Carregadas em `app/layout.tsx` via `next/font/google`, com `display: "swap"`.
+| Papel   | Fonte               | Token          | `opsz` | Uso                        |
+| ------- | ------------------- | -------------- | ------ | -------------------------- |
+| Display | Bricolage Grotesque | `font-display` | 48     | títulos, wordmark, números |
+| Corpo   | Bricolage Grotesque | `font-sans`    | 14     | tudo o resto               |
 
-Títulos levam sempre `tracking-tight`. O h1 da homepage usa
-`text-[clamp(2.25rem,7vw,5.5rem)]` — escala fluida, sem breakpoints.
+Carregada em `app/layout.tsx` via `next/font/google`, com `display: "swap"` e o
+eixo `opsz` ativo.
+
+**Porquê uma só.** O contraste faz-se por **peso e tamanho**, e sobretudo pelo
+eixo óptico: em corpo pequeno o desenho abre e lê-se melhor; em título fecha e
+ganha carácter. É a mesma letra a fazer dois trabalhos, e carrega menos do que
+duas famílias.
+
+**Porquê esta.** Três palavras para a voz da marca — **direto, oficinal,
+próximo**. O site trata por "tu", diz que constrói de raiz e assenta em laranja
+quente sobre quase-preto. A Bricolage tem irregularidades deliberadas em vez de
+uma grelha perfeita: tem cara de oficina, que é o que o texto do site promete.
+
+**O que saiu, e porquê.** Space Grotesk + Inter. São duas sans-serif próximas
+mas não idênticas — o par a evitar, porque o contraste não chega para ler como
+intenção nem a semelhança para ler como sistema. Ambas estão, além disso, entre
+as fontes mais saturadas em sites gerados por IA.
+
+Títulos levam sempre `tracking-tight` (−0.02em; o mínimo aceitável é −0.04em,
+abaixo disso as letras tocam-se). O h1 da homepage usa
+`text-[clamp(2.25rem,7vw,5.5rem)]` — escala fluida, sem breakpoints, com o topo
+em 88px (o teto é 96px: acima disso a página grita em vez de desenhar).
 
 ## Ao alterar este documento
 

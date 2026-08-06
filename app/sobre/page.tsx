@@ -90,22 +90,21 @@ export default function SobrePage() {
               Em que acreditamos
             </h2>
           </Reveal>
-          <div className="mt-10 grid gap-6 sm:grid-cols-3">
-            {beliefs.map(([title, blurb], i) => (
-              <Reveal key={title} delay={i * 0.06}>
-                <div className="h-full rounded-2xl border border-border bg-surface p-6">
-                  <span
-                    aria-hidden
-                    className="font-display text-sm text-primary"
-                  >
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <h3 className="mt-3 font-display text-xl">{title}</h3>
-                  <p className="mt-2 text-sm text-muted">{blurb}</p>
+          {/* Sem cards e sem 01/02/03: não é uma sequência — são três coisas
+              em que se acredita ao mesmo tempo, e numerá-las era decoração.
+              Fica uma lista assumida, com o peso na frase e não na caixa. */}
+          <dl className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-3">
+            {beliefs.map(([title, blurb]) => (
+              <Reveal key={title}>
+                <div className="border-t border-border pt-5">
+                  <dt className="font-display text-2xl tracking-tight">
+                    {title}
+                  </dt>
+                  <dd className="mt-3 text-muted">{blurb}</dd>
                 </div>
               </Reveal>
             ))}
-          </div>
+          </dl>
         </Container>
       </Section>
     </>

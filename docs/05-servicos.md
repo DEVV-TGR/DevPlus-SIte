@@ -71,9 +71,9 @@ em vez de ficar diluído numa frase do serviço de Desenvolvimento.
 
 ## Ao alterar este documento
 
-| Se mudares… | Faz também |
-| --- | --- |
-| a lista de serviços | `lib/services.ts`; segue a checklist acima toda |
-| o número de serviços | verifica a grelha `sm:grid-cols-2` em `app/page.tsx` |
-| um `title` | procura esse nome nas `services` de `lib/projects.ts` e alinha |
-| as regras de escrita (blurb, items) | revê os 6 serviços existentes de uma vez |
+| Se mudares…                         | Faz também                                                     |
+| ----------------------------------- | -------------------------------------------------------------- |
+| a lista de serviços                 | `lib/services.ts`; segue a checklist acima toda                |
+| o número de serviços                | verifica a grelha `sm:grid-cols-2` em `app/page.tsx`           |
+| um `title`                          | procura esse nome nas `services` de `lib/projects.ts` e alinha |
+| as regras de escrita (blurb, items) | revê os 6 serviços existentes de uma vez                       |
