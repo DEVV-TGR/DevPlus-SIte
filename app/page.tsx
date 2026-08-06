@@ -2,9 +2,9 @@ import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/Reveal";
-import { ProjectCard } from "@/components/ui/ProjectCard";
 import { Hero } from "@/components/Hero";
 import { Marquee } from "@/components/Marquee";
+import { ProjectsMarquee } from "@/components/ProjectsMarquee";
 import { projects } from "@/lib/projects";
 import { services } from "@/lib/services";
 import { site } from "@/lib/site";
@@ -61,8 +61,6 @@ const disciplines = [
 ];
 
 export default function Home() {
-  const [featured, ...rest] = projects;
-
   return (
     <>
       <Hero />
@@ -147,7 +145,7 @@ export default function Home() {
         </Container>
       </Section>
 
-      {/* SELECTED WORK */}
+      {/* SELECTED WORK — faixa contínua; a grelha completa vive em /portfolio */}
       <Section className="pt-0">
         <Container>
           <div className="flex items-end justify-between gap-6">
@@ -166,14 +164,19 @@ export default function Home() {
               </Button>
             </Reveal>
           </div>
-          <div className="mt-10 space-y-4">
-            <ProjectCard project={featured} index={0} />
-            <div className="grid gap-4 md:grid-cols-2">
-              {rest.map((p, i) => (
-                <ProjectCard key={p.slug} project={p} index={i + 1} />
-              ))}
-            </div>
-          </div>
+        </Container>
+
+        {/* Fora do Container: a faixa sangra até às margens do ecrã. */}
+        <div className="mt-10">
+          <ProjectsMarquee projects={projects} />
+        </div>
+
+        {/* No telemóvel deixou de haver a grelha inteira à vista — o acesso ao
+            portfólio completo passa a ser explícito. */}
+        <Container className="mt-8 sm:hidden">
+          <Button href="/portfolio" variant="outline" className="w-full">
+            Ver todos os projetos
+          </Button>
         </Container>
       </Section>
 

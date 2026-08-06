@@ -47,7 +47,12 @@ export function Hero() {
       </div>
 
       <Container className="relative z-10 pb-14 pt-14 sm:pb-24 sm:pt-24">
-        <motion.div variants={container} initial="hidden" animate="show">
+        <motion.div
+          data-reveal
+          variants={container}
+          initial="hidden"
+          animate="show"
+        >
           <motion.div variants={item}>
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted">
               <span className="relative flex h-2 w-2" aria-hidden>

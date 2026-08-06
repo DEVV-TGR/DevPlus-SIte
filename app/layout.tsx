@@ -63,6 +63,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang={site.lang} className={`${display.variable} ${sans.variable}`}>
+      <head>
+        {/* Marca que há JavaScript antes do primeiro paint. Sem esta classe,
+            `globals.css` mostra tudo o que está à espera de animar — ver
+            docs/04, "Movimento". Não mexer sem ler essa secção. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `document.documentElement.classList.add("js")`,
+          }}
+        />
+      </head>
       <body className="flex min-h-dvh flex-col antialiased">
         <a
           href="#main"

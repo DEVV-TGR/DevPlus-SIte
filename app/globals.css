@@ -115,6 +115,14 @@ p {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
+/* Sem JavaScript, nada fica à espera de uma animação que nunca vai correr.
+   A classe `js` é posta por um script inline em `app/layout.tsx`; se esse script
+   não correr, tudo o que tem `data-reveal` mostra-se de imediato. */
+html:not(.js) [data-reveal] {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
 /* Infinite marquee (content is duplicated, so -50% loops seamlessly) */
 @keyframes marquee {
   from {
@@ -169,5 +177,20 @@ html.lenis body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* A regra acima congela o carrossel de projetos no primeiro card, e os
+     restantes ficariam fora do ecrã sem forma de lá chegar. Ao contrário do
+     marquee decorativo, aqui o conteúdo é navegável — por isso passa a
+     carrossel de scroll manual, e a cópia inerte sai da frente. */
+  .carousel-viewport {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+  .carousel-item {
+    scroll-snap-align: center;
+  }
+  .carousel-clone {
+    display: none;
   }
 }
