@@ -25,56 +25,67 @@ export default function ContactoPage() {
         <Container>
           <div className="grid gap-12 lg:grid-cols-12">
             <div className="lg:col-span-5">
-              <div className="flex flex-col gap-8">
+              {/* Um `h2` a sério para a região; as etiquetas abaixo são `dt`, e
+                  não headings de 14px — um leitor de ecrã anunciava "título
+                  nível 2: Email" para o que é só o rótulo de um campo. */}
+              <h2 className="sr-only">Como falar connosco</h2>
+              <dl className="flex flex-col gap-8">
                 <div>
-                  <h2 className="text-sm font-medium text-muted">Email</h2>
-                  <a
-                    href={`mailto:${site.email}`}
-                    className="mt-1 block break-all font-display text-xl transition-colors hover:text-primary"
-                  >
-                    {site.email}
-                  </a>
+                  <dt className="text-sm font-medium text-muted">Email</dt>
+                  <dd>
+                    <a
+                      href={`mailto:${site.email}`}
+                      className="mt-1 block break-all font-display text-xl transition-colors hover:text-primary"
+                    >
+                      {site.email}
+                    </a>
+                  </dd>
                 </div>
                 <div>
-                  <h2 className="text-sm font-medium text-muted">
+                  <dt className="text-sm font-medium text-muted">
                     Disponibilidade
-                  </h2>
-                  <p className="mt-1 font-display text-xl">
-                    Resposta em 24–48h úteis
-                  </p>
-                  <p className="mt-1.5 text-sm text-muted">
-                    Portugal · trabalhamos com clientes em qualquer lugar
-                  </p>
+                  </dt>
+                  <dd>
+                    <p className="mt-1 font-display text-xl">
+                      Resposta em 24–48h úteis
+                    </p>
+                    <p className="mt-1.5 text-sm text-muted">
+                      Portugal · trabalhamos com clientes em qualquer lugar
+                    </p>
+                  </dd>
                 </div>
                 <div>
-                  <h2 className="text-sm font-medium text-muted">Redes</h2>
-                  <ul className="mt-2 flex flex-col gap-2">
-                    {socials.map((s) => (
-                      <li key={s.label}>
-                        {s.href ? (
-                          <a
-                            href={s.href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-ink transition-colors hover:text-primary"
-                          >
-                            {s.label}
-                          </a>
-                        ) : (
-                          <span className="text-muted">{s.label}</span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="mt-2.5 text-sm text-muted">
-                    Ainda a preparar as contas. Até lá, o email é o caminho mais
-                    rápido para nos chegares.
-                  </p>
+                  <dt className="text-sm font-medium text-muted">Redes</dt>
+                  <dd>
+                    <ul className="mt-2 flex flex-col gap-2">
+                      {socials.map((s) => (
+                        <li key={s.label}>
+                          {s.href ? (
+                            <a
+                              href={s.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-ink transition-colors hover:text-primary"
+                            >
+                              {s.label}
+                            </a>
+                          ) : (
+                            <span className="text-muted">{s.label}</span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="mt-2.5 text-sm text-muted">
+                      Ainda a preparar as contas. Até lá, o email é o caminho
+                      mais rápido para nos chegares.
+                    </p>
+                  </dd>
                 </div>
-              </div>
+              </dl>
             </div>
 
             <div className="lg:col-span-7">
+              <h2 className="sr-only">Formulário de contacto</h2>
               <ContactForm />
             </div>
           </div>

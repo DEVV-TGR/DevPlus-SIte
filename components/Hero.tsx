@@ -68,7 +68,10 @@ export function Hero() {
               <motion.span
                 key={i}
                 variants={item}
-                className={cn("mr-[0.22em] inline-block", w.accent && "text-primary")}
+                className={cn(
+                  "mr-[0.22em] inline-block",
+                  w.accent && "text-primary",
+                )}
               >
                 {w.t}
               </motion.span>
@@ -79,19 +82,27 @@ export function Hero() {
             variants={item}
             className="mt-6 max-w-xl text-base text-muted sm:text-lg"
           >
-            Somos a {site.name}, um estúdio independente que desenha e desenvolve
-            sites, plataformas e menus digitais. Construímos cada projeto de raiz
-            — rápido, acessível e pensado para converter.
+            Somos a {site.name}, um estúdio independente que desenha e
+            desenvolve sites, plataformas e menus digitais. Construímos cada
+            projeto de raiz — rápido, acessível e pensado para converter.
           </motion.p>
 
           <motion.div
             variants={item}
             className="mt-8 flex flex-col gap-3 sm:flex-row"
           >
-            <Button href="/portfolio" variant="primary" className="w-full sm:w-auto">
+            <Button
+              href="/portfolio"
+              variant="primary"
+              className="w-full sm:w-auto"
+            >
               Ver portfólio
             </Button>
-            <Button href="/contacto" variant="outline" className="w-full sm:w-auto">
+            <Button
+              href="/contacto"
+              variant="outline"
+              className="w-full sm:w-auto"
+            >
               Falar connosco
             </Button>
           </motion.div>

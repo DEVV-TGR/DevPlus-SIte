@@ -11,12 +11,16 @@ type Props = {
   children: React.ReactNode;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
+/* Sem `focus-visible:outline-none`: o contorno global de `app/globals.css` é o
+   único indicador de foco que o site tem, e anulá-lo aqui apagava-o em todos os
+   botões e CTAs de uma vez — ver docs/04, "Acessibilidade". */
 const base =
-  "inline-flex h-11 items-center justify-center gap-2 rounded-full px-5 text-sm font-medium transition-[background-color,border-color,color,transform] duration-200 active:scale-[0.97] focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50";
+  "inline-flex h-11 items-center justify-center gap-2 rounded-full px-5 text-sm font-medium transition-[background-color,border-color,color,transform] duration-200 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50";
 
 const variants: Record<Variant, string> = {
   primary: "bg-primary text-primary-ink hover:bg-primary-strong",
-  outline: "border border-border text-ink hover:border-ink/30 hover:bg-surface",
+  outline:
+    "border border-border-strong text-ink hover:border-ink/40 hover:bg-surface",
   ghost: "text-muted hover:bg-surface hover:text-ink",
 };
 
@@ -32,7 +36,12 @@ export function Button({
   if (href) {
     if (href.startsWith("http")) {
       return (
-        <a href={href} target="_blank" rel="noopener noreferrer" className={cls}>
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={cls}
+        >
           {children}
         </a>
       );

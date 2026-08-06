@@ -47,7 +47,7 @@ export default function PortfolioPage() {
                 </p>
               </div>
               <Button href="/contacto" variant="primary" className="shrink-0">
-                Começar um projeto
+                Falar connosco
               </Button>
             </div>
           </Reveal>

@@ -86,10 +86,7 @@ export function ProjectCard({
   sizes?: string;
 }) {
   const card = (
-    <Link
-      href={`/portfolio/${project.slug}`}
-      className="block rounded-2xl focus-visible:outline-none"
-    >
+    <Link href={`/portfolio/${project.slug}`} className="block rounded-2xl">
       {/* `@container`: o rodapé reage à largura do próprio card, não à do ecrã —
           na faixa contínua o card é estreito e o nome não cabe ao lado das
           etiquetas, mas na grelha do portfólio cabe. */}
