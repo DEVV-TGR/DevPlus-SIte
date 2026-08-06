@@ -58,7 +58,9 @@ quadrado pode rodar sem mudar de silhueta — é o que a nav e o Hero fazem.
 
 `D_PATH` em `lib/brand.ts`, em coordenadas onde a **altura do "D" é 1000**.
 Vetorizado do PNG (99.9% de sobreposição), não é o glifo de nenhuma fonte
-instalada — a Space Grotesk do site tem um "D" bem mais leve.
+instalada — nem o da Bricolage Grotesque do site, que tem um "D" mais leve.
+Por isso trocar a fonte do site **não** obriga a mexer no logótipo: o "D" é um
+desenho próprio, não texto.
 
 Precisa de **`fill-rule="evenodd"`**: o segundo contorno do path é a
 contra-forma. Sem isso o "D" sai como uma mancha cheia.
@@ -82,12 +84,12 @@ porque o Satori não desenha `<g transform>` de forma fiável.
 O mesmo desenho existe em quatro sítios, por razões técnicas. **Não é descuido —
 é uma duplicação necessária**, e é por isso que está registada aqui.
 
-| Onde | Como | Porquê |
-| --- | --- | --- |
-| `components/Lockup.tsx` | importa `D_PATH` + `LOCKUP.plusPath` | é o logótipo, e o único que pode importar |
-| `components/Logo.tsx` | importa `PLUS_PATH` | o "+" isolado, para o favicon e o motivo |
-| `app/icon.svg` | `d` do "+" copiado à mão | ficheiro estático, não executa JS |
-| `app/opengraph-image.tsx` | dois `<path>` sem `<g>` | o Satori é frágil com transforms |
+| Onde                      | Como                                 | Porquê                                    |
+| ------------------------- | ------------------------------------ | ----------------------------------------- |
+| `components/Lockup.tsx`   | importa `D_PATH` + `LOCKUP.plusPath` | é o logótipo, e o único que pode importar |
+| `components/Logo.tsx`     | importa `PLUS_PATH`                  | o "+" isolado, para o favicon e o motivo  |
+| `app/icon.svg`            | `d` do "+" copiado à mão             | ficheiro estático, não executa JS         |
+| `app/opengraph-image.tsx` | dois `<path>` sem `<g>`              | o Satori é frágil com transforms          |
 
 **No `icon.svg` não recalcules coordenadas** para dar margem dentro do quadrado
 — usa `transform="translate(50,50) scale(0.68) translate(-50,-50)"`. Foi a
@@ -143,13 +145,13 @@ nav e no rodapé.
 
 ## Ao alterar este documento
 
-| Se mudares… | Faz também |
-| --- | --- |
-| o desenho do logótipo | substitui `images/Dev+-logosimples.png`, corre `scripts/vectorizar-logo.py`, cola o `D_PATH` e as medidas do "+" em `lib/brand.ts` |
-| a geometria do "+" | `PLUS_PATH` e `LOCKUP.plusPath` em `lib/brand.ts`; copia o `d` novo para `app/icon.svg` |
-| a espessura da barra | os dois paths do "+" acima — a proporção 0.31 tem de se manter em ambos |
-| a cor do "+" | nada aqui: vem de `--primary` (ver `docs/02`) |
-| a cor do "D" | nada aqui: é `currentColor`, vem de quem chama |
-| o que a nav mostra (logótipo vs nome escrito) | `components/Wordmark.tsx` e o seu `aria-label` |
-| o tamanho do lockup no cartão social | `app/opengraph-image.tsx` (a altura passa por `LOCKUP.ratio`) |
-| o motivo de fundo do Hero | `components/Hero.tsx` (opacidade, duração, posição) |
+| Se mudares…                                   | Faz também                                                                                                                         |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| o desenho do logótipo                         | substitui `images/Dev+-logosimples.png`, corre `scripts/vectorizar-logo.py`, cola o `D_PATH` e as medidas do "+" em `lib/brand.ts` |
+| a geometria do "+"                            | `PLUS_PATH` e `LOCKUP.plusPath` em `lib/brand.ts`; copia o `d` novo para `app/icon.svg`                                            |
+| a espessura da barra                          | os dois paths do "+" acima — a proporção 0.31 tem de se manter em ambos                                                            |
+| a cor do "+"                                  | nada aqui: vem de `--primary` (ver `docs/02`)                                                                                      |
+| a cor do "D"                                  | nada aqui: é `currentColor`, vem de quem chama                                                                                     |
+| o que a nav mostra (logótipo vs nome escrito) | `components/Wordmark.tsx` e o seu `aria-label`                                                                                     |
+| o tamanho do lockup no cartão social          | `app/opengraph-image.tsx` (a altura passa por `LOCKUP.ratio`)                                                                      |
+| o motivo de fundo do Hero                     | `components/Hero.tsx` (opacidade, duração, posição)                                                                                |
