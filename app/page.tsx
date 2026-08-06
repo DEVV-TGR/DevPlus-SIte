@@ -160,7 +160,7 @@ export default function Home() {
                 variant="ghost"
                 className="hidden sm:inline-flex"
               >
-                Ver tudo
+                Ver todos os projetos
               </Button>
             </Reveal>
           </div>
@@ -192,7 +192,10 @@ export default function Home() {
                 {differentiators.map(([title, blurb], i) => (
                   <Reveal key={title} delay={i * 0.06}>
                     <div>
-                      <span aria-hidden className="block h-px w-10 bg-primary" />
+                      <span
+                        aria-hidden
+                        className="block h-px w-10 bg-primary"
+                      />
                       <h3 className="mt-4 font-display text-lg">{title}</h3>
                       <p className="mt-2 text-sm text-muted">{blurb}</p>
                     </div>

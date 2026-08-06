@@ -44,11 +44,11 @@ coisas ao mesmo tempo — o campo e o tempo verbal.
 
 ## As grelhas
 
-| Onde | Classe | Conta |
-| --- | --- | --- |
-| `app/page.tsx` (projetos) | faixa contínua | qualquer número — ver abaixo |
-| `app/portfolio/page.tsx` | `sm:grid-cols-2` | o total tem de ser **par** |
-| `app/page.tsx` (clientes) | `flex-wrap` | qualquer número |
+| Onde                      | Classe           | Conta                        |
+| ------------------------- | ---------------- | ---------------------------- |
+| `app/page.tsx` (projetos) | faixa contínua   | qualquer número — ver abaixo |
+| `app/portfolio/page.tsx`  | `sm:grid-cols-2` | o total tem de ser **par**   |
+| `app/page.tsx` (clientes) | `flex-wrap`      | qualquer número              |
 
 A página inicial deixou de ter grelha de projetos, e com ela caiu a regra de o
 resto ter de ser par. A faixa aceita qualquer número, mas **abaixo de 3 projetos
@@ -112,7 +112,7 @@ centro.
 
 ## Checklist — adicionar um caso de estudo
 
-1. Objeto novo em `lib/projects.ts`, na posição certa (o 1.º é o destaque).
+1. Objeto novo em `lib/projects.ts`, na posição certa (o 1.º abre a faixa).
 2. `status` correto e o texto no tempo verbal certo (presente/passado).
 3. `accent` a alternar com o vizinho.
 4. `services` com nomes que existam em `lib/services.ts`.
@@ -140,11 +140,11 @@ Home Repair.
 
 ## Ao alterar este documento
 
-| Se mudares… | Faz também |
-| --- | --- |
-| a lista de projetos | `lib/projects.ts`; segue a checklist acima toda |
-| a ordem | lembra-te que o 1.º é o destaque da homepage |
-| o `status` de um projeto | vira também o tempo verbal do `overview` e do `contribution` |
-| o shape do `Project` | `lib/projects.ts` (tipo) e `components/ui/ProjectCard.tsx` |
-| como as capas funcionam | `components/ui/ProjectCard.tsx` e `app/portfolio/[slug]/page.tsx` — os dois renderizam capa |
-| resolveres uma lacuna | apaga a linha da lista acima |
+| Se mudares…              | Faz também                                                                                  |
+| ------------------------ | ------------------------------------------------------------------------------------------- |
+| a lista de projetos      | `lib/projects.ts`; segue a checklist acima toda                                             |
+| a ordem                  | é a ordem por que os projetos entram na faixa da homepage                                   |
+| o `status` de um projeto | vira também o tempo verbal do `overview` e do `contribution`                                |
+| o shape do `Project`     | `lib/projects.ts` (tipo) e `components/ui/ProjectCard.tsx`                                  |
+| como as capas funcionam  | `components/ui/ProjectCard.tsx` e `app/portfolio/[slug]/page.tsx` — os dois renderizam capa |
+| resolveres uma lacuna    | apaga a linha da lista acima                                                                |

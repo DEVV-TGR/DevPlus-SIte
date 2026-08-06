@@ -13,7 +13,9 @@ export const site = {
   description:
     "A DevPlus desenha e constrói sites, plataformas e menus digitais — com painel de gestão para atualizares tudo sozinho. Rápidos, acessíveis e pensados para converter.",
   locale: "pt_PT",
-  lang: "pt",
+  /** `pt-PT` e não `pt`: o site é português de Portugal, e é isso que o
+   *  `<html lang>` deve dizer a leitores de ecrã e tradutores. */
+  lang: "pt-PT",
 } as const;
 
 /** `href` ausente = a conta ainda não existe; renderiza-se sem link. */

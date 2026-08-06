@@ -46,3 +46,8 @@ next-env.d.ts
 # exceção: o original do logótipo é versionado — é o input de
 # scripts/vectorizar-logo.py. Ver docs/03-simbolo-e-logotipo.md.
 !/images/Dev+-logosimples.png
+
+# ferramentas de agentes: worktrees, skills e definições locais. Nada disto
+# pertence ao repositório do site. Ver AGENTS.md, "Git — branches, nunca
+# worktrees".
+/.claude/

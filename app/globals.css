@@ -14,6 +14,10 @@
   --surface: oklch(0.19 0.013 56);
   --surface-2: oklch(0.23 0.015 56);
   --border: oklch(0.31 0.016 56);
+  /* Separadores podem ser discretos; o contorno de um controlo não. A WCAG
+     1.4.11 pede 3:1 quando a borda é a única forma de perceber que ali há um
+     campo ou um botão — `--border` dá 1.49:1, este dá 3.56:1. Ver docs/02. */
+  --border-strong: oklch(0.52 0.016 56);
 
   /* Ink */
   --ink: oklch(0.97 0.006 80);
@@ -23,6 +27,11 @@
   --primary: oklch(0.72 0.188 50);
   --primary-strong: oklch(0.67 0.202 47);
   --primary-ink: oklch(0.17 0.03 50);
+
+  /* Estado de erro. Existe porque o laranja é a cor de ação — usá-lo também
+     para erro fazia a mesma cor querer dizer duas coisas. Hue 25 contra os 50
+     do primary: distingue-se ao lado dele. 6.27:1 sobre `bg`. Ver docs/02. */
+  --danger: oklch(0.68 0.19 25);
 
   /* Brand — green (accent) */
   --accent: oklch(0.77 0.158 154);
@@ -40,6 +49,7 @@
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-primary: var(--primary);
@@ -48,6 +58,7 @@
   --color-accent: var(--accent);
   --color-accent-strong: var(--accent-strong);
   --color-accent-ink: var(--accent-ink);
+  --color-danger: var(--danger);
 
   --font-display: var(--font-space-grotesk);
   --font-sans: var(--font-inter);

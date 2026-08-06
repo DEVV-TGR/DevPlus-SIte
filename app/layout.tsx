@@ -5,6 +5,7 @@ import "./globals.css";
 import Providers from "@/components/Providers";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { OrganizationJsonLd } from "@/components/JsonLd";
 import { site } from "@/lib/site";
 
 const display = Space_Grotesk({
@@ -51,8 +52,9 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: fullTitle,
-    description:
-      "Sites, plataformas e menus digitais — com painel de gestão para atualizares tudo sozinho.",
+    // Vem de `lib/site.ts` como tudo o resto: escrita à mão, divergia da
+    // description do site sem ninguém dar por isso — ver docs/01.
+    description: site.description,
   },
 };
 
@@ -80,6 +82,7 @@ export default function RootLayout({
         >
           Saltar para o conteúdo
         </a>
+        <OrganizationJsonLd />
         <Providers>
           <Nav />
           <main id="main" className="flex-1">

@@ -6,6 +6,7 @@ import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/Reveal";
 import { PageHero } from "@/components/PageHero";
+import { FaqJsonLd } from "@/components/JsonLd";
 import { services } from "@/lib/services";
 import { cn } from "@/lib/utils";
 
@@ -84,6 +85,7 @@ const faqs: [string, string][] = [
 export default function ServicosPage() {
   return (
     <>
+      <FaqJsonLd faqs={faqs} />
       <PageHero
         eyebrow="Serviços"
         title="Tudo o que a tua marca precisa para se destacar online."
@@ -202,7 +204,7 @@ export default function ServicosPage() {
                   href="/contacto"
                   className="text-ink underline-offset-4 hover:underline"
                 >
-                  Escreve-nos.
+                  Fala connosco.
                 </Link>
               </p>
             </Reveal>

@@ -21,7 +21,7 @@ export function Footer() {
             Vamos somar ao teu próximo projeto.
           </h2>
           <Button href="/contacto" variant="primary">
-            Começar um projeto
+            Falar connosco
           </Button>
         </div>
 
@@ -88,11 +88,13 @@ export function Footer() {
         </div>
 
         <div className="mt-12 flex flex-col gap-3 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            © {new Date().getFullYear()} {site.name}. Todos os direitos
-            reservados.
-          </p>
-          <Link href="/privacidade" className="transition-colors hover:text-ink">
+          {/* Sem ano: a página é estática, `getFullYear()` congelava no ano da
+              build e o rodapé passava janeiro a mentir até ao próximo deploy. */}
+          <p>© {site.name}. Todos os direitos reservados.</p>
+          <Link
+            href="/privacidade"
+            className="transition-colors hover:text-ink"
+          >
             Política de Privacidade
           </Link>
         </div>

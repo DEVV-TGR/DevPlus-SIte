@@ -7,10 +7,16 @@ import { Button } from "@/components/ui/Button";
 type Status = "idle" | "submitting" | "success" | "error";
 type Errors = { name?: string; email?: string; message?: string };
 
+/* `border-strong` e não `border`: aqui a borda é a única pista de que existe um
+   campo, e a WCAG 1.4.11 pede 3:1 para isso — ver docs/02. */
 const inputClass =
-  "w-full rounded-lg border border-border bg-surface px-4 py-3 text-ink transition-colors placeholder:text-muted/60 focus:border-ink/40 aria-[invalid=true]:border-primary-strong";
+  "w-full rounded-lg border border-border-strong bg-surface px-4 py-3 text-ink transition-colors focus:border-ink/50 aria-[invalid=true]:border-danger";
 
-function validate(data: { name: string; email: string; message: string }): Errors {
+function validate(data: {
+  name: string;
+  email: string;
+  message: string;
+}): Errors {
   const errors: Errors = {};
   if (!data.name.trim()) errors.name = "Indica o teu nome.";
   if (!data.email.trim()) errors.email = "Indica o teu email.";
@@ -36,7 +42,17 @@ export function ContactForm() {
 
     const errs = validate(data);
     setErrors(errs);
-    if (Object.keys(errs).length > 0) return;
+    const [primeiroCampoInvalido] = (
+      ["name", "email", "message"] as const
+    ).filter((campo) => errs[campo]);
+    if (primeiroCampoInvalido) {
+      // Sem isto, submeter com erros não leva a lado nenhum: a mensagem aparece
+      // fora do ecrã e quem navega por teclado fica no botão.
+      form
+        .querySelector<HTMLElement>(`[name="${primeiroCampoInvalido}"]`)
+        ?.focus();
+      return;
+    }
 
     setStatus("submitting");
     try {
@@ -87,7 +103,11 @@ export function ContactForm() {
           aria-describedby={errors.name ? "name-error" : undefined}
         />
         {errors.name ? (
-          <p id="name-error" role="alert" className="mt-1.5 text-sm text-primary">
+          <p
+            id="name-error"
+            role="alert"
+            className="mt-1.5 text-sm text-danger"
+          >
             {errors.name}
           </p>
         ) : null}
@@ -107,7 +127,11 @@ export function ContactForm() {
           aria-describedby={errors.email ? "email-error" : undefined}
         />
         {errors.email ? (
-          <p id="email-error" role="alert" className="mt-1.5 text-sm text-primary">
+          <p
+            id="email-error"
+            role="alert"
+            className="mt-1.5 text-sm text-danger"
+          >
             {errors.email}
           </p>
         ) : null}
@@ -129,7 +153,7 @@ export function ContactForm() {
           <p
             id="message-error"
             role="alert"
-            className="mt-1.5 text-sm text-primary"
+            className="mt-1.5 text-sm text-danger"
           >
             {errors.message}
           </p>
@@ -141,7 +165,7 @@ export function ContactForm() {
           {status === "submitting" ? "A enviar…" : "Enviar mensagem"}
         </Button>
         {status === "error" ? (
-          <p role="alert" className="text-sm text-primary">
+          <p role="alert" className="text-sm text-danger">
             Algo correu mal. Tenta novamente.
           </p>
         ) : null}
