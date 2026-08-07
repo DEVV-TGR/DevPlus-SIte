@@ -124,13 +124,17 @@ export function ProjectsMarquee({
     let scrollInicial = 0;
     let percorrido = 0;
 
+    // Sem `setPointerCapture`. Capturar o ponteiro parece o caminho óbvio para
+    // o arrasto continuar quando o cursor sai da faixa, mas o Chrome
+    // redireciona também o `click` para o elemento que capturou — e o link do
+    // projeto deixava de o receber, portanto clicar num card não abria nada.
+    // O arrasto fora da faixa resolve-se com os listeners na `window`.
     const onPointerDown = (e: PointerEvent) => {
       if (e.pointerType !== "mouse" || e.button !== 0) return;
       aArrastar = true;
       percorrido = 0;
       xInicial = e.clientX;
       scrollInicial = el.scrollLeft;
-      el.setPointerCapture(e.pointerId);
       el.classList.add("cursor-grabbing");
     };
 
@@ -141,10 +145,9 @@ export function ProjectsMarquee({
       aplicar(scrollInicial - dx);
     };
 
-    const onPointerUp = (e: PointerEvent) => {
+    const onPointerUp = () => {
       if (!aArrastar) return;
       aArrastar = false;
-      el.releasePointerCapture?.(e.pointerId);
       el.classList.remove("cursor-grabbing");
     };
 
@@ -166,11 +169,15 @@ export function ProjectsMarquee({
     };
 
     el.addEventListener("pointerdown", onPointerDown);
-    el.addEventListener("pointermove", onPointerMove);
-    el.addEventListener("pointerup", onPointerUp);
-    el.addEventListener("pointercancel", onPointerUp);
     el.addEventListener("dragstart", onDragStart);
     el.addEventListener("click", onClick, true);
+
+    // Na `window` e não no elemento: um arrasto que sai da faixa — ou que acaba
+    // com o cursor fora dela — tem de continuar a contar e de terminar bem.
+    // É o que a captura de ponteiro faria, sem o efeito de roubar o `click`.
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointercancel", onPointerUp);
 
     return () => {
       cancelAnimationFrame(raf);
@@ -181,11 +188,11 @@ export function ProjectsMarquee({
       el.removeEventListener("touchstart", parar);
       el.removeEventListener("touchend", retomar);
       el.removeEventListener("pointerdown", onPointerDown);
-      el.removeEventListener("pointermove", onPointerMove);
-      el.removeEventListener("pointerup", onPointerUp);
-      el.removeEventListener("pointercancel", onPointerUp);
       el.removeEventListener("dragstart", onDragStart);
       el.removeEventListener("click", onClick, true);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointercancel", onPointerUp);
     };
   }, [velocidade]);
 
