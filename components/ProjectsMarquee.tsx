@@ -15,10 +15,12 @@ import type { Project } from "@/lib/projects";
  * borla o arrasto com o dedo, o trackpad, a roda com shift e as setas do
  * teclado. O arrasto com o rato é o único que precisa de código.
  *
- * O conteúdo está duplicado e o `scrollLeft` dá a volta a meio da largura, o
- * que faz o ciclo parecer infinito nos dois sentidos. Só o primeiro conjunto
- * conta: o segundo é `inert` e `aria-hidden`, para não haver 10 alvos de
- * teclado onde existem 5 projetos.
+ * O conteúdo repete-se `RONDAS` vezes e o `scrollLeft` dá a volta ao fim de
+ * uma ronda, o que faz o ciclo parecer infinito nos dois sentidos. Só a
+ * primeira conta para o teclado e para os leitores de ecrã: as outras são
+ * `aria-hidden` e os seus links não recebem foco, para não haver 15 alvos de
+ * teclado onde existem 5 projetos. **Clicáveis são todas** — quem carrega num
+ * card espera abri-lo, e não tem como saber que aquele é uma repetição.
  *
  * Sem JavaScript continua a ser um carrossel — só não anda sozinho.
  */
@@ -27,6 +29,14 @@ const CARD_SIZES = "(min-width: 1024px) 440px, (min-width: 640px) 380px, 90vw";
 
 /** Largura da célula = largura do card + os 2×`px-2`. */
 const CELL = "w-[calc(100vw-2rem)] shrink-0 px-2 sm:w-[396px] lg:w-[456px]";
+
+/**
+ * Quantas vezes a lista se repete. Duas chegam para o ciclo fechar, mas em
+ * ecrãs largos a repetição fica à vista: a cópia entra no campo de visão quase
+ * ao mesmo tempo que o original sai. Com três, a volta acontece longe do que se
+ * está a ver.
+ */
+const RONDAS = 3;
 
 /** Píxeis por segundo. Devagar: tem de dar para ler e para acertar num card. */
 const VELOCIDADE = 34;
@@ -50,7 +60,8 @@ export function ProjectsMarquee({
     const el = viewport.current;
     if (!el) return;
 
-    const metade = () => el.scrollWidth / 2;
+    /** Largura de uma ronda: é ao fim dela que a faixa se repete. */
+    const ronda = () => el.scrollWidth / RONDAS;
 
     // Arrancar a meio dá margem para arrastar nos dois sentidos desde o
     // primeiro instante. Fica adiado para o primeiro frame em que já há
@@ -66,17 +77,21 @@ export function ProjectsMarquee({
     /** Instante do último movimento vindo de fora (dedo, roda, teclado). */
     let ultimoExterno = -Infinity;
 
-    // Mantém a posição numa janela de uma cópia inteira, centrada no meio do
-    // que dá para rolar. Como as duas cópias são idênticas, o salto não se vê.
+    // Mantém a posição numa janela de uma ronda, centrada no meio do que dá
+    // para rolar. Como as rondas são idênticas, o salto não se vê.
     //
-    // A janela não é `[0, metade)`, que era o mínimo para o ciclo fechar: aí a
-    // faixa acabava colada ao extremo esquerdo, e um impulso do dedo batia na
+    // A janela não é a primeira ronda, que era o mínimo para o ciclo fechar: aí
+    // a faixa acabava colada ao extremo esquerdo, e um impulso do dedo batia na
     // parede do scroll e parava a seco. Assim sobra sempre a mesma folga dos
     // dois lados, seja qual for a largura do ecrã.
-    const inicioJanela = () => Math.max(0, (metade() - el.clientWidth) / 2);
+    //
+    // O que dá para rolar são `RONDAS` rondas menos o que se vê; tirando a
+    // ronda da janela e dividindo por dois, sobra a folga de cada lado.
+    const inicioJanela = () =>
+      Math.max(0, ((RONDAS - 1) * ronda() - el.clientWidth) / 2);
 
     const normalizar = (v: number) => {
-      const m = metade();
+      const m = ronda();
       if (m <= 0) return v;
       const base = inicioJanela();
       return ((((v - base) % m) + m) % m) + base;
@@ -99,9 +114,9 @@ export function ProjectsMarquee({
       anterior = agora;
 
       if (porArrancar) {
-        if (metade() <= 0) return;
+        if (ronda() <= 0) return;
         porArrancar = false;
-        aplicar(metade() / 2);
+        aplicar(ronda() / 2);
       }
 
       // Alguém mexeu por fora (dedo, roda, trackpad, teclado): aceita a
@@ -162,13 +177,17 @@ export function ProjectsMarquee({
     let scrollInicial = 0;
     let percorrido = 0;
 
+    // Sem `setPointerCapture`. Capturar o ponteiro parece o caminho óbvio para
+    // o arrasto continuar quando o cursor sai da faixa, mas o Chrome
+    // redireciona também o `click` para o elemento que capturou — e o link do
+    // projeto deixava de o receber, portanto clicar num card não abria nada.
+    // O arrasto fora da faixa resolve-se com os listeners na `window`.
     const onPointerDown = (e: PointerEvent) => {
       if (e.pointerType !== "mouse" || e.button !== 0) return;
       aArrastar = true;
       percorrido = 0;
       xInicial = e.clientX;
       scrollInicial = el.scrollLeft;
-      el.setPointerCapture(e.pointerId);
       el.classList.add("cursor-grabbing");
     };
 
@@ -179,10 +198,9 @@ export function ProjectsMarquee({
       aplicar(scrollInicial - dx);
     };
 
-    const onPointerUp = (e: PointerEvent) => {
+    const onPointerUp = () => {
       if (!aArrastar) return;
       aArrastar = false;
-      el.releasePointerCapture?.(e.pointerId);
       el.classList.remove("cursor-grabbing");
     };
 
@@ -204,11 +222,15 @@ export function ProjectsMarquee({
     };
 
     el.addEventListener("pointerdown", onPointerDown);
-    el.addEventListener("pointermove", onPointerMove);
-    el.addEventListener("pointerup", onPointerUp);
-    el.addEventListener("pointercancel", onPointerUp);
     el.addEventListener("dragstart", onDragStart);
     el.addEventListener("click", onClick, true);
+
+    // Na `window` e não no elemento: um arrasto que sai da faixa — ou que acaba
+    // com o cursor fora dela — tem de continuar a contar e de terminar bem.
+    // É o que a captura de ponteiro faria, sem o efeito de roubar o `click`.
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointercancel", onPointerUp);
 
     return () => {
       cancelAnimationFrame(raf);
@@ -219,11 +241,11 @@ export function ProjectsMarquee({
       el.removeEventListener("touchstart", parar);
       el.removeEventListener("touchend", retomar);
       el.removeEventListener("pointerdown", onPointerDown);
-      el.removeEventListener("pointermove", onPointerMove);
-      el.removeEventListener("pointerup", onPointerUp);
-      el.removeEventListener("pointercancel", onPointerUp);
       el.removeEventListener("dragstart", onDragStart);
       el.removeEventListener("click", onClick, true);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointercancel", onPointerUp);
     };
   }, [velocidade]);
 
@@ -238,21 +260,29 @@ export function ProjectsMarquee({
       {/* `select-none`: sem isto o arrasto vai pintando de seleção os nomes dos
           projetos por onde passa. */}
       <ul className="flex w-max select-none">
-        {projects.map((p) => (
-          <li key={p.slug} className={`carousel-item ${CELL}`}>
-            <ProjectCard project={p} reveal={false} sizes={CARD_SIZES} />
-          </li>
-        ))}
-        {projects.map((p) => (
-          <li
-            key={`copia-${p.slug}`}
-            inert
-            aria-hidden
-            className={`carousel-item ${CELL}`}
-          >
-            <ProjectCard project={p} reveal={false} sizes={CARD_SIZES} />
-          </li>
-        ))}
+        {Array.from({ length: RONDAS }, (_, ronda) =>
+          projects.map((p) => {
+            const original = ronda === 0;
+            return (
+              <li
+                key={`${ronda}-${p.slug}`}
+                // As repetições saem do teclado e do leitor de ecrã, mas
+                // continuam clicáveis. Aqui esteve `inert`, que também as
+                // tornava mortas ao rato — e metade dos cards no ecrã não
+                // abriam ao clique.
+                aria-hidden={original ? undefined : true}
+                className={`carousel-item ${CELL}`}
+              >
+                <ProjectCard
+                  project={p}
+                  reveal={false}
+                  focusable={original}
+                  sizes={CARD_SIZES}
+                />
+              </li>
+            );
+          }),
+        )}
       </ul>
     </div>
   );

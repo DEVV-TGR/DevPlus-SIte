@@ -64,8 +64,8 @@ espaçamento não duplicar. É o padrão em toda a homepage.
   torna agarrável: quem quer voltar a um projeto que passou arrasta-o de volta em
   vez de esperar pela volta. Vem de borla o dedo, o trackpad, a roda com shift e as
   setas; o arrasto com o rato é o único que precisa de código. O ciclo fecha-se
-  pondo o `scrollLeft` sempre dentro da primeira metade — sem isso o browser
-  encravava no extremo esquerdo, que nunca deixa passar de 0.
+  pondo o `scrollLeft` sempre dentro de uma ronda — sem isso o browser encravava
+  no extremo esquerdo, que nunca deixa passar de 0.
 - **Escrever no `scrollLeft` cancela a inércia do telemóvel.** Por isso o avanço
   automático espera ~250 ms sem movimento vindo de fora antes de voltar a empurrar:
   enquanto o impulso do dedo corre, o componente só o acompanha. Sem essa espera o
@@ -74,10 +74,22 @@ espaçamento não duplicar. É o padrão em toda a homepage.
   `pointerenter`, mas o `pointerleave` correspondente muitas vezes nunca chega — e a
   faixa ficava parada para sempre a partir do primeiro toque. Filtra por
   `pointerType === "mouse"`; o dedo tem o par `touchstart`/`touchend`.
-- **A posição dá a volta numa janela centrada**, não em `[0, metade)`. O mínimo para
+- **A posição dá a volta numa janela centrada**, não na primeira ronda. O mínimo para
   o ciclo fechar deixava a faixa colada ao extremo esquerdo, onde um impulso bate na
-  parede do scroll e pára a seco. A janela é uma cópia inteira centrada no que dá
+  parede do scroll e pára a seco. A janela é uma ronda inteira centrada no que dá
   para rolar, o que garante a mesma folga dos dois lados em qualquer largura.
+- **As repetições da faixa não levam `inert`.** `inert` tira do teclado e do leitor
+  de ecrã, mas também mata o rato — e como a faixa mostra várias rondas ao mesmo
+  tempo, metade dos cards no ecrã não abriam ao clique. O que se quer é `aria-hidden`
+  na `<li>` e `tabIndex={-1}` no link (prop `focusable={false}` do `ProjectCard`):
+  clicável para quem vê, invisível para quem tabula. São 15 cards e **5** alvos de
+  teclado.
+- **Numa faixa arrastável não uses `setPointerCapture`.** Parece o caminho certo
+  para o arrasto continuar quando o cursor sai do elemento, mas o Chrome redireciona
+  também o `click` para quem capturou o ponteiro — e o link do projeto deixa de o
+  receber, portanto clicar num card não abre nada. Medido: o alvo do `click` era a
+  `div` do viewport, e o listener no `<a>` nunca disparava. O arrasto fora da faixa
+  faz-se com `pointermove`/`pointerup` na `window`.
 - **Uma faixa arrastável tem de cancelar o `dragstart`.** O browser tem um arrasto
   próprio para links e imagens, e ele ganha ao nosso: sem o cancelar, agarrar num
   card arrasta o *link do projeto* em vez da faixa. `-webkit-user-drag: none` chega
