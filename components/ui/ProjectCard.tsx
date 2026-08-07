@@ -100,6 +100,7 @@ export function ProjectCard({
   reveal = true,
   sizes = DEFAULT_SIZES,
   blur = true,
+  focusable = true,
 }: {
   project: Project;
   index?: number;
@@ -108,14 +109,21 @@ export function ProjectCard({
   reveal?: boolean;
   sizes?: string;
   /** `false` dentro do `ProjectsMarquee`. Cada card tem três superfícies com
-   *  `backdrop-filter`, e a faixa mostra dez cards: medido no Chrome, eram
-   *  **26 elementos desfocados** — todos os da página — a serem recompostos a
+   *  `backdrop-filter`, e a faixa mostra 15 cards: medido no Chrome, os
+   *  elementos desfocados da página estavam todos ali, a serem recompostos a
    *  cada frame de um contentor a rolar. Numa grelha parada o custo é nulo e o
    *  desfoque fica. Ver `docs/04`. */
   blur?: boolean;
+  /** `false` nas repetições da faixa: o card continua clicável, mas sai da
+   *  ordem de tabulação — senão o teclado percorria 15 cards onde há 5. */
+  focusable?: boolean;
 }) {
   const card = (
-    <Link href={`/portfolio/${project.slug}`} className="block rounded-2xl">
+    <Link
+      href={`/portfolio/${project.slug}`}
+      tabIndex={focusable ? undefined : -1}
+      className="block rounded-2xl"
+    >
       {/* `@container`: o rodapé reage à largura do próprio card, não à do ecrã —
           na faixa contínua o card é estreito e o nome não cabe ao lado das
           etiquetas, mas na grelha do portfólio cabe. */}
