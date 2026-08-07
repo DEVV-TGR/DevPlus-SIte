@@ -7,8 +7,27 @@ import type { Project } from "@/lib/projects";
 
 const DEFAULT_SIZES = "(min-width: 768px) 50vw, 100vw";
 
-function Cover({ project, sizes }: { project: Project; sizes: string }) {
+/**
+ * As etiquetas e a seta pousam sobre a capa. Paradas, desfocam o que têm por
+ * baixo; em movimento, a superfície é opaca — ver o `blur` mais abaixo.
+ */
+const PASTILHA = "rounded-full border px-3 py-1 text-xs";
+const SOBRE_CAPA = {
+  desfocada: "bg-bg/50 backdrop-blur-sm",
+  opaca: "bg-bg/85",
+} as const;
+
+function Cover({
+  project,
+  sizes,
+  blur,
+}: {
+  project: Project;
+  sizes: string;
+  blur: boolean;
+}) {
   const shape = project.accent === "accent" ? "bg-accent/15" : "bg-primary/15";
+  const fundo = blur ? SOBRE_CAPA.desfocada : SOBRE_CAPA.opaca;
 
   return (
     <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-border bg-surface-2">
@@ -40,11 +59,11 @@ function Cover({ project, sizes }: { project: Project; sizes: string }) {
       )}
 
       <div className="absolute left-5 top-5 flex flex-wrap items-center gap-2">
-        <span className="rounded-full border border-ink/10 bg-bg/50 px-3 py-1 text-xs text-ink backdrop-blur-sm">
+        <span className={cn(PASTILHA, "border-ink/10 text-ink", fundo)}>
           {project.category}
         </span>
         {project.status === "em-curso" ? (
-          <span className="rounded-full border border-accent/30 bg-bg/50 px-3 py-1 text-xs text-accent backdrop-blur-sm">
+          <span className={cn(PASTILHA, "border-accent/30 text-accent", fundo)}>
             Em curso
           </span>
         ) : null}
@@ -52,7 +71,10 @@ function Cover({ project, sizes }: { project: Project; sizes: string }) {
 
       <span
         aria-hidden
-        className="absolute right-5 top-5 grid h-9 w-9 place-items-center rounded-full border border-ink/10 bg-bg/50 text-ink backdrop-blur-sm transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+        className={cn(
+          "absolute right-5 top-5 grid h-9 w-9 place-items-center rounded-full border border-ink/10 text-ink transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5",
+          fundo,
+        )}
       >
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <path
@@ -77,6 +99,7 @@ export function ProjectCard({
   index = 0,
   reveal = true,
   sizes = DEFAULT_SIZES,
+  blur = true,
   focusable = true,
 }: {
   project: Project;
@@ -85,6 +108,12 @@ export function ProjectCard({
    *  `whileInView` do `Reveal` dispara em posições imprevisíveis. */
   reveal?: boolean;
   sizes?: string;
+  /** `false` dentro do `ProjectsMarquee`. Cada card tem três superfícies com
+   *  `backdrop-filter`, e a faixa mostra 15 cards: medido no Chrome, os
+   *  elementos desfocados da página estavam todos ali, a serem recompostos a
+   *  cada frame de um contentor a rolar. Numa grelha parada o custo é nulo e o
+   *  desfoque fica. Ver `docs/04`. */
+  blur?: boolean;
   /** `false` nas repetições da faixa: o card continua clicável, mas sai da
    *  ordem de tabulação — senão o teclado percorria 15 cards onde há 5. */
   focusable?: boolean;
@@ -100,7 +129,7 @@ export function ProjectCard({
           etiquetas, mas na grelha do portfólio cabe. */}
       <article className="group @container flex flex-col gap-4">
         <div className="transition-transform duration-500 ease-out group-hover:-translate-y-1">
-          <Cover project={project} sizes={sizes} />
+          <Cover project={project} sizes={sizes} blur={blur} />
         </div>
         <div className="flex flex-col gap-2 px-1 @md:flex-row @md:items-start @md:justify-between @md:gap-4">
           <div>

@@ -277,6 +277,7 @@ export function ProjectsMarquee({
                   project={p}
                   reveal={false}
                   focusable={original}
+                  blur={false}
                   sizes={CARD_SIZES}
                 />
               </li>

@@ -66,6 +66,13 @@ espaçamento não duplicar. É o padrão em toda a homepage.
   setas; o arrasto com o rato é o único que precisa de código. O ciclo fecha-se
   pondo o `scrollLeft` sempre dentro de uma ronda — sem isso o browser encravava
   no extremo esquerdo, que nunca deixa passar de 0.
+- **Dentro da faixa não há `backdrop-filter`.** Cada card tem três superfícies
+  desfocadas sobre a capa, e a faixa mostra 15 cards: medido no Chrome, **todos os
+  elementos com `backdrop-filter` da homepage estavam dentro do carrossel** — a serem
+  recompostos a cada frame de um contentor a rolar depressa. Aí o desfoque dá lugar a
+  superfície opaca (`bg-bg/85`), pela prop `blur={false}` do `ProjectCard`; nas
+  grelhas paradas fica como está. Não o resolvas com CSS a caçar classes por dentro
+  do viewport — a decisão é de quem usa o card, e passa pela prop.
 - **Escrever no `scrollLeft` cancela a inércia do telemóvel.** Por isso o avanço
   automático espera ~250 ms sem movimento vindo de fora antes de voltar a empurrar:
   enquanto o impulso do dedo corre, o componente só o acompanha. Sem essa espera o
