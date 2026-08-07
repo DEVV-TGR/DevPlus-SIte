@@ -92,10 +92,12 @@ export function ProjectsMarquee({
 
       if (parado || semMovimento.matches || aArrastar) return;
 
-      // Sentido contrário ao da faixa de disciplinas, para as duas não lerem
-      // como a mesma coisa repetida. `Math.min` protege de saltos enormes
+      // Os cards viajam da direita para a esquerda — o mesmo sentido da faixa
+      // de disciplinas. Foi decidido a olhar para o ecrã, e não em abstrato:
+      // ao contrário, a faixa lê-se como se a página estivesse a recuar. Não
+      // troques o sinal sem esse teste. `Math.min` protege de saltos enormes
       // quando o separador esteve em segundo plano.
-      aplicar(posicao - velocidade * Math.min(delta, 0.05));
+      aplicar(posicao + velocidade * Math.min(delta, 0.05));
     };
 
     // Declarado antes do `raf` porque o `passo` consulta-o.

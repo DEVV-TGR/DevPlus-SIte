@@ -66,6 +66,9 @@ espaçamento não duplicar. É o padrão em toda a homepage.
   setas; o arrasto com o rato é o único que precisa de código. O ciclo fecha-se
   pondo o `scrollLeft` sempre dentro da primeira metade — sem isso o browser
   encravava no extremo esquerdo, que nunca deixa passar de 0.
+- **As duas faixas correm no mesmo sentido**, da direita para a esquerda. Chegou-se
+  aí a olhar para o ecrã: a faixa de projetos ao contrário lê-se como se a página
+  estivesse a recuar. Contrariá-las uma à outra parece boa ideia no papel e não é.
 - **Nenhuma animação pode ser a condição de o conteúdo existir.** Tudo o que nasce
   invisível à espera de animar leva `data-reveal`, e `globals.css` mostra esses
   elementos enquanto o `<html>` não tiver a classe `js` — posta por um script inline
