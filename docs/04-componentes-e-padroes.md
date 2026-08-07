@@ -66,6 +66,12 @@ espaçamento não duplicar. É o padrão em toda a homepage.
   setas; o arrasto com o rato é o único que precisa de código. O ciclo fecha-se
   pondo o `scrollLeft` sempre dentro da primeira metade — sem isso o browser
   encravava no extremo esquerdo, que nunca deixa passar de 0.
+- **As repetições da faixa não levam `inert`.** `inert` tira do teclado e do leitor
+  de ecrã, mas também mata o rato — e como a faixa mostra várias rondas ao mesmo
+  tempo, metade dos cards no ecrã não abriam ao clique. O que se quer é `aria-hidden`
+  na `<li>` e `tabIndex={-1}` no link (prop `focusable={false}` do `ProjectCard`):
+  clicável para quem vê, invisível para quem tabula. São 15 cards e **5** alvos de
+  teclado.
 - **Numa faixa arrastável não uses `setPointerCapture`.** Parece o caminho certo
   para o arrasto continuar quando o cursor sai do elemento, mas o Chrome redireciona
   também o `click` para quem capturou o ponteiro — e o link do projeto deixa de o
