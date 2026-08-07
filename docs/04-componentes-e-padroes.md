@@ -66,6 +66,11 @@ espaçamento não duplicar. É o padrão em toda a homepage.
   setas; o arrasto com o rato é o único que precisa de código. O ciclo fecha-se
   pondo o `scrollLeft` sempre dentro da primeira metade — sem isso o browser
   encravava no extremo esquerdo, que nunca deixa passar de 0.
+- **Uma faixa arrastável tem de cancelar o `dragstart`.** O browser tem um arrasto
+  próprio para links e imagens, e ele ganha ao nosso: sem o cancelar, agarrar num
+  card arrasta o *link do projeto* em vez da faixa. `-webkit-user-drag: none` chega
+  ao Chrome e ao Safari e deixa o Firefox de fora — o listener chega aos três. O
+  track leva ainda `select-none`, senão o arrasto pinta seleção pelo caminho.
 - **As duas faixas correm no mesmo sentido**, da direita para a esquerda. Chegou-se
   aí a olhar para o ecrã: a faixa de projetos ao contrário lê-se como se a página
   estivesse a recuar. Contrariá-las uma à outra parece boa ideia no papel e não é.

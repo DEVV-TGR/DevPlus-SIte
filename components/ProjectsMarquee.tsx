@@ -148,9 +148,17 @@ export function ProjectsMarquee({
       el.classList.remove("cursor-grabbing");
     };
 
+    // O browser tem um arrasto próprio para links e imagens — o "fantasma" que
+    // se cola ao cursor — e ele ganha ao nosso: assim que arranca, o
+    // `pointermove` deixa de chegar e o que se arrasta é o link do projeto, não
+    // a faixa. Cancelar o `dragstart` é o que o desliga em todos os browsers;
+    // `-webkit-user-drag: none` resolveria no Chrome e no Safari e deixava o
+    // Firefox de fora.
+    const onDragStart = (e: DragEvent) => e.preventDefault();
+
     // Arrastar não deve abrir o projeto que estava debaixo do cursor.
     const onClick = (e: MouseEvent) => {
-      if (percorrido > 6) {
+      if (percorrido > 8) {
         e.preventDefault();
         e.stopPropagation();
         percorrido = 0;
@@ -161,6 +169,7 @@ export function ProjectsMarquee({
     el.addEventListener("pointermove", onPointerMove);
     el.addEventListener("pointerup", onPointerUp);
     el.addEventListener("pointercancel", onPointerUp);
+    el.addEventListener("dragstart", onDragStart);
     el.addEventListener("click", onClick, true);
 
     return () => {
@@ -175,6 +184,7 @@ export function ProjectsMarquee({
       el.removeEventListener("pointermove", onPointerMove);
       el.removeEventListener("pointerup", onPointerUp);
       el.removeEventListener("pointercancel", onPointerUp);
+      el.removeEventListener("dragstart", onDragStart);
       el.removeEventListener("click", onClick, true);
     };
   }, [velocidade]);
@@ -187,7 +197,9 @@ export function ProjectsMarquee({
       data-lenis-prevent
       className="carousel-viewport cursor-grab overflow-x-auto overscroll-x-contain"
     >
-      <ul className="flex w-max">
+      {/* `select-none`: sem isto o arrasto vai pintando de seleção os nomes dos
+          projetos por onde passa. */}
+      <ul className="flex w-max select-none">
         {projects.map((p) => (
           <li key={p.slug} className={`carousel-item ${CELL}`}>
             <ProjectCard project={p} reveal={false} sizes={CARD_SIZES} />
