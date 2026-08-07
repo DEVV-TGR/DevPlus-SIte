@@ -77,6 +77,7 @@ export function ProjectCard({
   index = 0,
   reveal = true,
   sizes = DEFAULT_SIZES,
+  focusable = true,
 }: {
   project: Project;
   index?: number;
@@ -84,9 +85,16 @@ export function ProjectCard({
    *  `whileInView` do `Reveal` dispara em posições imprevisíveis. */
   reveal?: boolean;
   sizes?: string;
+  /** `false` nas repetições da faixa: o card continua clicável, mas sai da
+   *  ordem de tabulação — senão o teclado percorria 15 cards onde há 5. */
+  focusable?: boolean;
 }) {
   const card = (
-    <Link href={`/portfolio/${project.slug}`} className="block rounded-2xl">
+    <Link
+      href={`/portfolio/${project.slug}`}
+      tabIndex={focusable ? undefined : -1}
+      className="block rounded-2xl"
+    >
       {/* `@container`: o rodapé reage à largura do próprio card, não à do ecrã —
           na faixa contínua o card é estreito e o nome não cabe ao lado das
           etiquetas, mas na grelha do portfólio cabe. */}

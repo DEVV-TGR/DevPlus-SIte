@@ -52,8 +52,13 @@ coisas ao mesmo tempo — o campo e o tempo verbal.
 
 A página inicial deixou de ter grelha de projetos, e com ela caiu a regra de o
 resto ter de ser par. A faixa aceita qualquer número, mas **abaixo de 3 projetos
-não a uses**: com dois, a cópia que fecha o ciclo entra no ecrã ao mesmo tempo
-que o original e a repetição fica à vista.
+não a uses**: com dois, o mesmo card volta a entrar no ecrã antes de o original
+sair e a repetição fica à vista.
+
+A lista repete-se **três vezes** no markup (`RONDAS` em `components/ProjectsMarquee.tsx`).
+Duas chegavam para o ciclo fechar, mas em ecrãs largos a volta acontecia dentro do
+campo de visão. Só a primeira ronda conta para o teclado e para o leitor de ecrã; as
+outras são clicáveis à mesma — ver `docs/04`.
 
 Com 5 projetos o portfólio tem uma linha com um card sozinho — aceitável numa
 lista completa. **Ao chegar a 6, confere `app/portfolio/page.tsx`.**
