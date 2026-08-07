@@ -47,7 +47,8 @@ next-env.d.ts
 # scripts/vectorizar-logo.py. Ver docs/03-simbolo-e-logotipo.md.
 !/images/Dev+-logosimples.png
 
-# ferramentas de agentes: worktrees, skills e definições locais. Nada disto
-# pertence ao repositório do site. Ver AGENTS.md, "Git — branches, nunca
-# worktrees".
-/.claude/
+# agentes — .claude/settings.json e .claude/skills/ são versionados (a
+# configuração e as skills são partilhadas). O que é da máquina de cada um
+# fica de fora.
+/.claude/settings.local.json
+/.claude/worktrees/
