@@ -1,21 +1,26 @@
 /** docs: docs/01-marca.md — títulos, descrições e Open Graph vêm de lib/site.ts. */
 import type { Metadata } from "next";
-import { Space_Grotesk, Inter } from "next/font/google";
+import { Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { OrganizationJsonLd } from "@/components/JsonLd";
 import { site } from "@/lib/site";
 
-const display = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-space-grotesk",
-  display: "swap",
-});
-
-const sans = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
+/**
+ * Uma família só, a fazer títulos e corpo — o contraste faz-se por peso e pelo
+ * eixo óptico, não por uma segunda fonte. Ver docs/02: as duas famílias
+ * anteriores eram sans-serif próximas, que é o par a evitar, e uma família
+ * carrega menos do que duas.
+ *
+ * `opsz` é o que faz isto funcionar num só tipo: em corpo pequeno o desenho
+ * abre e fica legível, em título fecha e ganha carácter.
+ */
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin", "latin-ext"],
+  axes: ["opsz"],
+  variable: "--font-bricolage",
   display: "swap",
 });
 
@@ -51,8 +56,9 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: fullTitle,
-    description:
-      "Sites, plataformas e menus digitais — com painel de gestão para atualizares tudo sozinho.",
+    // Vem de `lib/site.ts` como tudo o resto: escrita à mão, divergia da
+    // description do site sem ninguém dar por isso — ver docs/01.
+    description: site.description,
   },
 };
 
@@ -62,7 +68,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang={site.lang} className={`${display.variable} ${sans.variable}`}>
+    <html lang={site.lang} className={bricolage.variable}>
       <head>
         {/* Marca que há JavaScript antes do primeiro paint. Sem esta classe,
             `globals.css` mostra tudo o que está à espera de animar — ver
@@ -80,6 +86,7 @@ export default function RootLayout({
         >
           Saltar para o conteúdo
         </a>
+        <OrganizationJsonLd />
         <Providers>
           <Nav />
           <main id="main" className="flex-1">

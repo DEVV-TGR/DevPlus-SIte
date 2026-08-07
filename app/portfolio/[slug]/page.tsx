@@ -6,6 +6,7 @@ import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/Reveal";
+import { CaseStudyJsonLd } from "@/components/JsonLd";
 import { projects, getProject } from "@/lib/projects";
 import { cn } from "@/lib/utils";
 
@@ -21,7 +22,32 @@ export async function generateMetadata({
   const { slug } = await params;
   const project = getProject(slug);
   if (!project) return {};
-  return { title: project.name, description: project.summary };
+
+  const url = `/portfolio/${project.slug}`;
+
+  return {
+    title: project.name,
+    description: project.summary,
+    alternates: { canonical: url },
+    // Sem isto, partilhar um caso de estudo mostrava o cartão genérico do site
+    // em vez da capa do projeto. Quem não tem capa cai no cartão global.
+    openGraph: {
+      type: "article",
+      title: `${project.name} — ${project.category}`,
+      description: project.summary,
+      url,
+      ...(project.image
+        ? {
+            images: [
+              {
+                url: project.image,
+                alt: project.imageAlt ?? `Capa do projeto ${project.name}`,
+              },
+            ],
+          }
+        : {}),
+    },
+  };
 }
 
 export default async function CaseStudyPage({
@@ -35,11 +61,17 @@ export default async function CaseStudyPage({
 
   const idx = projects.findIndex((p) => p.slug === slug);
   const next = projects[(idx + 1) % projects.length];
-  const shape =
-    project.accent === "accent" ? "bg-accent/15" : "bg-primary/15";
+  const shape = project.accent === "accent" ? "bg-accent/15" : "bg-primary/15";
 
   return (
     <>
+      <CaseStudyJsonLd
+        name={project.name}
+        description={project.summary}
+        slug={project.slug}
+        image={project.image}
+        year={project.year}
+      />
       <section className="border-b border-border">
         <Container className="pb-12 pt-14 sm:pt-20">
           <Reveal>
@@ -103,7 +135,12 @@ export default async function CaseStudyPage({
                 )}
               />
             )}
-            <span className="absolute bottom-6 left-6 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+            {/* Decorativo: o nome já está no `h1` logo acima. Sem `aria-hidden`,
+                um leitor de ecrã anunciava-o duas vezes seguidas. */}
+            <span
+              aria-hidden
+              className="absolute bottom-6 left-6 font-display text-3xl font-semibold tracking-tight sm:text-4xl"
+            >
               {project.name}
             </span>
           </div>
@@ -128,7 +165,9 @@ export default async function CaseStudyPage({
 
             <Reveal className="lg:col-span-4" delay={0.08}>
               <div className="rounded-2xl border border-border bg-surface p-6">
-                <h2 className="text-sm font-medium text-ink">Serviços</h2>
+                {/* `p` e não `h2`: é o rótulo de uma lista, não uma secção do
+                    caso de estudo — ver docs/04, "Acessibilidade". */}
+                <p className="text-sm font-medium text-ink">Serviços</p>
                 <ul className="mt-3 flex flex-wrap gap-2">
                   {project.services.map((s) => (
                     <li

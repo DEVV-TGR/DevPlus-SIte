@@ -14,6 +14,10 @@
   --surface: oklch(0.19 0.013 56);
   --surface-2: oklch(0.23 0.015 56);
   --border: oklch(0.31 0.016 56);
+  /* Separadores podem ser discretos; o contorno de um controlo não. A WCAG
+     1.4.11 pede 3:1 quando a borda é a única forma de perceber que ali há um
+     campo ou um botão — `--border` dá 1.49:1, este dá 3.56:1. Ver docs/02. */
+  --border-strong: oklch(0.52 0.016 56);
 
   /* Ink */
   --ink: oklch(0.97 0.006 80);
@@ -23,6 +27,11 @@
   --primary: oklch(0.72 0.188 50);
   --primary-strong: oklch(0.67 0.202 47);
   --primary-ink: oklch(0.17 0.03 50);
+
+  /* Estado de erro. Existe porque o laranja é a cor de ação — usá-lo também
+     para erro fazia a mesma cor querer dizer duas coisas. Hue 25 contra os 50
+     do primary: distingue-se ao lado dele. 6.27:1 sobre `bg`. Ver docs/02. */
+  --danger: oklch(0.68 0.19 25);
 
   /* Brand — green (accent) */
   --accent: oklch(0.77 0.158 154);
@@ -40,6 +49,7 @@
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-primary: var(--primary);
@@ -48,9 +58,13 @@
   --color-accent: var(--accent);
   --color-accent-strong: var(--accent-strong);
   --color-accent-ink: var(--accent-ink);
+  --color-danger: var(--danger);
 
-  --font-display: var(--font-space-grotesk);
-  --font-sans: var(--font-inter);
+  /* A mesma família nos dois papéis — ver docs/02. `font-display` e
+     `font-sans` continuam a existir porque marcam a intenção no markup, e
+     porque se um dia voltar a haver duas fontes só se mexe aqui. */
+  --font-display: var(--font-bricolage);
+  --font-sans: var(--font-bricolage);
 
   --radius-lg: var(--radius);
   --radius-xl: 1.25rem;
@@ -72,6 +86,9 @@ body {
   background: var(--color-bg);
   color: var(--color-ink);
   font-family: var(--font-sans), system-ui, sans-serif;
+  /* Eixo óptico baixo: em corpo pequeno o desenho abre e lê-se melhor. É isto
+     que deixa a mesma família servir de título e de texto — ver docs/02. */
+  font-variation-settings: "opsz" 14;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -81,6 +98,8 @@ h2,
 h3,
 h4 {
   font-family: var(--font-display), var(--font-sans), sans-serif;
+  /* Eixo óptico alto: em tamanho grande fecha e ganha o carácter da família. */
+  font-variation-settings: "opsz" 48;
   letter-spacing: -0.02em; /* >= -0.04em floor */
   text-wrap: balance;
 }
@@ -121,6 +140,17 @@ p {
 html:not(.js) [data-reveal] {
   opacity: 1 !important;
   transform: none !important;
+}
+
+/* O carrossel de projetos faz scroll a sério (é o que o torna arrastável), mas
+   a barra estragava a faixa. Esconder aqui é seguro: o conteúdo continua
+   alcançável por arrasto, roda, teclado e — em movimento reduzido — snap. */
+.carousel-viewport {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.carousel-viewport::-webkit-scrollbar {
+  display: none;
 }
 
 /* Infinite marquee (content is duplicated, so -50% loops seamlessly) */
@@ -179,18 +209,13 @@ html.lenis body {
     scroll-behavior: auto !important;
   }
 
-  /* A regra acima congela o carrossel de projetos no primeiro card, e os
-     restantes ficariam fora do ecrã sem forma de lá chegar. Ao contrário do
-     marquee decorativo, aqui o conteúdo é navegável — por isso passa a
-     carrossel de scroll manual, e a cópia inerte sai da frente. */
+  /* O carrossel de projetos não é decorativo: o avanço automático pára (o
+     componente verifica esta mesma preferência), mas continua a arrastar-se
+     e a fazer scroll. Com snap, para parar sempre num card inteiro. */
   .carousel-viewport {
-    overflow-x: auto;
     scroll-snap-type: x mandatory;
   }
   .carousel-item {
     scroll-snap-align: center;
-  }
-  .carousel-clone {
-    display: none;
   }
 }
