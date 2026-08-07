@@ -240,7 +240,7 @@ export function ProjectsMarquee({
       <ul className="flex w-max select-none">
         {projects.map((p) => (
           <li key={p.slug} className={`carousel-item ${CELL}`}>
-            <ProjectCard project={p} reveal={false} sizes={CARD_SIZES} />
+            <ProjectCard project={p} reveal={false} blur={false} sizes={CARD_SIZES} />
           </li>
         ))}
         {projects.map((p) => (
@@ -250,7 +250,7 @@ export function ProjectsMarquee({
             aria-hidden
             className={`carousel-item ${CELL}`}
           >
-            <ProjectCard project={p} reveal={false} sizes={CARD_SIZES} />
+            <ProjectCard project={p} reveal={false} blur={false} sizes={CARD_SIZES} />
           </li>
         ))}
       </ul>
