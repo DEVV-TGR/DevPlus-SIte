@@ -31,6 +31,12 @@ const CELL = "w-[calc(100vw-2rem)] shrink-0 px-2 sm:w-[396px] lg:w-[456px]";
 /** Píxeis por segundo. Devagar: tem de dar para ler e para acertar num card. */
 const VELOCIDADE = 34;
 
+/**
+ * Milissegundos sem movimento vindo de fora antes de o avanço automático
+ * retomar. É o tempo que se dá à inércia do telemóvel para assentar sozinha.
+ */
+const ESPERA_INERCIA = 250;
+
 export function ProjectsMarquee({
   projects,
   velocidade = VELOCIDADE,
@@ -57,12 +63,23 @@ export function ProjectsMarquee({
     let parado = false;
     let raf = 0;
 
-    // Mantém a posição dentro da primeira metade. Como as duas cópias são
-    // idênticas, o salto não se vê.
+    /** Instante do último movimento vindo de fora (dedo, roda, teclado). */
+    let ultimoExterno = -Infinity;
+
+    // Mantém a posição numa janela de uma cópia inteira, centrada no meio do
+    // que dá para rolar. Como as duas cópias são idênticas, o salto não se vê.
+    //
+    // A janela não é `[0, metade)`, que era o mínimo para o ciclo fechar: aí a
+    // faixa acabava colada ao extremo esquerdo, e um impulso do dedo batia na
+    // parede do scroll e parava a seco. Assim sobra sempre a mesma folga dos
+    // dois lados, seja qual for a largura do ecrã.
+    const inicioJanela = () => Math.max(0, (metade() - el.clientWidth) / 2);
+
     const normalizar = (v: number) => {
       const m = metade();
       if (m <= 0) return v;
-      return ((v % m) + m) % m;
+      const base = inicioJanela();
+      return ((((v - base) % m) + m) % m) + base;
     };
 
     const semMovimento = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -87,10 +104,20 @@ export function ProjectsMarquee({
         aplicar(metade() / 2);
       }
 
-      // Alguém mexeu por fora (roda, trackpad, teclado): aceita a posição dele.
-      if (Math.abs(el.scrollLeft - ultimoAplicado) > 1) posicao = el.scrollLeft;
+      // Alguém mexeu por fora (dedo, roda, trackpad, teclado): aceita a
+      // posição dele e marca a hora.
+      if (Math.abs(el.scrollLeft - ultimoAplicado) > 1) {
+        posicao = el.scrollLeft;
+        ultimoExterno = agora;
+      }
 
       if (parado || semMovimento.matches || aArrastar) return;
+
+      // Escrever no `scrollLeft` cancela a inércia nativa. Sem esta espera, o
+      // frame a seguir ao dedo sair do ecrã matava o impulso — no telemóvel
+      // sentia-se como se a faixa estivesse presa. Enquanto a inércia corre o
+      // componente só a acompanha; volta a empurrar quando ela assentar.
+      if (agora - ultimoExterno < ESPERA_INERCIA) return;
 
       // Os cards viajam da direita para a esquerda — o mesmo sentido da faixa
       // de disciplinas. Foi decidido a olhar para o ecrã, e não em abstrato:
@@ -112,8 +139,19 @@ export function ProjectsMarquee({
       parado = false;
     };
 
-    el.addEventListener("pointerenter", parar);
-    el.addEventListener("pointerleave", retomar);
+    // Só o rato. Um toque também dispara `pointerenter`, mas o `pointerleave`
+    // que devia desfazê-lo muitas vezes nunca chega — e a faixa ficava parada
+    // para sempre a partir do primeiro toque. O dedo é tratado pelo par
+    // `touchstart`/`touchend` logo a seguir.
+    const aoEntrar = (e: PointerEvent) => {
+      if (e.pointerType === "mouse") parar();
+    };
+    const aoSair = (e: PointerEvent) => {
+      if (e.pointerType === "mouse") retomar();
+    };
+
+    el.addEventListener("pointerenter", aoEntrar);
+    el.addEventListener("pointerleave", aoSair);
     el.addEventListener("focusin", parar);
     el.addEventListener("focusout", retomar);
     el.addEventListener("touchstart", parar, { passive: true });
@@ -174,8 +212,8 @@ export function ProjectsMarquee({
 
     return () => {
       cancelAnimationFrame(raf);
-      el.removeEventListener("pointerenter", parar);
-      el.removeEventListener("pointerleave", retomar);
+      el.removeEventListener("pointerenter", aoEntrar);
+      el.removeEventListener("pointerleave", aoSair);
       el.removeEventListener("focusin", parar);
       el.removeEventListener("focusout", retomar);
       el.removeEventListener("touchstart", parar);

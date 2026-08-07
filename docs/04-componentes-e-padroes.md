@@ -66,6 +66,18 @@ espaçamento não duplicar. É o padrão em toda a homepage.
   setas; o arrasto com o rato é o único que precisa de código. O ciclo fecha-se
   pondo o `scrollLeft` sempre dentro da primeira metade — sem isso o browser
   encravava no extremo esquerdo, que nunca deixa passar de 0.
+- **Escrever no `scrollLeft` cancela a inércia do telemóvel.** Por isso o avanço
+  automático espera ~250 ms sem movimento vindo de fora antes de voltar a empurrar:
+  enquanto o impulso do dedo corre, o componente só o acompanha. Sem essa espera o
+  primeiro frame a seguir ao dedo sair mata o impulso e a faixa parece presa.
+- **Pausar ao passar por cima é só para o rato.** Um toque também dispara
+  `pointerenter`, mas o `pointerleave` correspondente muitas vezes nunca chega — e a
+  faixa ficava parada para sempre a partir do primeiro toque. Filtra por
+  `pointerType === "mouse"`; o dedo tem o par `touchstart`/`touchend`.
+- **A posição dá a volta numa janela centrada**, não em `[0, metade)`. O mínimo para
+  o ciclo fechar deixava a faixa colada ao extremo esquerdo, onde um impulso bate na
+  parede do scroll e pára a seco. A janela é uma cópia inteira centrada no que dá
+  para rolar, o que garante a mesma folga dos dois lados em qualquer largura.
 - **Uma faixa arrastável tem de cancelar o `dragstart`.** O browser tem um arrasto
   próprio para links e imagens, e ele ganha ao nosso: sem o cancelar, agarrar num
   card arrasta o *link do projeto* em vez da faixa. `-webkit-user-drag: none` chega

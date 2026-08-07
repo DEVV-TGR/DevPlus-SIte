@@ -148,6 +148,8 @@ html:not(.js) [data-reveal] {
 .carousel-viewport {
   scrollbar-width: none;
   -ms-overflow-style: none;
+  /* iOS antigo: sem isto o arrasto com o dedo não tem inércia nenhuma. */
+  -webkit-overflow-scrolling: touch;
 }
 .carousel-viewport::-webkit-scrollbar {
   display: none;
