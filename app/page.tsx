@@ -80,7 +80,7 @@ export default function Home() {
           acabados de ler ganham cara aqui. */}
       <Section top={false}>
         {/* Fora do Container: a faixa sangra até às margens do ecrã. */}
-        <div className="mt-2 sm:mt-6">
+        <div className="mt-4 sm:mt-9">
           <ProjectsMarquee projects={projects} />
         </div>
 
