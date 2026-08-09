@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { site } from "./lib/site";
 
 const emDesenvolvimento = process.env.NODE_ENV === "development";
 
@@ -74,6 +75,15 @@ const cabecalhosDeSeguranca = [
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
   },
+  /* A Vercel serve os ficheiros estáticos com `Access-Control-Allow-Origin: *`
+     por omissão — confirmado em produção, tanto no HTML como nas capas.
+
+     Nas páginas isso não expõe nada: é conteúdo público, e quem o quiser ler
+     de outro domínio faz um pedido do seu próprio servidor sem passar por CORS
+     nenhum. Mas o `*` deixa de ser inofensivo no dia em que houver uma resposta
+     que não seja para toda a gente — e a `/api/contacto` está a caminho. Fixar
+     a origem agora é mais barato do que descobrir mais tarde que a herdou. */
+  { key: "Access-Control-Allow-Origin", value: site.url },
 ];
 
 const nextConfig: NextConfig = {
