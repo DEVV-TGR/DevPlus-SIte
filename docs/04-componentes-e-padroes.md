@@ -151,6 +151,14 @@ texto de rascunho — quem o lê não tem como distinguir.
   a `opacity:0` e quem não executa JavaScript vê uma página em branco. O `Reveal`
   tem ainda um temporizador de segurança: se o observador de viewport não disparar
   (renderizadores headless, separadores em segundo plano), mostra-se ao fim de 1,2 s.
+- **O `<html>` leva `suppressHydrationWarning`, e é preciso.** Duas coisas lhe mexem
+  no `class` antes de o React hidratar: o script da classe `js`, acima, e o Lenis,
+  que lhe põe `lenis lenis-smooth` ao arrancar. O servidor manda
+  `class="…__variable"` e o browser já tem mais três classes — diferença que o React
+  reporta como erro de hidratação na consola. O `suppressHydrationWarning` cala-o
+  **só nesse elemento e só nos atributos dele**; a árvore por baixo continua
+  verificada. **Não o alastres ao `<body>` nem a componentes:** aí um aviso destes é
+  um bug a sério e tem de aparecer.
 - Hover em cards: `-translate-y-1` no grupo. Botões: `active:scale-[0.97]`.
 
 ## Acessibilidade
