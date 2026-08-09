@@ -29,8 +29,8 @@ export function Footer() {
           <div className="lg:col-span-2">
             <Wordmark />
             <p className="mt-4 max-w-xs text-sm text-muted">
-              Estúdio independente de web design e desenvolvimento. Sites,
-              plataformas e menus digitais, construídos ao detalhe.
+              Estúdio de web design e desenvolvimento. Sites, menus digitais e
+              plataformas para negócios que gostam de mandar no que é seu.
             </p>
           </div>
 

@@ -11,7 +11,7 @@ import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Portfólio",
-  description: `Trabalho selecionado da ${site.name} — sites, plataformas e menus digitais desenhados e desenvolvidos de raiz.`,
+  description: `Projetos recentes da ${site.name} — sites, menus digitais e plataformas feitos à medida de cada negócio.`,
 };
 
 export default function PortfolioPage() {
@@ -20,7 +20,7 @@ export default function PortfolioPage() {
       <PageHero
         eyebrow="Portfólio"
         title="Trabalho selecionado."
-        intro="Uma seleção de projetos recentes — cada um desenhado e construído de raiz, do conceito ao código."
+        intro="Alguns dos projetos mais recentes. Todos começaram da mesma maneira: uma folha em branco e uma conversa."
       />
 
       <Section>
@@ -42,12 +42,12 @@ export default function PortfolioPage() {
                   O próximo pode ser o teu.
                 </h2>
                 <p className="mt-2 max-w-md text-sm text-muted">
-                  Conta-nos o que tens em mente. Respondemos em 24 a 48 horas
-                  úteis.
+                  Conta-nos o que tens em mente. Não precisas de ter tudo
+                  decidido para nos falares.
                 </p>
               </div>
               <Button href="/contacto" variant="primary" className="shrink-0">
-                Falar connosco
+                Vamos a isso
               </Button>
             </div>
           </Reveal>
