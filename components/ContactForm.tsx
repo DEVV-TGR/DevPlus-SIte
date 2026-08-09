@@ -1,34 +1,41 @@
 "use client";
-/** docs: docs/04-componentes-e-padroes.md — ver "Nota conhecida": este formulário ainda não envia. */
+/** docs: docs/04-componentes-e-padroes.md — ver "O formulário de contacto". */
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { site } from "@/lib/site";
+import {
+  CAMPOS,
+  HONEYPOT,
+  validarContacto,
+  type ErrosContacto,
+} from "@/lib/contacto";
 
-type Status = "idle" | "submitting" | "success" | "error";
-type Errors = { name?: string; email?: string; message?: string };
+type Status = "idle" | "submitting" | "success" | "error" | "rate-limited";
+type Errors = ErrosContacto;
 
 /* `border-strong` e não `border`: aqui a borda é a única pista de que existe um
    campo, e a WCAG 1.4.11 pede 3:1 para isso — ver docs/02. */
 const inputClass =
   "w-full rounded-lg border border-border-strong bg-surface px-4 py-3 text-ink transition-colors focus:border-ink/50 aria-[invalid=true]:border-danger";
 
-function validate(data: {
-  name: string;
-  email: string;
-  message: string;
-}): Errors {
-  const errors: Errors = {};
-  if (!data.name.trim()) errors.name = "Diz-nos como te chamas.";
-  if (!data.email.trim()) errors.email = "Precisamos do teu email para responder.";
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email))
-    errors.email = "Este email parece ter alguma coisa trocada.";
-  if (!data.message.trim()) errors.message = "Conta-nos o que precisas, nem que seja em duas linhas.";
-  return errors;
-}
-
 export function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [errors, setErrors] = useState<Errors>({});
+
+  /** Pinta os erros e devolve `true` se havia algum. */
+  function mostrarErros(errs: Errors, form: HTMLFormElement): boolean {
+    setErrors(errs);
+    const [primeiroCampoInvalido] = CAMPOS.filter((campo) => errs[campo]);
+    if (!primeiroCampoInvalido) return false;
+
+    // Sem isto, submeter com erros não leva a lado nenhum: a mensagem aparece
+    // fora do ecrã e quem navega por teclado fica no botão.
+    form
+      .querySelector<HTMLElement>(`[name="${primeiroCampoInvalido}"]`)
+      ?.focus();
+    return true;
+  }
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -40,26 +47,43 @@ export function ContactForm() {
       message: String(fd.get("message") ?? ""),
     };
 
-    const errs = validate(data);
-    setErrors(errs);
-    const [primeiroCampoInvalido] = (
-      ["name", "email", "message"] as const
-    ).filter((campo) => errs[campo]);
-    if (primeiroCampoInvalido) {
-      // Sem isto, submeter com erros não leva a lado nenhum: a mensagem aparece
-      // fora do ecrã e quem navega por teclado fica no botão.
-      form
-        .querySelector<HTMLElement>(`[name="${primeiroCampoInvalido}"]`)
-        ?.focus();
-      return;
-    }
+    if (mostrarErros(validarContacto(data), form)) return;
 
     setStatus("submitting");
     try {
-      // Placeholder submit — wire to an email service (Resend, Formspree…) later.
-      await new Promise((r) => setTimeout(r, 900));
-      setStatus("success");
-      form.reset();
+      const res = await fetch("/api/contacto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...data,
+          [HONEYPOT]: String(fd.get(HONEYPOT) ?? ""),
+        }),
+      });
+
+      if (res.ok) {
+        setStatus("success");
+        form.reset();
+        return;
+      }
+
+      if (res.status === 429) {
+        setStatus("rate-limited");
+        return;
+      }
+
+      // O servidor revalida — se recusou por campos, mostra-os como se a
+      // validação de cliente os tivesse apanhado.
+      if (res.status === 400) {
+        const { errors: doServidor } = (await res.json().catch(() => ({}))) as {
+          errors?: Errors;
+        };
+        if (doServidor && mostrarErros(doServidor, form)) {
+          setStatus("idle");
+          return;
+        }
+      }
+
+      setStatus("error");
     } catch {
       setStatus("error");
     }
@@ -88,6 +112,22 @@ export function ContactForm() {
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-5">
+      {/* A armadilha. `sr-only` e não `display:none` nem `type="hidden"` — os
+          bots que interessa apanhar ignoram esses dois. O `aria-hidden` e o
+          `tabIndex` garantem que ninguém lá chega por leitor de ecrã ou
+          teclado; quem o preencher é porque preenche tudo. */}
+      <div className="sr-only" aria-hidden="true">
+        <label htmlFor={HONEYPOT}>Não preenchas este campo</label>
+        <input
+          id={HONEYPOT}
+          name={HONEYPOT}
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          defaultValue=""
+        />
+      </div>
+
       <div>
         <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
           Nome
@@ -165,7 +205,13 @@ export function ContactForm() {
         </Button>
         {status === "error" ? (
           <p role="alert" className="text-sm text-danger">
-            Não conseguimos enviar. Tenta outra vez, se faz favor.
+            Não conseguimos enviar. Tenta outra vez, se faz favor — ou escreve
+            direto para {site.email}.
+          </p>
+        ) : null}
+        {status === "rate-limited" ? (
+          <p role="alert" className="text-sm text-danger">
+            Já nos escreveste há pouco. Dá-nos uns minutos e tenta de novo.
           </p>
         ) : null}
       </div>

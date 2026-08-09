@@ -36,16 +36,21 @@ _acrescentar_, _mais_ — mas sem forçar. Uma piada de "+" por página é o lim
 Tudo vive em **`lib/site.ts`**. Não escrevas nenhum destes valores à mão noutro
 ficheiro; importa-os. Se precisas de um dado novo, acrescenta-o lá.
 
-| Campo             | Valor                                   |
-| ----------------- | --------------------------------------- |
-| `name`            | DevPlus                                 |
-| `domain` / `url`  | devplus.pt / https://devplus.pt         |
-| `email`           | developerplusteam@gmail.com             |
-| `tagline`         | Estúdio de Web Design & Desenvolvimento |
-| `locale` / `lang` | pt_PT / pt-PT                           |
+| Campo             | Valor                                       |
+| ----------------- | ------------------------------------------- |
+| `name`            | DevPlus                                     |
+| `domain` / `url`  | devplus.pt / https://devplus.pt             |
+| `email`           | support@devplus.pt                          |
+| `emailFrom`       | Site DevPlus <formulario@send.devplus.pt>   |
+| `tagline`         | Estúdio de Web Design & Desenvolvimento     |
+| `locale` / `lang` | pt_PT / pt-PT                               |
 
-O `email` é longo e parte o layout em colunas estreitas — onde aparece, leva
-`break-all`.
+O `email` é a caixa que lemos — é ele que aparece no rodapé, em `/contacto`, em
+`/privacidade` e nos dados estruturados.
+
+O `emailFrom` **nunca aparece no site**: é só o remetente com que o Resend envia
+as submissões do formulário para a nossa caixa. Vive num subdomínio de propósito
+— ver `docs/04`, "O formulário de contacto".
 
 ## Redes sociais
 
@@ -114,6 +119,7 @@ uma destas, procura no repositório quantas vezes já lá está:
 | Se mudares…                                      | Faz também                                                                                                                                           |
 | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | o nome, o domínio ou o email                     | só `lib/site.ts` — todo o resto importa de lá                                                                                                        |
+| o `emailFrom`                                    | `lib/site.ts` **e** o domínio verificado no Resend — um `from` que o Resend não reconhece faz o envio falhar por inteiro. Ver `docs/04`              |
 | as redes (ou acrescentares um `href`)            | `socials` em `lib/site.ts`; apaga as notas de "em breve" no `Footer.tsx` e em `contacto/page.tsx`                                                    |
 | a `tagline` ou a `description`                   | `lib/site.ts`; confirma o cartão social em `/opengraph-image`                                                                                        |
 | a forma de escrever o nome                       | `docs/03` (o lockup) e o `aria-label` em `components/Wordmark.tsx`                                                                                   |
