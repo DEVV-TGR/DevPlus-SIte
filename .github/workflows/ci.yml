@@ -1,0 +1,125 @@
+# Corre a cada push e em cada PR contra `master`. A Vercel faz o seu próprio
+# build no deploy; isto corre antes, para que um PR vermelho se veja no GitHub e
+# não só depois de estar em produção.
+#
+# Não há framework de testes neste projeto e este ficheiro não inventa um: o que
+# se verifica é que o site compila, que os tipos batem certo, que não há
+# vulnerabilidades por corrigir e que as páginas respondem.
+
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+# Um push novo no mesmo branch cancela a corrida anterior.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Tipos
+        run: npx tsc --noEmit
+
+      # É isto que mantém o `npm audit` a zero ao longo do tempo, em vez de ser
+      # um número que alguém pôs a zero uma vez e nunca mais olhou.
+      - name: Vulnerabilidades
+        run: npm audit --audit-level=high
+
+      - name: Build
+        run: npm run build
+
+      # Teste de fumo: o site arranca mesmo e as páginas respondem. Apanha o
+      # erro de runtime que passa por um build verde.
+      - name: Arrancar o site
+        run: |
+          set -euo pipefail
+          npm start &
+          echo $! > .servidor.pid
+
+          for _ in $(seq 1 60); do
+            if curl -sf -o /dev/null http://localhost:3000/; then
+              echo "o site respondeu"
+              exit 0
+            fi
+            sleep 1
+          done
+
+          echo "o site não arrancou em 60s"
+          exit 1
+
+      - name: As páginas respondem
+        run: |
+          set -euo pipefail
+
+          verificar() {
+            local caminho="$1" esperado="$2" obtido
+            obtido=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:3000${caminho}")
+            if [ "$obtido" != "$esperado" ]; then
+              echo "✗ ${caminho} devolveu ${obtido}, esperava ${esperado}"
+              return 1
+            fi
+            echo "✓ ${caminho} → ${obtido}"
+          }
+
+          verificar /                                200
+          verificar /servicos                        200
+          verificar /portfolio                       200
+          verificar /portfolio/imperio-auto-concept  200
+          verificar /contacto                        200
+          verificar /privacidade                     200
+          verificar /sitemap.xml                     200
+          verificar /robots.txt                      200
+          verificar /uma-rota-que-nao-existe         404
+
+      # Os cabeçalhos de segurança são configuração, e configuração parte-se sem
+      # ninguém dar por isso. Aqui, parte-se com o CI vermelho.
+      - name: Os cabeçalhos de segurança estão lá
+        run: |
+          set -euo pipefail
+          cabecalhos=$(curl -s -D - -o /dev/null http://localhost:3000/ | tr 'A-Z' 'a-z')
+
+          for cabecalho in \
+            "content-security-policy" \
+            "x-content-type-options" \
+            "x-frame-options" \
+            "referrer-policy" \
+            "permissions-policy"
+          do
+            if ! grep -q "^${cabecalho}:" <<< "$cabecalhos"; then
+              echo "✗ falta o cabeçalho ${cabecalho}"
+              exit 1
+            fi
+            echo "✓ ${cabecalho}"
+          done
+
+          # Em produção não pode haver `unsafe-eval` — só o `dev` o usa.
+          if grep -q "unsafe-eval" <<< "$cabecalhos"; then
+            echo "✗ a CSP de produção traz 'unsafe-eval'"
+            exit 1
+          fi
+          echo "✓ a CSP não traz 'unsafe-eval'"
+
+      - name: Desligar o site
+        if: always()
+        run: kill "$(cat .servidor.pid)" || true

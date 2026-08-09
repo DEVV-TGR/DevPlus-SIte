@@ -40,7 +40,7 @@ const sections: [string, React.ReactNode][] = [
   ],
   [
     "Partilha com terceiros",
-    "Não vendemos os teus dados. Recorremos a dois fornecedores para operar o site, ambos sujeitos a deveres de confidencialidade: a Vercel, que o aloja, e a Resend, que entrega na nossa caixa as mensagens enviadas pelo formulário de contacto.",
+    "Não vendemos os teus dados. Recorremos a dois fornecedores para operar o site, ambos sujeitos a deveres de confidencialidade: a Vercel, que o aloja, e a Resend, que entrega na nossa caixa as mensagens enviadas pelo formulário de contacto. Se recorrermos a mais algum, passará a constar aqui pelo nome.",
   ],
   [
     "Conservação",

@@ -15,7 +15,15 @@ function JsonLd({ data }: { data: Record<string, unknown> }) {
       type="application/ld+json"
       // Conteúdo nosso, vindo de `lib/site.ts` e `lib/projects.ts` — nunca de
       // input de terceiros.
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      //
+      // O `<` escapado não é zelo a mais: o `JSON.stringify` não escapa
+      // `</script>`, e o dia em que um `summary` de `lib/projects.ts` levar um
+      // (a falar de HTML, por exemplo) o elemento fecha ali e o resto do JSON
+      // passa a ser HTML interpretado pelo browser. `<` é a mesma string
+      // para quem lê o JSON e deixa de ser uma tag para quem lê o HTML.
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify(data).replace(/</g, "\\u003c"),
+      }}
     />
   );
 }
