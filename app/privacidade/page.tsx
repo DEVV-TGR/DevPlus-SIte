@@ -40,7 +40,7 @@ const sections: [string, React.ReactNode][] = [
   ],
   [
     "Partilha com terceiros",
-    "Não vendemos os teus dados. Podemos recorrer a fornecedores que nos ajudam a operar o site (por exemplo, serviço de email ou alojamento), sempre sujeitos a deveres de confidencialidade.",
+    "Não vendemos os teus dados. O site é alojado pela Vercel, que trata os dados por nossa conta e sujeita a deveres de confidencialidade. Se recorrermos a mais algum fornecedor para operar o site, passará a constar aqui pelo nome.",
   ],
   [
     "Conservação",
@@ -89,7 +89,7 @@ export default function PrivacidadePage() {
               </div>
             ))}
             <p className="border-t border-border pt-6 text-sm text-muted">
-              Última atualização: 1 de junho de 2026.
+              Última atualização: 10 de agosto de 2026.
             </p>
           </div>
         </Container>

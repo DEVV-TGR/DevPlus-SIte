@@ -109,11 +109,30 @@ uma destas, procura no repositório quantas vezes já lá está:
 `` `${site.name} — ${site.tagline}` ``, o template das subpáginas é
 `` `%s · ${site.name}` ``. Não escrevas títulos literais.
 
+## Privacidade
+
+`app/privacidade/page.tsx` é um documento legal, e a regra aqui é diferente da do
+resto do site: **cada frase tem de ser verdade no dia em que está publicada.**
+
+Duas consequências práticas:
+
+- **Os subcontratantes dizem-se pelo nome.** O RGPD pede transparência sobre quem
+  trata os dados, e "por exemplo, um serviço de email" não é transparência. Hoje
+  é a **Vercel** (alojamento). Quem entrar a seguir entra nesta lista no mesmo PR
+  em que passa a receber dados — nunca antes, nunca depois.
+- **Não descrevas recolha que ainda não acontece.** Enquanto o formulário de
+  contacto não estiver ligado a um serviço de envio, a secção "Que dados
+  recolhemos" está a descrever o futuro e não o presente. Ver
+  `docs/04-componentes-e-padroes.md`, "O formulário de contacto".
+
+A data de "Última atualização" no fim da página muda sempre que o texto mudar.
+
 ## Ao alterar este documento
 
 | Se mudares…                                      | Faz também                                                                                                                                           |
 | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | o nome, o domínio ou o email                     | só `lib/site.ts` — todo o resto importa de lá                                                                                                        |
+| o que o site recolhe, ou quem trata esses dados  | `app/privacidade/page.tsx` — nomeia o subcontratante e atualiza a data de "Última atualização" no mesmo PR em que o serviço passa a receber dados     |
 | as redes (ou acrescentares um `href`)            | `socials` em `lib/site.ts`; apaga as notas de "em breve" no `Footer.tsx` e em `contacto/page.tsx`                                                    |
 | a `tagline` ou a `description`                   | `lib/site.ts`; confirma o cartão social em `/opengraph-image`                                                                                        |
 | a forma de escrever o nome                       | `docs/03` (o lockup) e o `aria-label` em `components/Wordmark.tsx`                                                                                   |
