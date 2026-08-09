@@ -19,9 +19,23 @@ const values: [string, string][] = [
     "Rapidez",
     "Um site que demora a abrir perde o cliente antes de lhe mostrar seja o que for. Rapidez não é um extra que se pede.",
   ],
+];
+
+/* Vieram da homepage, onde estavam como "Porquê a DevPlus". O valor "Parceria"
+   saiu da lista acima quando estes chegaram: dizia o mesmo que o terceiro, a
+   dois blocos de distância. */
+const differentiators: [string, string][] = [
   [
-    "Parceria",
-    "Não desaparecemos no dia do lançamento. Ficamos por perto à medida que o negócio muda — e ele muda sempre.",
+    "O site fica nas tuas mãos",
+    "Damos-te um painel feito à tua medida. Mudas preços, fotos e textos à hora que te der jeito, sem ligar a ninguém.",
+  ],
+  [
+    "Falas sempre com quem faz",
+    "Aceitamos poucos projetos de cada vez. Quem te atende é quem desenha e quem escreve o código.",
+  ],
+  [
+    "Não desaparecemos no lançamento",
+    "O alojamento e o suporte ficam connosco. Se alguma coisa falhar, não tens de andar à procura de quem resolve.",
   ],
 ];
 
@@ -80,6 +94,34 @@ export default function SobrePage() {
               </div>
             </Reveal>
           </div>
+        </Container>
+      </Section>
+
+      {/* PORQUÊ A DEVPLUS — veio da homepage, que passou a dar o lugar ao
+          trabalho feito e aos testemunhos. Ver docs/04. */}
+      <Section className="pt-0">
+        <Container>
+          <Reveal>
+            <div className="rounded-2xl border border-border bg-surface p-8 sm:p-12">
+              <h2 className="max-w-md font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+                Porquê a {site.name}
+              </h2>
+              <div className="mt-10 grid gap-8 sm:grid-cols-3">
+                {differentiators.map(([title, blurb], i) => (
+                  <Reveal key={title} delay={i * 0.06}>
+                    <div>
+                      <span
+                        aria-hidden
+                        className="block h-px w-10 bg-primary"
+                      />
+                      <h3 className="mt-4 font-display text-lg">{title}</h3>
+                      <p className="mt-2 text-sm text-muted">{blurb}</p>
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+          </Reveal>
         </Container>
       </Section>
 

@@ -18,7 +18,14 @@ copia, para não haver duas listas a divergir. Vai lá ver quais são.
 São **6**. Aparecem em dois sítios, ambos a ler do mesmo array:
 
 - `app/servicos/page.tsx` — lista completa, em `divide-y` (aguenta qualquer número);
-- `app/page.tsx` — teaser, numa grelha `sm:grid-cols-2`.
+- `app/page.tsx` — teaser, numa grelha `sm:grid-cols-2`, **depois** do trabalho
+  selecionado. A oferta vem a seguir à prova, não antes — ver `docs/04`,
+  "A homepage conta uma história".
+
+O bloco **"Como trabalhamos"** (os quatro passos) vive nesta página desde agosto
+de 2026, entre a lista de serviços e "Por onde podemos começar". Veio da
+homepage. A página lê-se: o que fazemos → como o fazemos → por onde começar →
+dúvidas → contacto.
 
 ## A grelha da página inicial
 

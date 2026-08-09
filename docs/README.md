@@ -26,6 +26,7 @@ Se um doc e o código discordarem, é um bug, não uma questão de gosto.
 | `scripts/vectorizar-logo.py`, `images/Dev+-logosimples.png`                                               | 03                       |
 | `app/opengraph-image.tsx`                                                                                 | 01 (texto) + 03 (o mark) |
 | `components/ui/*`, `components/Reveal.tsx`, `components/Marquee.tsx`                                      | 04                       |
+| `components/Testimonials.tsx`, `lib/testimonials.ts`, a ordem das secções de `app/page.tsx`               | 04                       |
 | `lib/services.ts`                                                                                         | 05                       |
 | `lib/projects.ts`, `components/ui/ProjectCard.tsx`, `components/ProjectsMarquee.tsx`, `public/capas/`     | 06                       |
 

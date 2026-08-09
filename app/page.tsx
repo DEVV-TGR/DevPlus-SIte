@@ -5,47 +5,10 @@ import { Reveal } from "@/components/Reveal";
 import { Hero } from "@/components/Hero";
 import { Marquee } from "@/components/Marquee";
 import { ProjectsMarquee } from "@/components/ProjectsMarquee";
+import { Testimonials } from "@/components/Testimonials";
 import { projects } from "@/lib/projects";
 import { services } from "@/lib/services";
 import { site } from "@/lib/site";
-
-const steps: [string, string, string][] = [
-  [
-    "01",
-    "Conversa",
-    "Sentamo-nos contigo a perceber o negócio, quem são os teus clientes e o que queres ganhar com isto. Sem isso, o resto é decoração.",
-  ],
-  [
-    "02",
-    "Design",
-    "Mostramos-te o site desenhado antes de ele existir. Vês, dizes o que mudarias, e só depois se escreve código.",
-  ],
-  [
-    "03",
-    "Construção",
-    "Abre depressa, funciona bem no telemóvel e aparece nas pesquisas. Não são extras que se pedem — é como fazemos.",
-  ],
-  [
-    "04",
-    "No ar",
-    "Pomos o site online, acompanhamos os primeiros dias e afinamos o que for preciso. E ficamos cá para o que vier a seguir.",
-  ],
-];
-
-const differentiators: [string, string][] = [
-  [
-    "O site fica nas tuas mãos",
-    "Damos-te um painel feito à tua medida. Mudas preços, fotos e textos à hora que te der jeito, sem ligar a ninguém.",
-  ],
-  [
-    "Falas sempre com quem faz",
-    "Aceitamos poucos projetos de cada vez. Quem te atende é quem desenha e quem escreve o código.",
-  ],
-  [
-    "Não desaparecemos no lançamento",
-    "O alojamento e o suporte ficam connosco. Se alguma coisa falhar, não tens de andar à procura de quem resolve.",
-  ],
-];
 
 const disciplines = [
   "Web Design",
@@ -60,6 +23,12 @@ const disciplines = [
   "Ecrãs em loop",
 ];
 
+/**
+ * A ordem das secções conta uma história: prova primeiro, oferta depois,
+ * confirmação no fim. Quem chega vê quem já confia na DevPlus, o que foi feito
+ * para essas pessoas, só então o que se oferece, e por último o que os clientes
+ * dizem — antes do convite para falar. A razão está escrita no `docs/04`.
+ */
 export default function Home() {
   return (
     <>
@@ -73,8 +42,11 @@ export default function Home() {
         />
       </section>
 
-      {/* STATEMENT + CLIENTS */}
-      <Section>
+      {/* QUEM CONFIA EM NÓS */}
+      {/* Sem `pb`: a faixa de projetos encosta-se a esta secção de propósito —
+          os nomes dos clientes e os trabalhos deles leem-se como um só bloco.
+          O respiro que sobra é o `mt` da faixa, mais abaixo. */}
+      <Section className="pb-0">
         <Container>
           <Reveal>
             <p className="max-w-4xl font-display text-3xl font-semibold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
@@ -103,7 +75,32 @@ export default function Home() {
         </Container>
       </Section>
 
-      {/* SERVICES TEASER */}
+      {/* TRABALHO SELECIONADO — faixa contínua; a grelha completa vive em
+          /portfolio. Vem logo a seguir aos clientes de propósito: os nomes
+          acabados de ler ganham cara aqui. */}
+      <Section className="pt-0">
+        {/* Fora do Container: a faixa sangra até às margens do ecrã. */}
+        <div className="mt-2 sm:mt-6">
+          <ProjectsMarquee projects={projects} />
+        </div>
+
+        {/* O acesso ao portfólio completo vive **depois** da faixa, e é um só
+            botão para todos os tamanhos. Acima dela ocupava uma linha inteira
+            entre os clientes e o carrossel — 44px de botão a segurar o espaço
+            que se queria fechar — e duplicava com o que já existia aqui em
+            baixo para telemóvel: dois links para o mesmo sítio na mesma secção. */}
+        <Container className="mt-8 flex sm:justify-end">
+          <Button
+            href="/portfolio"
+            variant="outline"
+            className="w-full sm:w-auto"
+          >
+            Ver todos os projetos
+          </Button>
+        </Container>
+      </Section>
+
+      {/* O QUE FAZEMOS */}
       <Section className="pt-0">
         <Container>
           <div className="flex items-end justify-between gap-6">
@@ -145,87 +142,36 @@ export default function Home() {
         </Container>
       </Section>
 
-      {/* SELECTED WORK — faixa contínua; a grelha completa vive em /portfolio */}
-      <Section className="pt-0">
-        <Container>
-          <div className="flex items-end justify-between gap-6">
-            <Reveal>
-              <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                Trabalho selecionado
-              </h2>
-            </Reveal>
-            <Reveal>
-              <Button
-                href="/portfolio"
-                variant="ghost"
-                className="hidden sm:inline-flex"
-              >
-                Ver todos os projetos
-              </Button>
-            </Reveal>
-          </div>
-        </Container>
+      {/* TESTEMUNHOS — não renderiza nada enquanto não houver frases reais. */}
+      <Testimonials />
 
-        {/* Fora do Container: a faixa sangra até às margens do ecrã. */}
-        <div className="mt-10">
-          <ProjectsMarquee projects={projects} />
-        </div>
-
-        {/* No telemóvel deixou de haver a grelha inteira à vista — o acesso ao
-            portfólio completo passa a ser explícito. */}
-        <Container className="mt-8 sm:hidden">
-          <Button href="/portfolio" variant="outline" className="w-full">
-            Ver todos os projetos
-          </Button>
-        </Container>
-      </Section>
-
-      {/* WHY US */}
+      {/* CONTACTO */}
       <Section className="pt-0">
         <Container>
           <Reveal>
-            <div className="rounded-2xl border border-border bg-surface p-8 sm:p-12">
-              <h2 className="max-w-md font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                Porquê a {site.name}
+            <div className="rounded-2xl border border-border bg-surface p-8 text-center sm:p-12">
+              <h2 className="mx-auto max-w-lg font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+                Tens um projeto em mente?
               </h2>
-              <div className="mt-10 grid gap-8 sm:grid-cols-3">
-                {differentiators.map(([title, blurb], i) => (
-                  <Reveal key={title} delay={i * 0.06}>
-                    <div>
-                      <span
-                        aria-hidden
-                        className="block h-px w-10 bg-primary"
-                      />
-                      <h3 className="mt-4 font-display text-lg">{title}</h3>
-                      <p className="mt-2 text-sm text-muted">{blurb}</p>
-                    </div>
-                  </Reveal>
-                ))}
+              <p className="mx-auto mt-3 max-w-md text-muted">
+                Conta-nos o que tens em mente, mesmo que ainda seja só uma
+                ideia. Damos-te notícias depressa.
+              </p>
+              <div className="mt-7 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
+                <Button href="/contacto" variant="primary">
+                  Começar a conversa
+                </Button>
+                {/* O email à vista é o que distingue esta secção do rodapé:
+                    quem prefere escrever direto não tem de abrir outra página. */}
+                <a
+                  href={`mailto:${site.email}`}
+                  className="font-display text-lg transition-colors hover:text-primary"
+                >
+                  {site.email}
+                </a>
               </div>
             </div>
           </Reveal>
-        </Container>
-      </Section>
-
-      {/* APPROACH */}
-      <Section className="pt-0">
-        <Container>
-          <Reveal>
-            <h2 className="max-w-lg font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-              Como trabalhamos
-            </h2>
-          </Reveal>
-          <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {steps.map(([n, t, d], i) => (
-              <Reveal key={n} delay={i * 0.08}>
-                <div className="border-t border-border pt-5">
-                  <span className="font-display text-sm text-primary">{n}</span>
-                  <h3 className="mt-2 font-display text-xl">{t}</h3>
-                  <p className="mt-2 text-sm text-muted">{d}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
         </Container>
       </Section>
     </>
