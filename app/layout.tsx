@@ -68,7 +68,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang={site.lang} className={bricolage.variable}>
+    <html
+      lang={site.lang}
+      className={bricolage.variable}
+      /* Duas coisas mexem no `class` deste elemento antes de o React hidratar,
+         e ambas são de propósito: o script aqui abaixo, que lhe acrescenta
+         `js`, e o Lenis, que lhe põe `lenis lenis-smooth` ao arrancar. O
+         servidor manda `class="…__variable"`, o browser já tem
+         `class="…__variable js lenis lenis-smooth"` — e é essa diferença que o
+         React reporta como erro de hidratação.
+
+         Isto silencia o aviso **só neste elemento e só nos seus atributos**;
+         tudo o que está por baixo continua a ser verificado. É a solução que o
+         Next indica para o caso, e não se estende ao `body` nem a componentes:
+         aí um aviso destes é um bug a sério e tem de aparecer. */
+      suppressHydrationWarning
+    >
       <head>
         {/* Marca que há JavaScript antes do primeiro paint. Sem esta classe,
             `globals.css` mostra tudo o que está à espera de animar — ver
