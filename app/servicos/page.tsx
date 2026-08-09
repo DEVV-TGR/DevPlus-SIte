@@ -152,7 +152,7 @@ export default function ServicosPage() {
       </Section>
 
       {/* COMO TRABALHAMOS */}
-      <Section className="pt-0">
+      <Section top={false}>
         <Container>
           <Reveal>
             <h2 className="max-w-lg font-display text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -174,7 +174,7 @@ export default function ServicosPage() {
       </Section>
 
       {/* PACKAGES */}
-      <Section className="pt-0">
+      <Section top={false}>
         <Container>
           <Reveal>
             <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -242,7 +242,7 @@ export default function ServicosPage() {
       </Section>
 
       {/* FAQ */}
-      <Section className="pt-0">
+      <Section top={false}>
         <Container>
           <div className="grid gap-10 lg:grid-cols-12">
             <Reveal className="lg:col-span-4">
@@ -275,7 +275,7 @@ export default function ServicosPage() {
         </Container>
       </Section>
 
-      <Section className="pt-0">
+      <Section top={false}>
         <Container>
           <Reveal>
             <div className="rounded-2xl border border-border bg-surface p-8 text-center sm:p-12">

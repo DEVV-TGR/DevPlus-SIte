@@ -18,7 +18,7 @@ export function Testimonials() {
   if (testimonials.length === 0) return null;
 
   return (
-    <Section className="pt-0">
+    <Section top={false}>
       <Container>
         <Reveal>
           <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">

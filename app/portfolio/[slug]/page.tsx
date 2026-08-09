@@ -196,7 +196,7 @@ export default async function CaseStudyPage({
       </Section>
 
       {next.slug !== slug ? (
-        <Section className="pt-0">
+        <Section top={false}>
           <Container>
             <div className="border-t border-border pt-10">
               <p className="text-sm text-muted">Próximo projeto</p>

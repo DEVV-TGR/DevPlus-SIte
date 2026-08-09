@@ -46,7 +46,7 @@ export default function Home() {
       {/* Sem `pb`: a faixa de projetos encosta-se a esta secção de propósito —
           os nomes dos clientes e os trabalhos deles leem-se como um só bloco.
           O respiro que sobra é o `mt` da faixa, mais abaixo. */}
-      <Section className="pb-0">
+      <Section bottom={false}>
         <Container>
           <Reveal>
             <p className="max-w-4xl font-display text-3xl font-semibold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
@@ -78,9 +78,9 @@ export default function Home() {
       {/* TRABALHO SELECIONADO — faixa contínua; a grelha completa vive em
           /portfolio. Vem logo a seguir aos clientes de propósito: os nomes
           acabados de ler ganham cara aqui. */}
-      <Section className="pt-0">
+      <Section top={false}>
         {/* Fora do Container: a faixa sangra até às margens do ecrã. */}
-        <div className="mt-2 sm:mt-6">
+        <div className="mt-10 sm:mt-15">
           <ProjectsMarquee projects={projects} />
         </div>
 
@@ -101,7 +101,7 @@ export default function Home() {
       </Section>
 
       {/* O QUE FAZEMOS */}
-      <Section className="pt-0">
+      <Section top={false}>
         <Container>
           <div className="flex items-end justify-between gap-6">
             <Reveal>
@@ -146,7 +146,7 @@ export default function Home() {
       <Testimonials />
 
       {/* CONTACTO */}
-      <Section className="pt-0">
+      <Section top={false}>
         <Container>
           <Reveal>
             <div className="rounded-2xl border border-border bg-surface p-8 text-center sm:p-12">
