@@ -43,7 +43,7 @@ export default function Home() {
       </section>
 
       {/* QUEM CONFIA EM NÓS */}
-      <Section className="pb-8 sm:pb-10 lg:pb-12">
+      <Section className="pb-2 sm:pb-3 lg:pb-4">
         <Container>
           <Reveal>
             <p className="max-w-4xl font-display text-3xl font-semibold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
@@ -91,7 +91,7 @@ export default function Home() {
         </Container>
 
         {/* Fora do Container: a faixa sangra até às margens do ecrã. */}
-        <div className="mt-4">
+        <div className="mt-1">
           <ProjectsMarquee projects={projects} />
         </div>
 
