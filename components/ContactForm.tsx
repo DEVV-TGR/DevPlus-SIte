@@ -18,11 +18,11 @@ function validate(data: {
   message: string;
 }): Errors {
   const errors: Errors = {};
-  if (!data.name.trim()) errors.name = "Indica o teu nome.";
-  if (!data.email.trim()) errors.email = "Indica o teu email.";
+  if (!data.name.trim()) errors.name = "Diz-nos como te chamas.";
+  if (!data.email.trim()) errors.email = "Precisamos do teu email para responder.";
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email))
-    errors.email = "Email inválido.";
-  if (!data.message.trim()) errors.message = "Escreve uma mensagem.";
+    errors.email = "Este email parece ter alguma coisa trocada.";
+  if (!data.message.trim()) errors.message = "Conta-nos o que precisas, nem que seja em duas linhas.";
   return errors;
 }
 
@@ -71,10 +71,9 @@ export function ContactForm() {
         role="status"
         className="rounded-2xl border border-accent/40 bg-surface p-8"
       >
-        <h2 className="font-display text-xl">Mensagem enviada</h2>
+        <h2 className="font-display text-xl">Recebida, obrigado.</h2>
         <p className="mt-2 text-muted">
-          Obrigado pelo contacto. Respondemos normalmente em 24 a 48 horas
-          úteis.
+          Vamos ler com calma e damos-te notícias em 24 a 48 horas úteis.
         </p>
         <button
           type="button"
@@ -166,7 +165,7 @@ export function ContactForm() {
         </Button>
         {status === "error" ? (
           <p role="alert" className="text-sm text-danger">
-            Algo correu mal. Tenta novamente.
+            Não conseguimos enviar. Tenta outra vez, se faz favor.
           </p>
         ) : null}
       </div>
