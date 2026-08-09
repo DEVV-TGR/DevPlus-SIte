@@ -13,6 +13,9 @@ controla:
   - components/Providers.tsx
   - components/Nav.tsx
   - components/ContactForm.tsx
+  - components/Testimonials.tsx
+  - lib/testimonials.ts
+  - app/page.tsx#ordem-das-seccoes
 relacionado:
   - docs/02-cores-e-tipografia.md
 ---
@@ -39,12 +42,48 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `ProjectsMarquee` | a faixa de projetos da página inicial: conteúdo real, focável e arrastável | usá-lo para decoração — para isso é o `Marquee`; e pôr `gap` no track, que parte o ciclo   |
 | `PageHero`        | cabeçalho das páginas internas (eyebrow + h1 + intro)                      | escrever um h1 solto numa página interna                                                   |
 | `Hero`            | só a página inicial                                                        | reutilizar noutro sítio                                                                    |
+| `Testimonials`    | o que os clientes dizem, na homepage a seguir aos serviços                 | inventar a frase de um cliente para encher a secção — ver abaixo                           |
 | `Wordmark`        | o logótipo com link para "/"                                               | ver `docs/03`                                                                              |
 | `Lockup` / `Logo` | o logótipo "D+" e o "+" isolado                                            | desenhar o logótipo à mão em SVG — ver `docs/03`                                           |
 | `Providers`       | Lenis + `MotionConfig`                                                     | acrescentar providers sem necessidade                                                      |
 
 Secções encadeadas levam `className="pt-0"` na segunda em diante, para o
 espaçamento não duplicar. É o padrão em toda a homepage.
+
+## A homepage conta uma história
+
+A ordem das secções **não é arbitrária** e não se muda por conveniência de
+layout. É prova primeiro, oferta depois, confirmação no fim:
+
+| # | Secção                 | Porque está aí                                                        |
+| - | ---------------------- | ---------------------------------------------------------------------- |
+| 1 | `Hero`                 | a proposta em cinco palavras                                          |
+| 2 | Faixa de disciplinas   | o alcance, num relance                                                |
+| 3 | Quem confia em nós     | antes de dizer o que sabemos fazer, mostra-se para quem já se fez     |
+| 4 | Trabalho selecionado   | os nomes acabados de ler ganham cara — por isso vem **logo a seguir** |
+| 5 | O que fazemos          | só agora a oferta, com o visitante já convencido de que há trabalho   |
+| 6 | `Testimonials`         | a confirmação vem de fora, não de nós                                 |
+| 7 | Contacto               | o convite, no fim do percurso                                         |
+
+A oferta esteve em cima e o trabalho por baixo até agosto de 2026. Inverteu-se
+porque quem chega ao site pela primeira vez não tem razão nenhuma para se
+interessar pela lista de serviços antes de ver o que dela sai.
+
+"Porquê a DevPlus" e "Como trabalhamos" viviam no fim desta página e mudaram de
+casa na mesma altura — para `app/sobre/page.tsx` e `app/servicos/page.tsx`. O
+fim da homepage passou a ser do contacto.
+
+### Secções que se escondem
+
+O `Testimonials` devolve `null` quando `lib/testimonials.ts` está vazio: não há
+título, não há espaçamento, a secção não existe no HTML. **É o padrão a seguir
+sempre que uma secção depende de dados que ainda não existem** — uma zona de
+prova social vazia, ou um "em breve", anuncia que ninguém falou, o que é pior do
+que o silêncio.
+
+E o array só se preenche com frases que um cliente disse mesmo e autorizou. Um
+testemunho inventado atribuído a um cliente real é uma avaliação falsa, não é
+texto de rascunho — quem o lê não tem como distinguir.
 
 ## Movimento
 
@@ -147,6 +186,8 @@ real de contacto.
 | Se mudares…                       | Faz também                                                                                                |
 | --------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | criares um primitivo novo         | acrescenta-o à tabela acima                                                                               |
+| a ordem das secções da homepage   | `app/page.tsx` **e** a tabela em "A homepage conta uma história" — a ordem sem a razão dura uma sessão   |
+| recolheres um testemunho          | `lib/testimonials.ts`; a secção aparece sozinha assim que o array deixar de estar vazio                  |
 | a duração ou o easing             | `components/Reveal.tsx`, `components/Hero.tsx` e os `transition-*` dos cards — muda em todos ou em nenhum |
 | o espaçamento vertical            | `components/ui/Section.tsx`, não as páginas                                                               |
 | a largura máxima                  | `components/ui/Container.tsx`, não as páginas                                                             |
