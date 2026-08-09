@@ -99,7 +99,7 @@ export default function SobrePage() {
 
       {/* PORQUÊ A DEVPLUS — veio da homepage, que passou a dar o lugar ao
           trabalho feito e aos testemunhos. Ver docs/04. */}
-      <Section className="pt-0">
+      <Section top={false}>
         <Container>
           <Reveal>
             <div className="rounded-2xl border border-border bg-surface p-8 sm:p-12">
@@ -125,7 +125,7 @@ export default function SobrePage() {
         </Container>
       </Section>
 
-      <Section className="pt-0">
+      <Section top={false}>
         <Container>
           <Reveal>
             <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">

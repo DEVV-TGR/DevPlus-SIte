@@ -34,7 +34,7 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | Componente        | Para que serve                                                             | Nunca                                                                                      |
 | ----------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | `ui/Container`    | largura máxima (`max-w-6xl`) e padding lateral                             | criar outro wrapper de largura                                                             |
-| `ui/Section`      | espaçamento vertical entre blocos (`py-16/24/32`)                          | pôr padding vertical à mão numa `<section>`                                                |
+| `ui/Section`      | espaçamento vertical entre blocos; `top`/`bottom` desligam cada metade      | pôr padding vertical à mão, ou tentar anulá-lo com `pt-0` — ver abaixo                     |
 | `ui/Button`       | 3 variantes: `primary`, `outline`, `ghost`                                 | usar `<a>` cru com classes de botão; links externos já são detetados pelo `http` no `href` |
 | `ui/ProjectCard`  | um projeto na grelha (capa, etiquetas, serviços)                           | duplicar o card noutra página                                                              |
 | `Reveal`          | aparecer no scroll (fade + 16px)                                           | envolver cada elemento; envolve o bloco                                                    |
@@ -47,8 +47,19 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `Lockup` / `Logo` | o logótipo "D+" e o "+" isolado                                            | desenhar o logótipo à mão em SVG — ver `docs/03`                                           |
 | `Providers`       | Lenis + `MotionConfig`                                                     | acrescentar providers sem necessidade                                                      |
 
-Secções encadeadas levam `className="pt-0"` na segunda em diante, para o
-espaçamento não duplicar. É o padrão em toda a homepage.
+Secções encadeadas levam **`top={false}`** na segunda em diante, para o
+espaçamento não duplicar. É o padrão em toda a homepage. Há também
+`bottom={false}`, para a secção seguinte encostar a esta — é o que cola a faixa
+de projetos à lista de clientes.
+
+> **Nunca `className="pt-0"`.** Esteve assim em 13 sítios e **não funcionava a
+> partir dos 640px**: o `pt-0` só ganha ao `py-16`, e as variantes `sm:py-24` e
+> `lg:py-32` são escritas depois no CSS gerado, portanto ganhavam de volta. O
+> site andou com o dobro do espaço entre secções encadeadas em todo o desktop, e
+> nenhum valor que se afinasse no `className` o corrigia — porque o problema não
+> era o valor, era uma classe a tentar anular outra da mesma especificidade. Por
+> isso o `Section` desliga cada metade por **ausência de classe**, e não por
+> `-0`. Se voltares a ver espaço a dobrar, é aqui que se procura.
 
 ## A homepage conta uma história
 

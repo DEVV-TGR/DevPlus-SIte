@@ -33,7 +33,7 @@ export default function PortfolioPage() {
         </Container>
       </Section>
 
-      <Section className="pt-0">
+      <Section top={false}>
         <Container>
           <Reveal>
             <div className="flex flex-col gap-6 rounded-2xl border border-border bg-surface p-8 sm:flex-row sm:items-center sm:justify-between sm:p-12">
