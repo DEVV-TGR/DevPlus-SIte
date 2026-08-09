@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "Serviços",
   description:
-    "Web design, desenvolvimento, menus e ecrãs digitais, painel de gestão, branding e motion. Acompanhamos o teu projeto do primeiro esboço ao lançamento.",
+    "Web design, desenvolvimento, menus e ecrãs digitais, painel de gestão, branding e motion. Tratamos do teu site do primeiro esboço ao dia em que fica no ar — e do que vier depois.",
 };
 
 const packages: {
@@ -24,7 +24,7 @@ const packages: {
 }[] = [
   {
     name: "Landing page",
-    desc: "Uma página focada num objetivo: apresentar, lançar ou converter. Rápida de pôr no ar.",
+    desc: "Uma página só, com o que interessa: quem és, o que fazes e como te contactam. Rápida de pôr no ar.",
     points: [
       "Página única",
       "Copy + design",
@@ -34,7 +34,7 @@ const packages: {
   },
   {
     name: "Website",
-    desc: "O site completo da tua marca, com várias páginas e um sistema visual coerente.",
+    desc: "O site completo da tua marca, com várias páginas e a mesma linguagem visual em todas.",
     points: [
       "Várias páginas",
       "Design system próprio",
@@ -45,7 +45,7 @@ const packages: {
   },
   {
     name: "Loja online",
-    desc: "Uma loja pensada para vender, com checkout simples e gestão fácil de produtos.",
+    desc: "Uma loja feita para vender: o cliente compra em poucos toques e tu geres os produtos sem ajuda.",
     points: [
       "Catálogo + checkout",
       "Pagamentos",
@@ -55,30 +55,32 @@ const packages: {
   },
 ];
 
+/* As respostas sobre preço, propriedade e mensalidade são compromissos
+   comerciais, não copy — ver docs/05. Não se alteram sem confirmação. */
 const faqs: [string, string][] = [
   [
     "Quanto custa um site?",
-    "Depende do âmbito — número de páginas, funcionalidades e conteúdo. Damos sempre um orçamento fixo antes de começar, sem surpresas.",
+    "Depende do que precisas: número de páginas, funcionalidades e conteúdo. Falamos contigo, percebemos o âmbito e enviamos uma proposta com o valor e tudo o que está incluído. Se a meio quiseres acrescentar alguma coisa, falamos antes de fazer — nunca depois.",
   ],
   [
     "Quanto tempo demora?",
-    "Uma landing page pode estar pronta em 1 a 2 semanas; um site completo, normalmente entre 3 e 6 semanas, conforme o conteúdo.",
+    "Uma landing page costuma estar pronta em 1 a 2 semanas. Um site completo leva normalmente 3 a 6 semanas — e o que mais pesa nessa conta é a rapidez com que nos chega o conteúdo.",
   ],
   [
     "Trabalham com clientes fora de Portugal?",
-    "Sim. Trabalhamos remotamente e estamos habituados a colaborar à distância, em português ou inglês.",
+    "Sim. Trabalhamos à distância todos os dias, em português ou em inglês. Nunca foi problema.",
   ],
   [
     "O site vai ser mesmo meu?",
-    "Totalmente. Entregamos o código e todos os acessos. O site é teu, sem dependências nem mensalidades obrigatórias.",
+    "É teu, e o conteúdo também. O alojamento e o suporte ficam connosco, por uma mensalidade — é isso que garante que o site está sempre no ar, atualizado e com alguém do outro lado quando precisas. Fica tudo escrito na proposta, sem letras pequenas.",
   ],
   [
     "Tratam do alojamento e do domínio?",
-    "Tratamos de toda a parte técnica do lançamento e aconselhamos as melhores opções de alojamento e domínio para o teu caso.",
+    "Tratamos. O alojamento entra na mensalidade e a parte técnica é toda connosco: pôr no ar, manter atualizado e resolver o que aparecer. Do domínio também tratamos, e dizemos-te sempre o que estás a pagar e a quem.",
   ],
   [
     "Dão apoio depois do lançamento?",
-    "Sim. Ficamos disponíveis para manutenção, melhorias e novas funcionalidades à medida que o negócio cresce.",
+    "Damos, e é isso que a mensalidade cobre. Precisas de mudar uma coisa, acrescentar uma página ou resolver um problema? É só dizeres.",
   ],
 ];
 
@@ -88,8 +90,8 @@ export default function ServicosPage() {
       <FaqJsonLd faqs={faqs} />
       <PageHero
         eyebrow="Serviços"
-        title="Tudo o que a tua marca precisa para se destacar online."
-        intro="Da primeira ideia ao site no ar — design, desenvolvimento, menus digitais e painel de gestão, tratados pela mesma equipa e com o mesmo cuidado."
+        title="Design, código e as chaves na tua mão."
+        intro="Fazemos tudo o que o teu site precisa, da primeira ideia ao dia em que fica no ar. E deixamos-te o painel para seres tu a mandar nele a partir daí."
       />
 
       <Section>
@@ -131,8 +133,9 @@ export default function ServicosPage() {
               Por onde podemos começar
             </h2>
             <p className="mt-3 max-w-xl text-muted">
-              Cada projeto é único, mas costuma partir de um destes pontos. O
-              orçamento é sempre fixo e definido antes de avançarmos.
+              Cada projeto é diferente, mas costuma partir de um destes pontos.
+              Sabes o valor antes de começares — e se a meio quiseres
+              acrescentar alguma coisa, falamos antes de fazer.
             </p>
           </Reveal>
           <div className="mt-10 grid gap-4 lg:grid-cols-3">
@@ -178,14 +181,14 @@ export default function ServicosPage() {
             ))}
           </div>
           <p className="mt-4 text-sm text-muted">
-            Não te encaixas em nenhum?{" "}
+            Nenhum destes é o teu caso?{" "}
             <Link
               href="/contacto"
               className="text-ink underline-offset-4 hover:underline"
             >
-              Fala connosco
+              Diz-nos o que tens em mente
             </Link>{" "}
-            — adaptamo-nos ao teu projeto.
+            — fazemos à tua medida.
           </p>
         </Container>
       </Section>
@@ -199,12 +202,12 @@ export default function ServicosPage() {
                 Perguntas frequentes
               </h2>
               <p className="mt-3 text-muted">
-                Não encontras a tua pergunta?{" "}
+                Ficaste com outra dúvida?{" "}
                 <Link
                   href="/contacto"
                   className="text-ink underline-offset-4 hover:underline"
                 >
-                  Fala connosco.
+                  Pergunta-nos.
                 </Link>
               </p>
             </Reveal>
@@ -232,12 +235,12 @@ export default function ServicosPage() {
                 Tens um projeto em mente?
               </h2>
               <p className="mx-auto mt-3 max-w-md text-muted">
-                Conta-nos o que precisas. Respondemos em 24 a 48 horas úteis com
-                uma proposta de próximos passos.
+                Conta-nos o que tens em mente, mesmo que ainda seja só uma
+                ideia. Damos-te notícias depressa.
               </p>
               <div className="mt-6 flex justify-center">
                 <Button href="/contacto" variant="primary">
-                  Falar connosco
+                  Começar a conversa
                 </Button>
               </div>
             </div>
