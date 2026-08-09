@@ -82,9 +82,10 @@ export function Hero() {
             variants={item}
             className="mt-6 max-w-xl text-base text-muted sm:text-lg"
           >
-            Somos a {site.name}, um estúdio independente que desenha e
-            desenvolve sites, plataformas e menus digitais. Construímos cada
-            projeto de raiz — rápido, acessível e pensado para converter.
+            Já tiveste de ligar a alguém só para mudar um preço no site?
+            Connosco não. Somos a {site.name}: fazemos o teu site à medida e
+            entregamos-te o comando — mudas o que quiseres, quando quiseres, do
+            telemóvel.
           </motion.p>
 
           <motion.div
@@ -103,7 +104,7 @@ export function Hero() {
               variant="outline"
               className="w-full sm:w-auto"
             >
-              Falar connosco
+              Conta-nos a tua ideia
             </Button>
           </motion.div>
         </motion.div>

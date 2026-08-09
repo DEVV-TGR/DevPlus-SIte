@@ -12,38 +12,38 @@ import { site } from "@/lib/site";
 const steps: [string, string, string][] = [
   [
     "01",
-    "Descoberta",
-    "Começamos por perceber o teu negócio, objetivos e público. Sem isto, o resto é só decoração.",
+    "Conversa",
+    "Sentamo-nos contigo a perceber o negócio, quem são os teus clientes e o que queres ganhar com isto. Sem isso, o resto é decoração.",
   ],
   [
     "02",
     "Design",
-    "Desenhamos a interface e o sistema visual, validados em protótipo antes de escrever uma linha de código.",
+    "Mostramos-te o site desenhado antes de ele existir. Vês, dizes o que mudarias, e só depois se escreve código.",
   ],
   [
     "03",
-    "Desenvolvimento",
-    "Construímos em Next.js, com atenção à performance, à acessibilidade e ao detalhe de cada interação.",
+    "Construção",
+    "Abre depressa, funciona bem no telemóvel e aparece nas pesquisas. Não são extras que se pedem — é como fazemos.",
   ],
   [
     "04",
-    "Lançamento",
-    "Publicamos, medimos e afinamos — e ficamos por perto para o que vier a seguir.",
+    "No ar",
+    "Pomos o site online, acompanhamos os primeiros dias e afinamos o que for preciso. E ficamos cá para o que vier a seguir.",
   ],
 ];
 
 const differentiators: [string, string][] = [
   [
-    "À medida, sempre",
-    "Nada de templates. Cada site é desenhado e construído de raiz para o teu negócio.",
+    "O site fica nas tuas mãos",
+    "Damos-te um painel feito à tua medida. Mudas preços, fotos e textos à hora que te der jeito, sem ligar a ninguém.",
   ],
   [
-    "Rápido por princípio",
-    "Performance, acessibilidade e SEO não são extras — são o ponto de partida.",
+    "Falas sempre com quem faz",
+    "Aceitamos poucos projetos de cada vez. Quem te atende é quem desenha e quem escreve o código.",
   ],
   [
-    "Uma equipa, do início ao fim",
-    "Design e desenvolvimento na mesma casa. Sem intermediários, sem ruído.",
+    "Não desaparecemos no lançamento",
+    "O alojamento e o suporte ficam connosco. Se alguma coisa falhar, não tens de andar à procura de quem resolve.",
   ],
 ];
 
@@ -57,7 +57,7 @@ const disciplines = [
   "UI / UX",
   "Performance",
   "SEO",
-  "Next.js",
+  "Ecrãs em loop",
 ];
 
 export default function Home() {
@@ -78,15 +78,15 @@ export default function Home() {
         <Container>
           <Reveal>
             <p className="max-w-4xl font-display text-3xl font-semibold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
-              Não fazemos sites bonitos.{" "}
-              <span className="text-muted">Fazemos sites que </span>
-              <span className="text-primary">funcionam</span>.
+              Bonito é fácil.{" "}
+              <span className="text-muted">O difícil é dar-te trabalho a </span>
+              <span className="text-primary">menos</span>.
             </p>
           </Reveal>
           <Reveal delay={0.1}>
             <div className="mt-12 flex flex-col gap-x-10 gap-y-4 border-t border-border pt-8 sm:flex-row sm:items-center">
               <p className="shrink-0 text-xs uppercase tracking-[0.18em] text-muted">
-                Confiam em nós
+                Já trabalhamos com
               </p>
               <ul className="flex flex-wrap items-center gap-x-8 gap-y-3">
                 {projects.map((c) => (

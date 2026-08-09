@@ -11,7 +11,7 @@ export const site = {
   email: "developerplusteam@gmail.com",
   tagline: "Estúdio de Web Design & Desenvolvimento",
   description:
-    "A DevPlus desenha e constrói sites, plataformas e menus digitais — com painel de gestão para atualizares tudo sozinho. Rápidos, acessíveis e pensados para converter.",
+    "Sites, menus digitais e plataformas feitos à medida do teu negócio — com um painel de gestão para mudares preços, fotos e textos sem ligar a ninguém.",
   locale: "pt_PT",
   /** `pt-PT` e não `pt`: o site é português de Portugal, e é isso que o
    *  `<html lang>` deve dizer a leitores de ecrã e tradutores. */

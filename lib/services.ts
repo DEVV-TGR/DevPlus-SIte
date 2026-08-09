@@ -10,13 +10,13 @@ export const services: Service[] = [
   {
     title: "Web Design",
     blurb:
-      "Desenhamos cada ecrã à medida da tua marca — do wireframe ao protótipo navegável. Interfaces claras, com hierarquia pensada e todos os estados resolvidos.",
+      "Desenhamos cada ecrã à medida da tua marca e mostramos-te tudo antes de escrever uma linha de código. O cliente encontra o que procura sem ter de pensar — é isso que separa quem visita de quem compra.",
     items: ["UI/UX", "Design systems", "Protótipos"],
   },
   {
     title: "Desenvolvimento",
     blurb:
-      "Construímos em Next.js e React, com código limpo e a performance como prioridade. Sites rápidos, acessíveis e simples de manter ou expandir.",
+      "Construímos o site com tecnologia que o faz abrir num instante, em qualquer telemóvel. Um site lento perde o cliente antes sequer de lhe mostrar o que vendes.",
     items: ["Next.js", "Performance", "Headless CMS"],
   },
   {
@@ -28,19 +28,19 @@ export const services: Service[] = [
   {
     title: "Painel de Gestão",
     blurb:
-      "Um backoffice à tua medida para atualizares o site sozinho, sem nos ligares e sem mexer em código. Publica, edita, apaga e agenda o que quiseres.",
+      "Um painel só teu, feito à medida do que precisas de mudar no dia a dia. Publicas, editas, apagas e deixas coisas agendadas — sem código e sem esperar por nós.",
     items: ["Backoffice", "Base de dados", "Agendamento"],
   },
   {
     title: "Branding",
     blurb:
-      "Damos identidade à tua marca — do logótipo às guidelines. Um sistema visual coerente que funciona tão bem no ecrã como no papel.",
+      "Tratamos da cara da tua marca, do logótipo às cores e às regras de uso. Ficas com uma imagem que se reconhece à distância — no site, na montra ou na farda.",
     items: ["Identidade", "Logótipo", "Guidelines"],
   },
   {
     title: "Motion & Interação",
     blurb:
-      "Animação e micro-interações que dão vida à interface sem nunca atrapalhar. Movimento com intenção — para guiar o olhar, não para decorar.",
+      "Pequenos movimentos que dão vida ao site sem nunca atrapalhar quem o está a usar. Guiam o olho para onde interessa e fazem o site parecer bem feito — porque é.",
     items: ["Animação", "Micro-interações", "Scroll"],
   },
 ];
