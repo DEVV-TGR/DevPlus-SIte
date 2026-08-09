@@ -8,7 +8,11 @@ export const site = {
   name: "DevPlus",
   domain: "devplus.pt",
   url: "https://devplus.pt",
-  email: "developerplusteam@gmail.com",
+  email: "support@devplus.pt",
+  /** Remetente das submissões do formulário. Não é uma caixa que alguém leia —
+   *  é a identidade de envio verificada no Resend. Vive num subdomínio para não
+   *  colidir com o SPF do webmail em `devplus.pt`. Ver docs/04. */
+  emailFrom: "Site DevPlus <formulario@send.devplus.pt>",
   tagline: "Estúdio de Web Design & Desenvolvimento",
   description:
     "A DevPlus desenha e constrói sites, plataformas e menus digitais — com painel de gestão para atualizares tudo sozinho. Rápidos, acessíveis e pensados para converter.",

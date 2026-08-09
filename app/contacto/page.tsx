@@ -35,7 +35,7 @@ export default function ContactoPage() {
                   <dd>
                     <a
                       href={`mailto:${site.email}`}
-                      className="mt-1 block break-all font-display text-xl transition-colors hover:text-primary"
+                      className="mt-1 block font-display text-xl transition-colors hover:text-primary"
                     >
                       {site.email}
                     </a>

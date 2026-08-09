@@ -19,7 +19,7 @@ const sections: [string, React.ReactNode][] = [
       privacidade, escreve para{" "}
       <a
         href={`mailto:${site.email}`}
-        className="break-all text-ink underline-offset-4 hover:underline"
+        className="text-ink underline-offset-4 hover:underline"
       >
         {site.email}
       </a>
@@ -53,7 +53,7 @@ const sections: [string, React.ReactNode][] = [
       como opor-te ao mesmo. Para exercer estes direitos, escreve para{" "}
       <a
         href={`mailto:${site.email}`}
-        className="break-all text-ink underline-offset-4 hover:underline"
+        className="text-ink underline-offset-4 hover:underline"
       >
         {site.email}
       </a>

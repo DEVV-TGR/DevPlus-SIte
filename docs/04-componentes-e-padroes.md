@@ -13,6 +13,8 @@ controla:
   - components/Providers.tsx
   - components/Nav.tsx
   - components/ContactForm.tsx
+  - lib/contacto.ts
+  - app/api/contacto/route.ts
 relacionado:
   - docs/02-cores-e-tipografia.md
 ---
@@ -135,12 +137,54 @@ Isto não é opcional e já está em vigor:
 - Contraste: `ink` para o que se lê primeiro, `muted` para o apoio. É
   hierarquia, não legibilidade — os rácios medidos estão em `docs/02`.
 
-## Nota conhecida
+## O formulário de contacto
 
-`components/ContactForm.tsx` **não envia nada** — o submit é um `setTimeout` de
-placeholder. Falta ligar a um serviço de email (Resend, Formspree) ou a um route
-handler em `app/api/`. Enquanto isso, o email em `lib/site.ts` é o único canal
-real de contacto.
+O caminho de uma mensagem:
+
+`components/ContactForm.tsx` → `POST /api/contacto` → Resend → a caixa em
+`site.email`.
+
+Três ficheiros, cada um com um trabalho:
+
+| Ficheiro                    | Faz                                                                 |
+| --------------------------- | ------------------------------------------------------------------- |
+| `lib/contacto.ts`           | as regras: campos, limites, mensagens de erro, o nome da armadilha  |
+| `app/api/contacto/route.ts` | recebe, revalida, trava rajadas e envia pelo Resend                 |
+| `components/ContactForm.tsx`| o formulário: valida no cliente, submete, mostra o que correu mal   |
+
+**A validação vive em `lib/contacto.ts` e em mais lado nenhum.** O cliente valida
+para dar resposta imediata, o servidor porque um POST não tem de passar pelo
+formulário — mas as regras são as mesmas e importam-se do mesmo sítio. Se
+puseres uma segunda cópia num dos lados, diverge.
+
+### O remetente é um subdomínio, e isso é de propósito
+
+O Resend envia de `site.emailFrom` — hoje `formulario@send.devplus.pt`. Não é
+uma caixa que alguém leia, e não aparece em lado nenhum do site.
+
+Está num **subdomínio** porque o `devplus.pt` já tem SPF e MX do webmail. Verificar
+o domínio raiz no Resend poria dois registos SPF a competir, o que invalida os
+dois e arrisca o email normal da equipa. O subdomínio isola o envio do formulário
+e não toca no que faz o webmail funcionar.
+
+O `reply-to` é sempre o email de quem escreveu: responder na caixa responde ao
+visitante, não a nós próprios. É o ponto todo.
+
+### Spam
+
+Um campo-armadilha chamado `website`, `sr-only` no formulário. Preenchido, o
+endpoint responde `200` e **não envia nada** — o bot segue caminho convencido de
+que passou. Nunca o escondas com `display:none` nem `type="hidden"`: os bots que
+interessa apanhar ignoram os dois.
+
+Há também um travão de rajada por IP no route handler, mas é *best-effort*: em
+serverless cada instância tem a sua memória. Trava o script trivial e mais nada.
+
+### Configuração
+
+`RESEND_API_KEY` no `.env.local` e nas Environment Variables da Vercel. Sem ela o
+endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
+`.env.example`.
 
 ## Ao alterar este documento
 
@@ -150,4 +194,5 @@ real de contacto.
 | a duração ou o easing             | `components/Reveal.tsx`, `components/Hero.tsx` e os `transition-*` dos cards — muda em todos ou em nenhum |
 | o espaçamento vertical            | `components/ui/Section.tsx`, não as páginas                                                               |
 | a largura máxima                  | `components/ui/Container.tsx`, não as páginas                                                             |
-| ligares o formulário a um serviço | `components/ContactForm.tsx` e apaga a "Nota conhecida" acima                                             |
+| as regras do formulário           | `lib/contacto.ts` — os dois lados importam de lá; não acrescentes uma segunda cópia                       |
+| o serviço de envio ou o remetente | `app/api/contacto/route.ts`, `site.emailFrom` em `lib/site.ts`, a tabela do `docs/01` e os registos DNS   |
