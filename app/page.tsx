@@ -43,7 +43,10 @@ export default function Home() {
       </section>
 
       {/* QUEM CONFIA EM NÓS */}
-      <Section className="pb-2 sm:pb-3 lg:pb-4">
+      {/* Sem `pb`: a faixa de projetos encosta-se a esta secção de propósito —
+          os nomes dos clientes e os trabalhos deles leem-se como um só bloco.
+          O respiro que sobra é o `mt` da faixa, mais abaixo. */}
+      <Section className="pb-0">
         <Container>
           <Reveal>
             <p className="max-w-4xl font-display text-3xl font-semibold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
@@ -76,29 +79,22 @@ export default function Home() {
           /portfolio. Vem logo a seguir aos clientes de propósito: os nomes
           acabados de ler ganham cara aqui. */}
       <Section className="pt-0">
-        <Container>
-          <div className="flex items-end justify-end gap-6">
-            <Reveal>
-              <Button
-                href="/portfolio"
-                variant="ghost"
-                className="hidden sm:inline-flex"
-              >
-                Ver todos os projetos
-              </Button>
-            </Reveal>
-          </div>
-        </Container>
-
         {/* Fora do Container: a faixa sangra até às margens do ecrã. */}
-        <div className="mt-1">
+        <div className="mt-2 sm:mt-6">
           <ProjectsMarquee projects={projects} />
         </div>
 
-        {/* No telemóvel deixou de haver a grelha inteira à vista — o acesso ao
-            portfólio completo passa a ser explícito. */}
-        <Container className="mt-8 sm:hidden">
-          <Button href="/portfolio" variant="outline" className="w-full">
+        {/* O acesso ao portfólio completo vive **depois** da faixa, e é um só
+            botão para todos os tamanhos. Acima dela ocupava uma linha inteira
+            entre os clientes e o carrossel — 44px de botão a segurar o espaço
+            que se queria fechar — e duplicava com o que já existia aqui em
+            baixo para telemóvel: dois links para o mesmo sítio na mesma secção. */}
+        <Container className="mt-8 flex sm:justify-end">
+          <Button
+            href="/portfolio"
+            variant="outline"
+            className="w-full sm:w-auto"
+          >
             Ver todos os projetos
           </Button>
         </Container>
