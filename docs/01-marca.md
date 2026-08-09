@@ -63,6 +63,9 @@ e o parágrafo "Ainda a preparar as contas" em `app/contacto/page.tsx`.
 
 ## Tom de voz
 
+O registo é **caloroso e próximo**: escreve-se como quem fala com um cliente à
+mesa, não como quem manda uma proposta. Personalidade sim, graçola forçada não.
+
 - **Português de Portugal**, tratamento por **"tu"**. Nunca "você", nunca PT-BR.
 - Direto e concreto. "Mudas o preço num sítio e muda em todo o lado" vale mais do
   que "solução integrada de gestão de conteúdos".
@@ -70,6 +73,35 @@ e o parágrafo "Ainda a preparar as contas" em `app/contacto/page.tsx`.
   "parceiro estratégico", "à medida das suas necessidades".
 - Frases curtas. Se uma frase tem duas vírgulas e um travessão, parte-a.
 - Acentuação sempre correta — nunca "nao", "servicos", "ecra".
+
+### Para quem escrevemos
+
+O cliente-alvo é **um negócio local** — um restaurante, um stand, uma empresa de
+serviços. Não é uma agência nem um developer. O jargão técnico ("design system",
+"protótipo navegável", "arquitetura de informação", "headless CMS") só aparece
+nas etiquetas dos `items` em `lib/services.ts` e nas `services` de um projeto.
+**Nunca em texto corrido.**
+
+O bom teste: a frase diz alguma coisa a quem tem um restaurante? "Performance,
+acessibilidade e SEO são o ponto de partida" não diz. "Um site que demora a abrir
+perde o cliente antes de lhe mostrar o que vendes" diz.
+
+### Começar pela dor, não pela lista
+
+Uma boa frase deste site nomeia um problema que o cliente reconhece e só depois
+apresenta a solução. É por isso que o hero abre com "Já tiveste de ligar a alguém
+só para mudar um preço no site?" e não com a lista do que fazemos.
+
+### Repetições a vigiar
+
+Fórmulas que já se gastaram por aparecerem em demasiados sítios. Antes de usar
+uma destas, procura no repositório quantas vezes já lá está:
+
+| Fórmula                    | Onde pode ficar                              |
+| -------------------------- | -------------------------------------------- |
+| "de raiz" / "sem templates" | uma vez, em `/sobre`                        |
+| "24 a 48 horas úteis"      | `/contacto` e o estado de sucesso do formulário |
+| "Falar connosco"           | o botão fixo da navegação e o do rodapé; nos CTA dentro das páginas, varia |
 
 ## Metadata
 

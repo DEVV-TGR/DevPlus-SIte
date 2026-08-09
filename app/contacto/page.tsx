@@ -18,7 +18,7 @@ export default function ContactoPage() {
       <PageHero
         eyebrow="Contacto"
         title="Vamos falar sobre o teu projeto."
-        intro="Conta-nos o que tens em mente — seja uma ideia ainda por definir ou um projeto pronto a arrancar. Respondemos depressa."
+        intro="Conta-nos o que tens em mente. Pode ser um projeto pronto a arrancar ou só uma ideia ainda por arrumar — respondemos na mesma."
       />
 
       <Section>
@@ -50,7 +50,8 @@ export default function ContactoPage() {
                       Resposta em 24–48h úteis
                     </p>
                     <p className="mt-1.5 text-sm text-muted">
-                      Portugal · trabalhamos com clientes em qualquer lugar
+                      Estamos em Portugal · trabalhamos com quem está mais
+                      longe
                     </p>
                   </dd>
                 </div>
@@ -76,8 +77,8 @@ export default function ContactoPage() {
                       ))}
                     </ul>
                     <p className="mt-2.5 text-sm text-muted">
-                      Ainda a preparar as contas. Até lá, o email é o caminho
-                      mais rápido para nos chegares.
+                      Ainda estamos a preparar as contas. Até lá, o email é o
+                      caminho mais rápido para nos chegares.
                     </p>
                   </dd>
                 </div>

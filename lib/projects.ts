@@ -38,7 +38,7 @@ export const projects: Project[] = [
     imageAlt:
       "Página inicial do Império Auto Concept, com filtro de pesquisa por marca, modelo e combustível sobre uma fotografia de uma viatura.",
     summary:
-      "Um stand virtual com página própria para cada viatura e um painel de gestão que deixa a equipa publicar, editar e retirar anúncios sozinha.",
+      "Um stand online com página própria para cada viatura e um painel que liberta a equipa dos portais de classificados.",
     services: ["Web Design", "Desenvolvimento", "Painel de Gestão"],
     accent: "primary",
     overview:
@@ -57,7 +57,7 @@ export const projects: Project[] = [
     imageAlt:
       "Página inicial do Mira Mar, com o nome do restaurante sobre uma fotografia da praia e acessos rápidos à ementa, take away e pool bar.",
     summary:
-      "Landing page com avaliações do Google e ementas digitais que o restaurante atualiza e programa sozinho, com QR codes na sala e na explanada.",
+      "Uma página que apresenta o restaurante e ementas digitais que a equipa muda e programa sozinha, com QR codes na sala e na explanada.",
     services: ["Landing Page", "Menu Digital", "Painel de Gestão", "QR Code"],
     accent: "accent",
     overview:
@@ -74,7 +74,7 @@ export const projects: Project[] = [
     status: "em-curso",
     // Falta a capa: foto da televisão no espaço a passar a ementa (ver docs/06).
     summary:
-      "Menu digital acessível por QR code e uma televisão no espaço a passar a ementa em loop — sempre atualizada, sem reimprimir nada.",
+      "A ementa no telemóvel por QR code e numa televisão dentro do espaço, em loop. Muda-se uma vez e muda nas duas, sem reimprimir nada.",
     services: ["Menu Digital", "Ecrã Digital"],
     accent: "primary",
     overview:
@@ -94,13 +94,13 @@ export const projects: Project[] = [
     imageAlt:
       "Página inicial da JSK, com o título de boas-vindas sobre uma fotografia de equipamento de videovigilância e um formulário de orçamento.",
     summary:
-      "Várias áreas de negócio reunidas numa só plataforma, com uma identidade coerente e navegação que se mantém simples à medida que cresce.",
+      "Várias áreas de negócio numa só plataforma, com uma navegação que se mantém simples à medida que a empresa cresce.",
     services: ["Web Design", "Desenvolvimento", "SEO"],
     accent: "primary",
     overview:
       "A JSK reúne diferentes serviços sob a mesma marca e precisava de um site que apresentasse cada área com clareza, sem confundir o visitante. O desafio foi criar uma estrutura capaz de acomodar vários tipos de conteúdo e continuar fácil de navegar.",
     contribution:
-      "Desenhámos e desenvolvemos o site de raiz: arquitetura de informação, design system, interface responsiva e desenvolvimento em Next.js com foco em velocidade e SEO. O resultado é uma base modular, pronta para acolher novos serviços sem retrabalho.",
+      "Desenhámos e construímos o site do zero. Começámos por arrumar os serviços de forma que cada visitante chegue depressa ao que lhe interessa, demos-lhes uma linguagem visual comum e escrevemos o site a pensar em velocidade e em aparecer nas pesquisas. Ficou uma base pronta a receber novos serviços sem ter de se refazer nada.",
   },
   {
     slug: "antonio-home-repair",
@@ -114,7 +114,7 @@ export const projects: Project[] = [
     imageAlt:
       "Página inicial da António Home Repair Services, com o título a laranja sobre um fundo preto com ilustrações de ferramentas.",
     summary:
-      "Um site de apresentação para serviços de reparação e manutenção ao domicílio, pensado para transmitir confiança e gerar contactos.",
+      "Um site que troca o passa-palavra por contactos que chegam do telemóvel, para quem repara e mantém casas ao domicílio.",
     services: ["Web Design", "Desenvolvimento"],
     accent: "accent",
     overview:

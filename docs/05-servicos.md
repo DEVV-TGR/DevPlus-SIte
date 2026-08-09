@@ -48,6 +48,28 @@ teaser não tem de ser exaustivo. **Não deixes o órfão.**
 - **`items`**: sempre 3. Dois parecem pobres, quatro rebentam a linha em mobile.
 - Tratamento por "tu", como no resto do site (ver `docs/01`).
 
+## A FAQ não é copy — é compromisso comercial
+
+As perguntas frequentes vivem em `app/servicos/page.tsx` e alimentam também os
+dados estruturados (`FaqJsonLd`). Quatro delas descrevem **como o negócio
+funciona**, não como a marca soa:
+
+| Pergunta                                | O que o site compromete hoje                                                                              |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Quanto custa um site?                   | Valor combinado antes de começar, **ajustável** se o âmbito mudar — e sempre falado antes de ser feito      |
+| O site vai ser mesmo meu?               | O site e o conteúdo são do cliente; **o alojamento e o suporte ficam com a DevPlus, por mensalidade**       |
+| Tratam do alojamento e do domínio?      | Sim, e o alojamento entra nessa mensalidade                                                                 |
+| Dão apoio depois do lançamento?         | Sim, é o que a mensalidade cobre                                                                            |
+
+**Não se alteram sem confirmação do Gonçalo.** Uma frase mais bonita que
+prometa "orçamento fixo" ou "sem mensalidades" deixa de ser copy e passa a ser
+uma promessa que a DevPlus não cumpre — foi exatamente o que aconteceu até
+agosto de 2026, com o site a dizer "sem dependências nem mensalidades
+obrigatórias" enquanto o modelo assentava no contrário.
+
+A mensalidade escreve-se como o que é: alguém do outro lado, site sempre no ar e
+atualizado. Não se esconde nem se pede desculpa por ela.
+
 ## Ordem
 
 A ordem do array é a ordem no site. Está pensada assim: os dois primeiros são o
@@ -74,6 +96,7 @@ em vez de ficar diluído numa frase do serviço de Desenvolvimento.
 | Se mudares…                         | Faz também                                                     |
 | ----------------------------------- | -------------------------------------------------------------- |
 | a lista de serviços                 | `lib/services.ts`; segue a checklist acima toda                |
+| uma resposta da FAQ sobre dinheiro  | confirma com o Gonçalo **antes** — ver "A FAQ não é copy"      |
 | o número de serviços                | verifica a grelha `sm:grid-cols-2` em `app/page.tsx`           |
 | um `title`                          | procura esse nome nas `services` de `lib/projects.ts` e alinha |
 | as regras de escrita (blurb, items) | revê os 6 serviços existentes de uma vez                       |
