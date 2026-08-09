@@ -55,6 +55,32 @@ const packages: {
   },
 ];
 
+/* Veio da homepage, que passou a dar o lugar ao trabalho feito e aos
+   testemunhos. Aqui encaixa melhor: a seguir ao que fazemos, antes de por onde
+   se começa. Ver docs/04. */
+const steps: [string, string, string][] = [
+  [
+    "01",
+    "Conversa",
+    "Sentamo-nos contigo a perceber o negócio, quem são os teus clientes e o que queres ganhar com isto. Sem isso, o resto é decoração.",
+  ],
+  [
+    "02",
+    "Design",
+    "Mostramos-te o site desenhado antes de ele existir. Vês, dizes o que mudarias, e só depois se escreve código.",
+  ],
+  [
+    "03",
+    "Construção",
+    "Abre depressa, funciona bem no telemóvel e aparece nas pesquisas. Não são extras que se pedem — é como fazemos.",
+  ],
+  [
+    "04",
+    "No ar",
+    "Pomos o site online, acompanhamos os primeiros dias e afinamos o que for preciso. E ficamos cá para o que vier a seguir.",
+  ],
+];
+
 /* As respostas sobre preço, propriedade e mensalidade são compromissos
    comerciais, não copy — ver docs/05. Não se alteram sem confirmação. */
 const faqs: [string, string][] = [
@@ -118,6 +144,28 @@ export default function ServicosPage() {
                       ))}
                     </ul>
                   </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </Container>
+      </Section>
+
+      {/* COMO TRABALHAMOS */}
+      <Section className="pt-0">
+        <Container>
+          <Reveal>
+            <h2 className="max-w-lg font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+              Como trabalhamos
+            </h2>
+          </Reveal>
+          <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {steps.map(([n, t, d], i) => (
+              <Reveal key={n} delay={i * 0.08}>
+                <div className="border-t border-border pt-5">
+                  <span className="font-display text-sm text-primary">{n}</span>
+                  <h3 className="mt-2 font-display text-xl">{t}</h3>
+                  <p className="mt-2 text-sm text-muted">{d}</p>
                 </div>
               </Reveal>
             ))}
