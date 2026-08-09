@@ -43,7 +43,7 @@ export default function Home() {
       </section>
 
       {/* QUEM CONFIA EM NÓS */}
-      <Section>
+      <Section className="pb-2 sm:pb-3 lg:pb-4">
         <Container>
           <Reveal>
             <p className="max-w-4xl font-display text-3xl font-semibold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
@@ -77,12 +77,7 @@ export default function Home() {
           acabados de ler ganham cara aqui. */}
       <Section className="pt-0">
         <Container>
-          <div className="flex items-end justify-between gap-6">
-            <Reveal>
-              <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                Trabalho selecionado
-              </h2>
-            </Reveal>
+          <div className="flex items-end justify-end gap-6">
             <Reveal>
               <Button
                 href="/portfolio"
@@ -96,7 +91,7 @@ export default function Home() {
         </Container>
 
         {/* Fora do Container: a faixa sangra até às margens do ecrã. */}
-        <div className="mt-10">
+        <div className="mt-1">
           <ProjectsMarquee projects={projects} />
         </div>
 
