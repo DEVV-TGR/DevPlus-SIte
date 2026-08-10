@@ -1,0 +1,27 @@
+# Sem isto, o `npm audit` a zero dura até à próxima vulnerabilidade que ninguém
+# vê. O Dependabot abre o PR, o CI corre-lhe em cima, e o merge continua a ser
+# decisão de uma pessoa.
+
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    # Um PR por semana com as subidas de patch/minor juntas em vez de cinco PRs
+    # separados por um `^` que mudou de casa decimal.
+    groups:
+      dependencias-menores:
+        update-types:
+          - minor
+          - patch
+    commit-message:
+      prefix: chore
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: chore

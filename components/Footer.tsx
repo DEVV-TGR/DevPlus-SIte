@@ -56,7 +56,7 @@ export function Footer() {
               <li>
                 <a
                   href={`mailto:${site.email}`}
-                  className="break-all text-sm text-muted transition-colors hover:text-ink"
+                  className="text-sm text-muted transition-colors hover:text-ink"
                 >
                   {site.email}
                 </a>

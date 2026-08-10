@@ -36,16 +36,21 @@ _acrescentar_, _mais_ — mas sem forçar. Uma piada de "+" por página é o lim
 Tudo vive em **`lib/site.ts`**. Não escrevas nenhum destes valores à mão noutro
 ficheiro; importa-os. Se precisas de um dado novo, acrescenta-o lá.
 
-| Campo             | Valor                                   |
-| ----------------- | --------------------------------------- |
-| `name`            | DevPlus                                 |
-| `domain` / `url`  | devplus.pt / https://devplus.pt         |
-| `email`           | developerplusteam@gmail.com             |
-| `tagline`         | Estúdio de Web Design & Desenvolvimento |
-| `locale` / `lang` | pt_PT / pt-PT                           |
+| Campo             | Valor                                       |
+| ----------------- | ------------------------------------------- |
+| `name`            | DevPlus                                     |
+| `domain` / `url`  | devplus.pt / https://devplus.pt             |
+| `email`           | support@devplus.pt                          |
+| `emailFrom`       | Site DevPlus <formulario@send.devplus.pt>   |
+| `tagline`         | Estúdio de Web Design & Desenvolvimento     |
+| `locale` / `lang` | pt_PT / pt-PT                               |
 
-O `email` é longo e parte o layout em colunas estreitas — onde aparece, leva
-`break-all`.
+O `email` é a caixa que lemos — é ele que aparece no rodapé, em `/contacto`, em
+`/privacidade` e nos dados estruturados.
+
+O `emailFrom` **nunca aparece no site**: é só o remetente com que o Resend envia
+as submissões do formulário para a nossa caixa. Vive num subdomínio de propósito
+— ver `docs/04`, "O formulário de contacto".
 
 ## Redes sociais
 
@@ -109,11 +114,34 @@ uma destas, procura no repositório quantas vezes já lá está:
 `` `${site.name} — ${site.tagline}` ``, o template das subpáginas é
 `` `%s · ${site.name}` ``. Não escrevas títulos literais.
 
+## Privacidade
+
+`app/privacidade/page.tsx` é um documento legal, e a regra aqui é diferente da do
+resto do site: **cada frase tem de ser verdade no dia em que está publicada.**
+
+Duas consequências práticas:
+
+- **Os subcontratantes dizem-se pelo nome.** O RGPD pede transparência sobre quem
+  trata os dados, e "por exemplo, um serviço de email" não é transparência. Hoje
+  são dois: a **Vercel** (alojamento) e a **Resend** (entrega das mensagens do
+  formulário). Quem entrar a seguir entra nesta lista no mesmo PR em que passa a
+  receber dados — nunca antes, nunca depois.
+- **Não descrevas recolha que ainda não acontece.** A secção "Que dados
+  recolhemos" descreve o formulário de contacto, e só é verdade porque o
+  formulário **envia mesmo** — foi placeholder até agosto de 2026, e nessa altura
+  a página estava a descrever o futuro. Se o envio for algum dia desligado, esta
+  secção volta atrás com ele. Ver `docs/04-componentes-e-padroes.md`, "O
+  formulário de contacto".
+
+A data de "Última atualização" no fim da página muda sempre que o texto mudar.
+
 ## Ao alterar este documento
 
 | Se mudares…                                      | Faz também                                                                                                                                           |
 | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | o nome, o domínio ou o email                     | só `lib/site.ts` — todo o resto importa de lá                                                                                                        |
+| o `emailFrom`                                    | `lib/site.ts` **e** o domínio verificado no Resend — um `from` que o Resend não reconhece faz o envio falhar por inteiro. Ver `docs/04`              |
+| o que o site recolhe, ou quem trata esses dados  | `app/privacidade/page.tsx` — nomeia o subcontratante e atualiza a data de "Última atualização" no mesmo PR em que o serviço passa a receber dados     |
 | as redes (ou acrescentares um `href`)            | `socials` em `lib/site.ts`; apaga as notas de "em breve" no `Footer.tsx` e em `contacto/page.tsx`                                                    |
 | a `tagline` ou a `description`                   | `lib/site.ts`; confirma o cartão social em `/opengraph-image`                                                                                        |
 | a forma de escrever o nome                       | `docs/03` (o lockup) e o `aria-label` em `components/Wordmark.tsx`                                                                                   |

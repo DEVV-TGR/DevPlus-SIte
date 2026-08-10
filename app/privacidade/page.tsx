@@ -19,7 +19,7 @@ const sections: [string, React.ReactNode][] = [
       privacidade, escreve para{" "}
       <a
         href={`mailto:${site.email}`}
-        className="break-all text-ink underline-offset-4 hover:underline"
+        className="text-ink underline-offset-4 hover:underline"
       >
         {site.email}
       </a>
@@ -40,7 +40,7 @@ const sections: [string, React.ReactNode][] = [
   ],
   [
     "Partilha com terceiros",
-    "Não vendemos os teus dados. Podemos recorrer a fornecedores que nos ajudam a operar o site (por exemplo, serviço de email ou alojamento), sempre sujeitos a deveres de confidencialidade.",
+    "Não vendemos os teus dados. Recorremos a dois fornecedores para operar o site, ambos sujeitos a deveres de confidencialidade: a Vercel, que o aloja, e a Resend, que entrega na nossa caixa as mensagens enviadas pelo formulário de contacto. Se recorrermos a mais algum, passará a constar aqui pelo nome.",
   ],
   [
     "Conservação",
@@ -53,7 +53,7 @@ const sections: [string, React.ReactNode][] = [
       como opor-te ao mesmo. Para exercer estes direitos, escreve para{" "}
       <a
         href={`mailto:${site.email}`}
-        className="break-all text-ink underline-offset-4 hover:underline"
+        className="text-ink underline-offset-4 hover:underline"
       >
         {site.email}
       </a>
@@ -89,7 +89,7 @@ export default function PrivacidadePage() {
               </div>
             ))}
             <p className="border-t border-border pt-6 text-sm text-muted">
-              Última atualização: 1 de junho de 2026.
+              Última atualização: 10 de agosto de 2026.
             </p>
           </div>
         </Container>
