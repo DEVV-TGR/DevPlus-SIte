@@ -60,8 +60,9 @@ Duas chegavam para o ciclo fechar, mas em ecrãs largos a volta acontecia dentro
 campo de visão. Só a primeira ronda conta para o teclado e para o leitor de ecrã; as
 outras são clicáveis à mesma — ver `docs/04`.
 
-Com 5 projetos o portfólio tem uma linha com um card sozinho — aceitável numa
-lista completa. **Ao chegar a 6, confere `app/portfolio/page.tsx`.**
+Com 6 projetos o portfólio fecha três linhas cheias e já não há card sozinho ao
+fundo. **Ao chegar a 7, volta a conferir `app/portfolio/page.tsx`** — a linha
+órfã regressa a cada número ímpar.
 
 ## Capas
 
@@ -131,6 +132,14 @@ centro.
 
 Isto é trabalho conhecido em falta. Apaga a linha quando estiver feita.
 
+- [ ] **Taskuinha do Pirata** — sem capa. O site está no ar, por isso serve o
+      print em headless da receita acima, contra `https://taskuinhapirata.pt`.
+      Atenção ao **ecrã de abertura**: o site abre com uma cortina que tapa a
+      página, e um print sem espera apanha só isso — dá tempo ao
+      `--virtual-time-budget` ou tira o print já dentro de `/ementa`.
+- [ ] **Painel de gestão da Taskuinha** — o card já anuncia o serviço e o
+      `contribution` diz que está em desenvolvimento. Quando estiver entregue,
+      tira a última frase do `contribution`.
 - [ ] **A Barraquinha Nova** — sem capa. Falta a **foto da televisão no espaço a
       passar a ementa** — é o que torna este projeto legível num relance, porque
       metade da entrega é física. Instagram: `@a_barraquinha_nova`. Morada:

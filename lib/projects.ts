@@ -28,6 +28,30 @@ export type Project = {
  */
 export const projects: Project[] = [
   {
+    slug: "taskuinha-do-pirata",
+    name: "Taskuinha do Pirata",
+    client: "Rumoceano — Taskuinha",
+    category: "Taberna de petiscos",
+    year: "2026",
+    status: "concluido",
+    url: "https://taskuinhapirata.pt",
+    // Falta a capa: screenshot da página inicial, com o letreiro de madeira
+    // sobre a fotografia da fachada (ver docs/06).
+    summary:
+      "Um site que veste a decoração da taberna e põe a ementa em quatro línguas, para quem chega pela praia e pelo Caminho de Santiago.",
+    services: [
+      "Web Design",
+      "Desenvolvimento",
+      "Menus & Ecrãs Digitais",
+      "Painel de Gestão",
+    ],
+    accent: "accent",
+    overview:
+      "A Taskuinha do Pirata é uma taberna à beira-mar em Vila Chã, decorada de alto a baixo: barris na fachada a soletrar o nome, tecto de tábuas turquesa com um mural de nau em tempestade e um esqueleto pirata sentado à porta. O pedido do dono foi só um, e não era sobre design — o site não podia parecer uma coisa à parte do restaurante. Quem entrasse tinha de sentir que já estava dentro da casa. E como a porta dá para o Caminho de Santiago, metade de quem chega no Verão não fala português.",
+    contribution:
+      "Desenhámos e desenvolvemos o site de raiz, com a casa real como referência: madeira, pergaminho e letra de tabuleta, num tema nocturno único, com fotografias do espaço por trás de cada secção. A ementa completa vive numa página só, e o site inteiro fala quatro línguas — português, inglês, francês e espanhol — cada uma com o seu endereço, para se poder enviar a um amigo. Do mesmo desenho saiu a ementa impressa, pronta a entregar na gráfica. O painel de gestão, para a casa mudar pratos e preços sem nos ligar, está em desenvolvimento.",
+  },
+  {
     slug: "imperio-auto-concept",
     name: "Império Auto Concept",
     client: "Império Auto Concept",
