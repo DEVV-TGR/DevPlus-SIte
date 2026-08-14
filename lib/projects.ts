@@ -35,8 +35,9 @@ export const projects: Project[] = [
     year: "2026",
     status: "concluido",
     url: "https://taskuinhapirata.pt",
-    // Falta a capa: screenshot da página inicial, com o letreiro de madeira
-    // sobre a fotografia da fachada (ver docs/06).
+    image: "/capas/taskuinha-do-pirata.jpg",
+    imageAlt:
+      "Página inicial da Taskuinha do Pirata, com o nome em letra de tabuleta sobre a fotografia da fachada da taberna à noite e um esqueleto pirata sentado num baú a beber uma cerveja.",
     summary:
       "Um site que veste a decoração da taberna e põe a ementa em quatro línguas, para quem chega pela praia e pelo Caminho de Santiago.",
     services: [

@@ -132,11 +132,6 @@ centro.
 
 Isto é trabalho conhecido em falta. Apaga a linha quando estiver feita.
 
-- [ ] **Taskuinha do Pirata** — sem capa. O site está no ar, por isso serve o
-      print em headless da receita acima, contra `https://taskuinhapirata.pt`.
-      Atenção ao **ecrã de abertura**: o site abre com uma cortina que tapa a
-      página, e um print sem espera apanha só isso — dá tempo ao
-      `--virtual-time-budget` ou tira o print já dentro de `/ementa`.
 - [ ] **Painel de gestão da Taskuinha** — o card já anuncia o serviço e o
       `contribution` diz que está em desenvolvimento. Quando estiver entregue,
       tira a última frase do `contribution`.
@@ -149,8 +144,14 @@ Isto é trabalho conhecido em falta. Apaga a linha quando estiver feita.
 - [ ] **Estado** desses três — passar a `"concluido"` e virar o texto para o
       passado quando forem entregues.
 
-Já resolvido: as capas do Império Auto Concept, do Mira Mar, da JSK e da António
-Home Repair.
+Já resolvido: as capas do Império Auto Concept, do Mira Mar, da JSK, da António
+Home Repair e da Taskuinha do Pirata.
+
+> A capa da Taskuinha saiu da receita headless acima sem truque nenhum. O site
+> abre com uma cortina (`Chegada.tsx`) que tapa a página, mas o
+> `--virtual-time-budget=30000` adianta-a e o print apanha já o Hero. Se um dia
+> apanhar a cortina, sobe o orçamento de tempo virtual antes de inventar outra
+> coisa.
 
 ## Ao alterar este documento
 
