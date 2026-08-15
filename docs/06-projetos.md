@@ -60,8 +60,9 @@ Duas chegavam para o ciclo fechar, mas em ecrãs largos a volta acontecia dentro
 campo de visão. Só a primeira ronda conta para o teclado e para o leitor de ecrã; as
 outras são clicáveis à mesma — ver `docs/04`.
 
-Com 5 projetos o portfólio tem uma linha com um card sozinho — aceitável numa
-lista completa. **Ao chegar a 6, confere `app/portfolio/page.tsx`.**
+Com 6 projetos o portfólio fecha três linhas cheias e já não há card sozinho ao
+fundo. **Ao chegar a 7, volta a conferir `app/portfolio/page.tsx`** — a linha
+órfã regressa a cada número ímpar.
 
 ## Capas
 
@@ -131,6 +132,9 @@ centro.
 
 Isto é trabalho conhecido em falta. Apaga a linha quando estiver feita.
 
+- [ ] **Painel de gestão da Taskuinha** — o card já anuncia o serviço e o
+      `contribution` diz que está em desenvolvimento. Quando estiver entregue,
+      tira a última frase do `contribution`.
 - [ ] **A Barraquinha Nova** — sem capa. Falta a **foto da televisão no espaço a
       passar a ementa** — é o que torna este projeto legível num relance, porque
       metade da entrega é física. Instagram: `@a_barraquinha_nova`. Morada:
@@ -140,8 +144,14 @@ Isto é trabalho conhecido em falta. Apaga a linha quando estiver feita.
 - [ ] **Estado** desses três — passar a `"concluido"` e virar o texto para o
       passado quando forem entregues.
 
-Já resolvido: as capas do Império Auto Concept, do Mira Mar, da JSK e da António
-Home Repair.
+Já resolvido: as capas do Império Auto Concept, do Mira Mar, da JSK, da António
+Home Repair e da Taskuinha do Pirata.
+
+> A capa da Taskuinha saiu da receita headless acima sem truque nenhum. O site
+> abre com uma cortina (`Chegada.tsx`) que tapa a página, mas o
+> `--virtual-time-budget=30000` adianta-a e o print apanha já o Hero. Se um dia
+> apanhar a cortina, sobe o orçamento de tempo virtual antes de inventar outra
+> coisa.
 
 ## Ao alterar este documento
 
