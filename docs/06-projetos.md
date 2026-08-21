@@ -37,6 +37,13 @@ Se um projeto lista "Painel de Gestão", esse serviço tem de existir na outra l
 mostra o botão "Visitar site". Um link para uma página vazia é pior do que link
 nenhum.
 
+**O botão "Visitar site" é `variant="primary"`** — laranja cheio, e é o único
+botão de todo o caso de estudo. Era `outline` e passava despercebido: a página
+que mostra o trabalho feito tinha o link para esse trabalho como o elemento mais
+apagado do ecrã. Não uses o verde para o tornar mais vivo — o `docs/02` reserva o
+`accent` para estado (a etiqueta "Em curso", logo ali ao lado) e para o anel de
+foco de todo o site, e proíbe-o como segunda cor de CTA.
+
 **`status: "em-curso"`** mostra a etiqueta verde no card e no caso de estudo, e o
 texto deve estar no **presente** ("Estamos a construir…"). `"concluido"` usa o
 passado ("Desenhámos e desenvolvemos…"). Quando um projeto acabar, muda as duas
@@ -142,9 +149,6 @@ Isto é trabalho conhecido em falta. Apaga a linha quando estiver feita.
 - [ ] **Painel de gestão do Império** — o site já está no ar e o projeto passou a
       `"concluido"`, mas o painel ainda não foi entregue. O `contribution` diz
       isso na última frase; quando estiver entregue, tira-a.
-- [ ] **`url` do Império** — o site está publicado, mas o endereço ainda não foi
-      confirmado (o `imperioautoconcept.com` está registado e sem registos A).
-      Acrescentar `url` assim que se souber qual é.
 - [ ] **URLs** do Mira Mar e da Barraquinha — nenhum está no ar. Acrescentar
       `url` quando estiverem.
 - [ ] **Estado** desses dois — passar a `"concluido"` e virar o texto para o

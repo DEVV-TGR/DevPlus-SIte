@@ -59,6 +59,7 @@ export const projects: Project[] = [
     category: "Stand automóvel",
     year: "2026",
     status: "concluido",
+    url: "https://www.imperioautoconcept.com",
     image: "/capas/imperio-auto-concept.jpg",
     imageAlt:
       "Página inicial do Império Auto Concept, com filtro de pesquisa por marca, modelo e combustível sobre uma fotografia de uma viatura.",
