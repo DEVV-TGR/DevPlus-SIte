@@ -182,7 +182,7 @@ export default async function CaseStudyPage({
                   <div className="mt-6">
                     <Button
                       href={project.url}
-                      variant="outline"
+                      variant="primary"
                       className="w-full"
                     >
                       Visitar site
