@@ -58,7 +58,7 @@ export const projects: Project[] = [
     client: "Império Auto Concept",
     category: "Stand automóvel",
     year: "2026",
-    status: "em-curso",
+    status: "concluido",
     image: "/capas/imperio-auto-concept.jpg",
     imageAlt:
       "Página inicial do Império Auto Concept, com filtro de pesquisa por marca, modelo e combustível sobre uma fotografia de uma viatura.",
@@ -67,9 +67,9 @@ export const projects: Project[] = [
     services: ["Web Design", "Desenvolvimento", "Painel de Gestão"],
     accent: "primary",
     overview:
-      "O Império Auto Concept vende automóveis e queria deixar de depender dos portais de classificados para mostrar o stock. O desafio é ter um site próprio, onde cada viatura tem a sua página, e que a equipa consiga manter atualizado sem nos ligar de cada vez que entra ou sai um carro.",
+      "O Império Auto Concept vende automóveis e queria deixar de depender dos portais de classificados para mostrar o stock. O desafio era ter um site próprio, onde cada viatura tem a sua página, e que a equipa conseguisse manter atualizado sem nos ligar de cada vez que entra ou sai um carro.",
     contribution:
-      "Estamos a desenhar e a construir o site de raiz, com base de dados própria e um painel de gestão completo. A partir de um formulário, a equipa publica novos anúncios, edita os que já existem, gere as fotografias de cada viatura e retira do site o que já foi vendido — tudo sem tocar em código.",
+      "Desenhámos e desenvolvemos o site de raiz, com base de dados própria: cada viatura tem a sua página, e quem chega filtra o stock por marca, modelo e combustível sem sair da página inicial. O painel de gestão, que deixa a equipa publicar novos anúncios, editar os que já existem, gerir as fotografias de cada viatura e retirar do site o que já foi vendido — tudo sem tocar em código —, está em desenvolvimento.",
   },
   {
     slug: "mira-mar",

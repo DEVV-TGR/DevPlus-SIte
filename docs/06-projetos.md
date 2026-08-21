@@ -139,9 +139,15 @@ Isto é trabalho conhecido em falta. Apaga a linha quando estiver feita.
       passar a ementa** — é o que torna este projeto legível num relance, porque
       metade da entrega é física. Instagram: `@a_barraquinha_nova`. Morada:
       Esplanada Fernando Ermida, 5, Praia da Granja, São Félix da Marinha.
-- [ ] **URLs** do Império, do Mira Mar e da Barraquinha — nenhum está no ar.
-      Acrescentar `url` quando estiverem.
-- [ ] **Estado** desses três — passar a `"concluido"` e virar o texto para o
+- [ ] **Painel de gestão do Império** — o site já está no ar e o projeto passou a
+      `"concluido"`, mas o painel ainda não foi entregue. O `contribution` diz
+      isso na última frase; quando estiver entregue, tira-a.
+- [ ] **`url` do Império** — o site está publicado, mas o endereço ainda não foi
+      confirmado (o `imperioautoconcept.com` está registado e sem registos A).
+      Acrescentar `url` assim que se souber qual é.
+- [ ] **URLs** do Mira Mar e da Barraquinha — nenhum está no ar. Acrescentar
+      `url` quando estiverem.
+- [ ] **Estado** desses dois — passar a `"concluido"` e virar o texto para o
       passado quando forem entregues.
 
 Já resolvido: as capas do Império Auto Concept, do Mira Mar, da JSK, da António
