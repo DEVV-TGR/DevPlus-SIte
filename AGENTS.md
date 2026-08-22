@@ -46,10 +46,11 @@ O isolamento faz-se com **branches normais**, no clone principal:
   ou "DEV+".
 - **Não escrevas o nome, o domínio, o email ou as redes à mão.** Vêm todos de
   `lib/site.ts`. Se precisas de um valor novo, acrescenta-o lá.
-- **Não inventes cores.** Todas vêm dos tokens em `app/globals.css`. As duas
-  exceções — `app/icon.svg` e `app/opengraph-image.tsx`, que não conseguem ler
-  CSS — estão documentadas em `docs/02-cores-e-tipografia.md` e só se mudam a
-  partir de lá.
+- **Não inventes cores.** Todas vêm dos tokens em `app/globals.css`. As
+  exceções — `app/opengraph-image.tsx`, que não consegue ler CSS, e os ícones
+  `app/icon.png` / `app/favicon.ico`, que são bitmaps e estão fora da paleta por
+  decisão explícita — estão documentadas em `docs/02-cores-e-tipografia.md` e só
+  se mudam a partir de lá.
 - **Português de Portugal**, tratamento por "tu", com acentuação correta. Ver
   `docs/01-marca.md`.
 

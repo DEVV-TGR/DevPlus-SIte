@@ -34,8 +34,10 @@ const emDesenvolvimento = process.env.NODE_ENV === "development";
  * `next/font/google` (app/layout.tsx) descarrega a Bricolage Grotesque na build
  * e serve-a do nosso domínio. Não há pedido a terceiros em runtime.
  *
- * `img-src` leva `data:` por causa do `app/icon.svg` e do cartão social, e
- * `blob:` porque o otimizador de imagens do Next o usa.
+ * `img-src` leva `data:` por causa da textura de ruído de `app/globals.css`
+ * (um `background-image` em `url(data:image/svg+xml,…)`, que o CSP conta como
+ * imagem) e do cartão social; e `blob:` porque o otimizador de imagens do Next
+ * o usa. Os ícones do browser são ficheiros servidos, não entram aqui.
  *
  * Ver docs/02-cores-e-tipografia.md (fontes) e docs/04-componentes-e-padroes.md.
  */

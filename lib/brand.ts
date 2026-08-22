@@ -8,8 +8,9 @@
  * dele: barras de 175 e 166 px numa caixa de 562×542, ou seja 0.311 e 0.306.
  * Aqui ficam os dois iguais a 0.31 para o símbolo ser quadrado e poder rodar.
  *
- * Este `d` é copiado à mão para `app/icon.svg`, que é estático e não pode
- * importar. Ao alterá-lo, altera lá também.
+ * Já não há cópias deste `d` fora daqui: o `app/icon.svg` foi substituído por
+ * bitmaps, que não acompanham alterações à geometria. Ao mudá-lo, regera-os —
+ * ver docs/03.
  */
 export const PLUS_PATH =
   "M34.5 0H65.5V34.5H100V65.5H65.5V100H34.5V65.5H0V34.5H34.5Z";
@@ -46,9 +47,10 @@ export const LOCKUP = {
 } as const;
 
 /**
- * Equivalentes hex dos tokens OKLCH, para os dois sítios que não conseguem ler
- * CSS custom properties: `app/opengraph-image.tsx` (Satori) e `app/icon.svg`.
- * Se mudares um token em `app/globals.css`, atualiza aqui — ver docs/02.
+ * Equivalentes hex dos tokens OKLCH, para quem não consegue ler CSS custom
+ * properties: hoje só `app/opengraph-image.tsx` (Satori). Se mudares um token
+ * em `app/globals.css`, atualiza aqui — ver docs/02. Nota: os ícones do browser
+ * **não** usam estes valores, ver docs/02 → "Os ícones estão fora da paleta".
  */
 export const BRAND_HEX = {
   primary: "#F2762B", // ≈ --primary  oklch(0.72 0.188 50)

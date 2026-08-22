@@ -22,7 +22,8 @@ Se um doc e o código discordarem, é um bug, não uma questão de gosto.
 | `lib/site.ts`                                                                                             | 01                       |
 | `app/layout.tsx`, `app/sitemap.ts`, `app/robots.ts`                                                       | 01                       |
 | `app/globals.css`                                                                                         | 02                       |
-| `lib/brand.ts`, `components/Logo.tsx`, `components/Lockup.tsx`, `components/Wordmark.tsx`, `app/icon.svg` | 03                       |
+| `lib/brand.ts`, `components/Logo.tsx`, `components/Lockup.tsx`, `components/Wordmark.tsx`                 | 03                       |
+| `app/icon.png`, `app/favicon.ico`, `images/Dev+-icone-2000.png`, `scripts/mkico.py`                       | 03 (o mark) + 02 (cores) |
 | `scripts/vectorizar-logo.py`, `images/Dev+-logosimples.png`                                               | 03                       |
 | `app/opengraph-image.tsx`                                                                                 | 01 (texto) + 03 (o mark) |
 | `components/ui/*`, `components/Reveal.tsx`, `components/Marquee.tsx`                                      | 04                       |

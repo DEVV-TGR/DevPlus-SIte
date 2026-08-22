@@ -1,5 +1,0 @@
-<!-- docs: docs/03-simbolo-e-logotipo.md — o `d` é copiado de PLUS_PATH em lib/brand.ts. -->
-<svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="100" height="100" rx="22" fill="#1a1613" />
-  <path transform="translate(50,50) scale(0.68) translate(-50,-50)" d="M34.5 0H65.5V34.5H100V65.5H65.5V100H34.5V65.5H0V34.5H34.5Z" fill="#F2762B" />
-</svg>

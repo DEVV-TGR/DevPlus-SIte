@@ -4,7 +4,8 @@ fonte-de-verdade: doc
 controla:
   - app/globals.css
   - lib/brand.ts#hex
-  - app/icon.svg#cores
+  - app/icon.png#cores
+  - app/favicon.ico#cores
   - app/opengraph-image.tsx#cores
 relacionado:
   - docs/04-componentes-e-padroes.md
@@ -84,14 +85,27 @@ O texto do site **não tem problema de contraste em lado nenhum**, incluindo em
 
 ## Os hex duplicados — e porquê
 
-Dois ficheiros **não conseguem ler CSS custom properties** e por isso têm os
+Há ficheiros que **não conseguem ler CSS custom properties** e por isso têm os
 valores à mão:
 
 - `app/opengraph-image.tsx` — é gerado pelo Satori, fora do browser;
-- `app/icon.svg` — é um ficheiro estático.
+- `app/icon.png` e `app/favicon.ico` — são bitmaps, as cores estão nos pixels.
 
 Os equivalentes estão registados em **`lib/brand.ts` → `BRAND_HEX`**, que o
-`opengraph-image.tsx` importa. O `icon.svg` é o único sítio com hex literal.
+`opengraph-image.tsx` importa. Desde que o `app/icon.svg` foi substituído pelos
+bitmaps, já não há nenhum ficheiro de código com hex literal — o que resta são
+os pixels, que ninguém consegue rever num diff.
+
+### Os ícones estão fora da paleta — de propósito
+
+Os bitmaps de agosto de 2026 **não usam os tokens**: o fundo é `#000000` em vez
+de `--bg` `#1a1613`, e o "+" é `#FF780A` em vez de `--primary` `#F2762B`. Foi
+uma decisão explícita do Gonçalo ao adotar o desenho, não um lapso — fica aqui
+registada porque é a única exceção viva à regra de não inventar cores, e porque
+um bitmap não se revê num diff como se revê um hex.
+
+Se algum dia se realinharem com a paleta, é regerar os dois ficheiros a partir
+de um original nas cores certas. Ver `docs/03-simbolo-e-logotipo.md`.
 
 | Token OKLCH                        | Hex       |
 | ---------------------------------- | --------- |
@@ -139,7 +153,7 @@ em 88px (o teto é 96px: acima disso a página grita em vez de desenhar).
 
 | Se mudares…             | Faz também                                                                                                                                            |
 | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| um valor de cor         | `:root` **e** `@theme inline` em `app/globals.css`; se afetar primary/bg/ink/muted, atualiza `BRAND_HEX` em `lib/brand.ts` e os hex em `app/icon.svg` |
+| um valor de cor         | `:root` **e** `@theme inline` em `app/globals.css`; se afetar primary/bg/ink/muted, atualiza `BRAND_HEX` em `lib/brand.ts`. Os ícones **não** seguem os tokens — ver a secção acima antes de lhes tocar |
 | acrescentares um token  | as duas camadas de `app/globals.css`, e a tabela acima                                                                                                |
 | `--radius`              | confirma os cards em `ProjectCard` e nas caixas de `app/servicos/page.tsx`                                                                            |
 | uma fonte               | `app/layout.tsx` (o import e a `variable`) e `@theme inline`                                                                                          |
