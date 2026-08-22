@@ -8,7 +8,9 @@ controla:
   - components/Logo.tsx
   - components/Lockup.tsx
   - components/Wordmark.tsx
-  - app/icon.svg
+  - app/icon.png
+  - app/favicon.ico
+  - images/Dev+-icone-2000.png
   - app/opengraph-image.tsx#marca
   - scripts/vectorizar-logo.py
   - images/Dev+-logosimples.png
@@ -88,15 +90,49 @@ O mesmo desenho existe em quatro sítios, por razões técnicas. **Não é descu
 | ------------------------- | ------------------------------------ | ----------------------------------------- |
 | `components/Lockup.tsx`   | importa `D_PATH` + `LOCKUP.plusPath` | é o logótipo, e o único que pode importar |
 | `components/Logo.tsx`     | importa `PLUS_PATH`                  | o "+" isolado, para o favicon e o motivo  |
-| `app/icon.svg`            | `d` do "+" copiado à mão             | ficheiro estático, não executa JS         |
+| `app/icon.png` + `.ico`   | bitmap, gerado de `Dev+-icone-2000`  | é o ícone do browser, não executa nada    |
 | `app/opengraph-image.tsx` | dois `<path>` sem `<g>`              | o Satori é frágil com transforms          |
 
-**No `icon.svg` não recalcules coordenadas** para dar margem dentro do quadrado
-— usa `transform="translate(50,50) scale(0.68) translate(-50,-50)"`. Foi a
-recopiar coordenadas à mão que a identidade anterior divergiu entre ficheiros.
+O ícone do browser deixou de ser vetorial em agosto de 2026: o `app/icon.svg`
+foi substituído por dois bitmaps. É a única renderização que **não** deriva de
+`lib/brand.ts` — não há coordenadas para manter em sincronia, há pixels.
 
-O favicon é o **"+" sozinho**, não o lockup: a 16px um "D+" de proporção 1.5:1
-dentro de um quadrado fica ilegível.
+### O favicon é o lockup, não o "+"
+
+Contraria o que este doc dizia até agosto de 2026, e a razão continua a ser
+verdade: **a 16px o "D+" perde-se**. Medido no bitmap atual, o desenho ocupa 43%
+da altura do quadrado, o que a 16px dá 7px de "D" e 4px de "+" — o "+" lê-se
+como uma mancha. A 32px já se distingue, e a partir dos 48 está limpo.
+
+Foi uma escolha informada do Gonçalo, com o custo em cima da mesa. Fica aqui
+para que ninguém a "corrija" por engano, e para que quem a quiser rever saiba
+exatamente o que está a ganhar: mais margem à volta do desenho e/ou o "+"
+sozinho recuperam a leitura aos 16px.
+
+## Como se geram os dois bitmaps
+
+O original é **`images/Dev+-icone-2000.png`** (2000×2000, RGB, sem alfa) — como
+o `Dev+-logosimples.png`, não é servido ao browser, existe para ser a origem.
+
+Dos três tamanhos do `.ico` e do `icon.png` faz-se tudo com o `sips` do macOS
+mais o `scripts/mkico.py` (só stdlib, sem dependências):
+
+```
+for s in 512 48 32 16; do
+  sips -z $s $s "images/Dev+-icone-2000.png" --out /tmp/i$s.png
+done
+cp /tmp/i512.png app/icon.png
+python3 scripts/mkico.py /tmp/i16.png /tmp/i32.png /tmp/i48.png app/favicon.ico
+```
+
+**O `favicon.ico` tem de ser mesmo um ICO.** Chegou a estar lá um PNG só com a
+extensão trocada: o Chrome e o Firefox aceitam por sniffing, o Safari e os
+atalhos do Windows não. Confirma sempre com `file app/favicon.ico` — tem de
+dizer `MS Windows icon resource`, com os três tamanhos.
+
+O `icon.png` fica a **512px**: é o que o Next serve como `rel="icon"` e o que os
+Android e as PWA vão buscar. Não voltes a pôr lá os 2000px — são 32KB em todas
+as páginas para nada.
 
 ## `components/Lockup.tsx`
 
@@ -139,7 +175,8 @@ nav e no rodapé.
 
 - **Lockup, mínimo**: 20px de altura. Abaixo disso a contra-forma do "D" fecha.
 - **Nav e rodapé**: 24px (`h-6`). **Cartão social**: 56px.
-- **"+" isolado, mínimo**: 16px (favicon). **Motivo de fundo**: até ~600px.
+- **"+" isolado**: **Motivo de fundo**, até ~600px.
+- **Ícone do browser**: 16/32/48 no `.ico`, 512 no `icon.png` (ver acima).
 - **Área de proteção**: metade da largura da barra do "+" (≈100/1000 da altura
   do lockup) de espaço livre à volta.
 
@@ -148,7 +185,8 @@ nav e no rodapé.
 | Se mudares…                                   | Faz também                                                                                                                         |
 | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | o desenho do logótipo                         | substitui `images/Dev+-logosimples.png`, corre `scripts/vectorizar-logo.py`, cola o `D_PATH` e as medidas do "+" em `lib/brand.ts` |
-| a geometria do "+"                            | `PLUS_PATH` e `LOCKUP.plusPath` em `lib/brand.ts`; copia o `d` novo para `app/icon.svg`                                            |
+| o desenho do **ícone**                        | substitui `images/Dev+-icone-2000.png` e regera `app/icon.png` e `app/favicon.ico` — ver "Como se geram os dois bitmaps"           |
+| a geometria do "+"                            | `PLUS_PATH` e `LOCKUP.plusPath` em `lib/brand.ts`; os ícones são bitmaps e **não** acompanham — regera-os à parte                  |
 | a espessura da barra                          | os dois paths do "+" acima — a proporção 0.31 tem de se manter em ambos                                                            |
 | a cor do "+"                                  | nada aqui: vem de `--primary` (ver `docs/02`)                                                                                      |
 | a cor do "D"                                  | nada aqui: é `currentColor`, vem de quem chama                                                                                     |

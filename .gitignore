@@ -46,9 +46,10 @@ next-env.d.ts
 # originais dos prints (ficam só no disco — o que vai para o site são as
 # versões otimizadas em public/portfolio/). Ver docs/06-projetos.md.
 /images/*
-# exceção: o original do logótipo é versionado — é o input de
-# scripts/vectorizar-logo.py. Ver docs/03-simbolo-e-logotipo.md.
+# exceção: os originais da identidade são versionados — são os inputs de
+# scripts/vectorizar-logo.py e scripts/mkico.py. Ver docs/03-simbolo-e-logotipo.md.
 !/images/Dev+-logosimples.png
+!/images/Dev+-icone-2000.png
 
 # agentes — .claude/settings.json e .claude/skills/ são versionados (a
 # configuração e as skills são partilhadas). O que é da máquina de cada um
