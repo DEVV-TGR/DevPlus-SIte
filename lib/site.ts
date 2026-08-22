@@ -26,11 +26,21 @@ export const site = {
 export type Social = { label: string; href?: string };
 
 /**
- * As contas ainda não estão criadas. Ficam visíveis (para o visitante saber que
- * existem) mas sem link — basta acrescentar o `href` para passarem a ligar.
+ * O Instagram e o Facebook existem desde agosto de 2026; o WhatsApp ainda não,
+ * e por isso continua sem `href` — renderiza como texto esbatido, sem `<a>`.
+ *
+ * Estes `href` não são só links no rodapé: alimentam o `sameAs` dos dados
+ * estruturados (`components/JsonLd.tsx`), que é o que diz ao Google que estas
+ * contas e o site são a mesma entidade. Um `href` errado aqui é pior do que
+ * `href` nenhum — confirma-o no browser antes de o escrever.
  */
 export const socials: Social[] = [
-  { label: "Instagram" },
-  { label: "Facebook" },
+  { label: "Instagram", href: "https://www.instagram.com/devplus.pt/" },
+  {
+    label: "Facebook",
+    // URL de perfil sem username. Assim que a página tiver um (`/devplus.pt`),
+    // troca aqui: é mais curto, sobrevive a mudanças de id e lê-se melhor.
+    href: "https://www.facebook.com/profile.php?id=61592793399224",
+  },
   { label: "WhatsApp" },
 ];

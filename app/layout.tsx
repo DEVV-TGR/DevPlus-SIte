@@ -44,7 +44,12 @@ export const metadata: Metadata = {
     "estúdio de design",
     "Portugal",
   ],
-  alternates: { canonical: "/" },
+  /* Sem `alternates` aqui de propósito. O que estiver neste objeto é
+     **herdado** por todas as páginas que não o sobreponham, e um
+     `canonical: "/"` no layout fazia `/servicos`, `/portfolio`, `/sobre`,
+     `/contacto` e `/privacidade` declararem-se todas cópias da homepage — ou
+     seja, a pedir ao Google que não as indexasse. Cada página declara o seu,
+     incluindo `app/page.tsx`. Ver docs/01, "Metadata". */
   openGraph: {
     title: fullTitle,
     description: site.description,

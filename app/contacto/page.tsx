@@ -7,6 +7,7 @@ import { ContactForm } from "@/components/ContactForm";
 import { site, socials } from "@/lib/site";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/contacto" },
   title: "Contacto",
   description:
     "Vamos falar sobre o teu projeto. Conta-nos a tua ideia e respondemos em 24 a 48 horas úteis.",
@@ -77,8 +78,8 @@ export default function ContactoPage() {
                       ))}
                     </ul>
                     <p className="mt-2.5 text-sm text-muted">
-                      Ainda estamos a preparar as contas. Até lá, o email é o
-                      caminho mais rápido para nos chegares.
+                      O WhatsApp ainda está a caminho. Para falar connosco hoje,
+                      o email é o caminho mais rápido.
                     </p>
                   </dd>
                 </div>

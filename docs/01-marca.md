@@ -54,17 +54,30 @@ as submissões do formulário para a nossa caixa. Vive num subdomínio de propó
 
 ## Redes sociais
 
-As contas **ainda não existem**. Estão em `socials` (`lib/site.ts`) com o `href`
-por preencher, o que é a forma de dizer "sem link":
+Vivem em `socials` (`lib/site.ts`). O `href` é o interruptor:
 
 - `href` ausente → renderiza como texto esbatido, sem `<a>`;
 - `href` preenchido → passa a link automaticamente, sem tocar em JSX.
 
-Contas previstas: **Instagram, Facebook, WhatsApp**. O LinkedIn foi retirado.
+| Rede      | Estado                                          |
+| --------- | ----------------------------------------------- |
+| Instagram | existe desde agosto de 2026 — `@devplus.pt`     |
+| Facebook  | existe desde agosto de 2026                     |
+| WhatsApp  | por criar, continua sem `href`                  |
 
-**Quando as contas existirem:** acrescenta o `href` em `lib/site.ts` e apaga as
-duas notas de "em breve" — o `<span>· em breve</span>` em `components/Footer.tsx`
-e o parágrafo "Ainda a preparar as contas" em `app/contacto/page.tsx`.
+O LinkedIn foi retirado.
+
+O `href` do Facebook é um `profile.php?id=…`, porque a página não tem username.
+**Quando tiver**, troca-o pelo curto — sobrevive a mudanças de id e é melhor
+sinal do que uma URL com query string.
+
+Estes `href` não servem só o rodapé: alimentam o **`sameAs`** dos dados
+estruturados, que é o que diz ao Google que estas contas e o site são a mesma
+entidade. Um `href` errado é pior do que `href` nenhum — abre-o no browser antes
+de o escrever.
+
+**Quando o WhatsApp existir:** acrescenta o `href` e reescreve o parágrafo em
+`app/contacto/page.tsx`, que hoje diz que só ele falta.
 
 ## Tom de voz
 
@@ -114,6 +127,22 @@ uma destas, procura no repositório quantas vezes já lá está:
 `` `${site.name} — ${site.tagline}` ``, o template das subpáginas é
 `` `%s · ${site.name}` ``. Não escrevas títulos literais.
 
+### O canónico é de cada página, nunca do layout
+
+**Cada página declara o seu `alternates.canonical`.** O layout não declara
+nenhum, e isso é deliberado: o que está no `metadata` do layout é *herdado* por
+todas as páginas que não o sobreponham. Até agosto de 2026 o layout tinha
+`canonical: "/"`, e o resultado era `/servicos`, `/portfolio`, `/sobre`,
+`/contacto` e `/privacidade` anunciarem-se todas como cópias da homepage — ou
+seja, a pedir ao Google que as deixasse cair. Só os casos de estudo escapavam,
+por terem o seu no `generateMetadata`.
+
+**Página nova, canónico novo.** É a única linha de metadata que não se pode
+esquecer: sem ela a página não fica errada, fica invisível.
+
+O caminho escreve-se relativo (`"/servicos"`), que o `metadataBase` resolve
+para o domínio de `lib/site.ts`.
+
 ## Privacidade
 
 `app/privacidade/page.tsx` é um documento legal, e a regra aqui é diferente da do
@@ -142,7 +171,8 @@ A data de "Última atualização" no fim da página muda sempre que o texto muda
 | o nome, o domínio ou o email                     | só `lib/site.ts` — todo o resto importa de lá                                                                                                        |
 | o `emailFrom`                                    | `lib/site.ts` **e** o domínio verificado no Resend — um `from` que o Resend não reconhece faz o envio falhar por inteiro. Ver `docs/04`              |
 | o que o site recolhe, ou quem trata esses dados  | `app/privacidade/page.tsx` — nomeia o subcontratante e atualiza a data de "Última atualização" no mesmo PR em que o serviço passa a receber dados     |
-| as redes (ou acrescentares um `href`)            | `socials` em `lib/site.ts`; apaga as notas de "em breve" no `Footer.tsx` e em `contacto/page.tsx`                                                    |
+| as redes (ou acrescentares um `href`)            | `socials` em `lib/site.ts` — o `sameAs` do `JsonLd.tsx` sai de lá sozinho; confirma o texto em `contacto/page.tsx`, que nomeia o que ainda falta     |
+| criares uma página nova                          | dá-lhe `alternates: { canonical: "/o-caminho" }` — ver "O canónico é de cada página"                                                                |
 | a `tagline` ou a `description`                   | `lib/site.ts`; confirma o cartão social em `/opengraph-image`                                                                                        |
 | a forma de escrever o nome                       | `docs/03` (o lockup) e o `aria-label` em `components/Wordmark.tsx`                                                                                   |
 | o tom de voz                                     | revê `components/Hero.tsx`, `app/sobre/page.tsx` e os `blurb` em `lib/services.ts`                                                                   |

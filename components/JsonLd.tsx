@@ -1,5 +1,5 @@
 /** docs: docs/01-marca.md — o nome, o domínio e o email vêm de lib/site.ts. */
-import { site } from "@/lib/site";
+import { site, socials } from "@/lib/site";
 
 /**
  * Dados estruturados. Ficam num sítio só para o `@id` da organização ser o
@@ -8,6 +8,10 @@ import { site } from "@/lib/site";
  */
 
 const ORG_ID = `${site.url}/#organizacao`;
+
+/** As redes que já existem. `sameAs` é o que liga o site às contas aos olhos do
+ *  Google — sai de `socials` para não haver uma segunda lista a divergir. */
+const perfis = socials.flatMap((s) => (s.href ? [s.href] : []));
 
 function JsonLd({ data }: { data: Record<string, unknown> }) {
   return (
@@ -43,6 +47,7 @@ export function OrganizationJsonLd() {
         areaServed: "PT",
         knowsLanguage: ["pt-PT", "en"],
         slogan: site.tagline,
+        ...(perfis.length ? { sameAs: perfis } : {}),
       }}
     />
   );
