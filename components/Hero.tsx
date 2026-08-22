@@ -1,6 +1,7 @@
 "use client";
 /** docs: docs/04-componentes-e-padroes.md — o motivo de fundo é o "+" (ver docs/03). */
 
+import { Fragment } from "react";
 import { motion, type Variants } from "motion/react";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
@@ -63,18 +64,23 @@ export function Hero() {
             </span>
           </motion.div>
 
+          {/* O espaço entre palavras é um espaço a sério, não `margin`. Cada
+              palavra anima em separado, e por isso é um `<span>` — mas com a
+              margem a fazer de espaço o HTML servido não tinha separador
+              nenhum, e o título chegava ao Google e aos leitores de ecrã como
+              "Webdesignquesomaaoteunegócio.". O `{" "}` entre os spans custa
+              nada e devolve o título a quem o lê sem o ver. */}
           <h1 className="mt-5 max-w-[20ch] font-display font-semibold leading-[1.02] tracking-tight text-[clamp(2.25rem,7vw,5.5rem)]">
             {words.map((w, i) => (
-              <motion.span
-                key={i}
-                variants={item}
-                className={cn(
-                  "mr-[0.22em] inline-block",
-                  w.accent && "text-primary",
-                )}
-              >
-                {w.t}
-              </motion.span>
+              <Fragment key={i}>
+                {i > 0 && " "}
+                <motion.span
+                  variants={item}
+                  className={cn("inline-block", w.accent && "text-primary")}
+                >
+                  {w.t}
+                </motion.span>
+              </Fragment>
             ))}
           </h1>
 
