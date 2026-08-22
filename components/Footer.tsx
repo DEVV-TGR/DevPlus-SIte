@@ -63,9 +63,7 @@ export function Footer() {
               </li>
             </ul>
 
-            <h3 className="mt-6 text-sm font-medium text-ink">
-              Redes <span className="font-normal text-muted">· em breve</span>
-            </h3>
+            <h3 className="mt-6 text-sm font-medium text-ink">Redes</h3>
             <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
               {socials.map((s) => (
                 <li key={s.label}>

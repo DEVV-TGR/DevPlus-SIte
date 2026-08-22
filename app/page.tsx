@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
@@ -9,6 +10,12 @@ import { Testimonials } from "@/components/Testimonials";
 import { projects } from "@/lib/projects";
 import { services } from "@/lib/services";
 import { site } from "@/lib/site";
+
+/* O título e a descrição vêm do `layout` — aqui só o canónico, que o layout
+   deixou de impor a toda a gente. Ver docs/01, "Metadata". */
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 const disciplines = [
   "Web Design",

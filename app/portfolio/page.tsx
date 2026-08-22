@@ -10,6 +10,7 @@ import { projects } from "@/lib/projects";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/portfolio" },
   title: "Portfólio",
   description: `Projetos recentes da ${site.name} — sites, menus digitais e plataformas feitos à medida de cada negócio.`,
 };
