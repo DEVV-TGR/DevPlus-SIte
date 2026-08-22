@@ -43,6 +43,7 @@ ficheiro; importa-os. Se precisas de um dado novo, acrescenta-o lá.
 | `email`           | support@devplus.pt                          |
 | `emailFrom`       | Site DevPlus <formulario@send.devplus.pt>   |
 | `tagline`         | Estúdio de Web Design & Desenvolvimento     |
+| `city`            | Porto                                       |
 | `locale` / `lang` | pt_PT / pt-PT                               |
 
 O `email` é a caixa que lemos — é ele que aparece no rodapé, em `/contacto`, em
@@ -51,6 +52,31 @@ O `email` é a caixa que lemos — é ele que aparece no rodapé, em `/contacto`
 O `emailFrom` **nunca aparece no site**: é só o remetente com que o Resend envia
 as submissões do formulário para a nossa caixa. Vive num subdomínio de propósito
 — ver `docs/04`, "O formulário de contacto".
+
+### Não há morada, e isso escreve-se
+
+O estúdio está a começar e não tem sede. **Não inventes uma**, nem NIF, nem
+código postal: a morada de um negócio tem de bater certo, carácter a carácter,
+entre o site, o Perfil de Empresa do Google e as redes — e uma morada inventada
+é pior do que morada nenhuma, porque dá aparência de solidez sem a substância.
+
+O que é verdade é a cidade. `site.city` é o único sinal geográfico que o site dá,
+e é o que os dados estruturados dizem (`areaServed`). Quando houver sede, entra
+aqui, em `lib/site.ts`, em `app/privacidade/page.tsx` e no `address` do JSON-LD,
+no mesmo PR.
+
+## Os telefones
+
+`team` em `lib/site.ts`: três pessoas, três telemóveis, cada um com o nome de
+quem atende. Um estúdio de três pessoas que publica um número anónimo está a
+esconder a única vantagem que tem sobre uma agência.
+
+- O `phone` escreve-se **como se lê**, com espaços (`916 416 063`). É essa a
+  grafia que aparece no site.
+- O `href` do `tel:` **deriva** por `telHref()` — `+351916416063`. Nunca
+  escrevas o número em duas grafias: divergem à primeira correção.
+- Aparecem em `/contacto` e no `contactPoint` dos dados estruturados. Se
+  entrarem no rodapé algum dia, saem do mesmo sítio.
 
 ## Redes sociais
 
@@ -174,6 +200,8 @@ A data de "Última atualização" no fim da página muda sempre que o texto muda
 | as redes (ou acrescentares um `href`)            | `socials` em `lib/site.ts` — o `sameAs` do `JsonLd.tsx` sai de lá sozinho; confirma o texto em `contacto/page.tsx`, que nomeia o que ainda falta     |
 | criares uma página nova                          | dá-lhe `alternates: { canonical: "/o-caminho" }` — ver "O canónico é de cada página"                                                                |
 | a `tagline` ou a `description`                   | `lib/site.ts`; confirma o cartão social em `/opengraph-image`                                                                                        |
+| um telefone, ou quem atende                      | `team` em `lib/site.ts` — `/contacto` e o `contactPoint` do JSON-LD saem de lá sozinhos                                                              |
+| passar a haver sede                              | `lib/site.ts`, o `address` em `components/JsonLd.tsx`, e a identificação em `app/privacidade/page.tsx` — os três no mesmo PR                         |
 | a forma de escrever o nome                       | `docs/03` (o lockup) e o `aria-label` em `components/Wordmark.tsx`                                                                                   |
 | o tom de voz                                     | revê `components/Hero.tsx`, `app/sobre/page.tsx` e os `blurb` em `lib/services.ts`                                                                   |
 | a morada, o telefone ou qualquer dado da empresa | `lib/site.ts` **e** `components/JsonLd.tsx` — os dados estruturados dizem ao Google quem é a DevPlus, e uma divergência ali é pior do que a ausência |
