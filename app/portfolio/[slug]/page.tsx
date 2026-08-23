@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/Reveal";
 import { CaseStudyJsonLd } from "@/components/JsonLd";
 import { projects, getProject } from "@/lib/projects";
+import { pageMetadata } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 export function generateStaticParams() {
@@ -23,31 +24,25 @@ export async function generateMetadata({
   const project = getProject(slug);
   if (!project) return {};
 
-  const url = `/portfolio/${project.slug}`;
-
-  return {
+  // Sem `images`, partilhar um caso de estudo mostrava o cartão genérico do
+  // site em vez da capa do projeto. Quem não tem capa cai no cartão global.
+  return pageMetadata({
+    path: `/portfolio/${project.slug}`,
     title: project.name,
+    socialTitle: `${project.name} — ${project.category}`,
     description: project.summary,
-    alternates: { canonical: url },
-    // Sem isto, partilhar um caso de estudo mostrava o cartão genérico do site
-    // em vez da capa do projeto. Quem não tem capa cai no cartão global.
-    openGraph: {
-      type: "article",
-      title: `${project.name} — ${project.category}`,
-      description: project.summary,
-      url,
-      ...(project.image
-        ? {
-            images: [
-              {
-                url: project.image,
-                alt: project.imageAlt ?? `Capa do projeto ${project.name}`,
-              },
-            ],
-          }
-        : {}),
-    },
-  };
+    type: "article",
+    ...(project.image
+      ? {
+          images: [
+            {
+              url: project.image,
+              alt: project.imageAlt ?? `Capa do projeto ${project.name}`,
+            },
+          ],
+        }
+      : {}),
+  });
 }
 
 export default async function CaseStudyPage({

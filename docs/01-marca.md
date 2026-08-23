@@ -3,6 +3,7 @@ doc: marca
 fonte-de-verdade: doc
 controla:
   - lib/site.ts
+  - lib/seo.ts
   - app/layout.tsx
   - components/JsonLd.tsx
   - app/sitemap.ts
@@ -149,25 +150,57 @@ uma destas, procura no repositório quantas vezes já lá está:
 
 ## Metadata
 
-`app/layout.tsx` monta tudo a partir de `site`: o título é
-`` `${site.name} — ${site.tagline}` ``, o template das subpáginas é
-`` `%s · ${site.name}` ``. Não escrevas títulos literais.
+**A metadata de uma página faz-se com `pageMetadata()`, de `lib/seo.ts`.** Não se
+escreve um objeto `metadata` à mão, e não se escrevem títulos literais — o
+título, a `description` e o `path` entram uma vez e saem no `<title>`, no
+canónico, no Open Graph e no cartão do Twitter, todos coerentes por construção.
 
-### O canónico é de cada página, nunca do layout
+```ts
+export const metadata = pageMetadata({
+  path: "/servicos",
+  title: "Serviços",
+  description: "…",
+});
+```
 
-**Cada página declara o seu `alternates.canonical`.** O layout não declara
-nenhum, e isso é deliberado: o que está no `metadata` do layout é *herdado* por
-todas as páginas que não o sobreponham. Até agosto de 2026 o layout tinha
-`canonical: "/"`, e o resultado era `/servicos`, `/portfolio`, `/sobre`,
-`/contacto` e `/privacidade` anunciarem-se todas como cópias da homepage — ou
-seja, a pedir ao Google que as deixasse cair. Só os casos de estudo escapavam,
-por terem o seu no `generateMetadata`.
+O `path` escreve-se relativo (`"/servicos"`), que o `metadataBase` resolve para
+o domínio de `lib/site.ts`. Nos casos de estudo é o `generateMetadata` a chamar
+a mesma função, com `type: "article"` e a capa do projeto em `images`.
 
-**Página nova, canónico novo.** É a única linha de metadata que não se pode
-esquecer: sem ela a página não fica errada, fica invisível.
+### Porque é que isto é uma função e não uma convenção
 
-O caminho escreve-se relativo (`"/servicos"`), que o `metadataBase` resolve
-para o domínio de `lib/site.ts`.
+Porque a convenção falhou duas vezes, do mesmo alçapão. **O que está no
+`metadata` do `app/layout.tsx` é herdado por todas as páginas que não o
+sobreponham**, e o `openGraph` é substituído *por inteiro* quando uma página o
+declara — não há merge de campos.
+
+- Até agosto de 2026 o layout tinha `alternates: { canonical: "/" }`. Resultado:
+  `/servicos`, `/portfolio`, `/sobre`, `/contacto` e `/privacidade` anunciavam-se
+  todas como cópias da homepage — a pedir ao Google que as deixasse cair. O
+  Search Console confirmou-o com o motivo _"Página alternativa com etiqueta
+  canónica correta"_.
+- Corrigido o canónico, ficou o gémeo: `openGraph` e `twitter` no layout faziam
+  qualquer partilha de `/servicos` mostrar o **título, a descrição e o URL da
+  homepage**. Só se deu por isso a verificar produção depois do deploy.
+- E havia um terceiro, ao contrário: os casos de estudo declaravam `openGraph`
+  próprio, e por isso **perdiam o cartão global** — o `a-barraquinha-nova`, que
+  não tem capa, estava sem `og:image` nenhum, apesar de um comentário no código
+  garantir o contrário.
+
+A lição não é "não te esqueças do `openGraph`" — foi exatamente isso que falhou.
+É que **não deve haver três sítios onde escrever a mesma coisa.**
+
+### As duas regras que sobram
+
+1. **Página nova, `pageMetadata()` novo.** Sem ele a página não fica errada,
+   fica invisível — e partilhá-la mostra o cartão de outra.
+2. **O `openGraph` do layout fica sem `url`, de propósito.** É só a rede de
+   segurança do `not-found`. Um `url` ali era herdado por quem falhasse a regra
+   1, e um `og:url` errado é pior do que nenhum: manda a plataforma atribuir a
+   partilha à página errada. Ausente, a plataforma usa o URL que foi buscar.
+
+O cartão social global vive em `app/opengraph-image.tsx`, mas o `alt` e o `size`
+vêm de `lib/seo.ts` — a rota consome-os, não os define. Ver `docs/03`.
 
 ## Privacidade
 
@@ -229,7 +262,8 @@ da Política de Privacidade. Três regras:
 | o `emailFrom`                                    | `lib/site.ts` **e** o domínio verificado no Resend — um `from` que o Resend não reconhece faz o envio falhar por inteiro. Ver `docs/04`              |
 | o que o site recolhe, ou quem trata esses dados  | `app/privacidade/page.tsx` — nomeia o subcontratante e atualiza a data de "Última atualização" no mesmo PR em que o serviço passa a receber dados     |
 | as redes (ou acrescentares um `href`)            | `socials` em `lib/site.ts` — o `sameAs` do `JsonLd.tsx` sai de lá sozinho; confirma o texto em `contacto/page.tsx`, que nomeia o que ainda falta     |
-| criares uma página nova                          | dá-lhe `alternates: { canonical: "/o-caminho" }` — ver "O canónico é de cada página"                                                                |
+| criares uma página nova                          | monta a metadata com `pageMetadata({ path, title, description })` de `lib/seo.ts` — nunca um objeto `metadata` à mão. Ver "Metadata"                 |
+| a `tagline` (e com ela o título do cartão)       | só `lib/site.ts` — o `fullTitle` e o `alt` do `opengraph-image` derivam de lá por `lib/seo.ts`                                                       |
 | a `tagline` ou a `description`                   | `lib/site.ts`; confirma o cartão social em `/opengraph-image`                                                                                        |
 | um telefone, ou quem atende                      | `team` em `lib/site.ts` — `/contacto` e o `contactPoint` do JSON-LD saem de lá sozinhos                                                              |
 | passar a haver sede ou sociedade constituída     | `lib/site.ts`, o `address` em `components/JsonLd.tsx`, e a identificação (designação social, NIF, morada) em `app/privacidade/page.tsx` — no mesmo PR |

@@ -1,5 +1,4 @@
 /** docs: docs/05-servicos.md */
-import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
@@ -9,13 +8,14 @@ import { PageHero } from "@/components/PageHero";
 import { FaqJsonLd } from "@/components/JsonLd";
 import { services } from "@/lib/services";
 import { cn } from "@/lib/utils";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/servicos" },
+export const metadata = pageMetadata({
+  path: "/servicos",
   title: "Serviços",
   description:
     "Web design, desenvolvimento, menus e ecrãs digitais, painel de gestão, branding e motion. Tratamos do teu site do primeiro esboço ao dia em que fica no ar — e do que vier depois.",
-};
+});
 
 const packages: {
   name: string;

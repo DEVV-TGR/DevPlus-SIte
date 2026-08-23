@@ -1,17 +1,17 @@
 /** docs: docs/01-marca.md — o email, os telefones e as redes vêm de lib/site.ts. */
-import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { PageHero } from "@/components/PageHero";
 import { ContactForm } from "@/components/ContactForm";
 import { site, socials, team, telHref } from "@/lib/site";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/contacto" },
+export const metadata = pageMetadata({
+  path: "/contacto",
   title: "Contacto",
   description:
     "Vamos falar sobre o teu projeto. Conta-nos a tua ideia e respondemos em 24 a 48 horas úteis.",
-};
+});
 
 export default function ContactoPage() {
   return (

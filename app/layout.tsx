@@ -7,6 +7,7 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { OrganizationJsonLd } from "@/components/JsonLd";
 import { site } from "@/lib/site";
+import { fullTitle, titleTemplate } from "@/lib/seo";
 
 /**
  * Uma família só, a fazer títulos e corpo — o contraste faz-se por peso e pelo
@@ -24,13 +25,11 @@ const bricolage = Bricolage_Grotesque({
   display: "swap",
 });
 
-const fullTitle = `${site.name} — ${site.tagline}`;
-
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
     default: fullTitle,
-    template: `%s · ${site.name}`,
+    template: titleTemplate,
   },
   description: site.description,
   keywords: [
@@ -50,10 +49,15 @@ export const metadata: Metadata = {
      `/contacto` e `/privacidade` declararem-se todas cópias da homepage — ou
      seja, a pedir ao Google que não as indexasse. Cada página declara o seu,
      incluindo `app/page.tsx`. Ver docs/01, "Metadata". */
+  /* Estes dois são só a rede de segurança de quem não passe pelo
+     `pageMetadata()` — hoje, o `not-found`. **Sem `url` de propósito**, pela
+     mesma razão do `alternates`: um `url` aqui era herdado por todas as
+     páginas, e fazia qualquer partilha de `/servicos` dizer ao Facebook que o
+     conteúdo vive na homepage. Ausente é inofensivo — a plataforma usa o URL
+     que foi buscar. Ver `lib/seo.ts` e docs/01, "Metadata". */
   openGraph: {
     title: fullTitle,
     description: site.description,
-    url: site.url,
     siteName: site.name,
     locale: site.locale,
     type: "website",

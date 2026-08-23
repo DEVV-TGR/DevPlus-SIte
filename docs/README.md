@@ -19,7 +19,7 @@ Se um doc e o código discordarem, é um bug, não uma questão de gosto.
 
 | Ficheiro                                                                                                  | Doc que manda nele       |
 | --------------------------------------------------------------------------------------------------------- | ------------------------ |
-| `lib/site.ts`                                                                                             | 01                       |
+| `lib/site.ts`, `lib/seo.ts`                                                                               | 01                       |
 | `app/layout.tsx`, `app/sitemap.ts`, `app/robots.ts`                                                       | 01                       |
 | `app/globals.css`                                                                                         | 02                       |
 | `lib/brand.ts`, `components/Logo.tsx`, `components/Lockup.tsx`, `components/Wordmark.tsx`                 | 03                       |
