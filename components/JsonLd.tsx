@@ -1,5 +1,5 @@
 /** docs: docs/01-marca.md — o nome, o domínio e o email vêm de lib/site.ts. */
-import { site } from "@/lib/site";
+import { site, socials, team, telHref } from "@/lib/site";
 
 /**
  * Dados estruturados. Ficam num sítio só para o `@id` da organização ser o
@@ -8,6 +8,10 @@ import { site } from "@/lib/site";
  */
 
 const ORG_ID = `${site.url}/#organizacao`;
+
+/** As redes que já existem. `sameAs` é o que liga o site às contas aos olhos do
+ *  Google — sai de `socials` para não haver uma segunda lista a divergir. */
+const perfis = socials.flatMap((s) => (s.href ? [s.href] : []));
 
 function JsonLd({ data }: { data: Record<string, unknown> }) {
   return (
@@ -40,9 +44,29 @@ export function OrganizationJsonLd() {
         url: site.url,
         email: site.email,
         description: site.description,
-        areaServed: "PT",
+        /* Sem `address`. O `ProfessionalService` herda de `LocalBusiness`,
+           que espera morada — mas não há sede, e uma morada inventada é pior
+           do que nenhuma: tem de bater certo, carácter a carácter, com o
+           Perfil de Empresa e com as redes. O que é verdade é a cidade e o
+           país, e é só isso que aqui se diz. Ver docs/01. */
+        areaServed: [
+          { "@type": "City", name: site.city, addressCountry: "PT" },
+          { "@type": "Country", name: "Portugal" },
+        ],
         knowsLanguage: ["pt-PT", "en"],
         slogan: site.tagline,
+        /* Três pessoas, três telefones, cada um com o nome de quem atende —
+           em vez de um número anónimo que não diz a ninguém com quem vai
+           falar. */
+        contactPoint: team.map((m) => ({
+          "@type": "ContactPoint",
+          name: m.name,
+          telephone: telHref(m.phone),
+          contactType: "sales",
+          areaServed: "PT",
+          availableLanguage: ["pt-PT", "en"],
+        })),
+        ...(perfis.length ? { sameAs: perfis } : {}),
       }}
     />
   );

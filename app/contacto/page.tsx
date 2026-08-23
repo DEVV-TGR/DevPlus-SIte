@@ -1,12 +1,13 @@
-/** docs: docs/01-marca.md — o email e as redes vêm de lib/site.ts. */
+/** docs: docs/01-marca.md — o email, os telefones e as redes vêm de lib/site.ts. */
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { PageHero } from "@/components/PageHero";
 import { ContactForm } from "@/components/ContactForm";
-import { site, socials } from "@/lib/site";
+import { site, socials, team, telHref } from "@/lib/site";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/contacto" },
   title: "Contacto",
   description:
     "Vamos falar sobre o teu projeto. Conta-nos a tua ideia e respondemos em 24 a 48 horas úteis.",
@@ -42,6 +43,26 @@ export default function ContactoPage() {
                   </dd>
                 </div>
                 <div>
+                  <dt className="text-sm font-medium text-muted">Telefone</dt>
+                  <dd>
+                    <ul className="mt-1 flex flex-col gap-2">
+                      {team.map((m) => (
+                        <li key={m.phone}>
+                          <a
+                            href={`tel:${telHref(m.phone)}`}
+                            className="font-display text-xl transition-colors hover:text-primary"
+                          >
+                            {m.phone}
+                          </a>
+                          <span className="ml-2 text-sm text-muted">
+                            {m.name}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </dd>
+                </div>
+                <div>
                   <dt className="text-sm font-medium text-muted">
                     Disponibilidade
                   </dt>
@@ -50,7 +71,7 @@ export default function ContactoPage() {
                       Resposta em 24–48h úteis
                     </p>
                     <p className="mt-1.5 text-sm text-muted">
-                      Estamos em Portugal · trabalhamos com quem está mais
+                      Estamos no {site.city} · trabalhamos com quem está mais
                       longe
                     </p>
                   </dd>
@@ -77,8 +98,8 @@ export default function ContactoPage() {
                       ))}
                     </ul>
                     <p className="mt-2.5 text-sm text-muted">
-                      Ainda estamos a preparar as contas. Até lá, o email é o
-                      caminho mais rápido para nos chegares.
+                      O WhatsApp ainda está a caminho. Para falar connosco hoje,
+                      o email é o caminho mais rápido.
                     </p>
                   </dd>
                 </div>

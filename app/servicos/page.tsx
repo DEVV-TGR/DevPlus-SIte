@@ -11,6 +11,7 @@ import { services } from "@/lib/services";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/servicos" },
   title: "Serviços",
   description:
     "Web design, desenvolvimento, menus e ecrãs digitais, painel de gestão, branding e motion. Tratamos do teu site do primeiro esboço ao dia em que fica no ar — e do que vier depois.",

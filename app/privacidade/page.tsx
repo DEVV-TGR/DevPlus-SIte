@@ -6,6 +6,7 @@ import { PageHero } from "@/components/PageHero";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/privacidade" },
   title: "Política de Privacidade",
   description: `Como a ${site.name} trata os teus dados pessoais quando usas este site ou nos contactas.`,
 };

@@ -43,6 +43,7 @@ ficheiro; importa-os. Se precisas de um dado novo, acrescenta-o lá.
 | `email`           | support@devplus.pt                          |
 | `emailFrom`       | Site DevPlus <formulario@send.devplus.pt>   |
 | `tagline`         | Estúdio de Web Design & Desenvolvimento     |
+| `city`            | Porto                                       |
 | `locale` / `lang` | pt_PT / pt-PT                               |
 
 O `email` é a caixa que lemos — é ele que aparece no rodapé, em `/contacto`, em
@@ -52,19 +53,57 @@ O `emailFrom` **nunca aparece no site**: é só o remetente com que o Resend env
 as submissões do formulário para a nossa caixa. Vive num subdomínio de propósito
 — ver `docs/04`, "O formulário de contacto".
 
+### Não há morada, e isso escreve-se
+
+O estúdio está a começar e não tem sede. **Não inventes uma**, nem NIF, nem
+código postal: a morada de um negócio tem de bater certo, carácter a carácter,
+entre o site, o Perfil de Empresa do Google e as redes — e uma morada inventada
+é pior do que morada nenhuma, porque dá aparência de solidez sem a substância.
+
+O que é verdade é a cidade. `site.city` é o único sinal geográfico que o site dá,
+e é o que os dados estruturados dizem (`areaServed`). Quando houver sede, entra
+aqui, em `lib/site.ts`, em `app/privacidade/page.tsx` e no `address` do JSON-LD,
+no mesmo PR.
+
+## Os telefones
+
+`team` em `lib/site.ts`: três pessoas, três telemóveis, cada um com o nome de
+quem atende. Um estúdio de três pessoas que publica um número anónimo está a
+esconder a única vantagem que tem sobre uma agência.
+
+- O `phone` escreve-se **como se lê**, com espaços (`916 416 063`). É essa a
+  grafia que aparece no site.
+- O `href` do `tel:` **deriva** por `telHref()` — `+351916416063`. Nunca
+  escrevas o número em duas grafias: divergem à primeira correção.
+- Aparecem em `/contacto` e no `contactPoint` dos dados estruturados. Se
+  entrarem no rodapé algum dia, saem do mesmo sítio.
+
 ## Redes sociais
 
-As contas **ainda não existem**. Estão em `socials` (`lib/site.ts`) com o `href`
-por preencher, o que é a forma de dizer "sem link":
+Vivem em `socials` (`lib/site.ts`). O `href` é o interruptor:
 
 - `href` ausente → renderiza como texto esbatido, sem `<a>`;
 - `href` preenchido → passa a link automaticamente, sem tocar em JSX.
 
-Contas previstas: **Instagram, Facebook, WhatsApp**. O LinkedIn foi retirado.
+| Rede      | Estado                                          |
+| --------- | ----------------------------------------------- |
+| Instagram | existe desde agosto de 2026 — `@devplus.pt`     |
+| Facebook  | existe desde agosto de 2026                     |
+| WhatsApp  | por criar, continua sem `href`                  |
 
-**Quando as contas existirem:** acrescenta o `href` em `lib/site.ts` e apaga as
-duas notas de "em breve" — o `<span>· em breve</span>` em `components/Footer.tsx`
-e o parágrafo "Ainda a preparar as contas" em `app/contacto/page.tsx`.
+O LinkedIn foi retirado.
+
+O `href` do Facebook é um `profile.php?id=…`, porque a página não tem username.
+**Quando tiver**, troca-o pelo curto — sobrevive a mudanças de id e é melhor
+sinal do que uma URL com query string.
+
+Estes `href` não servem só o rodapé: alimentam o **`sameAs`** dos dados
+estruturados, que é o que diz ao Google que estas contas e o site são a mesma
+entidade. Um `href` errado é pior do que `href` nenhum — abre-o no browser antes
+de o escrever.
+
+**Quando o WhatsApp existir:** acrescenta o `href` e reescreve o parágrafo em
+`app/contacto/page.tsx`, que hoje diz que só ele falta.
 
 ## Tom de voz
 
@@ -114,6 +153,22 @@ uma destas, procura no repositório quantas vezes já lá está:
 `` `${site.name} — ${site.tagline}` ``, o template das subpáginas é
 `` `%s · ${site.name}` ``. Não escrevas títulos literais.
 
+### O canónico é de cada página, nunca do layout
+
+**Cada página declara o seu `alternates.canonical`.** O layout não declara
+nenhum, e isso é deliberado: o que está no `metadata` do layout é *herdado* por
+todas as páginas que não o sobreponham. Até agosto de 2026 o layout tinha
+`canonical: "/"`, e o resultado era `/servicos`, `/portfolio`, `/sobre`,
+`/contacto` e `/privacidade` anunciarem-se todas como cópias da homepage — ou
+seja, a pedir ao Google que as deixasse cair. Só os casos de estudo escapavam,
+por terem o seu no `generateMetadata`.
+
+**Página nova, canónico novo.** É a única linha de metadata que não se pode
+esquecer: sem ela a página não fica errada, fica invisível.
+
+O caminho escreve-se relativo (`"/servicos"`), que o `metadataBase` resolve
+para o domínio de `lib/site.ts`.
+
 ## Privacidade
 
 `app/privacidade/page.tsx` é um documento legal, e a regra aqui é diferente da do
@@ -133,7 +188,38 @@ Duas consequências práticas:
   secção volta atrás com ele. Ver `docs/04-componentes-e-padroes.md`, "O
   formulário de contacto".
 
+- **A identificação do responsável é a DevPlus e o email, e é uma decisão, não
+  um esquecimento.** O RGPD quer saber _quem_ trata os dados e _como_ se fala com
+  ele; a secção "Responsável pelo tratamento" diz as duas coisas. Não há
+  designação social, NIF nem morada na página **de propósito** — não existe sede,
+  e a decisão foi não publicar os nomes das três pessoas. Quando houver sociedade
+  constituída, entram os três dados de uma vez, vindos de `lib/site.ts`. Até lá,
+  não "completes" esta secção a achar que falta alguma coisa: não falta.
+
 A data de "Última atualização" no fim da página muda sempre que o texto mudar.
+
+## O Livro de Reclamações
+
+Prestadores de serviços são obrigados a divulgar o acesso ao **Livro de
+Reclamações Eletrónico** — Decreto-Lei n.º 156/2005, alterado pelo Decreto-Lei
+n.º 74/2017, que desde 1 de julho de 2018 estendeu a obrigação para lá dos
+serviços públicos essenciais. A obrigação nasce de haver **atividade**, não de
+haver escritório: a DevPlus fatura a clientes, logo aplica-se.
+
+O link vive em `site.livroReclamacoes` (`lib/site.ts`) e sai no rodapé, ao lado
+da Política de Privacidade. Três regras:
+
+- **Tem de estar visível sem ser preciso procurar.** Por isso o rodapé, que
+  aparece em todas as páginas, e não uma página só para ele.
+- **O selo oficial não se recria.** Descarrega-se da área reservada da
+  plataforma, depois do registo, e entra em `public/`. Redesenhá-lo é
+  contrafação de um símbolo oficial — e temos um estúdio de design, o que torna
+  a tentação maior e o erro pior. Enquanto não houver selo, o link em texto
+  cumpre: o que a lei exige é divulgar o acesso.
+- **O link pressupõe registo na plataforma.** Um link para o
+  `livroreclamacoes.pt` numa empresa que lá não está registada não cumpre nada —
+  cria a aparência de cumprimento, que é o pior dos dois mundos, porque o
+  consumidor que clica não encontra a entidade.
 
 ## Ao alterar este documento
 
@@ -142,8 +228,12 @@ A data de "Última atualização" no fim da página muda sempre que o texto muda
 | o nome, o domínio ou o email                     | só `lib/site.ts` — todo o resto importa de lá                                                                                                        |
 | o `emailFrom`                                    | `lib/site.ts` **e** o domínio verificado no Resend — um `from` que o Resend não reconhece faz o envio falhar por inteiro. Ver `docs/04`              |
 | o que o site recolhe, ou quem trata esses dados  | `app/privacidade/page.tsx` — nomeia o subcontratante e atualiza a data de "Última atualização" no mesmo PR em que o serviço passa a receber dados     |
-| as redes (ou acrescentares um `href`)            | `socials` em `lib/site.ts`; apaga as notas de "em breve" no `Footer.tsx` e em `contacto/page.tsx`                                                    |
+| as redes (ou acrescentares um `href`)            | `socials` em `lib/site.ts` — o `sameAs` do `JsonLd.tsx` sai de lá sozinho; confirma o texto em `contacto/page.tsx`, que nomeia o que ainda falta     |
+| criares uma página nova                          | dá-lhe `alternates: { canonical: "/o-caminho" }` — ver "O canónico é de cada página"                                                                |
 | a `tagline` ou a `description`                   | `lib/site.ts`; confirma o cartão social em `/opengraph-image`                                                                                        |
+| um telefone, ou quem atende                      | `team` em `lib/site.ts` — `/contacto` e o `contactPoint` do JSON-LD saem de lá sozinhos                                                              |
+| passar a haver sede ou sociedade constituída     | `lib/site.ts`, o `address` em `components/JsonLd.tsx`, e a identificação (designação social, NIF, morada) em `app/privacidade/page.tsx` — no mesmo PR |
+| passar a haver selo oficial do Livro de Reclamações | põe o ficheiro em `public/`, troca o texto pelo selo em `components/Footer.tsx` — descarregado da plataforma, nunca redesenhado                    |
 | a forma de escrever o nome                       | `docs/03` (o lockup) e o `aria-label` em `components/Wordmark.tsx`                                                                                   |
 | o tom de voz                                     | revê `components/Hero.tsx`, `app/sobre/page.tsx` e os `blurb` em `lib/services.ts`                                                                   |
 | a morada, o telefone ou qualquer dado da empresa | `lib/site.ts` **e** `components/JsonLd.tsx` — os dados estruturados dizem ao Google quem é a DevPlus, e uma divergência ali é pior do que a ausência |
