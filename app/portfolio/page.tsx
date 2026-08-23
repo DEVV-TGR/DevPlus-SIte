@@ -1,5 +1,4 @@
 /** docs: docs/06-projetos.md */
-import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { PageHero } from "@/components/PageHero";
@@ -8,12 +7,13 @@ import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/Reveal";
 import { projects } from "@/lib/projects";
 import { site } from "@/lib/site";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/portfolio" },
+export const metadata = pageMetadata({
+  path: "/portfolio",
   title: "Portfólio",
   description: `Projetos recentes da ${site.name} — sites, menus digitais e plataformas feitos à medida de cada negócio.`,
-};
+});
 
 export default function PortfolioPage() {
   return (

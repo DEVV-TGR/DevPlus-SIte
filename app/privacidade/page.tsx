@@ -1,15 +1,15 @@
 /** docs: docs/01-marca.md — o nome e o email vêm de lib/site.ts. */
-import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { PageHero } from "@/components/PageHero";
 import { site } from "@/lib/site";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/privacidade" },
+export const metadata = pageMetadata({
+  path: "/privacidade",
   title: "Política de Privacidade",
   description: `Como a ${site.name} trata os teus dados pessoais quando usas este site ou nos contactas.`,
-};
+});
 
 const sections: [string, React.ReactNode][] = [
   [

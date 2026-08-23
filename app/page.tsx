@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
@@ -10,12 +9,12 @@ import { Testimonials } from "@/components/Testimonials";
 import { projects } from "@/lib/projects";
 import { services } from "@/lib/services";
 import { site } from "@/lib/site";
+import { pageMetadata } from "@/lib/seo";
 
-/* O título e a descrição vêm do `layout` — aqui só o canónico, que o layout
-   deixou de impor a toda a gente. Ver docs/01, "Metadata". */
-export const metadata: Metadata = {
-  alternates: { canonical: "/" },
-};
+/* Sem `title`: a homepage fica com o `title.default` do layout. O resto — o
+   canónico, o Open Graph e o cartão do Twitter — sai do `path`. Ver docs/01,
+   "Metadata". */
+export const metadata = pageMetadata({ path: "/" });
 
 const disciplines = [
   "Web Design",

@@ -2,9 +2,13 @@
 import { ImageResponse } from "next/og";
 import { site } from "@/lib/site";
 import { BRAND_HEX, D_PATH, LOCKUP } from "@/lib/brand";
+import { socialCardAlt, socialCardSize } from "@/lib/seo";
 
-export const alt = `${site.name} — ${site.tagline}`;
-export const size = { width: 1200, height: 630 };
+// O `alt` e o `size` vêm de `lib/seo.ts`: é de lá que a metadata de cada
+// página monta o cartão global, e duas definições divergiam à primeira
+// mudança de tagline. Ver docs/01.
+export const alt = socialCardAlt;
+export const size = socialCardSize;
 export const contentType = "image/png";
 
 // Cartão Open Graph / Twitter. Usa a fonte default do next/og (sem ficheiro de
