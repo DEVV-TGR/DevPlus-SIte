@@ -89,12 +89,31 @@ export function Footer() {
           {/* Sem ano: a página é estática, `getFullYear()` congelava no ano da
               build e o rodapé passava janeiro a mentir até ao próximo deploy. */}
           <p>© {site.name}. Todos os direitos reservados.</p>
-          <Link
-            href="/privacidade"
-            className="transition-colors hover:text-ink"
-          >
-            Política de Privacidade
-          </Link>
+          {/* As duas páginas legais lado a lado. O Livro de Reclamações é
+              obrigatório para prestadores de serviços e tem de estar visível
+              sem ser preciso procurar — daí o rodapé, e não uma página só
+              dele. Ver docs/01, "O Livro de Reclamações". */}
+          <ul className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <li>
+              <Link
+                href="/privacidade"
+                className="transition-colors hover:text-ink"
+              >
+                Política de Privacidade
+              </Link>
+            </li>
+            <li>
+              <a
+                href={site.livroReclamacoes}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Livro de Reclamações Eletrónico"
+                className="transition-colors hover:text-ink"
+              >
+                Livro de Reclamações
+              </a>
+            </li>
+          </ul>
         </div>
       </Container>
     </footer>

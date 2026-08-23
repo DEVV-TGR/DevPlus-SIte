@@ -25,6 +25,11 @@ export const site = {
   /** `pt-PT` e não `pt`: o site é português de Portugal, e é isso que o
    *  `<html lang>` deve dizer a leitores de ecrã e tradutores. */
   lang: "pt-PT",
+  /** Livro de Reclamações Eletrónico. Prestadores de serviços são obrigados a
+   *  divulgar o acesso à plataforma (DL 156/2005, alterado pelo DL 74/2017).
+   *  O link só cumpre a obrigação se a DevPlus estiver registada lá — o link
+   *  sem registo cria aparência de cumprimento, que é pior. Ver docs/01. */
+  livroReclamacoes: "https://www.livroreclamacoes.pt/inicio",
 } as const;
 
 /** `href` ausente = a conta ainda não existe; renderiza-se sem link. */
