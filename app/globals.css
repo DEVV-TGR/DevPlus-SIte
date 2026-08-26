@@ -136,8 +136,18 @@ p {
 
 /* Sem JavaScript, nada fica à espera de uma animação que nunca vai correr.
    A classe `js` é posta por um script inline em `app/layout.tsx`; se esse script
-   não correr, tudo o que tem `data-reveal` mostra-se de imediato. */
-html:not(.js) [data-reveal] {
+   não correr, tudo o que tem `data-reveal` mostra-se de imediato.
+
+   O `data-reveal-item` existe porque a regra não chega aos filhos. Onde a
+   animação entra em sequência — o Hero — quem esconde não é o contentor, são
+   os filhos, cada um com o seu `opacity:0` inline. Sem isto, o contentor ficava
+   visível e as palavras do `<h1>` continuavam invisíveis.
+
+   E é um atributo, não um `*`: um selector universal aqui apanhava o logótipo
+   de fundo a `opacity-[0.06]` e o ping do badge a `opacity-75`, e o Hero sem
+   JavaScript ficava pior do que estava. */
+html:not(.js) [data-reveal],
+html:not(.js) [data-reveal-item] {
   opacity: 1 !important;
   transform: none !important;
 }

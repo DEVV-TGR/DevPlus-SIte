@@ -54,7 +54,7 @@ export function Hero() {
           initial="hidden"
           animate="show"
         >
-          <motion.div variants={item}>
+          <motion.div variants={item} data-reveal-item>
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted">
               <span className="relative flex h-2 w-2" aria-hidden>
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
@@ -76,6 +76,7 @@ export function Hero() {
                 {i > 0 && " "}
                 <motion.span
                   variants={item}
+                  data-reveal-item
                   className={cn("inline-block", w.accent && "text-primary")}
                 >
                   {w.t}
@@ -86,6 +87,7 @@ export function Hero() {
 
           <motion.p
             variants={item}
+            data-reveal-item
             className="mt-6 max-w-xl text-base text-muted sm:text-lg"
           >
             Já tiveste de ligar a alguém só para mudar um preço no site?
@@ -96,6 +98,7 @@ export function Hero() {
 
           <motion.div
             variants={item}
+            data-reveal-item
             className="mt-8 flex flex-col gap-3 sm:flex-row"
           >
             <Button
