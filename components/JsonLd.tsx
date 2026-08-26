@@ -53,6 +53,13 @@ export function OrganizationJsonLd() {
           { "@type": "City", name: site.city, addressCountry: "PT" },
           { "@type": "Country", name: "Portugal" },
         ],
+        /* O logótipo e o cartão social, que já existiam e não estavam
+           declarados. São o que liga a marca a uma cara: o `logo` é o que o
+           Google usa nos resultados de marca, e o `image` é o que motores de
+           resposta mostram quando citam a entidade. Ambos saem de `site.url`,
+           nunca do domínio escrito à mão. */
+        logo: `${site.url}/icon.png`,
+        image: `${site.url}/opengraph-image`,
         knowsLanguage: ["pt-PT", "en"],
         slogan: site.tagline,
         /* Três pessoas, três telefones, cada um com o nome de quem atende —
