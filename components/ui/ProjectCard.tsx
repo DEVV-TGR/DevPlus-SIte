@@ -5,7 +5,21 @@ import { cn } from "@/lib/utils";
 import { Reveal } from "@/components/Reveal";
 import type { Project } from "@/lib/projects";
 
-const DEFAULT_SIZES = "(min-width: 768px) 50vw, 100vw";
+/*
+  A largura real da capa na grelha do portfólio, e não uma aproximação.
+
+  O `Container` prende o conteúdo a `max-w-6xl` com `px-8` — 1088px úteis —, e
+  com o `gap-x-4` cada card fica em ~536px quando o container está cheio. Um
+  `50vw` continuava a crescer com o ecrã e prometia 960px de imagem para uma
+  caixa de 536, num monitor grande; em ecrãs retina o desencontro multiplica
+  pelo DPR.
+
+  E o corte é aos 640px, que é onde o `sm:grid-cols-2` passa a duas colunas —
+  não aos 768. Entre esses dois valores o card já era metade e o `sizes` ainda
+  dizia a largura toda.
+*/
+const DEFAULT_SIZES =
+  "(min-width: 1152px) 536px, (min-width: 640px) calc(50vw - 40px), calc(100vw - 48px)";
 
 /**
  * As etiquetas e a seta pousam sobre a capa. Paradas, desfocam o que têm por

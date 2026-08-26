@@ -14,7 +14,7 @@ export const metadata = pageMetadata({
   path: "/servicos",
   title: "Serviços",
   description:
-    "Web design, desenvolvimento, menus e ecrãs digitais, painel de gestão, branding e motion. Tratamos do teu site do primeiro esboço ao dia em que fica no ar — e do que vier depois.",
+"Web design, desenvolvimento, menus e ecrãs digitais, painel de gestão, branding e motion. Do primeiro esboço ao dia em que o site fica no ar.",
 });
 
 const packages: {
