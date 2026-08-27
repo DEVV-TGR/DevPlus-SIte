@@ -66,6 +66,31 @@ e é o que os dados estruturados dizem (`areaServed`). Quando houver sede, entra
 aqui, em `lib/site.ts`, em `app/privacidade/page.tsx` e no `address` do JSON-LD,
 no mesmo PR.
 
+### A geografia fica fora do texto visível
+
+**Decidido em agosto de 2026: a DevPlus trabalha para todo o país, e o site
+escreve-se assim.** O `<title>`, a `description` e o `<h1>` da homepage **não
+levam a localidade**, e isso é uma decisão, não uma lacuna.
+
+A alternativa era apostar no local — pôr "Porto" no título e na descrição para
+apanhar quem procura *"web design porto"*, e abrir um Perfil de Empresa do
+Google. Não se escolheu, por duas razões: o trabalho faz-se à distância e não
+ganha nada em limitar-se a uma cidade, e o Perfil de Empresa exige **morada
+verificável** — que a secção acima explica porque é que não existe.
+
+**As duas não se juntam.** Um título que tenta apanhar a cidade e o país não
+apanha nenhum dos dois. Se um dia se quiser inverter, inverte-se por inteiro: a
+localidade entra no título, na descrição e numa menção natural no corpo, e o
+`areaServed` alinha-se com o que o texto passar a dizer — nunca metade.
+
+O `areaServed` do `components/JsonLd.tsx` fica como está, e não contradiz isto:
+diz `City: Porto` **e** `Country: Portugal`. A cidade é onde estamos, o país é
+até onde vamos. É uma afirmação de facto, não uma aposta em pesquisa local.
+
+Consequência prática: **o esforço de SEO vai para os termos do serviço, não para
+a geografia.** Se estiveres a pensar acrescentar uma cidade a um título para
+"aparecer mais", é isto que estás a desfazer.
+
 ## Os telefones
 
 `team` em `lib/site.ts`: três pessoas, três telemóveis, cada um com o nome de
@@ -295,6 +320,7 @@ da Política de Privacidade. Três regras:
 | criares uma página nova                          | monta a metadata com `pageMetadata({ path, title, description })` de `lib/seo.ts` — nunca um objeto `metadata` à mão. Ver "Metadata"                 |
 | criares uma página nova                          | acrescenta o caminho ao array de `app/sitemap.ts` — as páginas fixas estão lá à mão; só os casos de estudo saem do array de projetos                 |
 | a `tagline` (e com ela o título do cartão)       | só `lib/site.ts` — o `fullTitle` e o `alt` do `opengraph-image` derivam de lá por `lib/seo.ts`                                                       |
+| quereres apostar em pesquisa local               | é reverter a decisão de "A geografia fica fora do texto visível" — lê-a primeiro; muda o título, a descrição, o corpo e o `areaServed`, ou nenhum   |
 | a `tagline` ou a `description`                   | `lib/site.ts`; confirma o cartão social em `/opengraph-image`                                                                                        |
 | um telefone, ou quem atende                      | `team` em `lib/site.ts` — `/contacto` e o `contactPoint` do JSON-LD saem de lá sozinhos                                                              |
 | passar a haver sede ou sociedade constituída     | `lib/site.ts`, o `address` em `components/JsonLd.tsx`, e a identificação (designação social, NIF, morada) em `app/privacidade/page.tsx` — no mesmo PR |
