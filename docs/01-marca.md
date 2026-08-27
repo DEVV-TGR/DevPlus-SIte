@@ -202,6 +202,36 @@ A lição não é "não te esqueças do `openGraph`" — foi exatamente isso que
 O cartão social global vive em `app/opengraph-image.tsx`, mas o `alt` e o `size`
 vêm de `lib/seo.ts` — a rota consome-os, não os define. Ver `docs/03`.
 
+## Sitemap
+
+`app/sitemap.ts` lista as seis páginas fixas e um caso de estudo por projeto, com
+`priority` e mais nada. **O `lastModified` é opcional por decisão, não por
+esquecimento.**
+
+A primeira versão punha a data da build em todas as URLs. Isso anunciava ao Google
+que o site inteiro tinha mudado de cada vez que se faz deploy — e um sinal falso
+vale menos do que sinal nenhum, porque ensina o Google a ignorar o campo. Foi
+retirado.
+
+Nenhuma das datas que o repositório já tem serve de substituto:
+
+- o `year` de `lib/projects.ts` é o ano do **trabalho**, não o dia em que o texto
+  foi escrito. Daria `2026-01-01` a seis projetos: uma data que nunca aconteceu;
+- o histórico do git dá a mesma data aos seis, porque vivem todos no mesmo
+  ficheiro.
+
+Por isso a única data aceite é o **`updatedAt` de cada projeto** — `YYYY-MM-DD`,
+escrito à mão quando o caso de estudo é reescrito. Quem não o tiver não emite
+`<lastmod>`, e é o caso de todos hoje. A ausência é uma resposta legítima: o
+Google lê-a como "não sei", não como "nunca mudou".
+
+**As páginas fixas continuam sem data**, e ficam assim até haver algo que saiba
+dizer quando mudaram de facto. Não lhes ponhas a data da build para "ficarem
+completas" — é a mesma armadilha, com outro nome.
+
+> Preencher `updatedAt` em massa desfaz isto por inteiro. A regra de quando o
+> escrever está no `docs/06`.
+
 ## Privacidade
 
 `app/privacidade/page.tsx` é um documento legal, e a regra aqui é diferente da do
@@ -263,6 +293,7 @@ da Política de Privacidade. Três regras:
 | o que o site recolhe, ou quem trata esses dados  | `app/privacidade/page.tsx` — nomeia o subcontratante e atualiza a data de "Última atualização" no mesmo PR em que o serviço passa a receber dados     |
 | as redes (ou acrescentares um `href`)            | `socials` em `lib/site.ts` — o `sameAs` do `JsonLd.tsx` sai de lá sozinho; confirma o texto em `contacto/page.tsx`, que nomeia o que ainda falta     |
 | criares uma página nova                          | monta a metadata com `pageMetadata({ path, title, description })` de `lib/seo.ts` — nunca um objeto `metadata` à mão. Ver "Metadata"                 |
+| criares uma página nova                          | acrescenta o caminho ao array de `app/sitemap.ts` — as páginas fixas estão lá à mão; só os casos de estudo saem do array de projetos                 |
 | a `tagline` (e com ela o título do cartão)       | só `lib/site.ts` — o `fullTitle` e o `alt` do `opengraph-image` derivam de lá por `lib/seo.ts`                                                       |
 | a `tagline` ou a `description`                   | `lib/site.ts`; confirma o cartão social em `/opengraph-image`                                                                                        |
 | um telefone, ou quem atende                      | `team` em `lib/site.ts` — `/contacto` e o `contactPoint` do JSON-LD saem de lá sozinhos                                                              |
