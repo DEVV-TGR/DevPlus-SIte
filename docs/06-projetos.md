@@ -37,6 +37,13 @@ Se um projeto lista "Painel de Gestão", esse serviço tem de existir na outra l
 mostra o botão "Visitar site". Um link para uma página vazia é pior do que link
 nenhum.
 
+**`updatedAt` só quando o caso de estudo for reescrito.** É a data — `YYYY-MM-DD` —
+em que o **texto** mudou, e não o ano do trabalho (`year`) nem a data do deploy. É
+o único campo que o `app/sitemap.ts` aceita como `lastModified`, e é opcional de
+propósito: hoje nenhum projeto o tem e o sitemap sai sem datas, que é a resposta
+certa enquanto ninguém reescrever nada. **Não o preenchas em massa** — seis
+projetos com a mesma data inventada é o sinal falso que o `docs/01` proíbe.
+
 **O botão "Visitar site" é `variant="primary"`** — laranja cheio, e é o único
 botão de todo o caso de estudo. Era `outline` e passava despercebido: a página
 que mostra o trabalho feito tinha o link para esse trabalho como o elemento mais
@@ -131,8 +138,10 @@ centro.
 4. `services` com nomes que existam em `lib/services.ts`.
 5. `url` só se estiver no ar.
 6. Capa em `public/capas/` + `image` e `imageAlt` — ou nenhum dos dois.
-7. Confere as grelhas (tabela acima).
-8. Nada mais: o `sitemap`, o `generateStaticParams` e a navegação "próximo
+7. **Sem `updatedAt`.** Um caso de estudo novo não é uma reescrita; o campo só
+   entra da segunda vez que o texto mudar.
+8. Confere as grelhas (tabela acima).
+9. Nada mais: o `sitemap`, o `generateStaticParams` e a navegação "próximo
    projeto" leem todos do array e atualizam-se sozinhos.
 
 ## Lacunas por preencher
@@ -170,6 +179,7 @@ Home Repair e da Taskuinha do Pirata.
 | a lista de projetos      | `lib/projects.ts`; segue a checklist acima toda                                             |
 | a ordem                  | é a ordem por que os projetos entram na faixa da homepage                                   |
 | o `status` de um projeto | vira também o tempo verbal do `overview` e do `contribution`                                |
+| o texto de um projeto já publicado | põe `updatedAt` com a data da reescrita — é o que faz o `app/sitemap.ts` emitir `lastmod` para essa página |
 | o shape do `Project`     | `lib/projects.ts` (tipo) e `components/ui/ProjectCard.tsx`                                  |
 | como as capas funcionam  | `components/ui/ProjectCard.tsx` e `app/portfolio/[slug]/page.tsx` — os dois renderizam capa |
 | resolveres uma lacuna    | apaga a linha da lista acima                                                                |

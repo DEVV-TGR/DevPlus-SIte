@@ -6,6 +6,12 @@ export type Project = {
   client: string;
   category: string;
   year: string;
+  /** Data em que este caso de estudo foi **reescrito**, em `YYYY-MM-DD`. Não é o
+   *  `year` — esse é o ano do trabalho, e serviria `2026-01-01` a seis projetos,
+   *  uma data que nunca aconteceu. É a única coisa que o `app/sitemap.ts` aceita
+   *  como `lastModified`: escreve-se à mão quando o texto muda de facto, e quem
+   *  não a tiver continua a não emitir data nenhuma. Não preencher em massa. */
+  updatedAt?: string;
   /** Só quando o site está mesmo no ar — sem isto, não há botão de visita. */
   url?: string;
   summary: string;
