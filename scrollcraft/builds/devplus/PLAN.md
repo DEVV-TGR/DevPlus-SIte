@@ -66,7 +66,7 @@ scroll e a escrever `transform` numa camada; o engine não é tocado.
 | 1 | O reconhecimento | Incómodo | `flow` + `in` | Uma pergunta lê-se, não se encena. Um act pinado aqui era encenação. | 1.6 |
 | 2 | A viragem | Alívio | `reveal` (wipe) | Um wipe **é** uma mudança de estado, e esta batida é a mudança de estado da página. | 1.8 |
 | 3 | A prova | Curiosidade | `pan` | Movimento lateral lê-se como alcance; vertical lê-se como argumento. Aqui não se argumenta, mostra-se. | 2.4 |
-| 4 | O alcance | Confiança | `flow` + `count` | Grelha densa e números reais. Depois do pico, isto é repouso — silêncio autorado. | 1.4 |
+| 4 | O alcance | Confiança | `flow` + acordeão | Seis painéis em abas verticais, um aberto de cada vez. Uma lista que se **opera** em vez de se ler — foi pedido explicitamente, à imagem do acordeão da `/services` do dontboardme. | 1.4 |
 | 5 | O convite | Decisão | `reveal` + pointer | O `+` assenta e vira botão. Resolve em vez de esvanecer. | 1.2 |
 
 **Verificações:**
@@ -79,23 +79,29 @@ scroll e a escrever `transform` numa camada; o engine não é tocado.
 - Total **11.6vh** em 6 capítulos — fora da banda 13.6–13.8vh que a skill marca
   como impressão digital dos quatro builds anteriores do autor. ✓
 
-## Mundo: **hard-light graphic**
+## Mundo: **render 3D / cyber**
 
-Fotografia de estúdio, uma fonte dura, sombras nítidas usadas como formas.
-Escolhido em vez do ilustrado porque o dontboardme é genuinamente ilustrado e a
-DevPlus não é: copiar-lhe o traço dava um site com identidade emprestada. A
-luz dura dá a mesma energia com objetos reais, e a sombra longa faz o papel
-gráfico que lá é feito a vetor.
+Primeiro foi fotografia de estúdio com luz dura. O Gonçalo viu e trocou:
+*"não uses imagens reais, usa mais num estilo virtual, 3D, cyber"*. As
+fotografias ficaram em `out/` por usar.
 
 **Preâmbulo de estilo** (repetido à letra em todos os prompts — é o que faz
-várias imagens parecerem a mesma sessão fotográfica):
+várias imagens parecerem saídas da mesma cena):
 
-> Studio product photography, single hard undiffused key light from upper left,
-> crisp high-contrast cast shadow used as a graphic shape. Saturated seamless
-> backdrop. Palette strictly warm charcoal #1a1613, burnt orange #F2762B, cream
-> #f7f2ec. Punchy contrast, slight halation on speculars, fine sensor grain.
-> Digital medium format, sharp throughout. NOT 3D render, NOT clay, NOT
-> illustration, no digital glow, no plastic sheen, no text, no logos, no people.
+> High-end 3D render, cinematic product visualisation, matte dielectric and
+> polished glass materials, volumetric rim lighting in burnt orange, subtle
+> wireframe and grid structure, crisp reflections, shallow depth of field, fine
+> digital grain, dark cyber aesthetic. Abstract geometric forms only. NOT
+> photography, NOT clay, NOT low-poly, NOT plastic toy, no text, no logos, no
+> people, no UI screens.
+
+**E o fundo de cada imagem é o ground exato do capítulo onde ela vive.** Foi o
+defeito da primeira leva e o próprio Gonçalo apontou-o: *"as imagens terem
+fundo e não encaixarem com a secção"*. Uma imagem com fundo próprio dentro de
+uma caixa de cantos redondos lê-se como um autocolante colado por cima da
+secção. Agora sangram de margem a margem, nascem com o ground do capítulo como
+fundo, e uma máscara desvanece as quatro bordas — o que apanha a diferença que
+sobra entre o hex que se pede ao modelo e o que ele devolve.
 
 ## Assets
 
@@ -104,3 +110,53 @@ capítulo 3 inteiro.
 
 **Gerados (4 stills):** um objeto por capítulo que precisa de ground, nenhum
 acima da dobra.
+
+
+---
+
+## Segunda ronda: o que o Gonçalo mudou
+
+Feedback dele depois de ver o primeiro corte.
+
+**Gostou:** as animações e o scroll. Não se mexeu em nenhum dos dois.
+
+**"As imagens terem fundo e não encaixarem com a secção."** Resolvido acima:
+fundo do capítulo, sangria de margem a margem, máscara nas bordas.
+
+**"Focaste o site no painel de gestão."** Tinha razão, e era um erro de leitura
+meu: a copy inteira girava à volta de *"o comando é teu"*, o que faz a DevPlus
+parecer um CMS em vez de um estúdio de web design. A narrativa foi reescrita:
+
+| | Antes | Agora |
+| --- | --- | --- |
+| Capa | "O site é teu. O comando também." | "Web design que **soma** ao teu negócio." |
+| Reconhecimento | "Já tiveste de ligar a alguém só para mudar um preço?" | "Metade dos sites da tua rua saiu do mesmo template." |
+| Viragem | "Depois muda-se assim" (o painel) | "O teu é desenhado do zero." (o ofício) |
+
+O painel de gestão continua a existir — é o serviço 04 de seis, e não o tema
+do site.
+
+**"Usa os cards como o dontboardme para os serviços."** O capítulo 4 deixou de
+ser uma grelha e passou a ser o **acordeão de abas verticais** que eles usam na
+`/services`: seis painéis, os fechados reduzidos a uma aba com o nome de pé, o
+aberto a ocupar o resto da fila. Abre ao clique e, no rato, ao passar por cima.
+Em ecrã estreito deita-se, porque um nome de pé numa coluna de 390 px é
+ilegível. Os seis serviços são os de `lib/services.ts`, sem inventar nenhum.
+
+**"Acrescenta alguns CTA."** Passaram de um para **onze**, e nenhum é
+decorativo: cada um leva a uma página que existe.
+
+| Capítulo | CTA |
+| --- | --- |
+| Capa | Ver o trabalho · Falar connosco |
+| Reconhecimento | Como trabalhamos |
+| Viragem | O que fazemos · Pedir uma proposta |
+| Prova | Ver todos os projetos |
+| Alcance | Falar sobre isto (em cada serviço aberto) · Ver a página de serviços |
+| Convite | Começar a conversa · Ver o trabalho primeiro · o email |
+
+**"Tem de integrar para as outras páginas."** Duas coisas: os CTA acima levam a
+`/portfolio`, `/servicos`, `/sobre` e `/contacto`, e o fecho ganhou um
+**colophon** com a navegação completa do site. Numa gramática que proíbe barra
+fixa, é ali que a navegação vive por inteiro — o que é a solução da própria
+gramática, não um remendo.
