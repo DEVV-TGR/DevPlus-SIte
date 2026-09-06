@@ -125,6 +125,9 @@ export function HeroPlanes() {
   const yMeio = useTransform(scrollYProgress, [0, 1], ["0%", `${VIAGEM.meio * k}%`]);
   const yFrente = useTransform(scrollYProgress, [0, 1], ["0%", `${VIAGEM.frente * k}%`]);
   const yMais = useTransform(scrollYProgress, [0, 1], ["0%", `${VIAGEM.mais * k}%`]);
+  // Graus ao longo do hero inteiro. Oito é quase nada de propósito: o "+" tem de
+  // parecer um objeto que se desloca, não um cata-vento.
+  const rodaMais = useTransform(scrollYProgress, [0, 1], [0, 8 * k]);
 
   // O ponteiro é um extra, nunca a única forma de ver o hero (hero-depth.md).
   const mx = useMotionValue(0);
@@ -200,14 +203,27 @@ export function HeroPlanes() {
         className={`${camada} opacity-90`}
       />
 
-      {/* O "+" vive ENTRE a estrutura e o betão da frente: é o que lhe dá
-          lugar no espaço em vez de o deixar colado ao ecrã. */}
+      {/*
+        O "+" vive ENTRE a estrutura e o betão da frente: é o que lhe dá lugar
+        no espaço em vez de o deixar colado ao ecrã.
+
+        Dois `Logo` sobrepostos e não um: o componente desenha contorno **ou**
+        preenchimento, e sozinho nenhum dos dois chega. O preenchimento a 4%
+        dá-lhe massa, o contorno por cima dá-lhe aresta. Partilham o mesmo path
+        de `lib/brand.ts` — não há geometria duplicada, que é o que o `docs/03`
+        proíbe.
+
+        A rotação é lenta e vem do SCROLL, não do relógio. Antes era um
+        `animate-spin-slow` de 120s que girava sozinho a página inteira parada;
+        ligado ao scroll, o símbolo responde a quem está a ler.
+      */}
       <motion.div
-        className="pointer-events-none absolute -right-[10%] top-[6%] w-[62%] max-w-[38rem] text-primary opacity-[0.10] will-change-transform sm:opacity-[0.13]"
+        className="pointer-events-none absolute -right-[4%] top-[8%] w-[54%] max-w-[34rem] text-primary will-change-transform"
         style={{ y: yMais }}
       >
-        <motion.div style={{ x: xMais, y: pyMais }}>
-          <Logo outline className="h-auto w-full" />
+        <motion.div style={{ x: xMais, y: pyMais, rotate: rodaMais }}>
+          <Logo className="absolute inset-0 h-auto w-full opacity-[0.04]" />
+          <Logo outline className="h-auto w-full opacity-[0.22] sm:opacity-[0.28]" />
         </motion.div>
       </motion.div>
 
