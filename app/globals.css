@@ -150,6 +150,13 @@ html:not(.js) [data-reveal],
 html:not(.js) [data-reveal-item] {
   opacity: 1 !important;
   transform: none !important;
+  /* O `filter` entrou aqui quando o `Reveal` ganhou desfoque de entrada
+     (setembro de 2026). Sem esta linha, o HTML servido saía com `blur(4px)`
+     inline em cada bloco e quem não executa JavaScript lia o site inteiro
+     desfocado — pior do que o `opacity: 0` que esta regra já existia para
+     resolver. Se acrescentares outra propriedade ao estado `hidden` do
+     `Reveal`, anula-a também aqui. */
+  filter: none !important;
 }
 
 /* O carrossel de projetos faz scroll a sério (é o que o torna arrastável), mas

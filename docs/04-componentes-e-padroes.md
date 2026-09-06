@@ -39,7 +39,7 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `ui/Section`      | espaçamento vertical entre blocos; `top`/`bottom` desligam cada metade      | pôr padding vertical à mão, ou tentar anulá-lo com `pt-0` — ver abaixo                     |
 | `ui/Button`       | 3 variantes: `primary`, `outline`, `ghost`                                 | usar `<a>` cru com classes de botão; links externos já são detetados pelo `http` no `href` |
 | `ui/ProjectCard`  | um projeto na grelha (capa, etiquetas, serviços)                           | duplicar o card noutra página                                                              |
-| `Reveal`          | aparecer no scroll (fade + 16px)                                           | envolver cada elemento; envolve o bloco                                                    |
+| `Reveal`          | aparecer no scroll (fade + 20px + desfoque de entrada)                     | envolver cada elemento; envolve o bloco                                                    |
 | `Marquee`         | faixa horizontal infinita, decorativa                                      | pôr lá conteúdo que importe — é `aria-hidden`                                              |
 | `ProjectsMarquee` | a faixa de projetos da página inicial: conteúdo real, focável e arrastável | usá-lo para decoração — para isso é o `Marquee`; e pôr `gap` no track, que parte o ciclo   |
 | `PageHero`        | cabeçalho das páginas internas (eyebrow + h1 + intro)                      | escrever um h1 solto numa página interna                                                   |
@@ -266,9 +266,15 @@ CSS não sabe sozinho o que é descer, por isso o `template.tsx` escreve
 Como se confirma que o morph acontece de facto: **não por screenshot** — as view
 transitions correm no compositor e não aparecem em capturas. Espia-se o
 `document.startViewTransition` e leem-se as animações vivas com
-`getAnimations({ subtree: true })`. Aparecem
-`::view-transition-group(capa-<slug>)` e o respetivo `image-pair` se o par se
-formou; se não aparecerem, não houve morph.
+`getAnimations({ subtree: true })`: aparecem `::view-transition-group(capa-<slug>)`
+e o respetivo `image-pair` se o par se formou.
+
+**Lê por polling, não uma vez só.** A primeira versão desta verificação lia no
+`transition.ready` e dava falso negativo conforme o momento — chegou a apontar
+para uma avaria que não existia, e a suspeita seguinte (que um `filter: blur(0px)`
+parado no `Reveal` impedia a elevação para a camada da transição) foi testada e
+**não se confirmou**: o par forma-se com ou sem esse filtro. Sondar de 16 em 16 ms
+enquanto a transição corre dá sempre o mesmo resultado.
 
 ## Acessibilidade
 
