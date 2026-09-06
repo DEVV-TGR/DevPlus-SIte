@@ -47,7 +47,7 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `Testimonials`    | o que os clientes dizem, na homepage a seguir aos serviços                 | inventar a frase de um cliente para encher a secção — ver abaixo                           |
 | `Wordmark`        | o logótipo com link para "/"                                               | ver `docs/03`                                                                              |
 | `Lockup` / `Logo` | o logótipo "D+" e o "+" isolado                                            | desenhar o logótipo à mão em SVG — ver `docs/03`                                           |
-| `Providers`       | Lenis + `MotionConfig`                                                     | acrescentar providers sem necessidade                                                      |
+| `Providers`       | Lenis, e a ligação dele ao ScrollTrigger                                   | acrescentar providers sem necessidade; separar os relógios do Lenis e do GSAP              |
 
 Secções encadeadas levam **`top={false}`** na segunda em diante, para o
 espaçamento não duplicar. É o padrão em toda a homepage. Há também
@@ -100,13 +100,37 @@ texto de rascunho — quem o lê não tem como distinguir.
 
 ## Movimento
 
-- **Duração** 0.45–0.6s. Acima disso sente-se lento.
-- **Easing** `[0.22, 1, 0.36, 1]` em tudo. Não introduzas outra curva.
-- **Stagger** 0.06–0.08s entre irmãos (`delay={i * 0.06}`).
-- `Reveal` dispara uma vez (`viewport={{ once: true }}`) — nada re-anima ao subir.
-- **Movimento reduzido está tratado globalmente**: `MotionConfig reducedMotion="user"`
-  em `Providers`, mais uma regra em `app/globals.css` que neutraliza o marquee e o
-  spin. Não escrevas `prefers-reduced-motion` novo sem verificar se já está coberto.
+**A biblioteca é o GSAP.** Setembro de 2026: o Motion saiu do projeto e o
+movimento passou todo para `gsap` + `ScrollTrigger`, com `useGSAP` do
+`@gsap/react`. Não voltes a instalar o `motion` — duas bibliotecas de animação
+no mesmo site são duas gramáticas, e elas divergem.
+
+**Os valores vivem em `lib/motion.ts`, na constante `MOVIMENTO`, e em mais lado
+nenhum.** Não escrevas durações à mão num componente. E não são gosto: saíram de
+uma medição a 120 fps sobre um site de referência, registada em
+`docs/motion-reference.md`.
+
+| | Valor | Era antes |
+| --- | --- | --- |
+| Entrada de um bloco no scroll | **0,475 s** | 0,45–0,6 s |
+| Opacidade dentro dessa entrada | **0,29 s** | a mesma da posição |
+| Entrada da página (hero) | **0,95 s** | 0,6 s |
+| Transição entre páginas | 0,45 s | 0,45 s |
+| Curva | **`power2.out`** | `[0.22, 1, 0.36, 1]` |
+| Stagger entre irmãos | **0,15 s** | 0,06–0,08 s |
+| Deslocamento de entrada | **44 px** | 16 px |
+
+- **A opacidade e a posição têm durações diferentes de propósito.** O bloco acaba
+  de aparecer aos 290 ms e continua a assentar até aos 475 ms. Com uma duração
+  só, chega inteiro de uma vez e lê-se como um `fade` com deslocamento; com duas,
+  tem peso.
+- **A curva é mais suave do que a anterior.** A `[0.22, 1, 0.36, 1]` ia em 96% do
+  percurso a meio do tempo; a `power2.out` vai em 84%. A antiga dispara e trava.
+- `Reveal` dispara uma vez (`once: true`) — nada re-anima ao subir.
+- **Movimento reduzido deixou de vir de borla.** O `MotionConfig` desarmava as
+  animações sozinho; o GSAP não desarma nada. Cada componente que anima **tem de
+  verificar** `prefers-reduced-motion` e mostrar o conteúdo sem o animar. A regra
+  de `app/globals.css` continua a tratar do marquee e do spin, que são CSS.
   **Uma exceção:** o `ProjectsMarquee` transporta conteúdo navegável, e congelá-lo
   deixaria três projetos fora do ecrã sem forma de lá chegar. Aí o componente
   desliga o avanço automático (lê a mesma preferência em JS, porque o movimento é
@@ -173,6 +197,59 @@ texto de rascunho — quem o lê não tem como distinguir.
   verificada. **Não o alastres ao `<body>` nem a componentes:** aí um aviso destes é
   um bug a sério e tem de aparecer.
 - Hover em cards: `-translate-y-1` no grupo. Botões: `active:scale-[0.97]`.
+
+### O que o GSAP custou a aprender
+
+Cinco coisas que partiram o site e a razão de cada uma. Não as desfaças:
+
+- **Nada de `setState` num `onComplete` do GSAP.** O `Reveal` avisava o React
+  quando acabava de animar. Doze `Reveal` a fazer isso re-renderizavam *durante o
+  tick do próprio GSAP*, o que voltava a mexer no layout, o que fazia o
+  ScrollTrigger recalcular dentro do mesmo tick. Quem mostra o bloco é o GSAP, a
+  escrever no DOM — o React não precisa de saber.
+- **Nada de `ResizeObserver` sobre o `<body>` a chamar `ScrollTrigger.refresh()`.**
+  Parece o passo óbvio para apanhar imagens `lazy` e realimenta-se: o `refresh()`
+  mexe no layout, que dispara o observer, que chama `refresh()`. O ScrollTrigger
+  já ouve o `resize` da janela; para as imagens, o `load` chega.
+- **Nada de `clearProps: "all"`.** Devolver o elemento ao CSS devolve-o à regra
+  que o esconde (ver abaixo), e ele desaparece para sempre. Põe `opacity: 1` à
+  mão; `clearProps: "transform"` é seguro.
+- **Nada de `mm.revert()` à mão dentro do `useGSAP`.** Ele já reverte o que for
+  criado no seu escopo. Revertê-lo duas vezes, com o StrictMode a montar e
+  desmontar, matava a timeline da segunda montagem — e o bloco ficava preso no
+  estado inicial, com `opacity: 0` escrito no `style`.
+- **O Lenis e o GSAP partilham um relógio só.** `autoRaf: false` no Lenis, e o
+  `raf` dele passa a ser chamado pelo `gsap.ticker`. A correr em separado, o
+  ScrollTrigger lê a posição de um frame que o Lenis ainda não escreveu, e as
+  entradas disparam um frame atrasadas — vê-se como tremor durante um scroll
+  rápido.
+
+E uma regra nova em `app/globals.css`, que faz par com a que já lá estava:
+
+```css
+html.js [data-reveal], html.js [data-reveal-item] { opacity: 0; }
+```
+
+O Motion escrevia o estado inicial no HTML servido, portanto o elemento já
+chegava invisível. **O GSAP só lhe toca depois de hidratar**, o que deixava um
+frame — vários, numa ligação lenta — com tudo visível e no sítio final, seguido
+de um salto para trás para a animação começar. As duas regras juntas cobrem os
+dois mundos: sem JavaScript nada se esconde, com JavaScript quem mostra é o GSAP.
+
+**Um contentor que não é animado não pode levar `data-reveal`.** O contentor do
+`Hero` levava, e a regra de cima escondia-o para sempre — os filhos animavam
+dentro de um pai a `opacity: 0`. Marca só o que o GSAP vai mesmo tocar.
+
+### O sublinhado da `Nav` é um elemento só
+
+Viaja entre os links; não é um por link a aparecer e a desaparecer. É a diferença
+entre o menu parecer um mecanismo e parecer cinco luzes a piscar.
+
+O Motion fazia isto com `layoutId` e media as duas posições sozinho. Em GSAP
+mede-se à mão — a posição do link ativo dentro da lista, e o `x` e a largura
+animam para lá. O `Flip` do GSAP fazia o mesmo com menos código, **mas é plugin
+do Club**: se um dia o projeto tiver licença, é aqui que se usa. Para um risco de
+2 px não se pediu.
 
 ## Acessibilidade
 
@@ -300,7 +377,8 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | criares um primitivo novo         | acrescenta-o à tabela acima                                                                               |
 | a ordem das secções da homepage   | `app/page.tsx` **e** a tabela em "A homepage conta uma história" — a ordem sem a razão dura uma sessão   |
 | recolheres um testemunho          | `lib/testimonials.ts`; a secção aparece sozinha assim que o array deixar de estar vazio                  |
-| a duração ou o easing             | `components/Reveal.tsx`, `components/Hero.tsx` e os `transition-*` dos cards — muda em todos ou em nenhum |
+| a duração ou o easing             | **`lib/motion.ts`** e a tabela de valores acima — os componentes leem de lá, não têm números próprios      |
+| introduzires um componente que anima | verifica `prefers-reduced-motion` dentro dele: o GSAP não o faz por ti                                   |
 | o espaçamento vertical            | `components/ui/Section.tsx`, não as páginas                                                               |
 | a largura máxima                  | `components/ui/Container.tsx`, não as páginas                                                             |
 | as regras do formulário           | `lib/contacto.ts` — os dois lados importam de lá; não acrescentes uma segunda cópia                       |

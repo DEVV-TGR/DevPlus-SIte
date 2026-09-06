@@ -27,10 +27,18 @@ Se um doc e o código discordarem, é um bug, não uma questão de gosto.
 | `scripts/vectorizar-logo.py`, `images/Dev+-logosimples.png`                                               | 03                       |
 | `app/opengraph-image.tsx`                                                                                 | 01 (texto) + 03 (o mark) |
 | `components/ui/*`, `components/Reveal.tsx`, `components/Marquee.tsx`                                      | 04                       |
+| `lib/motion.ts`, `components/Providers.tsx`, `components/Nav.tsx`, `app/template.tsx`                     | 04                       |
 | `components/Testimonials.tsx`, `lib/testimonials.ts`, a ordem das secções de `app/page.tsx`               | 04                       |
 | `components/ContactForm.tsx`, `lib/contacto.ts`, `app/api/contacto/route.ts`                              | 04                       |
 | `lib/services.ts`                                                                                         | 05                       |
 | `lib/projects.ts`, `components/ui/ProjectCard.tsx`, `components/ProjectsMarquee.tsx`, `public/capas/`     | 06                       |
+
+## Um doc que não é especificação
+
+[motion-reference.md](motion-reference.md) é a **medição** de um site de
+referência, feita em setembro de 2026, e a estrutura dele lado a lado com a
+nossa. Não governa ficheiro nenhum: é de onde saíram os números que hoje estão
+no `lib/motion.ts`, e serve para quando alguém perguntar "porquê 150 ms?".
 
 ## Como isto se mantém vivo
 
