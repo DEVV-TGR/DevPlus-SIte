@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%231a1613'/%3E%3Cpath d='M13 6h6v7h7v6h-7v7h-6v-7H6v-6h7z' fill='%23F2762B'/%3E%3C/svg%3E">
+<title>DevPlus — o que se acrescenta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,500;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="scrollcraft.css">
+<style>
+/* Tema DevPlus sobre o engine. Os valores vêm de docs/02; não se inventam cores. */
+:root{
+  --sc-canvas:#1a1613; --sc-surface:#221c18;
+  --sc-ink:#f7f2ec; --sc-ink-soft:#c8bdb0;
+  --sc-accent:#F2762B; --sc-accent-ink:#1a1613;
+  --sc-font-display:"Bricolage Grotesque",system-ui,sans-serif;
+  --sc-font-text:"Bricolage Grotesque",system-ui,sans-serif;
+  --sc-font-mono:ui-monospace,"SF Mono",Menlo,monospace;
+}
+body{background:var(--sc-canvas);color:var(--sc-ink);font-family:var(--sc-font-text);margin:0}
+
+/* Brutalista: a página mostra a régua por que se mede. */
+.rule{position:fixed;inset:0;pointer-events:none;z-index:40;
+  background:
+    linear-gradient(90deg,color-mix(in oklab,var(--sc-ink) 7%,transparent) 1px,transparent 1px) 0 0/calc(100vw/12) 100%;
+  mix-blend-mode:overlay;opacity:.5}
+
+/* O mapa. A gramática do mundo contínuo exige nav navegável, não decorativa. */
+.map{position:fixed;z-index:60;top:0;right:0;padding:var(--sc-5);
+  font-family:var(--sc-font-mono);font-size:var(--sc-t-xs);letter-spacing:var(--sc-track-wide);
+  text-transform:uppercase;display:flex;flex-direction:column;gap:2px;align-items:flex-end}
+.map__leg{appearance:none;background:none;border:0;cursor:pointer;
+  color:var(--sc-ink-soft);opacity:.5;padding:5px 0 5px var(--sc-5);
+  font:inherit;letter-spacing:inherit;text-transform:inherit;
+  display:flex;gap:var(--sc-3);align-items:baseline;transition:opacity .25s,color .25s}
+.map__leg:hover{opacity:.9}
+.map__leg[aria-current="true"]{color:var(--sc-accent);opacity:1}
+.map__leg::before{content:attr(data-n);font-variant-numeric:tabular-nums;opacity:.55}
+.map__depth{margin-top:var(--sc-4);color:var(--sc-ink-soft);opacity:.7;font-variant-numeric:tabular-nums}
+.map__bar{margin-top:6px;width:96px;height:2px;background:color-mix(in oklab,var(--sc-ink) 16%,transparent);position:relative}
+.map__bar i{position:absolute;inset:0 auto 0 0;background:var(--sc-accent);width:0%}
+
+.brand{position:fixed;z-index:60;top:0;left:0;padding:var(--sc-5);
+  font-family:var(--sc-font-display);font-weight:800;font-size:var(--sc-t-lg);
+  letter-spacing:var(--sc-track-tight);line-height:1}
+.brand b{color:var(--sc-accent);font-weight:800}
+
+/* Tipografia da copy, dentro do canvas. Escala extrema: é o registo pedido. */
+.sc-copy h2{font-family:var(--sc-font-display);font-weight:800;
+  font-size:var(--sc-t-4xl);line-height:var(--sc-leading-none);
+  letter-spacing:var(--sc-track-tight);margin:0;text-wrap:balance;max-width:16ch}
+.sc-copy p{font-size:var(--sc-t-lg);line-height:var(--sc-leading-body);
+  color:var(--sc-ink-soft);max-width:38ch;margin:var(--sc-4) 0 0}
+.sc-copy .tag{font-family:var(--sc-font-mono);font-size:var(--sc-t-xs);
+  letter-spacing:var(--sc-track-wide);text-transform:uppercase;
+  color:var(--sc-accent);display:block;margin:0 0 var(--sc-3)}
+.sc-copy em{font-style:normal;color:var(--sc-accent)}
+
+.cta{display:inline-flex;align-items:center;gap:var(--sc-3);margin-top:var(--sc-6);
+  background:var(--sc-accent);color:var(--sc-accent-ink);text-decoration:none;
+  font-family:var(--sc-font-display);font-weight:800;font-size:var(--sc-t-lg);
+  letter-spacing:var(--sc-track-snug);padding:var(--sc-4) var(--sc-6);
+  border:2px solid var(--sc-accent)}
+.cta:hover{background:transparent;color:var(--sc-accent)}
+
+/* O MOVIMENTO ASSINATURA — o "+" somador.
+   O "+" da DevPlus significa o que se acrescenta (docs/01). Aqui deixa de ser
+   sinal e passa a instrumento: dentro da sua forma, e só lá, o mundo mostra a
+   camada que a DevPlus lhe soma. É recortado por clip-path, portanto funciona
+   por cima de SVG hoje e por cima de vídeo quando os assets chegarem. */
+.plus{position:fixed;inset:0;z-index:45;pointer-events:none;opacity:0;
+  transition:opacity .4s ease}
+.plus.is-live{opacity:1}
+.plus__layer{position:absolute;inset:0;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 23px,color-mix(in oklab,var(--sc-accent) 55%,transparent) 23px 24px),
+    repeating-linear-gradient(90deg,transparent 0 23px,color-mix(in oklab,var(--sc-accent) 55%,transparent) 23px 24px),
+    color-mix(in oklab,var(--sc-canvas) 72%,transparent);
+  clip-path:var(--plus-clip);}
+.plus__ring{position:absolute;width:var(--plus-size);height:var(--plus-size);
+  left:var(--plus-x);top:var(--plus-y);translate:-50% -50%;
+  clip-path:var(--plus-shape);outline:0;
+  box-shadow:0 0 0 1px color-mix(in oklab,var(--sc-accent) 70%,transparent) inset}
+.plus__label{position:absolute;left:var(--plus-x);top:var(--plus-y);
+  translate:calc(-50% + 0px) calc(-50% - var(--plus-half) - 18px);
+  font-family:var(--sc-font-mono);font-size:var(--sc-t-xs);
+  letter-spacing:var(--sc-track-wide);text-transform:uppercase;color:var(--sc-accent);
+  white-space:nowrap}
+
+
+/* A copy assenta em placa sólida. Não é só estética brutalista: com vídeo
+   por baixo, texto sobre o mundo cru não tem contraste garantido em frame
+   nenhum, e o harness mediu 3.91:1 no pico antes disto existir. */
+.sc-copy{--plate:color-mix(in oklab,var(--sc-canvas) 90%,transparent)}
+.sc-copy > *{position:relative}
+.sc-copy--lead,.sc-copy--trail,.sc-copy--center{
+  background:var(--plate);padding:var(--sc-5) var(--sc-6);
+  border-left:3px solid var(--sc-accent);
+  backdrop-filter:blur(3px);max-width:min(46ch,86vw)}
+.sc-copy--trail{border-left:0;border-right:3px solid var(--sc-accent)}
+.sc-copy--center{border-left:0;border-top:3px solid var(--sc-accent);text-align:center}
+.sc-copy p{color:var(--sc-ink);opacity:.86}
+
+
+/* Mobile: o h2 a 16ch na escala display não cabe em 390px, e o translate
+   -50% do bloco centrado atirava o excedente para fora do ecrã — a folha de
+   contacto mostrava "ende." cortado e o fecho partido em "ximo jeto.".
+   A caixa passa a ser limitada pela viewport, não pela medida em ch. */
+.sc-copy--lead,.sc-copy--trail,.sc-copy--center{
+  width:min(46ch,calc(100vw - 2*var(--sc-gutter)));box-sizing:border-box}
+.sc-copy h2{max-width:100%;hyphens:auto;overflow-wrap:break-word}
+@media (max-width: 620px){
+  .sc-copy h2{font-size:clamp(2rem,1.2rem + 5.4vw,3rem)}
+  .sc-copy p{font-size:var(--sc-t-base)}
+  .sc-copy--lead,.sc-copy--trail,.sc-copy--center{
+    padding:var(--sc-4) var(--sc-5)}
+  .map{gap:0;padding:var(--sc-3)}
+  .map__leg{font-size:10px;padding:3px 0 3px var(--sc-3)}
+}
+
+
+/* O bloco centrado ficava com left:20px do gutter E translate:-50% do engine
+   ao mesmo tempo: 20 - 167.7 = -147.7px, fora do ecrã à esquerda. Medido, não
+   suposto. Restaura-se o par coerente com especificidade, não com !important. */
+[data-sc-world-copy] .sc-copy--center{
+  left:50%;right:auto;top:50%;translate:-50% -50%}
+
+@media (prefers-reduced-motion: reduce){ .plus{display:none} }
+@media (pointer: coarse){ .plus{display:none} }
+</style>
+</head>
+<body>
+
+<div class="rule" aria-hidden="true"></div>
+<div class="brand">Dev<b>+</b></div>
+
+<!-- O mapa: a gramática 2.4 diz que um mundo onde não se pode saltar é um vídeo. -->
+<nav class="map" aria-label="Mapa do mundo">
+  <button class="map__leg" data-leg="0" data-n="01">Papel</button>
+  <button class="map__leg" data-leg="1" data-n="02">Grelha</button>
+  <button class="map__leg" data-leg="2" data-n="03">Estrutura</button>
+  <button class="map__leg" data-leg="3" data-n="04">Travessia</button>
+  <button class="map__leg" data-leg="4" data-n="05">Matéria</button>
+  <button class="map__leg" data-leg="5" data-n="06">Ecrã</button>
+  <button class="map__leg" data-leg="6" data-n="07">Muitos</button>
+  <button class="map__leg" data-leg="7" data-n="08">O mais</button>
+  <div class="map__depth" aria-hidden="true">PROF <span id="depth">0.000</span></div>
+  <div class="map__bar" aria-hidden="true"><i id="bar"></i></div>
+</nav>
+
+<div class="plus" aria-hidden="true">
+  <div class="plus__layer"></div>
+  <div class="plus__ring"></div>
+  <div class="plus__label">+ o que somamos</div>
+</div>
+
+<div data-sc-mode="worldflight" data-sc-seam="0.12">
+
+  <div data-sc-world>
+    <div data-sc-segment data-sc-w="1.2" data-sc-linger="0.30" data-sc-waypoint="Papel">
+      <img class="sc-world__poster" src="assets/p1.svg" alt="" decoding="async"></div>
+    <div data-sc-segment data-sc-w="1.2" data-sc-linger="0.22" data-sc-waypoint="Grelha">
+      <img class="sc-world__poster" src="assets/p2.svg" alt="" decoding="async"></div>
+    <div data-sc-segment data-sc-w="1.2" data-sc-linger="0.20" data-sc-waypoint="Estrutura">
+      <img class="sc-world__poster" src="assets/p3.svg" alt="" decoding="async"></div>
+    <div data-sc-segment data-sc-w="1.2" data-sc-linger="0.20" data-sc-waypoint="Travessia">
+      <img class="sc-world__poster" src="assets/p4.svg" alt="" decoding="async"></div>
+    <!-- O pico leva o maior span da página: é onde o mundo acende. -->
+    <div data-sc-segment data-sc-w="1.8" data-sc-linger="0.42" data-sc-waypoint="Matéria">
+      <img class="sc-world__poster" src="assets/p5.svg" alt="" decoding="async"></div>
+    <div data-sc-segment data-sc-w="1.8" data-sc-linger="0.38" data-sc-waypoint="Ecrã">
+      <img class="sc-world__poster" src="assets/p6.svg" alt="" decoding="async"></div>
+    <div data-sc-segment data-sc-w="1.2" data-sc-linger="0.20" data-sc-waypoint="Muitos">
+      <img class="sc-world__poster" src="assets/p7.svg" alt="" decoding="async"></div>
+    <div data-sc-segment data-sc-w="1.4" data-sc-linger="0.30" data-sc-waypoint="O mais">
+      <img class="sc-world__poster" src="assets/p8.svg" alt="" decoding="async"></div>
+  </div>
+
+  <!-- A copy chega DENTRO do canvas, nos waypoints. Nada faz scroll por cima. -->
+  <div data-sc-world-copy>
+    <div class="sc-world__scrim sc-scrim sc-scrim--band"></div>
+
+    <div class="sc-copy sc-copy--lead" data-sc-copy data-sc-window="hero">
+      <span class="tag">DevPlus — estúdio de web design &amp; desenvolvimento</span>
+      <h2>Todo o site começa antes de haver ecrã.</h2>
+      <p>Desce. Isto é o percurso de um projeto, do primeiro traço até ao dia em que passa a trabalhar para ti.</p>
+    </div>
+
+    <div class="sc-copy sc-copy--trail" data-sc-copy data-sc-window="0.13 0.26">
+      <span class="tag">02 — Grelha</span>
+      <h2>O traço solta-se do papel.</h2>
+      <p>Antes de qualquer cor, decide-se onde é que as coisas ficam. É a parte que ninguém vê e que se sente toda.</p>
+    </div>
+
+    <div class="sc-copy sc-copy--lead" data-sc-copy data-sc-window="0.28 0.42">
+      <span class="tag">03 — Estrutura</span>
+      <h2>E depois levanta.</h2>
+      <p>A grelha ganha altura. O que era esquema passa a ser sítio por onde se anda.</p>
+    </div>
+
+    <div class="sc-copy sc-copy--trail" data-sc-copy data-sc-window="0.44 0.56">
+      <span class="tag">04 — Travessia</span>
+      <h2>Por dentro, vêem-se as juntas.</h2>
+      <p>Um site bonito que não aguenta não serve. Passa cá dentro e vê como é que está montado.</p>
+    </div>
+
+    <!-- O PICO. A paragem com o maior span, e a única com "acende". -->
+    <div class="sc-copy sc-copy--center" data-sc-copy data-sc-window="0.58 0.74">
+      <span class="tag">05 — Matéria</span>
+      <h2>E <em>acende</em>.</h2>
+      <p>É aqui que deixa de ser desenho.</p>
+    </div>
+
+    <div class="sc-copy sc-copy--lead" data-sc-copy data-sc-window="0.76 0.88">
+      <span class="tag">07 — Muitos</span>
+      <h2>Este é um. Há mais.</h2>
+      <p>Cada projeto atravessa este mesmo percurso. O que muda é para quem.</p>
+    </div>
+
+    <div class="sc-copy sc-copy--center" data-sc-copy data-sc-window="finale">
+      <span class="tag">08 — O mais</span>
+      <h2>Vamos somar ao teu próximo projeto.</h2>
+      <a class="cta" href="https://devplus.pt/contacto">Falar connosco <span aria-hidden="true">+</span></a>
+    </div>
+  </div>
+
+  <div data-sc-spacer aria-hidden="true"></div>
+</div>
+
+<script src="scrollcraft.js"></script>
+<script>
+ScrollCraft.mount(document);
+
+// O spacer é medido uma vez, ao montar. Se innerHeight for 0 nesse instante a
+// página fica sem track e falha em silêncio — worldflight.md §7b.
+const relayout = () => dispatchEvent(new Event('resize'));
+addEventListener('load', relayout);
+if (document.fonts?.ready) document.fonts.ready.then(relayout);
+
+// O mapa acende o waypoint atual e desenha a profundidade.
+const legs = [...document.querySelectorAll('.map__leg')];
+const segs = [...document.querySelectorAll('[data-sc-segment]')];
+addEventListener('sc:waypoint', (e) => {
+  legs.forEach((el) => el.setAttribute('aria-current', String(+el.dataset.leg === e.detail.index)));
+});
+legs.forEach((el) => el.addEventListener('click', () => {
+  const seg = segs[+el.dataset.leg];
+  const weights = segs.map((s) => +(s.dataset.scW || 1.3));
+  const before = weights.slice(0, +el.dataset.leg).reduce((a, b) => a + b, 0);
+  scrollTo({ top: (before + 0.12) * innerHeight, behavior: 'smooth' });
+}));
+const depth = document.getElementById('depth'), bar = document.getElementById('bar');
+addEventListener('scroll', () => {
+  const max = document.documentElement.scrollHeight - innerHeight;
+  const p = max > 0 ? scrollY / max : 0;
+  depth.textContent = p.toFixed(3);
+  bar.style.width = (p * 100).toFixed(1) + '%';
+}, { passive: true });
+
+// O "+" somador. Segue o ponteiro e recorta, na forma do símbolo, a camada que
+// a DevPlus acrescenta ao mundo por baixo.
+const plus = document.querySelector('.plus');
+const fine = matchMedia('(pointer: fine)').matches;
+const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (fine && !calm) {
+  const S = 190, ARM = S / 2, TH = S * 0.28;
+  const shape = (cx, cy) => {
+    const h = TH / 2;
+    return `polygon(${[
+      [cx - h, cy - ARM], [cx + h, cy - ARM], [cx + h, cy - h], [cx + ARM, cy - h],
+      [cx + ARM, cy + h], [cx + h, cy + h], [cx + h, cy + ARM], [cx - h, cy + ARM],
+      [cx - h, cy + h], [cx - ARM, cy + h], [cx - ARM, cy - h], [cx - h, cy - h],
+    ].map(([x, y]) => `${x.toFixed(1)}px ${y.toFixed(1)}px`).join(',')})`;
+  };
+  const st = plus.style;
+  st.setProperty('--plus-size', S + 'px');
+  st.setProperty('--plus-half', ARM + 'px');
+  st.setProperty('--plus-shape', shape(ARM, ARM));
+  let raf = 0, tx = 0, ty = 0;
+  addEventListener('pointermove', (e) => {
+    tx = e.clientX; ty = e.clientY;
+    plus.classList.add('is-live');
+    if (raf) return;
+    raf = requestAnimationFrame(() => {
+      raf = 0;
+      st.setProperty('--plus-x', tx + 'px');
+      st.setProperty('--plus-y', ty + 'px');
+      st.setProperty('--plus-clip', shape(tx, ty));
+    });
+  }, { passive: true });
+  addEventListener('pointerleave', () => plus.classList.remove('is-live'));
+}
+</script>
+</body>
+</html>
