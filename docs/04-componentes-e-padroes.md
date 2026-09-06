@@ -174,6 +174,51 @@ texto de rascunho — quem o lê não tem como distinguir.
   um bug a sério e tem de aparecer.
 - Hover em cards: `-translate-y-1` no grupo. Botões: `active:scale-[0.97]`.
 
+### O hero tem profundidade, e ela mede-se
+
+Setembro de 2026: o hero da homepage deixou de ser texto sobre fundo liso e
+passou a ter **quatro planos** — `components/HeroPlanes.tsx`.
+
+- **O hero ocupa um ecrã** (`min-h-[88svh]`), não vários. Ganha profundidade mas
+  não se prende: quem vem ver o portfólio chega lá à primeira rolada. Nada de
+  pinning cinematográfico na homepage.
+- **`svh`, nunca `vh`.** No telemóvel a barra do browser faz o `vh` mentir e o
+  hero saía mais alto do que o ecrã que existe.
+- **As taxas de viagem têm de ser visivelmente diferentes**, e estão na
+  constante `VIAGEM`: fundo 6%, meio 20%, o "+" 32%, frente 46%. Taxas próximas
+  não dão profundidade, dão uma fotografia a deslizar. Medido aos 70% de scroll,
+  os planos ficam em 39, 131, 139 e 301 px — se um dia isso convergir, a
+  profundidade morreu e o número denuncia-o.
+- **`y` e `translateY` são a mesma propriedade no Motion.** Passar as duas no
+  mesmo `style` faz a segunda anular a primeira, e o parallax desaparece **em
+  silêncio**. Por isso cada plano são dois `div` aninhados: o de fora leva o
+  scroll, o de dentro o ponteiro.
+- **`MotionConfig reducedMotion="user"` não chega aqui.** Ele desarma animações
+  declarativas, mas um `useTransform` ligado ao scroll não é uma animação, é um
+  valor derivado — continuava a mexer para quem pediu menos movimento. O
+  componente lê `useReducedMotion()` e zera as taxas à mão.
+- **O ponteiro é um extra**, nunca a única forma de ver o hero, e só responde a
+  `(pointer: fine)`. O hero tem de ficar completo sem rato nenhum.
+- **O "+" continua a ser SVG de código**, nunca imagem gerada. A geometria vive
+  em `lib/brand.ts` e manda o `docs/03`; um modelo generativo devolve-o torto.
+
+### As imagens do hero passam por `scripts/otimizar-hero.mjs`
+
+O gerador devolve PNG de ~5 MB, e três desses seriam 16 MB antes de a página
+pintar. O script leva-os a **0,48 MB no total** (96,9% menos), e faz duas coisas
+que o `next/image` não faz sozinho:
+
+- **Corta para telemóvel, não encolhe.** O recorte é 3:4 ao centro, que é onde
+  os planos têm o assunto. Um 16:9 reduzido deixava a estrutura do tamanho de
+  uma unha.
+- **Qualidade por plano.** O da frente vive desfocado e aguenta q68; o do meio
+  tem arestas de betão e leva q84.
+
+Daí o `<picture>` com `<source media>` no `HeroPlanes`, em vez de duas
+`next/image` com `hidden`: são enquadramentos diferentes, não tamanhos
+diferentes, e duas imagens escondidas por CSS descarregam as duas em vários
+browsers — seria pagar o hero a dobrar.
+
 ## Acessibilidade
 
 Isto não é opcional e já está em vigor:
@@ -301,6 +346,8 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | a ordem das secções da homepage   | `app/page.tsx` **e** a tabela em "A homepage conta uma história" — a ordem sem a razão dura uma sessão   |
 | recolheres um testemunho          | `lib/testimonials.ts`; a secção aparece sozinha assim que o array deixar de estar vazio                  |
 | a duração ou o easing             | `components/Reveal.tsx`, `components/Hero.tsx` e os `transition-*` dos cards — muda em todos ou em nenhum |
+| as taxas de parallax do hero      | a constante `VIAGEM` em `components/HeroPlanes.tsx` **e** os números da secção "O hero tem profundidade" |
+| os planos do hero                 | volta a correr `node scripts/otimizar-hero.mjs <pasta>`; os PNG por otimizar não entram em `public/`       |
 | o espaçamento vertical            | `components/ui/Section.tsx`, não as páginas                                                               |
 | a largura máxima                  | `components/ui/Container.tsx`, não as páginas                                                             |
 | as regras do formulário           | `lib/contacto.ts` — os dois lados importam de lá; não acrescentes uma segunda cópia                       |

@@ -5,7 +5,7 @@ import { Fragment } from "react";
 import { motion, type Variants } from "motion/react";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
-import { Logo } from "@/components/Logo";
+import { HeroPlanes } from "@/components/HeroPlanes";
 import { site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -35,19 +35,17 @@ const words: { t: string; accent?: boolean }[] = [
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden">
-      {/* O "+" em contorno, a rodar devagar — o logo no fundo */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-[12%] -top-[18%] z-0 w-[78%] max-w-[42rem] text-primary opacity-[0.06] sm:opacity-[0.07]"
-      >
-        <Logo
-          outline
-          className="h-auto w-full animate-spin-slow [animation-duration:120s]"
-        />
-      </div>
+    /*
+      Um ecrã, não vários. O hero ganha profundidade mas não se prende nem
+      atrasa quem vem ver o portfólio — decisão do Gonçalo, setembro de 2026.
+      `svh` e não `vh`: no telemóvel a barra do browser faz `vh` mentir, e o
+      hero ficava mais alto do que o ecrã que existe.
+    */
+    <section className="relative flex min-h-[88svh] items-center overflow-hidden">
+      {/* Quatro planos com taxas de viagem diferentes — ver HeroPlanes. */}
+      <HeroPlanes />
 
-      <Container className="relative z-10 pb-14 pt-14 sm:pb-24 sm:pt-24">
+      <Container className="relative z-10 w-full pb-14 pt-14 sm:pb-24 sm:pt-24">
         <motion.div
           data-reveal
           variants={container}
