@@ -231,3 +231,87 @@ html.lenis body {
     scroll-snap-align: center;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Transições entre páginas — docs/04, "Movimento"
+
+   A capa de um projeto na grelha e a capa no topo da página desse projeto
+   partilham `view-transition-name`, e o browser anima uma na outra. O visitante
+   vê um objeto a mudar de tamanho, não dois a trocar de lugar.
+
+   A duração e a curva NÃO são escolhidas aqui: são as do `docs/04` — 0,45 s e
+   `[0.22, 1, 0.36, 1]`, as mesmas do `Reveal` e dos cards. Um morph com curva
+   própria seria uma segunda gramática de movimento no mesmo site.
+
+   O `blur` a meio do voo esconde os artefactos de interpolação a nível de
+   pixel, que é o que denuncia um morph entre imagens de proporções diferentes
+   — o card é 16:10 e a página 16:9.
+--------------------------------------------------------------------------- */
+::view-transition-group(.morph) {
+  animation-duration: 450ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-image-pair(.morph) {
+  animation-name: morph-desfoque;
+}
+
+@keyframes morph-desfoque {
+  30% {
+    filter: blur(3px);
+  }
+}
+
+/* A página inteira. Era um fade com Motion no `template.tsx`, e passou para cá
+   quando as capas começaram a morfar: duas gramáticas de movimento na mesma
+   navegação viam-se a competir. O `data-sentido` vem do `template.tsx`, porque
+   o CSS não sabe se o visitante desceu ou subiu na hierarquia do site. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 450ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-old(root) {
+  animation-name: pagina-sai;
+}
+::view-transition-new(root) {
+  animation-name: pagina-entra;
+}
+
+@keyframes pagina-sai {
+  to {
+    opacity: 0;
+    transform: translateX(var(--sai, 0));
+  }
+}
+@keyframes pagina-entra {
+  from {
+    opacity: 0;
+    transform: translateX(var(--entra, 0));
+  }
+}
+
+/* Descer na hierarquia empurra para a esquerda; subir devolve à direita.
+   Sem `data-sentido` — primeira visita, sessionStorage bloqueado — fica só o
+   fade, que é a transição neutra e nunca está errada. */
+:root[data-sentido="avanca"] {
+  --sai: -2.5rem;
+  --entra: 2.5rem;
+}
+:root[data-sentido="recua"] {
+  --sai: 2.5rem;
+  --entra: -2.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Sem morph nenhum: a página troca de uma vez. As regras genéricas acima já
+     encurtam animações, mas uma view transition tem pseudo-elementos próprios
+     que não são apanhados por `*`. */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-image-pair(*) {
+    animation: none !important;
+  }
+}

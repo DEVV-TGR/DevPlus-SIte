@@ -219,6 +219,57 @@ Daí o `<picture>` com `<source media>` no `HeroPlanes`, em vez de duas
 diferentes, e duas imagens escondidas por CSS descarregam as duas em vários
 browsers — seria pagar o hero a dobrar.
 
+## Transições entre páginas
+
+Setembro de 2026. Antes, cada navegação era um corte: um conjunto de elementos
+desaparecia, outro aparecia, e nada ligava os dois. O `template.tsx` fazia um
+fade de 10px, igual nos dois sentidos.
+
+Agora usam-se as **View Transitions** do React, que o Next 16 traz sem
+configuração nenhuma. Duas coisas acontecem:
+
+**A capa de um projeto morfa.** O card na grelha e a capa no topo da página do
+projeto partilham `view-transition-name` — `capa-<slug>` — e o browser anima uma
+na outra. Quem clica vê **um objeto a mudar de tamanho**, não dois a trocar de
+lugar. É continuidade com significado; diz "é a mesma coisa".
+
+**A página tem direção.** Descer na hierarquia (`/portfolio` →
+`/portfolio/<slug>`) desliza para a frente; voltar atrás desliza para trás. O
+CSS não sabe sozinho o que é descer, por isso o `template.tsx` escreve
+`data-sentido` no `<html>`.
+
+### O que já custou caro aprender
+
+- **`view-transition-name` repetido parte o morph inteiro.** Não degrada: acaba.
+  O `ProjectsMarquee` mostra 15 cards de 5 projetos, e por isso só a primeira
+  ronda leva nome — é a prop `shared` do `ProjectCard`. Se um dia outro sítio
+  repetir cards, tem de passar `shared={false}`.
+- **`share="morph"` e `default="none"` andam aos pares.** Sem o `default`, cada
+  capa nomeada animava em **qualquer** navegação do site. Com `default="none"`
+  mas sem `share` explícito, o par deixa de morfar **em silêncio**.
+- **A capa da página do projeto não leva `Reveal`.** O `Reveal` começa a
+  `opacity: 0` e sobe 16px, que é o contrário do que um morph faz — a capa
+  piscava antes de assentar.
+- **Uma gramática de movimento, não duas.** O `template.tsx` deixou de animar
+  com Motion: um fade da página inteira ao mesmo tempo que a capa morfa via-se a
+  competir. A animação de página vive agora em `globals.css`, nas mesmas 0,45 s
+  e na mesma curva `[0.22, 1, 0.36, 1]` de tudo o resto.
+- **O StrictMode corre o efeito duas vezes.** O `template.tsx` guardava só a
+  profundidade da rota, e a segunda passagem lia o valor que a primeira acabara
+  de escrever: `/` → `/portfolio` dava "lado" onde devia dar "avanca". Guarda-se
+  o **caminho** junto com a profundidade, e a segunda passagem reconhece-se.
+- **O Lenis não interfere**, mas confirma-se: medido, o `scrollY` fica a 0 depois
+  de navegar.
+- **Sem suporte no browser, o site funciona na mesma** e não anima. Não há
+  fallback a escrever.
+
+Como se confirma que o morph acontece de facto: **não por screenshot** — as view
+transitions correm no compositor e não aparecem em capturas. Espia-se o
+`document.startViewTransition` e leem-se as animações vivas com
+`getAnimations({ subtree: true })`. Aparecem
+`::view-transition-group(capa-<slug>)` e o respetivo `image-pair` se o par se
+formou; se não aparecerem, não houve morph.
+
 ## Acessibilidade
 
 Isto não é opcional e já está em vigor:
@@ -348,6 +399,8 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | a duração ou o easing             | `components/Reveal.tsx`, `components/Hero.tsx` e os `transition-*` dos cards — muda em todos ou em nenhum |
 | as taxas de parallax do hero      | a constante `VIAGEM` em `components/HeroPlanes.tsx` **e** os números da secção "O hero tem profundidade" |
 | os planos do hero                 | volta a correr `node scripts/otimizar-hero.mjs <pasta>`; os PNG por otimizar não entram em `public/`       |
+| onde os cards de projeto aparecem | passa `shared={false}` se repetires cards no mesmo documento — nomes repetidos matam o morph              |
+| a duração ou a curva das páginas  | `app/globals.css` (blocos `::view-transition-*`) — as mesmas 0,45 s e curva do resto do site               |
 | o espaçamento vertical            | `components/ui/Section.tsx`, não as páginas                                                               |
 | a largura máxima                  | `components/ui/Container.tsx`, não as páginas                                                             |
 | as regras do formulário           | `lib/contacto.ts` — os dois lados importam de lá; não acrescentes uma segunda cópia                       |
