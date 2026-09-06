@@ -152,6 +152,22 @@ html:not(.js) [data-reveal-item] {
   transform: none !important;
 }
 
+/* O reverso, e é preciso desde que o movimento passou a GSAP.
+   O Motion escrevia o estado inicial no HTML servido, portanto o elemento já
+   chegava invisível. O GSAP só toca no elemento depois de hidratar, o que
+   deixava um frame — às vezes vários, numa ligação lenta — com tudo visível e
+   no sítio final, seguido de um salto para trás para a animação começar.
+   Esconder aqui elimina esse frame.
+
+   O par com a regra de cima é o que mantém isto seguro: sem JavaScript não há
+   classe `js`, e nada disto se aplica. Com JavaScript, quem mostra é o GSAP —
+   e o `Reveal` tem um temporizador de 1,2 s para o caso de o ScrollTrigger
+   nunca disparar. */
+html.js [data-reveal],
+html.js [data-reveal-item] {
+  opacity: 0;
+}
+
 /* O carrossel de projetos faz scroll a sério (é o que o torna arrastável), mas
    a barra estragava a faixa. Esconder aqui é seguro: o conteúdo continua
    alcançável por arrasto, roda, teclado e — em movimento reduzido — snap. */
