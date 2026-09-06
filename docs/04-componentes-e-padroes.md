@@ -43,7 +43,15 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `Marquee`         | faixa horizontal infinita, decorativa                                      | pôr lá conteúdo que importe — é `aria-hidden`                                              |
 | `ProjectsMarquee` | a faixa de projetos da página inicial: conteúdo real, focável e arrastável | usá-lo para decoração — para isso é o `Marquee`; e pôr `gap` no track, que parte o ciclo   |
 | `PageHero`        | cabeçalho das páginas internas (eyebrow + h1 + intro)                      | escrever um h1 solto numa página interna                                                   |
-| `Hero`            | só a página inicial                                                        | reutilizar noutro sítio                                                                    |
+| `home/HeroHome`   | a capa da página inicial                                                   | reutilizar noutro sítio; e pôr o título em dois elementos — ver abaixo                    |
+| `home/Cruz`       | o "+" que atravessa a página inicial                                       | usá-lo noutra página; o gesto é da homepage e perde sentido repetido                       |
+| `home/Curva`      | o corte entre dois capítulos                                               | pôr uma linha reta no lugar dela                                                           |
+| `home/ComoTrabalhamos` | os quatro passos, em cards que se acumulam                            | transformá-los numa grelha — a acumulação é o ponto                                        |
+| `home/ProvaCarrossel`  | o trabalho feito, em fila horizontal com a página presa                | usá-lo para hierarquia; lateral lê-se como alcance, não como ordem                          |
+| `home/ServicosMostra`  | os serviços um de cada vez                                            | catalogar aqui os seis — a página inicial apresenta, a `/servicos` cataloga                |
+| `home/Pacotes`    | por onde um projeto começa                                                 | escrever preços; saem de proposta, ver `docs/05`                                            |
+| `home/Fecho`      | o convite, no fim                                                          | deixá-lo esbater-se para o rodapé                                                          |
+| `Hero` *(sem uso)* | era a capa antiga                                                         | —                                                                                          |
 | `Testimonials`    | o que os clientes dizem, na homepage a seguir aos serviços                 | inventar a frase de um cliente para encher a secção — ver abaixo                           |
 | `Wordmark`        | o logótipo com link para "/"                                               | ver `docs/03`                                                                              |
 | `Lockup` / `Logo` | o logótipo "D+" e o "+" isolado                                            | desenhar o logótipo à mão em SVG — ver `docs/03`                                           |
@@ -65,26 +73,38 @@ de projetos à lista de clientes.
 
 ## A homepage conta uma história
 
-A ordem das secções **não é arbitrária** e não se muda por conveniência de
-layout. É prova primeiro, oferta depois, confirmação no fim:
+Setembro de 2026, segunda escrita. A versão anterior tinha sete secções que
+eram **todas a mesma forma**: título grande, texto, uma coisa por baixo. Mudava
+a cor e o conteúdo, mas o molde não mudava — e uma página assim lê-se como uma
+lista, não como um percurso. O Gonçalo disse-o em três palavras: *"todas as
+secções seguem o mesmo padrão"*.
 
-| # | Secção                 | Porque está aí                                                        |
-| - | ---------------------- | ---------------------------------------------------------------------- |
-| 1 | `Hero`                 | a proposta em cinco palavras                                          |
-| 2 | Faixa de disciplinas   | o alcance, num relance                                                |
-| 3 | Quem confia em nós     | antes de dizer o que sabemos fazer, mostra-se para quem já se fez     |
-| 4 | Trabalho selecionado   | os nomes acabados de ler ganham cara — por isso vem **logo a seguir** |
-| 5 | O que fazemos          | só agora a oferta, com o visitante já convencido de que há trabalho   |
-| 6 | `Testimonials`         | a confirmação vem de fora, não de nós                                 |
-| 7 | Contacto               | o convite, no fim do percurso                                         |
+A resposta não foi mais movimento. Foi **cada capítulo ter uma forma
+diferente**, e é essa a regra que agora governa esta página:
 
-A oferta esteve em cima e o trabalho por baixo até agosto de 2026. Inverteu-se
-porque quem chega ao site pela primeira vez não tem razão nenhuma para se
-interessar pela lista de serviços antes de ver o que dela sai.
+| # | Capítulo | A forma | Porque esta |
+| - | --- | --- | --- |
+| 0 | Capa | Tipografia partida pelas duas margens, figura no vão | É o pico da página, e um pico precisa de composição, não de um cabeçalho |
+| 1 | Como trabalhamos | Quatro cards inclinados que chegam com o scroll e se **acumulam** sobre o título | No fim vê-se o processo todo de uma vez. Quatro caixas lado a lado diziam o mesmo e não se lembravam |
+| 2 | A prova | Fila horizontal, com a página presa | Lateral lê-se como **alcance**; vertical lê-se como argumento. Aqui não se argumenta |
+| 3 | Serviços | Um de cada vez, número enorme, navegação em círculos | Uma lista lê-se; isto **opera-se**, e quem procura um serviço salta-lhe em cima |
+| 4 | Por onde começar | Grelha de pacotes: três e um caminho | O quarto não é um card, é a saída para quem não se revê nos três |
+| 5 | O convite | Fecho quente, que resolve | A última sensação é a que se leva |
 
-"Porquê a DevPlus" e "Como trabalhamos" viviam no fim desta página e mudaram de
-casa na mesma altura — para `app/sobre/page.tsx` e `app/servicos/page.tsx`. O
-fim da homepage passou a ser do contacto.
+**Seis formas, zero repetidas.** Se acrescentares um capítulo, ele traz uma
+forma nova ou não entra.
+
+Os grounds mudam por capítulo com cortes duros, separados por `Curva` — ver os
+tokens em `docs/02`. O `Cruz` é a única coisa que atravessa todos.
+
+### O que saiu, e continua no repositório
+
+A faixa de disciplinas (`Marquee`), a lista de clientes e a faixa de projetos
+(`ProjectsMarquee`) deixaram de estar na página inicial. **Os ficheiros ficam**:
+o `ProjectsMarquee` carrega meia dúzia de aprendizagens que custaram caro — o
+arrasto, a inércia do telemóvel, o `setPointerCapture` que rouba o clique — e
+apagá-lo deitava fora tudo isso por uma decisão de composição que pode mudar.
+Estão sem uso, não estão mortos.
 
 ### Secções que se escondem
 
@@ -251,6 +271,29 @@ animam para lá. O `Flip` do GSAP fazia o mesmo com menos código, **mas é plug
 do Club**: se um dia o projeto tiver licença, é aqui que se usa. Para um risco de
 2 px não se pediu.
 
+### O que a página inicial nova custou a aprender
+
+- **O título da capa é um `h1` só.** Esteve partido em dois elementos, e o
+  Google e um leitor de ecrã recebiam duas frases soltas. Agora o `h1` é
+  `sr-only` com a frase inteira e as duas metades visíveis são `aria-hidden` —
+  quem vê tem a composição, quem lê tem a frase.
+- **As duas metades posicionam-se em absoluto, não em linhas de grelha.** Com
+  grelha, a segunda caía na faixa do meio, aterrava por cima da ilustração e
+  por cima da primeira: lia-se "tetunegócio".
+- **A figura da capa não fica ao centro.** Ao centro, o creme da ilustração
+  cruzava o creme do título e o contraste local caía a 1.5:1. Está à esquerda,
+  e o título tem um scrim próprio.
+- **Um `scrim` de página inteira resolve o contraste e mata a ilustração.** O
+  que se usa é um gradiente radial invertido: escuro na moldura, onde o texto
+  vive, transparente no meio.
+- **Nas cenas dos serviços usa-se `hidden`, não `opacity: 0`.** Uma cena a zero
+  de opacidade continua tabulável e continua a ser lida, o que punha quatro
+  botões "Falar sobre isto" na ordem de teclado, três deles invisíveis. E o
+  `[hidden]` precisa de regra explícita quando há um `display` declarado, senão
+  não faz nada.
+- **Os cards do processo acumulam-se, e por isso não levam `stagger`.** Cada um
+  tem a sua fatia do percurso e **fica**; um stagger fá-los-ia suceder-se.
+
 ## Acessibilidade
 
 Isto não é opcional e já está em vigor:
@@ -375,7 +418,9 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | Se mudares…                       | Faz também                                                                                                |
 | --------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | criares um primitivo novo         | acrescenta-o à tabela acima                                                                               |
-| a ordem das secções da homepage   | `app/page.tsx` **e** a tabela em "A homepage conta uma história" — a ordem sem a razão dura uma sessão   |
+| a ordem ou a forma das secções    | `app/page.tsx` **e** a tabela em "A homepage conta uma história" — uma forma repetida é o defeito que ela existe para travar |
+| as ilustrações da homepage        | volta a correr `python3 scripts/otimizar-ilustra.py <ficheiro>`; PNG por otimizar não entram em `public/` |
+| qualquer coisa com scroll         | corre `node scripts/verificar-scroll.mjs` nas três passagens (normal, `--mobile`, `--reduzido`)          |
 | recolheres um testemunho          | `lib/testimonials.ts`; a secção aparece sozinha assim que o array deixar de estar vazio                  |
 | a duração ou o easing             | **`lib/motion.ts`** e a tabela de valores acima — os componentes leem de lá, não têm números próprios      |
 | introduzires um componente que anima | verifica `prefers-reduced-motion` dentro dele: o GSAP não o faz por ti                                   |

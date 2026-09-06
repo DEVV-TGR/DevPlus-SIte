@@ -149,6 +149,24 @@ abaixo disso as letras tocam-se). O h1 da homepage usa
 `text-[clamp(2.25rem,7vw,5.5rem)]` — escala fluida, sem breakpoints, com o topo
 em 88px (o teto é 96px: acima disso a página grita em vez de desenhar).
 
+## Os grounds dos capítulos
+
+Setembro de 2026: a página inicial deixou de ter um fundo só. Cada capítulo
+pinta o seu, e os cortes entre eles são **duros** — numa página de capítulos um
+corte não é um gradiente, e interpolar entre dois grounds é exatamente a
+suavidade que essa estrutura existe para recusar. Ver `docs/04`.
+
+| Token | Onde | Porquê existe |
+| --- | --- | --- |
+| `--bg-deep` | o capítulo "Como trabalhamos" | Mais fundo que o `--bg`, para o capítulo a seguir à capa recuar em vez de continuar |
+| `--paper` | o capítulo da prova | O trabalho lê-se melhor sobre claro, e a mudança marca que ali se mostra em vez de se argumentar |
+| `--paper-ink` | texto sobre `--paper` | 12.6:1 |
+| `--paper-muted` | apoio sobre `--paper` | 6.1:1 |
+
+**`--paper` nunca se usa sozinho.** Sobre creme, o `--ink` é invisível: quem
+usa o fundo usa também a tinta que lhe pertence. É por isso que são quatro
+tokens e não dois.
+
 ## Ao alterar este documento
 
 | Se mudares…             | Faz também                                                                                                                                            |
@@ -158,3 +176,6 @@ em 88px (o teto é 96px: acima disso a página grita em vez de desenhar).
 | `--radius`              | confirma os cards em `ProjectCard` e nas caixas de `app/servicos/page.tsx`                                                                            |
 | uma fonte               | `app/layout.tsx` (o import e a `variable`) e `@theme inline`                                                                                          |
 | uma das três proibições | avisa — está espalhada por todo o site                                                                                                                |
+
+| um dos grounds dos capítulos       | `app/globals.css` **e** a tabela "Os grounds dos capítulos" acima            |
+| `--paper`                          | verifica `--paper-ink` e `--paper-muted` no mesmo passo — vivem em par        |

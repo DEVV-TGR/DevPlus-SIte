@@ -98,6 +98,19 @@ em vez de ficar diluído numa frase do serviço de Desenvolvimento.
 5. Se houver um projeto que o demonstre, usa o mesmo nome nas `services` desse
    projeto em `lib/projects.ts` — os nomes devem bater certo entre as duas listas.
 
+## Os pacotes vivem em `lib/packages.ts`
+
+Estiveram escritos à mão dentro de `app/servicos/page.tsx` até a página inicial
+passar a mostrá-los também. Saíram de lá nessa altura: duas cópias da mesma
+lista divergem ao segundo mês, e a que fica desatualizada é sempre a que o
+cliente lê primeiro.
+
+**Não levam preços, e isso é deliberado.** O valor sai de uma proposta, depois
+de se perceber o âmbito — é um compromisso comercial e não copy, pela mesma
+razão que as respostas do FAQ não se reescrevem sem confirmação.
+
+Só um pacote pode ter `featured`.
+
 ## Ao alterar este documento
 
 | Se mudares…                         | Faz também                                                     |
@@ -107,3 +120,5 @@ em vez de ficar diluído numa frase do serviço de Desenvolvimento.
 | o número de serviços                | verifica a grelha `sm:grid-cols-2` em `app/page.tsx`           |
 | um `title`                          | procura esse nome nas `services` de `lib/projects.ts` e alinha |
 | as regras de escrita (blurb, items) | revê os 6 serviços existentes de uma vez                       |
+
+| acrescentares ou mudares um pacote | `lib/packages.ts` — a página inicial e a `/servicos` leem ambas de lá        |

@@ -7,6 +7,7 @@ import { Reveal } from "@/components/Reveal";
 import { PageHero } from "@/components/PageHero";
 import { FaqJsonLd } from "@/components/JsonLd";
 import { services } from "@/lib/services";
+import { packages } from "@/lib/packages";
 import { cn } from "@/lib/utils";
 import { pageMetadata } from "@/lib/seo";
 
@@ -16,45 +17,6 @@ export const metadata = pageMetadata({
   description:
 "Web design, desenvolvimento, menus e ecrãs digitais, painel de gestão, branding e motion. Do primeiro esboço ao dia em que o site fica no ar.",
 });
-
-const packages: {
-  name: string;
-  desc: string;
-  points: string[];
-  featured?: boolean;
-}[] = [
-  {
-    name: "Landing page",
-    desc: "Uma página só, com o que interessa: quem és, o que fazes e como te contactam. Rápida de pôr no ar.",
-    points: [
-      "Página única",
-      "Copy + design",
-      "Formulário de contacto",
-      "Otimizada para SEO",
-    ],
-  },
-  {
-    name: "Website",
-    desc: "O site completo da tua marca, com várias páginas e a mesma linguagem visual em todas.",
-    points: [
-      "Várias páginas",
-      "Design system próprio",
-      "CMS opcional",
-      "Performance + SEO",
-    ],
-    featured: true,
-  },
-  {
-    name: "Loja online",
-    desc: "Uma loja feita para vender: o cliente compra em poucos toques e tu geres os produtos sem ajuda.",
-    points: [
-      "Catálogo + checkout",
-      "Pagamentos",
-      "Gestão de produtos",
-      "Analytics",
-    ],
-  },
-];
 
 /* Veio da homepage, que passou a dar o lugar ao trabalho feito e aos
    testemunhos. Aqui encaixa melhor: a seguir ao que fazemos, antes de por onde
