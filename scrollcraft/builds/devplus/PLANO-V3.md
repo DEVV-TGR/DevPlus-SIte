@@ -98,3 +98,27 @@ O `docs/05` diz que a lista de serviços vive em `lib/services.ts` e a de
 pacotes em `app/servicos/page.tsx`. Este protótipo **lê de lá e não inventa** —
 nem serviços, nem pacotes, nem preços. Os cards de pacotes não levam valores,
 porque os valores não estão no código e não é a mim que compete escrevê-los.
+
+
+---
+
+## Quarta ronda: os quatro ajustes
+
+| Pedido | O que se fez | Medido |
+| --- | --- | --- |
+| "os cards dos pacotes têm de ser do mesmo tamanho" | `align-items: stretch` na grelha e cada coluna passa a ter duas linhas — a caixa ocupa o que sobra, o botão encosta ao fundo. Com `align-items: start`, cada card tinha a altura da sua própria lista e o de CTA ficava um terço mais baixo | os quatro a **406 px**, botões todos na linha 566 |
+| "ao dar scroll mostra cada serviço" | O capítulo passa de 2.6 para **3.6vh**, o que dá quase um ecrã a cada um dos quatro | act pin nos frames 18–25 |
+| "na prova o scroll mais lento, pare nessa secção, mostre os projetos todos" | De 1.6 para **3.8vh**, e a taxa lateral desce de 0.085 para 0.052 para o percurso ser mais longo e mais suave | o rail viaja de −30 a **−1452 px** ao longo de seis posições |
+
+Total: **17.8vh** em seis capítulos, bem fora da banda 13.6–13.8 que a skill marca.
+
+### Nota de método, outra vez
+
+Ao medir o carrossel no browser, o `--sc-p` aparecia preso em `1.0000` em todas
+as posições e o rail imóvel. Não era defeito: a aba de automação estava em
+segundo plano (`visibilityState: hidden`), o Chrome pausa o
+`requestAnimationFrame` aí, e o engine nunca atualiza. **É a segunda vez que
+este mesmo falso alarme aparece nesta construção.** Verificar a visibilidade
+antes de acreditar numa medição de scroll poupa uma ronda inteira de correções
+a um problema que não existe. Quem mede a sério é o `shoot.mjs`, que corre com
+a página visível.

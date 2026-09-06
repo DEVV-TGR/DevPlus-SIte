@@ -223,13 +223,18 @@ body { background: #1a1613; }
    Três cards claros e um quarto escuro que é só um caminho para a página de
    serviços. Os botões vivem POR FORA do card, por baixo — é o que separa
    esta grelha de um cartão com um botão lá dentro. */
-.pacotes { display: grid; gap: 1rem; align-items: start; }
+/* `stretch` e não `start`: com `start` cada card ficava com a altura da sua
+   própria lista, e o card de CTA — que quase não tem conteúdo — ficava um
+   terço mais baixo que os outros. Cada coluna é uma grelha de duas linhas, a
+   caixa a ocupar o que sobra e o botão sempre encostado ao fundo, para os
+   quatro botões ficarem alinhados na mesma linha. */
+.pacotes { display: grid; gap: 1rem; align-items: stretch; }
 @media (min-width: 900px) { .pacotes { grid-template-columns: repeat(4, 1fr); } }
-.pacote { display: grid; gap: .75rem; }
+.pacote { display: grid; grid-template-rows: 1fr auto; gap: .75rem; }
 .pacote__caixa {
   background: #f4efe7; color: #221c17; border-radius: var(--r);
   padding: clamp(1.25rem, 2.4vw, 1.9rem); display: grid; gap: .6rem; align-content: start;
-  min-height: 17rem; position: relative;
+  height: 100%; position: relative;
 }
 .pacote__et {
   position: absolute; top: 0; right: 0;
@@ -276,8 +281,8 @@ body { background: #1a1613; }
 .creme { color: #221c17; }
 .creme .sc-label { color: #7a6c60; }
 .rail { display: flex; gap: clamp(1.25rem, 3vw, 2.5rem); align-items: center; height: 100%; padding-inline: var(--sc-gutter); }
-.rail__lead { flex: 0 0 min(30rem, 62vw); }
-.obra { flex: 0 0 min(30rem, 74vw); }
+.rail__lead { flex: 0 0 min(26rem, 58vw); }
+.obra { flex: 0 0 min(27rem, 72vw); }
 .obra__quadro { border-radius: var(--r); overflow: hidden; background: #ded5c9; box-shadow: 0 24px 50px -28px rgb(34 28 23 / .55); }
 .obra__quadro img { display: block; width: 100%; height: auto; }
 .obra__ficha { margin-top: 1rem; display: grid; gap: .15rem; }
