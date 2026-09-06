@@ -1,0 +1,5 @@
+# Artefactos de verificação e dependências do harness. O que se guarda é a
+# página, os posters e o brief — não os screenshots nem o playwright.
+builds/*/node_modules/
+builds/*/lab/
+builds/*/package-lock.json
