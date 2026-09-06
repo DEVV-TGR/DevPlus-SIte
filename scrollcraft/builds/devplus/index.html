@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DevPlus · o teu site, e o comando é teu</title>
+<meta name="description" content="Estúdio de web design e desenvolvimento. Fazemos o site à medida e entregamos-te o comando.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231a1613'/><path d='M34.5 0H65.5V34.5H100V65.5H65.5V100H34.5V65.5H0V34.5H34.5Z' fill='%23F2762B'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="scrollcraft.css">
+<style>
+  /* ── O tema. Seis cores e duas faces, tudo o resto deriva daqui. ─────────
+     Os valores são os tokens da DevPlus convertidos de OKLCH para hex, os
+     mesmos que `lib/brand.ts` guarda para o Satori. Não se inventam cores. */
+  :root {
+    --sc-canvas:     #1a1613;
+    --sc-surface:    #241e19;
+    --sc-ink:        #f7f2ec;
+    --sc-ink-soft:   #c8bdb0;
+    --sc-accent:     #F2762B;
+    --sc-accent-ink: #1a1613;
+    --sc-font-display: "Bricolage Grotesque", system-ui, sans-serif;
+    --sc-font-text:    "Bricolage Grotesque", system-ui, sans-serif;
+
+    /* Um raio só, mantido em toda a página. */
+    --r: 18px;
+
+    /* Os grounds dos capítulos. Cortes duros, não interpolação: numa página
+       chaptered um corte não é um gradiente, e é essa dureza que faz cada
+       capítulo ler-se como um lugar diferente. */
+    --g-capa:   #1a1613;
+    --g-fundo:  #100e0c;
+    --g-quente: #F2762B;
+    --g-creme:  #f4efe7;
+  }
+
+  html { scroll-behavior: auto; }
+  body { background: var(--g-capa); }
+
+  /* ── Fólio: a chrome desta gramática. Não é uma barra fixa com wordmark e
+     CTA, é a margem de um impresso: número e nome do capítulo, a mudar. ──── */
+  .folio {
+    position: fixed; z-index: 60;
+    top: 50%; left: clamp(0.75rem, 2vw, 1.75rem);
+    transform: translateY(-50%);
+    display: flex; align-items: center; gap: .7rem;
+    writing-mode: vertical-rl;
+    font-size: var(--sc-t-xs);
+    letter-spacing: var(--sc-track-wide);
+    text-transform: uppercase;
+    color: var(--folio-ink, var(--sc-ink));
+    mix-blend-mode: difference;
+    pointer-events: none;
+    transition: color 400ms var(--sc-ease-out);
+  }
+  .folio__n {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+  .folio__t { opacity: .62; }
+  @media (max-width: 700px) { .folio { display: none; } }
+
+  .marca {
+    position: fixed; z-index: 61;
+    top: clamp(1rem, 3vw, 2rem); left: clamp(1rem, 3vw, 2.5rem);
+    display: flex; align-items: center; gap: .5rem;
+    font-weight: 800; font-size: var(--sc-t-sm);
+    letter-spacing: var(--sc-track-tight);
+    color: var(--sc-ink); mix-blend-mode: difference;
+    text-decoration: none;
+  }
+
+  /* ── O gesto: o "+" atravessa a página ──────────────────────────────────
+     Camada própria, fora da pilha de capítulos, conduzida pelo scroll da
+     PÁGINA e não pelo `--sc-p` de um act — é isso que lhe permite sobreviver
+     aos capítulos que atravessa em vez de morrer com um deles. */
+  /* z-index 0, e o ground de cada capítulo a -1: o "+" fica entre o chão e o
+     texto. À frente do texto — que foi como isto nasceu — ele deixa de ser uma
+     linha que costura a página e passa a ser uma coisa que a tapa, e no último
+     capítulo tapava o botão inteiro. */
+  .cruz {
+    position: fixed; inset: 0; z-index: 0;
+    display: grid; place-items: center;
+    pointer-events: none;
+    will-change: transform;
+  }
+  .cruz svg {
+    width: 22vmin; height: 22vmin;
+    overflow: visible;
+    transform: translate3d(var(--cx, 0px), var(--cy, 0px), 0)
+               rotate(var(--cr, 0deg))
+               scale(var(--cs, 1));
+    transform-origin: 50% 50%;
+    will-change: transform;
+  }
+  .cruz path {
+    fill: var(--cfill, var(--sc-accent));
+    transition: fill 500ms var(--sc-ease-out);
+  }
+
+  /* ── Capítulos: cada um pinta o seu próprio ground ─────────────────────── */
+  .cap { position: relative; }
+  .cap__ground { position: absolute; inset: 0; z-index: -1; }
+  .cap > *:not(.cap__ground) { position: relative; z-index: 1; }
+
+  /* A curva que separa dois capítulos. É o corte, e é orgânica em vez de
+     reta: uma linha a régua entre dois grounds lê-se como duas divs
+     empilhadas, uma curva lê-se como dois lugares. */
+  .curva { position: relative; z-index: 3; display: block; width: 100%; height: clamp(60px, 9vw, 150px); margin-bottom: -1px; }
+  .curva--topo { margin-top: -1px; margin-bottom: 0; }
+
+  /* ── Capa ───────────────────────────────────────────────────────────── */
+  .capa { display: grid; place-items: center; height: 100%; padding-inline: var(--sc-gutter); }
+  .capa__planos { position: absolute; inset: 0; overflow: hidden; }
+  .capa__eco {
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    font-family: var(--sc-font-display);
+    font-weight: 800;
+    line-height: .8;
+    letter-spacing: -0.05em;
+    white-space: nowrap;
+    color: color-mix(in oklab, var(--sc-ink) 5%, transparent);
+    font-size: clamp(6rem, 26vw, 22rem);
+    user-select: none;
+  }
+  .capa__eco--2 { color: color-mix(in oklab, var(--sc-accent) 8%, transparent); }
+
+  .capa__txt { justify-self: start; text-align: left; max-width: min(46ch, 92vw); }
+  .capa h1 {
+    max-width: 13ch;
+    font-family: var(--sc-font-display);
+    font-weight: 800;
+    font-size: clamp(2.1rem, 6vw, 5.2rem);
+    line-height: .98;
+    letter-spacing: -0.045em;
+    margin: 0;
+    color: var(--sc-ink);
+  }
+  .capa h1 .laranja { color: var(--sc-accent); }
+  .capa__sub {
+    margin-top: clamp(1rem, 2.4vw, 1.6rem);
+    font-size: var(--sc-t-lg);
+    color: var(--sc-ink-soft);
+    max-width: 34ch;
+  }
+
+  /* ── Tipo que sangra ────────────────────────────────────────────────── */
+  /* Sangra até à margem, mas quebra: com `nowrap` o título saía do ecrã e
+     lia-se "Depois muda-s". Sangrar é uma decisão de composição, cortar uma
+     palavra a meio é um defeito. */
+  .sangra {
+    font-family: var(--sc-font-display);
+    font-weight: 800;
+    line-height: .92;
+    letter-spacing: -0.045em;
+    margin: 0;
+    max-width: 14ch;
+    font-size: clamp(2.8rem, 9vw, 8rem);
+  }
+  .sangra--dir { margin-left: calc(var(--sc-gutter) * -1); }
+
+  .pergunta {
+    font-family: var(--sc-font-display);
+    font-weight: 600;
+    font-size: clamp(1.9rem, 5.5vw, 4.5rem);
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+    max-width: 17ch;
+    margin: 0;
+  }
+  .resposta { max-width: 44ch; font-size: var(--sc-t-lg); color: var(--sc-ink-soft); }
+
+  /* ── Capítulo 2, o quente ──────────────────────────────────────────── */
+  .quente { color: var(--sc-accent-ink); }
+  .quente .sc-body, .quente .resposta { color: color-mix(in oklab, var(--sc-accent-ink) 78%, transparent); }
+  .quente .sc-label { color: color-mix(in oklab, var(--sc-accent-ink) 70%, transparent); }
+
+  /* ── Capítulo 3, a prova. Media em coluna com legenda de facto. ─────── */
+  .creme { color: #221c17; }
+  .creme .sc-body { color: #5d5147; }
+  .creme .sc-label { color: #7a6c60; }
+
+  .rail { display: flex; gap: clamp(1.25rem, 3vw, 2.5rem); align-items: center; height: 100%; padding-inline: var(--sc-gutter); }
+  .rail__lead { flex: 0 0 min(30rem, 62vw); }
+  .obra { flex: 0 0 min(30rem, 74vw); }
+  .obra__quadro {
+    border-radius: var(--r);
+    overflow: hidden;
+    background: #ded5c9;
+    box-shadow: 0 24px 50px -28px rgb(34 28 23 / .55);
+  }
+  .obra__quadro img { display: block; width: 100%; height: auto; }
+  .obra__ficha { margin-top: 1rem; display: grid; gap: .15rem; }
+  .obra__n {
+    font-variant-numeric: tabular-nums; font-weight: 600;
+    font-size: var(--sc-t-xs); letter-spacing: var(--sc-track-wide);
+    color: #8a7b6d; text-transform: uppercase;
+  }
+  .obra__nome { font-family: var(--sc-font-display); font-weight: 600; font-size: var(--sc-t-lg); letter-spacing: var(--sc-track-snug); margin: 0; }
+  .obra__facto { font-size: var(--sc-t-sm); color: #6b5e53; margin: 0; }
+
+  /* ── Capítulo 4, o alcance. Grelha assimétrica, nunca três colunas iguais. */
+  .oficio { display: grid; gap: 1px; background: var(--sc-hairline); border-block: 1px solid var(--sc-hairline); }
+  @media (min-width: 800px) { .oficio { grid-template-columns: 1.4fr 1fr 1fr; } }
+  .oficio__cel { background: var(--sc-canvas); padding: clamp(1.5rem, 3vw, 2.75rem); display: grid; align-content: start; gap: .55rem; }
+  .oficio__cel--larga { grid-column: 1 / -1; }
+  @media (min-width: 800px) { .oficio__cel--larga { grid-column: 1 / 2; grid-row: 1 / 3; } }
+  .oficio__t { font-family: var(--sc-font-display); font-weight: 600; font-size: var(--sc-t-lg); letter-spacing: var(--sc-track-snug); margin: 0; }
+  .oficio__d { font-size: var(--sc-t-sm); color: var(--sc-ink-soft); margin: 0; max-width: 34ch; }
+  .oficio__n { font-variant-numeric: tabular-nums; font-weight: 800; font-size: clamp(2.5rem, 6vw, 4.5rem); letter-spacing: -.04em; line-height: 1; color: var(--sc-accent); }
+
+  /* ── Capítulo 5, o convite ─────────────────────────────────────────── */
+  .fecho { display: grid; place-items: center; height: 100%; text-align: center; padding-inline: var(--sc-gutter); }
+  .fecho h2 {
+    font-family: var(--sc-font-display); font-weight: 800;
+    font-size: clamp(2.5rem, 8vw, 7rem); line-height: .95;
+    letter-spacing: -0.045em; margin: 0; max-width: 15ch;
+    color: var(--sc-accent-ink);
+  }
+  .cta {
+    display: inline-flex; align-items: center; gap: .6rem;
+    margin-top: clamp(1.5rem, 4vw, 2.5rem);
+    padding: 1rem 2rem;
+    border-radius: var(--sc-r-pill);
+    background: var(--sc-accent-ink); color: var(--sc-ink);
+    font-family: var(--sc-font-display); font-weight: 600; font-size: var(--sc-t-base);
+    text-decoration: none;
+    transition: transform 200ms var(--sc-ease-out);
+  }
+  .cta:hover { transform: translateY(-2px); }
+  .fecho__mail { display: block; margin-top: 1.25rem; color: var(--sc-accent-ink); opacity: .75; font-size: var(--sc-t-sm); text-decoration: underline; text-underline-offset: 4px; }
+
+  .foot {
+    position: absolute; inset-inline: 0; bottom: 0;
+    padding: clamp(1rem, 3vw, 2rem) var(--sc-gutter);
+    display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    font-size: var(--sc-t-xs); color: color-mix(in oklab, var(--sc-accent-ink) 62%, transparent);
+  }
+
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cruz svg { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<span data-sc-progress></span>
+<div class="sc-grain" aria-hidden="true"></div>
+
+<a class="marca" href="#capa">DevPlus</a>
+
+<!-- A chrome desta gramática: fólio na margem, não barra fixa. -->
+<div class="folio" aria-hidden="true">
+  <span class="folio__n" id="folio-n">00</span>
+  <span class="folio__t" id="folio-t">Capa</span>
+</div>
+
+<!-- O gesto assinatura. A geometria é a de `lib/brand.ts`, nunca gerada. -->
+<div class="cruz" aria-hidden="true">
+  <svg viewBox="0 0 100 100"><path d="M34.5 0H65.5V34.5H100V65.5H65.5V100H34.5V65.5H0V34.5H34.5Z"/></svg>
+</div>
+
+<main>
+
+  <!-- ══ 0 · CAPA — o pico. Title page: tipo no ground, sem media acima da
+       dobra, profundidade feita de planos tipográficos e do "+". ══════════ -->
+  <section id="capa" class="cap" data-sc-act="pin" data-sc-span="3.2" data-cap="0" data-cap-nome="Capa" data-cap-ground="#1a1613">
+    <div class="cap__ground" style="background:#1a1613"></div>
+    <div data-sc-stage>
+      <div class="capa__planos" aria-hidden="true">
+        <div class="capa__eco" data-sc-parallax="-1.2" style="transform:translateY(-14vh)">soma</div>
+        <div class="capa__eco capa__eco--2" data-sc-parallax="-0.55" style="transform:translateY(18vh)">soma</div>
+      </div>
+      <div class="capa">
+        <div class="capa__txt sc-copy" data-sc-cue="0 0.82 0">
+          <h1 data-sc-kinetic="lines">O site é teu. O <span class="laranja">comando</span> também.</h1>
+          <p class="capa__sub">Fazemos-te o site à medida. Depois entregamos-te as chaves, e mudas o que quiseres sem ligar a ninguém.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <svg class="curva" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,120 L0,52 C260,-16 560,104 820,58 C1050,18 1280,4 1440,34 L1440,120 Z" fill="#100e0c"/>
+  </svg>
+
+  <!-- ══ 1 · O RECONHECIMENTO — flow. Uma pergunta lê-se, não se encena. ══ -->
+  <section class="cap sc-section" data-sc-act="flow" data-cap="1" data-cap-nome="O reconhecimento" data-cap-ground="#100e0c">
+    <div class="cap__ground" style="background:#100e0c"></div>
+    <div class="sc-wrap sc-stack" data-sc-in data-sc-stagger="70">
+      <p class="sc-label">Antes de falarmos de nós</p>
+      <p class="pergunta">Já tiveste de ligar a alguém só para mudar um preço no teu site?</p>
+      <p class="resposta">E esperar. E explicar outra vez. E pagar por meia hora de trabalho de quinze segundos. Um site que só o autor consegue mexer não é um bem, é uma assinatura.</p>
+    </div>
+    <figure class="sc-wrap" style="margin-top:clamp(3rem,7vw,6rem)" data-sc-in>
+      <img src="assets/01-dependencia.jpg" alt="Um telefone de disco laranja com o auscultador fora do descanso, sobre fundo escuro." width="1920" height="1080" style="width:100%;height:auto;border-radius:var(--r)" loading="lazy">
+    </figure>
+  </section>
+
+  <svg class="curva" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,120 L0,68 C220,110 420,10 700,26 C980,42 1180,110 1440,70 L1440,120 Z" fill="#F2762B"/>
+  </svg>
+
+  <!-- ══ 2 · A VIRAGEM — reveal. Um wipe é uma mudança de estado. ═════════ -->
+  <section class="cap sc-section quente" data-sc-act="flow" data-cap="2" data-cap-nome="A viragem" data-cap-ground="#F2762B">
+    <div class="cap__ground" style="background:#F2762B"></div>
+    <div class="sc-wrap">
+      <h2 class="sangra" data-sc-reveal="left" data-sc-reveal-at="0.05 0.42" style="line-height:1;padding-block:.06em">Depois muda-se assim.</h2>
+      <div style="display:grid;gap:clamp(2rem,5vw,4rem);margin-top:clamp(2rem,5vw,3.5rem);align-items:start" class="viragem-grid">
+        <p class="resposta" data-sc-in>Abres o painel no telemóvel, escreves o preço novo, e está feito. Sem chamadas, sem orçamento, sem esperar por ninguém. É a diferença entre teres um site e teres acesso a um.</p>
+        <figure data-sc-reveal="up" data-sc-reveal-at="0.18 0.6" style="margin:0">
+          <img src="assets/02-comando.jpg" alt="Um botão físico creme a ser premido, sobre fundo laranja saturado." width="1920" height="1080" style="width:100%;height:auto;border-radius:var(--r);display:block">
+          <figcaption class="sc-label" style="margin-top:.75rem">O comando fica do teu lado</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <svg class="curva" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,120 L0,30 C300,90 620,-10 900,40 C1130,80 1300,96 1440,62 L1440,120 Z" fill="#f4efe7"/>
+  </svg>
+
+  <!-- ══ 3 · A PROVA — pan. Lateral lê-se como alcance. Legendas de facto,
+       nunca argumentário: é o que separa uma coleção de um folheto. ══════ -->
+  <section class="cap creme" data-sc-act="pan" data-sc-span="1.6" data-cap="3" data-cap-nome="A prova" data-cap-ground="#f4efe7">
+    <div class="cap__ground" style="background:#f4efe7"></div>
+    <div data-sc-stage>
+      <div class="rail" data-sc-pan="0.085">
+        <div class="rail__lead">
+          <p class="sc-label">Feito</p>
+          <h2 class="sc-display sc-display--lg" style="letter-spacing:-.04em">Cinco que já mexem no seu.</h2>
+        </div>
+
+        <article class="obra">
+          <div class="obra__quadro" data-sc-tilt="5"><img src="assets/capa-taskuinha.jpg" alt="Página inicial do site da Taskuinha do Pirata." width="1200" height="750" loading="lazy"></div>
+          <div class="obra__ficha">
+            <span class="obra__n">01</span>
+            <h3 class="obra__nome">Taskuinha do Pirata</h3>
+            <p class="obra__facto">Taberna de petiscos. Menu e ecrãs em loop. 2026.</p>
+          </div>
+        </article>
+
+        <article class="obra">
+          <div class="obra__quadro" data-sc-tilt="5"><img src="assets/capa-imperio.jpg" alt="Página inicial do stand Império Auto Concept." width="1200" height="750" loading="lazy"></div>
+          <div class="obra__ficha">
+            <span class="obra__n">02</span>
+            <h3 class="obra__nome">Império Auto Concept</h3>
+            <p class="obra__facto">Stand automóvel. Catálogo e painel de gestão. 2026.</p>
+          </div>
+        </article>
+
+        <article class="obra">
+          <div class="obra__quadro" data-sc-tilt="5"><img src="assets/capa-mira-mar.jpg" alt="Página inicial do Mira Mar." width="1200" height="750" loading="lazy"></div>
+          <div class="obra__ficha">
+            <span class="obra__n">03</span>
+            <h3 class="obra__nome">Mira Mar</h3>
+            <p class="obra__facto">Restaurante. Site e reservas. 2025.</p>
+          </div>
+        </article>
+
+        <article class="obra">
+          <div class="obra__quadro" data-sc-tilt="5"><img src="assets/capa-antonio.jpg" alt="Página inicial da António Home Repair." width="1200" height="750" loading="lazy"></div>
+          <div class="obra__ficha">
+            <span class="obra__n">04</span>
+            <h3 class="obra__nome">António Home Repair</h3>
+            <p class="obra__facto">Serviços ao domicílio. Site e pedidos. 2025.</p>
+          </div>
+        </article>
+
+        <article class="obra">
+          <div class="obra__quadro" data-sc-tilt="5"><img src="assets/capa-jsk.jpg" alt="Página inicial da JSK." width="1200" height="750" loading="lazy"></div>
+          <div class="obra__ficha">
+            <span class="obra__n">05</span>
+            <h3 class="obra__nome">JSK</h3>
+            <p class="obra__facto">Marca e presença digital. 2025.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <svg class="curva" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,120 L0,74 C280,26 520,102 780,72 C1040,42 1260,8 1440,44 L1440,120 Z" fill="#1a1613"/>
+  </svg>
+
+  <!-- ══ 4 · O ALCANCE — flow + count. O capítulo mais quieto, de propósito:
+       é silêncio autorado, não scroll morto. ═══════════════════════════ -->
+  <section class="cap sc-section" data-sc-act="flow" data-cap="4" data-cap-nome="O alcance" data-cap-ground="#1a1613">
+    <div class="cap__ground" style="background:#1a1613"></div>
+    <div class="sc-wrap sc-stack" data-sc-in data-sc-stagger="60" style="margin-bottom:clamp(2rem,5vw,3.5rem)">
+      <h2 class="sc-display sc-display--lg" style="letter-spacing:-.04em;max-width:16ch">O que sabemos fazer, sem drama.</h2>
+    </div>
+    <div class="sc-wrap" style="padding-inline:0">
+      <div class="oficio" data-sc-in data-sc-stagger="60">
+        <div class="oficio__cel oficio__cel--larga">
+          <p class="sc-label">A base</p>
+          <h3 class="oficio__t">Web design e desenvolvimento</h3>
+          <p class="oficio__d">Desenhamos cada ecrã à medida e construímo-lo para abrir num instante, em qualquer telemóvel. Sem temas comprados.</p>
+        </div>
+        <div class="oficio__cel">
+          <h3 class="oficio__t">Painel de gestão</h3>
+          <p class="oficio__d">O comando que te entregamos. Textos, preços, fotos, tudo.</p>
+        </div>
+        <div class="oficio__cel">
+          <h3 class="oficio__t">Menus digitais</h3>
+          <p class="oficio__d">Para quem serve à mesa e muda a carta de semana a semana.</p>
+        </div>
+        <div class="oficio__cel">
+          <h3 class="oficio__t">Ecrãs em loop</h3>
+          <p class="oficio__d">O que passa na montra e na parede, ligado ao mesmo painel.</p>
+        </div>
+        <div class="oficio__cel">
+          <h3 class="oficio__t">Branding e motion</h3>
+          <p class="oficio__d">A marca, e o que ela faz quando se mexe.</p>
+        </div>
+      </div>
+    </div>
+    <figure class="sc-wrap" style="margin-top:clamp(3rem,7vw,5rem)" data-sc-in>
+      <img src="assets/03-modular.jpg" alt="Blocos geométricos creme e laranja dispostos numa grelha, com sombras longas paralelas." width="1920" height="1080" style="width:100%;height:auto;border-radius:var(--r)" loading="lazy">
+    </figure>
+  </section>
+
+  <svg class="curva" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,120 L0,44 C240,96 500,4 760,38 C1010,70 1240,102 1440,58 L1440,120 Z" fill="#F2762B"/>
+  </svg>
+
+  <!-- ══ 5 · O CONVITE — o último elemento da página. O cue segura (um só
+       valor) para o ecrã final não ficar vazio. ═════════════════════════ -->
+  <section id="falar" class="cap quente" data-sc-act="pin" data-sc-span="1.2" data-cap="5" data-cap-nome="O convite" data-cap-ground="#F2762B">
+    <div class="cap__ground" style="background:#F2762B"></div>
+    <div data-sc-stage>
+      <div class="fecho">
+        <div data-sc-cue="0.04">
+          <h2>Conta-nos o que tens em mente.</h2>
+          <a class="cta" href="mailto:support@devplus.pt">Começar a conversa</a>
+          <a class="fecho__mail" href="mailto:support@devplus.pt">support@devplus.pt</a>
+        </div>
+      </div>
+      <footer class="foot">
+        <span>DevPlus · devplus.pt</span>
+        <span>Estúdio de web design e desenvolvimento</span>
+      </footer>
+    </div>
+  </section>
+
+</main>
+
+<script src="scrollcraft.js"></script>
+<script>
+  ScrollCraft.mount(document.body);
+
+  /* ══ O gesto assinatura ═══════════════════════════════════════════════
+     O "+" atravessa a página. Não é um device do kit nem um parâmetro de um:
+     é uma camada própria, conduzida pelo scroll do documento inteiro, com um
+     percurso escrito à mão por capítulo. Ler o scroll da página em vez do
+     `--sc-p` de um act é o ponto todo — é isso que o deixa sobreviver aos
+     cortes em vez de morrer com o capítulo onde nasceu.
+
+     O engine não é tocado. */
+  (() => {
+    const cruz = document.querySelector('.cruz');
+    const svg  = cruz.querySelector('svg');
+    const caps = [...document.querySelectorAll('[data-cap]')];
+    const folioN = document.getElementById('folio-n');
+    const folioT = document.getElementById('folio-t');
+    const reduz = matchMedia('(prefers-reduced-motion: reduce)');
+
+    /* Os postos do "+", em fração do scroll total. Escala em múltiplos do
+       tamanho base, deslocação em vh/vw, rotação em graus. */
+    const POSTOS = [
+      { p: 0.00, s: 2.7, x:  30, y: -10, r:   0, c: '#F2762B' },
+      { p: 0.11, s: 2.1, x:  33, y:   6, r:  18, c: '#F2762B' },
+      { p: 0.24, s: 0.6, x: -36, y:  16, r:  45, c: '#F2762B' },
+      { p: 0.40, s: 0.8, x:  34, y: -18, r:   0, c: '#1a1613' },
+      { p: 0.58, s: 0.45, x: -40, y: -24, r:  45, c: '#8a7b6d' },
+      { p: 0.78, s: 0.9, x:  34, y:  20, r:  12, c: '#F2762B' },
+      /* Fora do centro de propósito: aqui vive o CTA, e o gesto não pode
+         custar o botão. */
+      { p: 1.00, s: 1.3, x:  36, y:  22, r:   0, c: '#1a1613' },
+    ];
+
+    const lerp = (a, b, t) => a + (b - a) * t;
+    /* Suaviza a passagem entre postos. Sem isto o "+" muda de direção em
+       bicos e lê-se como um salto, não como uma viagem. */
+    const suave = t => t * t * (3 - 2 * t);
+
+    let alvo = 0, atual = 0, ticking = false;
+
+    function posto(p) {
+      let i = 0;
+      while (i < POSTOS.length - 2 && p > POSTOS[i + 1].p) i++;
+      const a = POSTOS[i], b = POSTOS[i + 1];
+      const t = suave(Math.max(0, Math.min(1, (p - a.p) / (b.p - a.p))));
+      return {
+        s: lerp(a.s, b.s, t),
+        x: lerp(a.x, b.x, t),
+        y: lerp(a.y, b.y, t),
+        r: lerp(a.r, b.r, t),
+        c: t < 0.5 ? a.c : b.c,
+      };
+    }
+
+    function pintar() {
+      ticking = false;
+      const v = posto(atual);
+      svg.style.setProperty('--cs', v.s.toFixed(3));
+      svg.style.setProperty('--cx', v.x.toFixed(2) + 'vw');
+      svg.style.setProperty('--cy', v.y.toFixed(2) + 'vh');
+      svg.style.setProperty('--cr', v.r.toFixed(2) + 'deg');
+      svg.style.setProperty('--cfill', v.c);
+
+      /* O fólio segue o capítulo que ocupa o meio do ecrã. */
+      const meio = innerHeight / 2;
+      let dentro = caps[0];
+      for (const c of caps) {
+        const r = c.getBoundingClientRect();
+        if (r.top <= meio && r.bottom >= meio) { dentro = c; break; }
+      }
+      const n = dentro.dataset.cap.padStart(2, '0');
+      if (folioN.textContent !== n) {
+        folioN.textContent = n;
+        folioT.textContent = dentro.dataset.capNome;
+      }
+    }
+
+    function medir() {
+      const max = document.documentElement.scrollHeight - innerHeight;
+      alvo = max > 0 ? Math.max(0, Math.min(1, scrollY / max)) : 0;
+      if (!ticking) { ticking = true; requestAnimationFrame(passo); }
+    }
+
+    /* Um `lerp` por frame em vez de escrever o scroll direto: os eventos de
+       roda não chegam a ritmo constante, e uma escrita 1:1 reproduz cada
+       buraco entre eles como um solavanco num objeto deste tamanho. */
+    function passo() {
+      atual += (alvo - atual) * (reduz.matches ? 1 : 0.12);
+      pintar();
+      if (Math.abs(alvo - atual) > 0.0002 && !reduz.matches) {
+        requestAnimationFrame(passo);
+      } else {
+        atual = alvo;
+        pintar();
+        ticking = false;
+      }
+    }
+
+    addEventListener('scroll', medir, { passive: true });
+    addEventListener('resize', medir);
+    medir();
+    pintar();
+  })();
+</script>
+</body>
+</html>
