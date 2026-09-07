@@ -1,8 +1,8 @@
 "use client";
 /** docs: docs/04-componentes-e-padroes.md */
 
-import { ReactLenis, type LenisRef } from "lenis/react";
-import { useEffect, useRef } from "react";
+import { ReactLenis, useLenis } from "lenis/react";
+import { useEffect } from "react";
 import { gsap, ScrollTrigger } from "@/lib/motion";
 
 /**
@@ -21,11 +21,25 @@ import { gsap, ScrollTrigger } from "@/lib/motion";
  * é bom numa animação isolada e é mau num scroll, onde a posição tem de
  * corresponder ao que o dedo fez.
  */
-export default function Providers({ children }: { children: React.ReactNode }) {
-  const lenisRef = useRef<LenisRef>(null);
+/**
+ * A ligação em si, num componente **dentro** do `ReactLenis`.
+ *
+ * Não é arrumação: é a única forma de a apanhar. O `ReactLenis` cria a
+ * instância no seu próprio `useEffect` e guarda-a em **estado**, e o
+ * `useImperativeHandle` que preenche a `ref` depende desse estado — ou seja, a
+ * `ref` só passa a ter `.lenis` num render posterior. Um `useEffect` no pai com
+ * `[]` corre antes disso e lê `undefined`, desiste, e nunca mais tenta.
+ *
+ * O preço disso não é o tremor que a ligação evita: com `autoRaf: false`,
+ * **ninguém chega a chamar o `raf` do Lenis**. Ele continua a apanhar a roda do
+ * rato e a travar o scroll nativo, mas nunca aplica o seu — a página fica presa
+ * no sítio, e só as teclas (que o browser trata sozinho) é que a mexem. O
+ * `useLenis` lê a instância do contexto e volta a correr quando ela existe.
+ */
+function LigarAoTicker() {
+  const lenis = useLenis();
 
   useEffect(() => {
-    const lenis = lenisRef.current?.lenis;
     if (!lenis) return;
 
     lenis.on("scroll", ScrollTrigger.update);
@@ -39,7 +53,12 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       gsap.ticker.remove(tick);
       gsap.ticker.lagSmoothing(500, 33);
     };
-  }, []);
+  }, [lenis]);
+
+  return null;
+}
+
+export default function Providers({ children }: { children: React.ReactNode }) {
 
   /*
     As posições de arranque do ScrollTrigger são medidas antes de as imagens
@@ -63,7 +82,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <ReactLenis root ref={lenisRef} options={{ autoRaf: false }}>
+    <ReactLenis root options={{ autoRaf: false }}>
+      <LigarAoTicker />
       {children}
     </ReactLenis>
   );

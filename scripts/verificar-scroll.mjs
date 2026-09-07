@@ -6,6 +6,13 @@
  * não tem um estado só: cada posição de scroll é um frame diferente, e as
  * avarias vivem entre os dois que se olhou.
  *
+ * Antes de tudo verifica a coisa mais básica de todas: se a **roda do rato**
+ * mexe a página. Parece absurdo ter de o testar, e não é — o Lenis corre com
+ * `autoRaf: false` e é o ticker do GSAP que o alimenta; quando essa ligação se
+ * partiu, ele continuou a travar o scroll nativo sem aplicar o seu, e a página
+ * ficou imóvel à roda. Todo o resto deste script usa `window.scrollTo`, que é
+ * nativo e passa ao lado do problema.
+ *
  * O que verifica, por posição:
  *   · imagens que não carregaram
  *   · elementos que ficaram presos invisíveis (uma animação que não completou)
@@ -54,6 +61,13 @@ page.on("pageerror", (e) => erros.push(String(e)));
 
 await page.goto(url, { waitUntil: "networkidle" });
 await page.waitForTimeout(1200);
+
+await page.mouse.move(200, 300);
+await page.mouse.wheel(0, 600);
+await page.waitForTimeout(700);
+const rodaAndou = await page.evaluate(() => window.scrollY);
+await page.evaluate(() => window.scrollTo(0, 0));
+await page.waitForTimeout(500);
 
 mkdirSync(destino, { recursive: true });
 const linhas = [];
@@ -126,6 +140,7 @@ const comPresos = linhas.filter((l) => l.presos.length);
 const comOverflow = linhas.filter((l) => l.overflow);
 
 console.log(`\n${destino}  (${movel ? "390px" : "1440px"}${reduzido ? ", movimento reduzido" : ""})`);
+console.log(`  roda do rato ........ ${rodaAndou > 0 ? `mexe (${rodaAndou}px)` : "NÃO MEXE A PÁGINA"}`);
 console.log(`  imagens falhadas .... ${comFalha.length ? comFalha.map((l) => l.i).join(", ") : "nenhuma"}`);
 console.log(`  presos invisíveis ... ${comPresos.length ? comPresos.map((l) => `${l.i}:${l.presos[0]}`).join(" | ") : "nenhum"}`);
 console.log(`  overflow horizontal . ${comOverflow.length ? comOverflow.map((l) => `${l.i} (${l.largura}px)`).join(", ") : "nenhum"}`);
@@ -149,7 +164,8 @@ process.exit(
     comOverflow.length ||
     erros.length ||
     gestoPreso ||
-    nuncaChegaram.length
+    nuncaChegaram.length ||
+    !rodaAndou
     ? 1
     : 0,
 );

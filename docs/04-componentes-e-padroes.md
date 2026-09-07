@@ -55,7 +55,7 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `Testimonials`    | o que os clientes dizem, na homepage a seguir aos serviços                 | inventar a frase de um cliente para encher a secção — ver abaixo                           |
 | `Wordmark`        | o logótipo com link para "/"                                               | ver `docs/03`                                                                              |
 | `Lockup` / `Logo` | o logótipo "D+" e o "+" isolado                                            | desenhar o logótipo à mão em SVG — ver `docs/03`                                           |
-| `Providers`       | Lenis, e a ligação dele ao ScrollTrigger                                   | acrescentar providers sem necessidade; separar os relógios do Lenis e do GSAP              |
+| `Providers`       | Lenis, e a ligação dele ao ScrollTrigger                                   | acrescentar providers sem necessidade; separar os relógios do Lenis e do GSAP; ir buscar a instância por `ref` em vez do `useLenis` |
 
 Secções encadeadas levam **`top={false}`** na segunda em diante, para o
 espaçamento não duplicar. É o padrão em toda a homepage. Há também
@@ -296,6 +296,17 @@ Cinco coisas que partiram o site e a razão de cada uma. Não as desfaças:
   ScrollTrigger lê a posição de um frame que o Lenis ainda não escreveu, e as
   entradas disparam um frame atrasadas — vê-se como tremor durante um scroll
   rápido.
+- **Essa ligação faz-se com o `useLenis`, de dentro do `ReactLenis`, e nunca
+  por uma `ref` do componente que o renderiza.** O `ReactLenis` cria a instância
+  no seu `useEffect` e guarda-a em estado; a `ref` só passa a ter `.lenis` num
+  render posterior, portanto um `useEffect` com `[]` no pai lê `undefined`,
+  desiste, e nunca mais tenta. **E com `autoRaf: false` o preço não é o tremor:
+  é ninguém chamar o `raf`.** O Lenis continua a apanhar a roda do rato e a
+  travar o scroll nativo sem aplicar o seu — a página fica imóvel à roda, e só
+  as teclas, que o browser trata sozinho, é que a mexem. Foi assim que o site
+  esteve, e nenhuma verificação dava por isso porque o
+  `scripts/verificar-scroll.mjs` rolava com `window.scrollTo`. Hoje a primeira
+  coisa que ele faz é dar uma volta à roda e confirmar que a página anda.
 
 E uma regra nova em `app/globals.css`, que faz par com a que já lá estava:
 
@@ -474,6 +485,7 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | a ordem ou a forma das secções    | `app/page.tsx` **e** a tabela em "A homepage conta uma história" — uma forma repetida é o defeito que ela existe para travar |
 | as ilustrações da homepage        | volta a correr `python3 scripts/otimizar-ilustra.py <ficheiro>`; PNG por otimizar não entram em `public/` |
 | qualquer coisa com scroll         | corre `node scripts/verificar-scroll.mjs` nas três passagens (normal, `--mobile`, `--reduzido`)          |
+| a ligação do Lenis ao GSAP        | rola com a **roda do rato** antes de dar por bom — o `window.scrollTo` é nativo e passa ao lado da avaria |
 | acrescentares uma secção pinada   | nada no `Cruz`: o `end: "max"` acompanha sozinho. Confirma na mesma que o verificador diz "anda até ao fim" |
 | os grounds de um capítulo         | o `de` **e** o `cor` da `Curva` que lhe fica ao lado, em `app/page.tsx` — são dois, e o errado é sempre o que se esquece |
 | um elemento que só chega a meio do scroll | marca-o `data-scroll-item`, não `data-reveal-item` — ver "Chegar não é o mesmo que aparecer" |
