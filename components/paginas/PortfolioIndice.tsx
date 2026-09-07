@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { projects } from "@/lib/projects";
 
 /**
@@ -19,11 +19,30 @@ import { projects } from "@/lib/projects";
  * primeiro visível: com "o primeiro visível", a capa trocava assim que uma
  * linha espreitasse por baixo e o que se via deixava de ser o que se estava a
  * ler. O rato manda por cima do scroll — quem aponta um nome quer ver aquele.
+ *
+ * **Quem troca a capa escreve no DOM, não no React.** É a mesma razão do
+ * `ServicosAcordeao`: um `setState` por frame de scroll re-renderiza doze
+ * elementos enquanto o ScrollTrigger do `Cruz` corre nesta página, e o React
+ * não tem nada a ganhar em saber qual é a capa visível. Aqui é um `data-ativo`,
+ * e o resto é CSS.
  */
 export function PortfolioIndice() {
   const ref = useRef<HTMLDivElement>(null);
-  const [ativo, setAtivo] = useState(0);
   const agendado = useRef(false);
+  const ativo = useRef(0);
+
+  const marcar = useCallback((i: number) => {
+    if (i === ativo.current) return;
+    ativo.current = i;
+    const raiz = ref.current;
+    if (!raiz) return;
+    raiz
+      .querySelectorAll<HTMLElement>("[data-obra],[data-capa]")
+      .forEach((el) => {
+        const seu = Number(el.dataset.i);
+        el.dataset.ativo = seu === i ? "true" : "false";
+      });
+  }, []);
 
   const escolher = useCallback(() => {
     agendado.current = false;
@@ -40,8 +59,8 @@ export function PortfolioIndice() {
         melhor = i;
       }
     });
-    setAtivo((antes) => (antes === melhor ? antes : melhor));
-  }, []);
+    marcar(melhor);
+  }, [marcar]);
 
   useEffect(() => {
     /* Um cálculo por frame de scroll sobre seis elementos é mais barato — e
@@ -70,15 +89,13 @@ export function PortfolioIndice() {
           <li
             key={p.slug}
             data-obra
-            onMouseEnter={() => setAtivo(i)}
-            className="border-t border-border pt-4 sm:pt-6"
+            data-i={i}
+            data-ativo={i === 0 ? "true" : "false"}
+            onMouseEnter={() => marcar(i)}
+            className="group/obra border-t border-border pt-4 sm:pt-6"
           >
             <Link href={`/portfolio/${p.slug}`} className="group grid gap-1.5">
-              <h2
-                className={`m-0 font-display text-[clamp(1.9rem,5vw,4rem)] font-extrabold leading-[0.95] tracking-[-0.045em] transition-colors duration-300 ${
-                  i === ativo ? "text-ink" : "text-ink/40 group-hover:text-ink"
-                }`}
-              >
+              <h2 className="m-0 font-display text-[clamp(1.9rem,5vw,4rem)] font-extrabold leading-[0.95] tracking-[-0.045em] text-ink/40 transition-colors duration-300 group-hover:text-ink group-data-[ativo=true]/obra:text-ink">
                 {p.name}
               </h2>
               <p className="flex flex-wrap items-center gap-2 text-sm text-muted">
@@ -107,7 +124,10 @@ export function PortfolioIndice() {
         {projects.map((p, i) => (
           <div
             key={p.slug}
-            className={`absolute inset-0 transition-opacity duration-[420ms] ${i === ativo ? "opacity-100" : "opacity-0"}`}
+            data-capa
+            data-i={i}
+            data-ativo={i === 0 ? "true" : "false"}
+            className="absolute inset-0 opacity-0 transition-opacity duration-[420ms] data-[ativo=true]:opacity-100"
           >
             {p.image ? (
               <Image

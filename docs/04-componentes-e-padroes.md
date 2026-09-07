@@ -243,6 +243,16 @@ uma medição a 120 fps sobre um site de referência, registada em
 - **A curva é mais suave do que a anterior.** A `[0.22, 1, 0.36, 1]` ia em 96% do
   percurso a meio do tempo; a `power2.out` vai em 84%. A antiga dispara e trava.
 - `Reveal` dispara uma vez (`once: true`) — nada re-anima ao subir.
+- **Nada de `setState` a partir de um callback do GSAP.** Vale para o
+  `onComplete` de uma animação e vale para o `onUpdate` de um ScrollTrigger. O
+  `setState` re-renderiza durante o tick do próprio GSAP; se o render mexer no
+  layout — e mexe, é para isso que serve — o ScrollTrigger recalcula-se a meio
+  do seu update. Custou duas vezes: um separador pendurado no `Reveal`, e um
+  `Cannot read properties of undefined (reading 'end')` no `ServicosAcordeao`,
+  onde a coluna aberta mudava de largura a cada frame de scroll. **O estado de
+  quem é conduzido pelo scroll vive num atributo** (`data-aberta`,
+  `data-ativo`), escrito no DOM, com o CSS a tratar do resto — como o `Cruz`
+  faz com as suas variáveis. O React não precisa de saber.
 - **Movimento reduzido deixou de vir de borla.** O `MotionConfig` desarmava as
   animações sozinho; o GSAP não desarma nada. Cada componente que anima **tem de
   verificar** `prefers-reduced-motion` e mostrar o conteúdo sem o animar. A regra
