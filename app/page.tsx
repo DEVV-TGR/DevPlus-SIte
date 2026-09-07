@@ -39,13 +39,13 @@ export default function Home() {
       <Cruz />
 
       <HeroHome />
-      <Curva forma="a" cor="var(--bg-deep)" />
+      <Curva forma="a" de="var(--bg)" cor="var(--bg-deep)" />
 
       <ComoTrabalhamos />
-      <Curva forma="b" cor="var(--paper)" />
+      <Curva forma="b" de="var(--bg-deep)" cor="var(--paper)" />
 
       <ProvaCarrossel />
-      <Curva forma="c" cor="var(--bg)" />
+      <Curva forma="c" de="var(--paper)" cor="var(--bg)" />
 
       <ServicosMostra />
       <Pacotes />
@@ -53,7 +53,7 @@ export default function Home() {
       {/* Não renderiza nada enquanto não houver frases reais — ver docs/04. */}
       <Testimonials />
 
-      <Curva forma="a" cor="var(--primary)" />
+      <Curva forma="a" de="var(--bg)" cor="var(--primary)" />
       <Fecho />
     </>
   );

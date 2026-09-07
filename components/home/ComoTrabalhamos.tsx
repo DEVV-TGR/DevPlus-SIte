@@ -23,8 +23,8 @@ const PASSOS = [
     d: "Sentamo-nos contigo a perceber o negócio, quem são os teus clientes e o que queres ganhar com isto. Sem isso, o resto é decoração.",
     img: "/ilustra/t1-conversa.webp",
     alt: "Duas pessoas frente a frente com balões de fala e um caderno.",
-    pose: "-translate-x-[58%] -translate-y-[12%] -rotate-6",
-    poseSm: "max-md:-translate-x-[30%] max-md:-translate-y-[30%] max-md:-rotate-[5deg]",
+    pose: "translate-x-[-31vw] translate-y-[8svh] -rotate-[5deg]",
+    poseSm: "max-md:translate-x-[-13vw] max-md:translate-y-[0svh] max-md:-rotate-[5deg]",
   },
   {
     n: "02",
@@ -32,8 +32,8 @@ const PASSOS = [
     d: "Mostramos-te o site desenhado antes de ele existir. Vês, dizes o que mudarias, e só depois se escreve código.",
     img: "/ilustra/t2-design.webp",
     alt: "Uma pessoa a desenhar um layout numa prancha, com régua e esquadro.",
-    pose: "-translate-x-[20%] translate-y-[10%] rotate-3",
-    poseSm: "max-md:translate-x-[26%] max-md:-translate-y-[12%] max-md:rotate-[4deg]",
+    pose: "translate-x-[-10.5vw] translate-y-[13svh] rotate-[4deg]",
+    poseSm: "max-md:translate-x-[13vw] max-md:translate-y-[6svh] max-md:rotate-[4deg]",
   },
   {
     n: "03",
@@ -41,8 +41,8 @@ const PASSOS = [
     d: "Abre depressa, funciona bem no telemóvel e aparece nas pesquisas. Não são extras que se pedem, é como fazemos.",
     img: "/ilustra/t3-construcao.webp",
     alt: "Blocos geométricos empilhados a formar uma janela de browser.",
-    pose: "translate-x-[18%] -translate-y-[14%] -rotate-2",
-    poseSm: "max-md:-translate-x-[24%] max-md:translate-y-[16%] max-md:-rotate-[3deg]",
+    pose: "translate-x-[10.5vw] translate-y-[8svh] -rotate-[3deg]",
+    poseSm: "max-md:translate-x-[-13vw] max-md:translate-y-[14svh] max-md:-rotate-[3deg]",
   },
   {
     n: "04",
@@ -50,8 +50,8 @@ const PASSOS = [
     d: "Pomos o site online, acompanhamos os primeiros dias e afinamos o que for preciso. E ficamos cá para o que vier a seguir.",
     img: "/ilustra/t4-no-ar.webp",
     alt: "Uma janela de browser a subir com um foguete e linhas de velocidade.",
-    pose: "translate-x-[54%] translate-y-[8%] rotate-[5deg]",
-    poseSm: "max-md:translate-x-[28%] max-md:translate-y-[34%] max-md:rotate-[5deg]",
+    pose: "translate-x-[31vw] translate-y-[13svh] rotate-[5deg]",
+    poseSm: "max-md:translate-x-[13vw] max-md:translate-y-[22svh] max-md:rotate-[5deg]",
   },
 ];
 
@@ -106,10 +106,14 @@ export function ComoTrabalhamos() {
         data-palco
         className="relative grid min-h-[100svh] place-items-center overflow-hidden px-6"
       >
-        <div className="max-w-[46rem] text-center">
+        {/* O título tem lugar próprio no terço de cima, e os cards chegam por
+            baixo dele. Estavam todos centrados no mesmo ponto: acumulavam-se
+            uns por cima dos outros e tapavam o título por inteiro — o que fica
+            é uma pilha de caixas sem se perceber a que capítulo pertencem. */}
+        <div className="absolute inset-x-0 top-[10svh] mx-auto max-w-[46rem] px-6 text-center">
           <h2
             id="como-trabalhamos"
-            className="font-display text-[clamp(2.4rem,8vw,7rem)] font-extrabold leading-[0.92] tracking-[-0.045em]"
+            className="font-display text-[clamp(2.2rem,5.6vw,4.6rem)] font-extrabold leading-[0.95] tracking-[-0.045em]"
           >
             Como trabalhamos.
           </h2>
@@ -123,8 +127,13 @@ export function ComoTrabalhamos() {
           <article
             key={p.n}
             data-passo
-            data-reveal-item
-            className={`absolute grid w-[min(22rem,76vw)] gap-2 rounded-2xl border border-border bg-surface p-6 shadow-[0_30px_60px_-30px_rgb(0_0_0/0.7)] ${p.pose} ${p.poseSm}`}
+            /* `data-scroll-item` e não `data-reveal-item`: estes cards não
+               entram de uma vez quando a secção aparece — chegam ao longo do
+               percurso, e enquanto a secção se aproxima é suposto estarem
+               invisíveis. O verificador trata os dois casos de maneira
+               diferente; ver `scripts/verificar-scroll.mjs`. */
+            data-scroll-item
+            className={`absolute grid w-[min(20rem,74vw)] gap-2 rounded-2xl border border-border bg-surface p-5 shadow-[0_30px_60px_-30px_rgb(0_0_0/0.7)] ${p.pose} ${p.poseSm}`}
           >
             <span className="justify-self-start rounded-full bg-primary px-3 py-0.5 text-xs font-semibold uppercase tracking-[0.18em] text-primary-ink">
               Processo
@@ -136,14 +145,21 @@ export function ComoTrabalhamos() {
               {p.t}
             </h3>
             <p className="text-sm text-muted">{p.d}</p>
-            <div className="mt-2 grid h-34 place-items-center rounded-xl bg-ink/5">
+            {/* A figura é posicionada contra esta caixa, e não dimensionada em
+                percentagem dentro dela: com `h-[90%]` numa linha de grelha
+                automática a altura realimentava-se — a linha crescia para caber
+                a imagem, a imagem crescia para 90% da linha, e a figura acabava
+                ao dobro da caixa, a sair pelas bordas do card. O `overflow`
+                fechado é o cinto; o `object-contain` garante que assenta lá
+                dentro inteira. */}
+            <div className="relative mt-1 h-32 overflow-hidden rounded-xl bg-ink/5 max-md:h-24">
               <Image
                 src={p.img}
                 alt={p.alt}
                 width={760}
                 height={760}
                 loading="lazy"
-                className="h-[90%] w-auto object-contain"
+                className="absolute inset-0 h-full w-full object-contain p-1"
               />
             </div>
           </article>

@@ -64,3 +64,6 @@ scrollcraft/builds/*/out/
 scrollcraft/builds/*/lab/
 scrollcraft/builds/*/node_modules/
 scrollcraft/builds/*/package*.json
+
+# capturas do verificador de scroll (scripts/verificar-scroll.mjs)
+/lab/

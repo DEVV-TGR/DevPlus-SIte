@@ -79,12 +79,26 @@ export function Cruz() {
 
       /* Um objeto deste tamanho a seguir o scroll 1:1 mostra cada buraco entre
          eventos de roda como um solavanco. O `scrub` do ScrollTrigger faz a
-         interpolação por nós, e no mesmo relógio do resto da página. */
+         interpolação por nós, e no mesmo relógio do resto da página.
+
+         O percurso mede-se de zero a **`"max"`**, e não do topo ao fundo do
+         `document.body`. Com `trigger: document.body` e `end: "bottom bottom"`
+         o fim ficava preso à altura do corpo medida com os pins revertidos —
+         o `_refreshAll` do ScrollTrigger reverte-os para medir — portanto sem
+         os ~6000 px que as secções pinadas (`ComoTrabalhamos`,
+         `ProvaCarrossel`, `ServicosMostra`) acrescentam. O gesto chegava ao
+         último posto a meio da página e ficava lá parado o resto do caminho.
+
+         O `"max"` é a única forma que o GSAP corrige **depois** de todos os
+         triggers refrescarem: no fim do `_refreshAll` há um segundo passe que
+         reposiciona quem tem `end: "max"` pelo scroll máximo já com os
+         espaçadores dos pins no sítio. Um número, uma função ou um
+         `"bottom bottom"` não entram nesse passe. */
       const st = ScrollTrigger.create({
-        trigger: document.body,
-        start: "top top",
-        end: "bottom bottom",
+        start: 0,
+        end: "max",
         scrub: 0.6,
+        invalidateOnRefresh: true,
         onUpdate: (self) => pintar(self.progress),
       });
       pintar(0);
@@ -97,6 +111,9 @@ export function Cruz() {
     <div
       ref={ref}
       aria-hidden
+      /* O `scripts/verificar-scroll.mjs` procura-o por aqui, para confirmar que
+         o gesto anda até ao fim da página. */
+      data-cruz
       className="pointer-events-none fixed inset-0 z-0 grid place-items-center"
     >
       <Logo className="h-[22vmin] w-[22vmin] overflow-visible [transform-origin:50%_50%] [transform:translate3d(var(--cx,0),var(--cy,0),0)_rotate(var(--cr,0deg))_scale(var(--cs,1))] [&_path]:fill-[var(--cfill,var(--primary))] [&_path]:transition-[fill] [&_path]:duration-500" />

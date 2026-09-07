@@ -45,7 +45,7 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `PageHero`        | cabeçalho das páginas internas (eyebrow + h1 + intro)                      | escrever um h1 solto numa página interna                                                   |
 | `home/HeroHome`   | a capa da página inicial                                                   | reutilizar noutro sítio; e pôr o título em dois elementos — ver abaixo                    |
 | `home/Cruz`       | o "+" que atravessa a página inicial                                       | usá-lo noutra página; o gesto é da homepage e perde sentido repetido                       |
-| `home/Curva`      | o corte entre dois capítulos                                               | pôr uma linha reta no lugar dela                                                           |
+| `home/Curva`      | o corte entre dois capítulos                                               | pôr uma linha reta no lugar dela; e usá-la sem `de`, que deixa passar o fundo do `body`     |
 | `home/ComoTrabalhamos` | os quatro passos, em cards que se acumulam                            | transformá-los numa grelha — a acumulação é o ponto                                        |
 | `home/ProvaCarrossel`  | o trabalho feito, em fila horizontal com a página presa                | usá-lo para hierarquia; lateral lê-se como alcance, não como ordem                          |
 | `home/ServicosMostra`  | os serviços um de cada vez                                            | catalogar aqui os seis — a página inicial apresenta, a `/servicos` cataloga                |
@@ -96,6 +96,59 @@ forma nova ou não entra.
 
 Os grounds mudam por capítulo com cortes duros, separados por `Curva` — ver os
 tokens em `docs/02`. O `Cruz` é a única coisa que atravessa todos.
+
+### O percurso do "+" mede-se de zero a `"max"`
+
+O `Cruz` é conduzido pelo scroll da **página inteira**, e é isso que o deixa
+sobreviver aos cortes entre capítulos. O ScrollTrigger dele leva `start: 0` e
+**`end: "max"`** — e nenhuma das duas alternativas óbvias serve:
+
+- `trigger: document.body` com `end: "bottom bottom"` mede o corpo do documento
+  no momento em que o `_refreshAll` do ScrollTrigger tem os pins **revertidos**,
+  portanto sem os ~6000 px que a `ComoTrabalhamos`, a `ProvaCarrossel` e a
+  `ServicosMostra` acrescentam. Foi assim que o "+" chegou a atingir o último
+  posto aos 50% da página e a ficar lá parado o resto do caminho;
+- um número, ou uma função que devolva o `maxScroll`, é avaliado uma vez por
+  refresh e sofre do mesmo problema.
+
+O `"max"` é o único valor que o GSAP volta a corrigir num **segundo passe**, no
+fim do `_refreshAll`, já com os espaçadores dos pins no sítio. Se acrescentares
+uma secção pinada à página, o gesto acompanha sozinho.
+
+### A fronteira entre capítulos tem três camadas
+
+A `Curva` não é só a forma sólida. São quatro coisas, de baixo para cima: o
+ground do capítulo que fica para trás (a prop **`de`**), a forma sólida com a
+cor do que chega (`cor`), três **linhas de nível** que sobem para dentro do
+capítulo anterior a esbater-se, e uma **costura** de pontos cinco unidades acima
+da aresta.
+
+- **O `de` não é opcional por preguiça.** Sem ele a metade de cima do SVG é
+  transparente e deixa passar o fundo do `body`: no par claro→escuro da
+  `ProvaCarrossel` para os serviços isso punha um corte a régua por cima da
+  curva, que é exatamente o que ela existe para não ser.
+- **A costura corre acima da aresta, não em cima dela.** Na última passagem o
+  capítulo que chega é o próprio laranja, e uma costura laranja sobre laranja
+  não existe.
+- **O SVG fica em `z-0`.** Chega para tapar o `Cruz`, que está no mesmo plano e
+  vem antes no DOM. Com um `z` acima de 1 a curva passa a ser a única superfície
+  da página por cima do `.grain-overlay` — e vê-se: uma faixa lisa com uma
+  aresta reta a atravessá-la de lado a lado.
+
+### Chegar não é o mesmo que aparecer
+
+Dois atributos, e o `scripts/verificar-scroll.mjs` trata-os de maneira
+diferente:
+
+| Atributo             | O que promete                                    | Como se verifica                                   |
+| -------------------- | ------------------------------------------------ | -------------------------------------------------- |
+| `data-reveal-item`   | entra de uma vez quando a secção aparece         | invisível dentro do ecrã, em qualquer posição, é avaria |
+| `data-scroll-item`   | chega ao longo do percurso e fica                | tem de estar visível em **alguma** posição          |
+
+Os cards da `ComoTrabalhamos` são do segundo tipo: enquanto a secção se
+aproxima, é suposto ainda não terem chegado. Marcá-los como revelação enche o
+verificador de avarias que não existem — e um verificador que ladra por tudo
+deixa de se ler.
 
 ### O que saiu, e continua no repositório
 
@@ -421,6 +474,9 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | a ordem ou a forma das secções    | `app/page.tsx` **e** a tabela em "A homepage conta uma história" — uma forma repetida é o defeito que ela existe para travar |
 | as ilustrações da homepage        | volta a correr `python3 scripts/otimizar-ilustra.py <ficheiro>`; PNG por otimizar não entram em `public/` |
 | qualquer coisa com scroll         | corre `node scripts/verificar-scroll.mjs` nas três passagens (normal, `--mobile`, `--reduzido`)          |
+| acrescentares uma secção pinada   | nada no `Cruz`: o `end: "max"` acompanha sozinho. Confirma na mesma que o verificador diz "anda até ao fim" |
+| os grounds de um capítulo         | o `de` **e** o `cor` da `Curva` que lhe fica ao lado, em `app/page.tsx` — são dois, e o errado é sempre o que se esquece |
+| um elemento que só chega a meio do scroll | marca-o `data-scroll-item`, não `data-reveal-item` — ver "Chegar não é o mesmo que aparecer" |
 | recolheres um testemunho          | `lib/testimonials.ts`; a secção aparece sozinha assim que o array deixar de estar vazio                  |
 | a duração ou o easing             | **`lib/motion.ts`** e a tabela de valores acima — os componentes leem de lá, não têm números próprios      |
 | introduzires um componente que anima | verifica `prefers-reduced-motion` dentro dele: o GSAP não o faz por ti                                   |
