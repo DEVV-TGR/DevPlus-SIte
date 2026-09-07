@@ -43,6 +43,13 @@ body { background: #1a1613; }
 .cap { position: relative; }
 .cap__ground { position: absolute; inset: 0; z-index: -1; }
 .cap > *:not(.cap__ground) { position: relative; z-index: 1; }
+/* **Menos o palco.** O engine pina com `position: sticky`, e a regra de cima
+   trocava-lho por `relative` — o que desarmava os cinco pins da página de uma
+   vez. O próprio scrollcraft dizia-o na consola ("act ... will not pin: its
+   stage computes position:relative, not sticky"), e ninguém estava a ouvir:
+   sem pin, uma secção de `span 3.4` é só uma secção com 3,4 ecrãs de altura e
+   o conteúdo passa por ela em vez de ficar. */
+.cap > [data-sc-stage] { position: sticky; z-index: 1; }
 .curva { position: relative; z-index: 3; display: block; width: 100%; height: clamp(60px, 9vw, 150px); margin-bottom: -1px; }
 
 /* Botões: um raio só em toda a página. */

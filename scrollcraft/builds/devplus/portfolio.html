@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DevPlus &middot; Portfólio</title>
+<meta name="description" content="Os sites que fizemos: restaurantes, stands, serviços ao domicílio e uma plataforma multi-serviço.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231a1613'/><path d='M34.5 0H65.5V34.5H100V65.5H65.5V100H34.5V65.5H0V34.5H34.5Z' fill='%23F2762B'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="scrollcraft.css">
+<link rel="stylesheet" href="estilo.css">
+<link rel="stylesheet" href="paginas.css">
+</head>
+<body>
+
+<span data-sc-progress></span>
+<div class="sc-grain" aria-hidden="true"></div>
+
+<a class="marca" href="index.html">DevPlus</a>
+<nav class="nav" aria-label="Navegação principal">
+  <a href="index.html" class="nav__voltar">Início</a>
+  <a href="servicos.html">Serviços</a>
+  <a href="portfolio.html" aria-current="page">Portfólio</a>
+  <a href="sobre.html">Sobre</a>
+  <a href="contacto.html">Contacto</a>
+</nav>
+
+<div class="folio" aria-hidden="true">
+  <span class="folio__n" id="folio-n">00</span>
+  <span class="folio__t" id="folio-t">Capa</span>
+</div>
+
+<div class="cruz" aria-hidden="true">
+  <svg viewBox="0 0 100 100"><path d="M34.5 0H65.5V34.5H100V65.5H65.5V100H34.5V65.5H0V34.5H34.5Z"/></svg>
+</div>
+
+<main>
+
+  <script>
+    /* Os postos seguem duas regras que a homepage não precisou de ter, porque
+       lá o "+" vive quase sempre sobre imagem ou sobre vazio:
+
+       1. **Grande só onde não há texto corrido** — nos extremos, que é onde a
+          página tem título ou fecho. A meio, onde se lê, nunca passa de 0,6.
+       2. **Nunca 45°.** Um "+" rodado a meio caminho é um X, e um X grande e
+          cinzento por cima do trabalho lê-se como um botão de fechar. */
+    window.CRUZ_POSTOS = [
+      { p: 0.00, s: 2.1, x: 36, y: -20, r: 0, c: '#F2762B' },
+      { p: 0.42, s: 0.5, x: -42, y: 24, r: 10, c: '#8a7b6d' },
+      { p: 0.78, s: 0.6, x: -38, y: -26, r: 6, c: '#F2762B' },
+      { p: 1.00, s: 1.2, x: -40, y: 32, r: 0, c: '#F2762B' }
+    ];
+  </script>
+
+  <!-- ══ 0 · CAPA ══════════════════════════════════════════════════════ -->
+  <section class="cap" data-sc-act="pin" data-sc-span="1.0" data-cap="0" data-cap-nome="Portfólio">
+    <div class="cap__ground" style="background:#1a1613"></div>
+    <div data-sc-stage>
+      <div class="capa">
+        <div data-sc-cue="0 0.9 0">
+          <p class="capa__et">Portfólio</p>
+          <h1>Seis negócios que já não se explicam ao telefone.</h1>
+          <p class="capa__nota">Restaurantes, um stand, serviços ao domicílio e uma plataforma. Nome, o que é, e o ano. O resto vê-se no site de cada um.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 1 · O ÍNDICE ══════════════════════════════════════════════════
+       Os nomes em coluna, e a capa do que está a ser lido numa moldura que
+       não se mexe. A homepage já mostra o trabalho a passar de lado; aqui
+       não se passeia, escolhe-se. -->
+  <section class="cap sc-section" data-sc-act="flow" data-cap="1" data-cap-nome="O trabalho">
+    <div class="cap__ground" style="background:#100e0c"></div>
+    <div class="indice">
+      <div>
+        <ol class="indice__lista" id="indice">
+          <li class="indice__item" data-ativo="true">
+            <a class="indice__link" href="projeto.html">
+              <h2 class="indice__nome">Taskuinha do Pirata</h2>
+              <p class="indice__facto"><b>01</b> Taberna de petiscos &middot; 2026 </p>
+            </a>
+          </li>
+          <li class="indice__item" data-ativo="false">
+            <a class="indice__link" href="projeto.html">
+              <h2 class="indice__nome">Império Auto Concept</h2>
+              <p class="indice__facto"><b>02</b> Stand automóvel &middot; 2026 </p>
+            </a>
+          </li>
+          <li class="indice__item" data-ativo="false">
+            <a class="indice__link" href="projeto.html">
+              <h2 class="indice__nome">Mira Mar</h2>
+              <p class="indice__facto"><b>03</b> Restaurante &middot; 2026 <span class="indice__estado">Em curso</span></p>
+            </a>
+          </li>
+          <li class="indice__item" data-ativo="false">
+            <a class="indice__link" href="projeto.html">
+              <h2 class="indice__nome">A Barraquinha Nova</h2>
+              <p class="indice__facto"><b>04</b> Restauração &middot; 2026 <span class="indice__estado">Em curso</span></p>
+            </a>
+          </li>
+          <li class="indice__item" data-ativo="false">
+            <a class="indice__link" href="projeto.html">
+              <h2 class="indice__nome">JSK</h2>
+              <p class="indice__facto"><b>05</b> Plataforma multi-serviço &middot; 2025 </p>
+            </a>
+          </li>
+          <li class="indice__item" data-ativo="false">
+            <a class="indice__link" href="projeto.html">
+              <h2 class="indice__nome">António Home Repair</h2>
+              <p class="indice__facto"><b>06</b> Serviços ao domicílio &middot; 2025 </p>
+            </a>
+          </li>
+        </ol>
+      </div>
+      <div class="indice__moldura" aria-hidden="true">
+        <div class="indice__capa" data-ativa="true"><img src="assets/capa-taskuinha.jpg" alt="Página inicial da Taskuinha do Pirata, com o nome em letra de tabuleta sobre a fotografia da fachada da taberna à noite e um esqueleto pirata sentado num baú a beber uma cerveja." width="1200" height="750" loading="lazy"></div>
+        <div class="indice__capa" data-ativa="false"><img src="assets/capa-imperio.jpg" alt="Página inicial do Império Auto Concept, com filtro de pesquisa por marca, modelo e combustível sobre uma fotografia de uma viatura." width="1200" height="750" loading="lazy"></div>
+        <div class="indice__capa" data-ativa="false"><img src="assets/capa-mira-mar.jpg" alt="Página inicial do Mira Mar, com o nome do restaurante sobre uma fotografia da praia e acessos rápidos à ementa, take away e pool bar." width="1200" height="750" loading="lazy"></div>
+        <div class="indice__capa" data-ativa="false"><div class="indice__semcapa"><span>A Barraquinha Nova</span></div></div>
+        <div class="indice__capa" data-ativa="false"><img src="assets/capa-jsk.jpg" alt="Página inicial da JSK, com o título de boas-vindas sobre uma fotografia de equipamento de videovigilância e um formulário de orçamento." width="1200" height="750" loading="lazy"></div>
+        <div class="indice__capa" data-ativa="false"><img src="assets/capa-antonio.jpg" alt="Página inicial da António Home Repair Services, com o título a laranja sobre um fundo preto com ilustrações de ferramentas." width="1200" height="750" loading="lazy"></div>
+      </div>
+    </div>
+  </section>
+
+  <svg class="curva" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,120 L0,30 C300,90 620,-10 900,40 C1130,80 1300,96 1440,62 L1440,120 Z" fill="#1a1613"/>
+  </svg>
+
+  <!-- ══ 2 · O CONVITE ═════════════════════════════════════════════════ -->
+  <section class="cap" data-sc-act="pin" data-sc-span="1.2" data-cap="2" data-cap-nome="O convite">
+    <div class="cap__ground" style="background:#1a1613"></div>
+    <div data-sc-stage>
+      <div class="seguinte">
+        <!-- `data-sc-in` e não `data-sc-cue`: o cue abre com o progresso do
+             act, e num fecho pinado isso deixa um ecrã inteiro vazio entre a
+             secção anterior e o momento em que o convite se decide a aparecer.
+             O `in` dispara à entrada, que é quando se quer ler. -->
+        <div data-sc-in>
+          <p class="seguinte__et">O teu a seguir</p>
+          <h2>Vamos pôr o teu no ar.</h2>
+          <div class="botoes" style="justify-content:center">
+            <a class="btn btn--cheio" href="contacto.html">Começar a conversa <span class="btn__seta" aria-hidden="true">&rarr;</span></a>
+            <a class="btn btn--linha" href="servicos.html">Ver os serviços</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- O rodapé é uma secção sua: dentro de um palco pinado ficava absoluto e
+       não gerava altura, e numa secção flow sobrepunha-se ao que lá estava. -->
+  <section class="cap" data-cap="3" data-cap-nome="Rodapé">
+    <div class="cap__ground" style="background:#1a1613"></div>
+    <div class="sc-wrap">
+      <footer class="foot foot--escuro">
+        <span>DevPlus &middot; devplus.pt</span>
+        <nav aria-label="Navegação do site">
+          <a href="index.html">Início</a><a href="servicos.html">Serviços</a><a href="portfolio.html">Portfólio</a><a href="sobre.html">Sobre</a><a href="contacto.html">Contacto</a>
+        </nav>
+      </footer>
+    </div>
+  </section>
+
+</main>
+
+<script src="scrollcraft.js"></script>
+<script src="paginas.js"></script>
+</body>
+</html>
