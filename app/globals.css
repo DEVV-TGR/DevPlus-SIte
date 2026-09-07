@@ -87,6 +87,57 @@
   --radius-2xl: 1.75rem;
 }
 
+/* ── A escala dos títulos ───────────────────────────────────────────────
+   Setembro de 2026. Os `clamp()` estavam escritos um a um nos componentes,
+   com mínimos pensados em desktop: `clamp(2.2rem, 5.6vw, 4.6rem)` dá **35px
+   num iPhone**. Medido lado a lado com o site de referência no mesmo ecrã de
+   390px, os títulos dele iam de 79 a 113px — os nossos eram um terço, e a
+   página lia-se como a versão de computador encolhida.
+
+   O que muda é qual dos três termos manda: o **vw domina no telemóvel** e o
+   teto serve o desktop. E vivem aqui, num sítio, pela mesma razão que o
+   espaçamento vive no `Section` — doze `clamp()` espalhados divergem ao
+   segundo mês. Ver `docs/02`. */
+@utility t-capa {
+  /* O título de uma capa: 74px a 390px, 90px a 1440px. */
+  font-size: clamp(3rem, 19vw, 5.6rem);
+  line-height: 0.92;
+  letter-spacing: -0.05em;
+}
+
+@utility t-seccao {
+  /* O título de uma secção: 62px a 390px, 74px a 1440px. */
+  font-size: clamp(2.4rem, 16vw, 4.6rem);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+}
+
+@utility t-obra {
+  /* O nome de um projeto no índice: 51px a 390px, 64px a 1440px. */
+  font-size: clamp(2.2rem, 13vw, 4rem);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+}
+
+/* ── E o corpo, no telemóvel ────────────────────────────────────────────
+   O site tinha texto a 12px num ecrã de 390px — o de referência não desce dos
+   15px no corpo. Em vez de trocar as dezenas de `text-xs` e `text-sm` um a um,
+   sobe-se a escala inteira **abaixo dos 768px**: as utilidades do Tailwind v4
+   lêem estas variáveis, portanto muda tudo de uma vez e o desktop fica onde
+   estava. 14px é o chão: nada abaixo disso se lê de pé, na rua, ao sol. */
+@media (max-width: 767px) {
+  :root {
+    --text-xs: 0.875rem; /* 12 → 14px */
+    --text-xs--line-height: 1.35;
+    --text-sm: 0.9375rem; /* 14 → 15px */
+    --text-sm--line-height: 1.5;
+    --text-base: 1.0625rem; /* 16 → 17px */
+    --text-base--line-height: 1.55;
+    --text-lg: 1.1875rem; /* 18 → 19px */
+    --text-lg--line-height: 1.5;
+  }
+}
+
 /* Default border color to our token (Tailwind v4 defaults to currentColor) */
 *,
 *::before,

@@ -39,11 +39,15 @@ export function ProvaCarrossel() {
       }
 
       const percurso = () => Math.max(0, fila.scrollWidth - window.innerWidth);
+      const movel = () => window.matchMedia("(max-width: 767px)").matches;
 
       const st = ScrollTrigger.create({
         trigger: raiz,
         start: "top top",
-        end: () => `+=${percurso() + window.innerHeight}`,
+        /* A folga no fim era um ecrã inteiro: em desktop é a pausa depois do
+           último projeto, no telemóvel eram 844px de scroll com a fila já
+           parada. Lá basta 40% — a secção passa de 4 ecrãs para 3. */
+        end: () => `+=${percurso() + window.innerHeight * (movel() ? 0.15 : 1)}`,
         pin: palco,
         scrub: 0.8,
         invalidateOnRefresh: true,
@@ -59,17 +63,21 @@ export function ProvaCarrossel() {
   return (
     <section ref={ref} className="relative bg-paper text-paper-ink" aria-labelledby="prova">
       <div data-palco className="relative h-[100svh] overflow-hidden">
+        {/* A fila é sempre **uma linha**: é o `x` dela que o scroll conduz, e
+            uma coluna não tem para onde andar. O que muda em telemóvel é a
+            medida — o cabeçalho passa a ocupar um ecrã quase inteiro, e cada
+            capa outro, em vez de dividirem a largura entre si. */}
         <div
           data-fila
-          className="flex h-full items-center gap-[clamp(1.25rem,3vw,2.5rem)] px-[clamp(1.25rem,5vw,5.5rem)] will-change-transform"
+          className="flex h-full items-center gap-4 px-6 will-change-transform md:gap-[clamp(1.25rem,3vw,2.5rem)] md:px-[clamp(1.25rem,5vw,5.5rem)]"
         >
-          <div className="shrink-0 basis-[min(26rem,58vw)]">
+          <div className="shrink-0 basis-[82vw] md:basis-[min(26rem,58vw)]">
             <p className="text-xs uppercase tracking-[0.18em] text-paper-muted">
               Feito
             </p>
             <h2
               id="prova"
-              className="mt-2 font-display text-[clamp(2rem,4.5vw,3.4rem)] font-semibold leading-[1.02] tracking-[-0.04em]"
+              className="t-seccao mt-2 font-display font-semibold"
             >
               Cinco que já estão no ar.
             </h2>
@@ -81,9 +89,14 @@ export function ProvaCarrossel() {
           </div>
 
           {projects.map((p, i) => (
-            <article key={p.slug} className="shrink-0 basis-[min(27rem,72vw)]">
+            <article key={p.slug} className="shrink-0 basis-[82vw] md:basis-[min(27rem,72vw)]">
               <Link href={`/portfolio/${p.slug}`} className="group block">
-                <div className="overflow-hidden rounded-2xl bg-paper-muted/20 shadow-[0_24px_50px_-28px_rgb(34_28_23/0.55)] transition-transform duration-500 group-hover:-translate-y-1">
+                {/* Em telemóvel a moldura é **retrato**. As capas são
+                    paisagem, e a 82vw davam cards de 200px de alto num ecrã de
+                    844: metade da secção era vazio. Com `4/5` e `object-cover`
+                    mostra-se o topo de cada site — que é o hero, a parte por
+                    que se reconhece — e o card ocupa o ecrã como na referência. */}
+                <div className="aspect-[4/5] overflow-hidden rounded-2xl bg-paper-muted/20 shadow-[0_24px_50px_-28px_rgb(34_28_23/0.55)] transition-transform duration-500 group-hover:-translate-y-1 md:aspect-auto">
                   {p.image ? (
                     <Image
                       src={p.image}
@@ -91,10 +104,18 @@ export function ProvaCarrossel() {
                       width={1200}
                       height={750}
                       loading="lazy"
-                      className="block h-auto w-full"
+                      className="block h-full w-full object-cover object-top md:h-auto"
                     />
                   ) : (
-                    <div className="aspect-[8/5] bg-paper-muted/25" />
+                    /* Sem capa não fica um retângulo cinzento a ocupar meio
+                       ecrã: fica o nome, como no `PortfolioIndice`. A lacuna
+                       está registada no `docs/06` e não se disfarça com a capa
+                       de outro projeto. */
+                    <div className="grid h-full place-items-center bg-gradient-to-br from-primary/20 to-paper-muted/25 px-6 text-center md:aspect-[8/5]">
+                      <span className="font-display text-xl font-extrabold tracking-[-0.03em] text-paper-ink">
+                        {p.name}
+                      </span>
+                    </div>
                   )}
                 </div>
                 <div className="mt-4 grid gap-0.5">

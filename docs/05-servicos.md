@@ -19,7 +19,9 @@ São **6**. Aparecem em dois sítios, ambos a ler do mesmo array:
 
 - `app/servicos/page.tsx` — os seis, no **acordeão de colunas** do
   `components/paginas/ServicosAcordeao.tsx` (aguenta qualquer número: as colunas
-  repartem a largura entre si). Há ilustração para quatro; o **Branding** e o
+  repartem a largura entre si). **No telemóvel o acordeão deita-se e perde o
+  pin** — seis linhas abertas que se lêem de uma vez; com pin, cobrava 3,4 ecrãs
+  de scroll para mostrar o que já estava no ecrã. Há ilustração para quatro; o **Branding** e o
   **Motion & Interação** ficam com o "+" em marca-d'água em vez de uma figura
   emprestada de outro serviço — se forem geradas, é com o preâmbulo do
   `scrollcraft/builds/devplus/PLANO-V3.md`, que é o que mantém as nove atuais no

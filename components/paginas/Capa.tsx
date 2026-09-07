@@ -35,7 +35,7 @@ export function Capa({
           </p>
         </Reveal>
         <Reveal delay={0.05}>
-          <h1 className="mt-4 max-w-[14ch] font-display text-[clamp(2.4rem,7vw,5.6rem)] font-extrabold leading-[0.92] tracking-[-0.05em]">
+          <h1 className="t-capa mt-4 max-w-[14ch] font-display font-extrabold">
             {title}
           </h1>
         </Reveal>

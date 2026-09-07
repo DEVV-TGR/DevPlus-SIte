@@ -17,7 +17,7 @@ export function Fecho() {
   return (
     <section className="relative bg-primary text-primary-ink">
       <div className="grid min-h-[86svh] place-content-center px-6 py-[clamp(4rem,10vh,7rem)] text-center">
-        <h2 className="mx-auto max-w-[15ch] font-display text-[clamp(2.2rem,6.4vw,5.2rem)] font-extrabold leading-[0.98] tracking-[-0.045em]">
+        <h2 className="t-seccao mx-auto max-w-[15ch] font-display font-extrabold">
           Conta-nos o que tens em mente.
         </h2>
         <p className="mx-auto mt-4 max-w-[42ch] text-lg text-primary-ink/85">
@@ -38,7 +38,7 @@ export function Fecho() {
         </div>
         <a
           href={`mailto:${site.email}`}
-          className="mt-5 inline-block text-sm text-primary-ink/80 underline underline-offset-4"
+          className="mt-3 inline-flex min-h-11 items-center px-2 text-sm text-primary-ink/80 underline underline-offset-4"
         >
           {site.email}
         </a>

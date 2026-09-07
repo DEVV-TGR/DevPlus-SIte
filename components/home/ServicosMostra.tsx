@@ -47,7 +47,11 @@ export function ServicosMostra() {
       const st = ScrollTrigger.create({
         trigger: raiz,
         start: "top top",
-        end: "+=260%",
+        /* 260% dá um ecrã por serviço em desktop, onde há sítio para o
+           número gigante e a figura ao lado. Num telemóvel isso são 3,6 ecrãs
+           de scroll para quatro cartões que se lêem num relance — 140% chega,
+           e é o que mantém a página inteira abaixo dos dez ecrãs. */
+        end: window.matchMedia("(max-width: 767px)").matches ? "+=110%" : "+=260%",
         pin: palco,
         scrub: 0.5,
         onUpdate: (self) => {
@@ -125,7 +129,7 @@ export function ServicosMostra() {
                 manual.current = performance.now();
                 setAtivo(i);
               }}
-              className={`grid h-13 w-13 place-items-center rounded-full border text-xs font-semibold tabular-nums transition-all duration-300 max-sm:h-10 max-sm:w-10 ${
+              className={`grid h-13 w-13 place-items-center rounded-full border text-xs font-semibold tabular-nums transition-all duration-300 max-sm:h-11 max-sm:w-11 ${
                 i === ativo
                   ? "scale-108 border-primary bg-primary text-primary-ink"
                   : "border-ink/15 bg-ink/[0.08] text-muted hover:text-ink"

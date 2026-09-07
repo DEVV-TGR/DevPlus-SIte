@@ -110,12 +110,14 @@ export function Nav() {
       if (!el) return;
 
       if (open) {
+        /* Sem deslocamento: um ecrã inteiro a entrar de cima lê-se como a
+           página a saltar. O que ele faz é aparecer, e a escala dá o gesto. */
         gsap.fromTo(
           el,
-          { opacity: 0, y: -8 },
+          { opacity: 0, scale: 0.98 },
           {
             opacity: 1,
-            y: 0,
+            scale: 1,
             duration: MOVIMENTO.menu,
             ease: MOVIMENTO.ease,
           },
@@ -123,7 +125,7 @@ export function Nav() {
       } else {
         gsap.to(el, {
           opacity: 0,
-          y: -8,
+          scale: 0.98,
           duration: MOVIMENTO.menu,
           ease: MOVIMENTO.ease,
           onComplete: () => setMontado(false),
@@ -137,9 +139,16 @@ export function Nav() {
     <header
       className={cn(
         "sticky top-0 z-50 transition-colors duration-300",
-        scrolled || open
-          ? "border-b border-border bg-bg/80 backdrop-blur-md"
-          : "border-b border-transparent",
+        /* **Com o menu aberto não há `backdrop-blur`.** Um `backdrop-filter`
+           cria bloco contentor para os descendentes `position: fixed`, e o
+           painel de ecrã inteiro ficava preso aos 64px do header: abria uma
+           faixa de menu no topo com a página a ver-se por baixo. E o desfoque
+           também não serve para nada aí — por trás do menu não há o que ver. */
+        open
+          ? "border-b border-border bg-bg"
+          : scrolled
+            ? "border-b border-border bg-bg/80 backdrop-blur-md"
+            : "border-b border-transparent",
       )}
     >
       <nav aria-label="Principal">
@@ -217,19 +226,23 @@ export function Nav() {
         <div
           ref={painel}
           onClick={() => setOpen(false)}
-          className="absolute left-0 right-0 top-full border-b border-border bg-bg px-6 pb-6 pt-2 md:hidden"
+          /* **Ecrã inteiro, e não um painel que desce.** Um painel de 250px
+             com links a 16px era a barra de navegação de computador encolhida:
+             ficava metade do site visível por trás e nada dizia que se estava
+             noutro sítio. Assim o menu é um lugar — o que o site de referência
+             faz no telemóvel, e o que dá aos cinco destinos a mesma escala que
+             a página dá aos títulos. */
+          className="fixed inset-0 top-16 z-50 flex flex-col justify-center gap-8 bg-bg px-6 pb-16 md:hidden"
         >
-          <ul className="flex flex-col gap-1">
+          <ul className="flex flex-col items-center gap-1 text-center">
             {links.map((l) => (
               <li key={l.href}>
                 <Link
                   href={l.href}
                   aria-current={isActive(l.href) ? "page" : undefined}
                   className={cn(
-                    "block rounded-lg px-3 py-3 text-base transition-colors",
-                    isActive(l.href)
-                      ? "bg-surface text-ink"
-                      : "text-muted hover:bg-surface hover:text-ink",
+                    "block px-4 py-2 font-display text-[clamp(2rem,11vw,3rem)] font-extrabold leading-[1.1] tracking-[-0.04em] transition-colors",
+                    isActive(l.href) ? "text-primary" : "text-ink",
                   )}
                 >
                   {l.label}
@@ -237,7 +250,7 @@ export function Nav() {
               </li>
             ))}
           </ul>
-          <div className="mt-4">
+          <div className="mx-auto w-full max-w-xs">
             <Button href="/contacto" variant="primary" className="w-full">
               Falar connosco
             </Button>

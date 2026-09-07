@@ -79,6 +79,27 @@ const notas: { lado: "e" | "d"; topo: string; par: [string, string] }[] = [
   { lado: "e", topo: "lg:top-[80%]", par: differentiators[2] },
 ];
 
+/** Uma nota à margem: aparte no telemóvel, margem habitada no computador. */
+function Nota({ nota }: { nota: (typeof notas)[number] }) {
+  const [titulo, texto] = nota.par;
+  return (
+    <Reveal
+      className={`block lg:absolute lg:max-w-[22rem] ${
+        nota.lado === "e"
+          ? "lg:left-[max(1.5rem,6vw)]"
+          : "lg:right-[max(1.5rem,6vw)]"
+      } ${nota.topo}`}
+    >
+      <aside className="border-l-2 border-primary pl-4">
+        <h2 className="font-display text-lg font-bold tracking-[-0.02em]">
+          {titulo}
+        </h2>
+        <p className="mt-1.5 text-sm text-muted">{texto}</p>
+      </aside>
+    </Reveal>
+  );
+}
+
 export default function SobrePage() {
   return (
     <>
@@ -98,24 +119,13 @@ export default function SobrePage() {
           coluna de valores e um painel "Porquê a DevPlus". Diziam o mesmo, mas
           obrigavam a lê-los como capítulos. */}
       <section className="relative bg-bg-deep py-24 sm:py-32 lg:py-40">
-        {notas.map(({ lado, topo, par: [titulo, texto] }) => (
-          <Reveal
-            key={titulo}
-            className={`mx-auto my-8 block max-w-[34rem] px-6 sm:px-8 lg:absolute lg:my-0 lg:max-w-[22rem] lg:px-0 ${
-              lado === "e"
-                ? "lg:left-[max(1.5rem,6vw)]"
-                : "lg:right-[max(1.5rem,6vw)]"
-            } ${topo}`}
-          >
-            <aside className="border-l-2 border-primary pl-4">
-              <h2 className="font-display text-lg font-bold tracking-[-0.02em]">
-                {titulo}
-              </h2>
-              <p className="mt-1.5 text-sm text-muted">{texto}</p>
-            </aside>
-          </Reveal>
-        ))}
-
+        {/* **As notas vivem dentro da coluna, e não antes dela.** Estavam num
+            `map` próprio acima do texto: acima dos 1024px isso não se via,
+            porque saem do fluxo para as margens, mas num telemóvel caíam pela
+            ordem do JSX e quem abria a página lia cinco notas seguidas antes de
+            chegar à primeira frase sobre o estúdio. Agora estão intercaladas —
+            no telemóvel são apartes entre parágrafos, no computador continuam a
+            ir para as margens. */}
         <div className="mx-auto grid max-w-[34rem] gap-6 px-6 sm:px-8">
           <Reveal>
             <p className="text-[clamp(1.05rem,1.6vw,1.4rem)] leading-[1.55]">
@@ -125,12 +135,20 @@ export default function SobrePage() {
               stands, empresas de serviços.
             </p>
           </Reveal>
+
+          <Nota nota={notas[0]} />
+          <Nota nota={notas[1]} />
+
           <Reveal delay={0.06}>
             <p className="text-[clamp(1.05rem,1.6vw,1.4rem)] leading-[1.55]">
               Quem fala contigo é quem desenha e quem escreve o código. Não há
               intermediários pelo meio nem modelos prontos a preencher.
             </p>
           </Reveal>
+
+          <Nota nota={notas[2]} />
+          <Nota nota={notas[3]} />
+
           <Reveal delay={0.12}>
             <p className="text-[clamp(1.05rem,1.6vw,1.4rem)] leading-[1.55] text-muted">
               E não te deixamos sozinho quando o site fica no ar: o alojamento e
@@ -138,6 +156,8 @@ export default function SobrePage() {
               à procura de quem resolve.
             </p>
           </Reveal>
+
+          <Nota nota={notas[4]} />
         </div>
       </section>
       <Curva forma="b" de="var(--bg-deep)" cor="var(--bg)" />
@@ -145,7 +165,7 @@ export default function SobrePage() {
       <Section className="relative">
         <Container>
           <Reveal>
-            <h2 className="max-w-[14ch] font-display text-[clamp(2rem,4.5vw,3.4rem)] font-extrabold tracking-[-0.04em]">
+            <h2 className="t-seccao max-w-[14ch] font-display font-extrabold">
               Em que acreditamos
             </h2>
           </Reveal>

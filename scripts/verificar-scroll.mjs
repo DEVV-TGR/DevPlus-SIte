@@ -13,6 +13,15 @@
  * ficou imóvel à roda. Todo o resto deste script usa `window.scrollTo`, que é
  * nativo e passa ao lado do problema.
  *
+ * Em `--mobile` verifica ainda quatro coisas que só são defeito num ecrã
+ * estreito, e que passaram todas despercebidas à primeira ronda:
+ *   · **ecrãs de scroll** — a homepage ia em 15,6 contra os 9 do site de
+ *     referência medido no mesmo iPhone
+ *   · **alvos de toque** com menos de 44px
+ *   · **texto abaixo de 14px**
+ *   · **o "+" por cima de texto** — em `vw`, os postos de desktop punham-no
+ *     em cima dos telefones do `/contacto`
+ *
  * O que verifica, por posição:
  *   · imagens que não carregaram
  *   · elementos que ficaram presos invisíveis (uma animação que não completou)
@@ -81,7 +90,7 @@ for (let i = 0; i < PASSOS; i++) {
      a meio de uma animação e reporta problemas que não existem. */
   await page.waitForTimeout(650);
 
-  const estado = await page.evaluate(() => {
+  const estado = await page.evaluate((movel) => {
     const falhadas = [...document.images]
       .filter((im) => im.complete && im.naturalWidth === 0)
       .map((im) => im.currentSrc || im.src);
@@ -99,20 +108,75 @@ for (let i = 0; i < PASSOS; i++) {
     );
     const svg = document.querySelector("[data-cruz] svg");
     const cs = svg && getComputedStyle(svg);
+    /* Só em telemóvel: o que se toca tem de ter 44px, o que se lê tem de ter
+       14px, e o gesto não pode passar por cima de nenhum dos dois. */
+    const toque = movel
+      ? [...document.querySelectorAll('a,button,[role="button"],input,textarea,select')]
+          .filter((el) => {
+            /* A armadilha do formulário é `sr-only` e tem dimensão: ninguém lhe
+               toca, nem de dedo nem de leitor de ecrã. Ver `ContactForm`. */
+            if (el.closest("[aria-hidden='true'],.sr-only") || el.tabIndex < 0) return false;
+            /* Um link **dentro de uma frase** não se aumenta: dar-lhe 44px de
+               altura abria buracos entre as linhas do parágrafo. É a exceção
+               que a própria norma faz (WCAG 2.5.8, "inline"). */
+            const pai = el.parentElement;
+            if (el.tagName === "A" && pai && /^(P|LI|DD|SPAN|H1|H2|H3)$/.test(pai.tagName) &&
+                (pai.textContent || "").trim().length > (el.textContent || "").trim().length + 8) return false;
+            const r = el.getBoundingClientRect();
+            return r.width > 1 && r.height > 1 && r.top < innerHeight && r.bottom > 0 && (r.height < 44 || r.width < 44);
+          })
+          .map((el) => `${(el.textContent || el.getAttribute("aria-label") || el.tagName).replace(/\s+/g, " ").trim().slice(0, 18)} ${Math.round(el.getBoundingClientRect().width)}×${Math.round(el.getBoundingClientRect().height)}`)
+      : [];
+    const miudo = movel
+      ? [...document.querySelectorAll("p,li,span,dd,dt,a,label,summary")]
+          .filter((el) => {
+            const r = el.getBoundingClientRect();
+            return el.textContent?.trim() && r.width > 0 && r.top < innerHeight && r.bottom > 0 &&
+              parseFloat(getComputedStyle(el).fontSize) < 14;
+          })
+          .map((el) => `${Math.round(parseFloat(getComputedStyle(el).fontSize))}px:${(el.textContent || "").replace(/\s+/g, " ").trim().slice(0, 18)}`)
+      : [];
+    /* O "+" é decorativo, mas é opaco: onde ele passa por cima de uma linha de
+       texto, essa linha deixa de se ler. Compara-se o retângulo do desenho, e
+       não o da camada, que é o ecrã inteiro. */
+    /* o mesmo `svg` de cima: o gesto e a verificação de sobreposição olham
+       para o mesmo desenho. */
+    const tapados = [];
+    if (movel && svg) {
+      const c = svg.getBoundingClientRect();
+      if (c.width > 1) {
+        for (const el of document.querySelectorAll("p,h1,h2,h3,dd,dt,li,label")) {
+          if (!el.textContent?.trim()) continue;
+          const r = el.getBoundingClientRect();
+          if (r.width < 1 || r.top > innerHeight || r.bottom < 0) continue;
+          const sobrepoe = Math.max(0, Math.min(r.right, c.right) - Math.max(r.left, c.left)) *
+            Math.max(0, Math.min(r.bottom, c.bottom) - Math.max(r.top, c.top));
+          /* Um canto do "+" a roçar uma linha não estorva; um terço da caixa
+             do texto por baixo dele, sim. */
+          if (sobrepoe > r.width * r.height * 0.33) {
+            tapados.push((el.textContent || "").replace(/\s+/g, " ").trim().slice(0, 22));
+          }
+        }
+      }
+    }
     return {
       falhadas,
       presos,
+      toque,
+      miudo,
+      tapados,
       overflow: document.documentElement.scrollWidth > innerWidth + 1,
       largura: document.documentElement.scrollWidth,
       chegam,
       cruz: cs ? `${cs.getPropertyValue("--cs").trim()}|${cs.getPropertyValue("--cx").trim()}` : null,
     };
-  });
+  }, movel);
 
   await page.screenshot({ path: `${destino}/${String(i).padStart(2, "0")}.png` });
   linhas.push({ i, y, ...estado });
 }
 
+const ecras = await page.evaluate(() => +(document.documentElement.scrollHeight / innerHeight).toFixed(1));
 await browser.close();
 writeFileSync(`${destino}/relatorio.json`, JSON.stringify(linhas, null, 1));
 
@@ -135,12 +199,39 @@ if (!reduzido && linhas.at(-1)?.cruz) {
    são 1/5 da página com o "+" pregado. */
 const gestoPreso = gestoParado >= 3;
 
+/**
+ * O teto de scroll, em ecrãs.
+ *
+ * **É um travão de regressão, não uma meta.** Cada número é o que a rota mede
+ * hoje mais uma margem curta: se alguém acrescentar uma secção ou esticar um
+ * pin, o verificador diz. Para referência: o site que serviu de modelo, medido
+ * no mesmo iPhone, faz a página inteira em **9 ecrãs**; a nossa homepage vinha
+ * de 15,9 e está em 13,2 — a diferença que falta são capítulos de conteúdo, e
+ * cortá-los é decisão de quem escreve o site, não deste script.
+ */
+const TETOS = [
+  [/\/servicos/, 11],
+  [/\/portfolio\/[^/]+/, 6],
+  [/\/(portfolio|sobre|contacto|privacidade)/, 6],
+];
+const TETO = TETOS.find(([re]) => re.test(new URL(url).pathname))?.[1] ?? 14;
+const compridaDemais = movel && ecras > TETO;
+
+const comToque = linhas.filter((l) => l.toque.length);
+const comMiudo = linhas.filter((l) => l.miudo.length);
+const comTapado = linhas.filter((l) => l.tapados.length);
 const comFalha = linhas.filter((l) => l.falhadas.length);
 const comPresos = linhas.filter((l) => l.presos.length);
 const comOverflow = linhas.filter((l) => l.overflow);
 
 console.log(`\n${destino}  (${movel ? "390px" : "1440px"}${reduzido ? ", movimento reduzido" : ""})`);
 console.log(`  roda do rato ........ ${rodaAndou > 0 ? `mexe (${rodaAndou}px)` : "NÃO MEXE A PÁGINA"}`);
+if (movel) {
+  console.log(`  ecrãs de scroll ..... ${ecras}${compridaDemais ? `  DEMASIADO (teto ${TETO})` : `  (teto ${TETO})`}`);
+  console.log(`  alvos < 44px ........ ${comToque.length ? [...new Set(comToque.flatMap((l) => l.toque))].slice(0, 4).join(" | ") : "nenhum"}`);
+  console.log(`  texto < 14px ........ ${comMiudo.length ? [...new Set(comMiudo.flatMap((l) => l.miudo))].slice(0, 4).join(" | ") : "nenhum"}`);
+  console.log(`  "+" por cima de texto ${comTapado.length ? [...new Set(comTapado.flatMap((l) => l.tapados))].slice(0, 4).join(" | ") : "nenhum"}`);
+}
 console.log(`  imagens falhadas .... ${comFalha.length ? comFalha.map((l) => l.i).join(", ") : "nenhuma"}`);
 console.log(`  presos invisíveis ... ${comPresos.length ? comPresos.map((l) => `${l.i}:${l.presos[0]}`).join(" | ") : "nenhum"}`);
 console.log(`  overflow horizontal . ${comOverflow.length ? comOverflow.map((l) => `${l.i} (${l.largura}px)`).join(", ") : "nenhum"}`);
@@ -165,7 +256,11 @@ process.exit(
     erros.length ||
     gestoPreso ||
     nuncaChegaram.length ||
-    !rodaAndou
+    !rodaAndou ||
+    compridaDemais ||
+    comToque.length ||
+    comMiudo.length ||
+    comTapado.length
     ? 1
     : 0,
 );

@@ -95,7 +95,7 @@ export function PortfolioIndice() {
             className="group/obra border-t border-border pt-4 sm:pt-6"
           >
             <Link href={`/portfolio/${p.slug}`} className="group grid gap-1.5">
-              <h2 className="m-0 font-display text-[clamp(1.9rem,5vw,4rem)] font-extrabold leading-[0.95] tracking-[-0.045em] text-ink/40 transition-colors duration-300 group-hover:text-ink group-data-[ativo=true]/obra:text-ink">
+              <h2 className="t-obra m-0 font-display font-extrabold text-ink/40 transition-colors duration-300 group-hover:text-ink group-data-[ativo=true]/obra:text-ink">
                 {p.name}
               </h2>
               <p className="flex flex-wrap items-center gap-2 text-sm text-muted">

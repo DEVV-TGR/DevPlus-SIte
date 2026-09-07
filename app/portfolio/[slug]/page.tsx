@@ -107,7 +107,7 @@ export default async function CaseStudyPage({
             seta de voltar lê-se como parte do cabeçalho do projeto. */}
         <Link
           href="/portfolio"
-          className="absolute left-6 top-24 z-[2] text-sm text-muted transition-colors hover:text-ink sm:left-8"
+          className="absolute left-4 top-[5rem] z-[2] inline-flex min-h-11 items-center px-2 text-sm text-muted transition-colors hover:text-ink sm:left-6"
         >
           ← Portfólio
         </Link>
@@ -118,7 +118,7 @@ export default async function CaseStudyPage({
               {project.category} · {project.year}
               {project.status === "em-curso" ? " · Em curso" : ""}
             </p>
-            <h1 className="mt-4 font-display text-[clamp(2.2rem,6.5vw,5.2rem)] font-extrabold leading-[0.94] tracking-[-0.05em]">
+            <h1 className="t-capa mt-4 font-display font-extrabold">
               {project.name}
             </h1>
           </Reveal>

@@ -145,9 +145,44 @@ intenção nem a semelhança para ler como sistema. Ambas estão, além disso, e
 as fontes mais saturadas em sites gerados por IA.
 
 Títulos levam sempre `tracking-tight` (−0.02em; o mínimo aceitável é −0.04em,
-abaixo disso as letras tocam-se). O h1 da homepage usa
-`text-[clamp(2.25rem,7vw,5.5rem)]` — escala fluida, sem breakpoints, com o topo
-em 88px (o teto é 96px: acima disso a página grita em vez de desenhar).
+abaixo disso as letras tocam-se).
+
+### A escala dos títulos vive no `globals.css`
+
+Setembro de 2026. Os `clamp()` estavam escritos um a um nos componentes, e todos
+com **mínimos pensados em computador**: `clamp(2.2rem, 5.6vw, 4.6rem)` dá 35px
+num iPhone. Medido lado a lado com o site de referência no mesmo ecrã de 390px,
+os títulos dele iam de **79 a 113px** — os nossos eram um terço, e a página
+lia-se como a versão de computador encolhida.
+
+O que mudou não foi o teto: foi **qual dos três termos manda**. O `vw` domina no
+telemóvel e o máximo serve o computador.
+
+| Utilidade | Papel | A 390px | A 1440px |
+| --- | --- | --- | --- |
+| `t-capa` | o `h1` de uma capa | **74px** | 90px |
+| `t-seccao` | o título de um capítulo | **62px** | 74px |
+| `t-obra` | o nome de um projeto no índice | **51px** | 64px |
+
+São `@utility` em `app/globals.css`, e é lá que se mexem — como o espaçamento
+vive no `Section` e por a mesma razão: doze `clamp()` espalhados divergem ao
+segundo mês. Um título que precise de medida própria (o do rodapé, que não é um
+capítulo) escreve o seu `clamp` e diz porquê.
+
+### E o corpo, no telemóvel
+
+Abaixo dos 768px, `globals.css` sobe a escala inteira do texto — `--text-xs` a
+`--text-lg` — em vez de se trocarem as dezenas de `text-sm` um a um:
+
+| | Computador | Telemóvel |
+| --- | --- | --- |
+| `text-xs` | 12px | **14px** |
+| `text-sm` | 14px | 15px |
+| `text-base` | 16px | 17px |
+| `text-lg` | 18px | 19px |
+
+**14px é o chão.** Nada abaixo disso se lê de pé, na rua, ao sol — e o
+`verificar-scroll.mjs --mobile` falha se aparecer.
 
 ## Os grounds dos capítulos
 
@@ -179,3 +214,5 @@ tokens e não dois.
 
 | um dos grounds dos capítulos       | `app/globals.css` **e** a tabela "Os grounds dos capítulos" acima            |
 | `--paper`                          | verifica `--paper-ink` e `--paper-muted` no mesmo passo — vivem em par        |
+| a medida de um título              | `t-capa` / `t-seccao` / `t-obra` em `app/globals.css`, e a tabela acima — não escrevas um `clamp` novo num componente sem dizer porquê |
+| a escala do corpo em telemóvel     | o bloco `@media (max-width: 767px)` de `app/globals.css`; e corre o verificador em `--mobile`, que falha abaixo de 14px |

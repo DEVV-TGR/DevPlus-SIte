@@ -59,7 +59,7 @@ export default function PortfolioPage() {
           <Reveal>
             <div className="flex flex-col gap-6 rounded-2xl border border-border bg-surface p-8 sm:flex-row sm:items-center sm:justify-between sm:p-12">
               <div>
-                <h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+                <h2 className="t-seccao font-display font-extrabold">
                   O próximo pode ser o teu.
                 </h2>
                 <p className="mt-2 max-w-md text-sm text-muted">

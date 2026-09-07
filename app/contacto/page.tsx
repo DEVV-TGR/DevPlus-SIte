@@ -41,12 +41,17 @@ export default function ContactoPage() {
 
       <Section className="relative">
         <Container>
-          <div className="grid items-center gap-12 lg:min-h-[76svh] lg:grid-cols-12">
-            <div className="lg:col-span-5">
+          <div className="grid items-start gap-10 lg:min-h-[76svh] lg:grid-cols-12 lg:items-center lg:gap-12">
+            {/* Três blocos, e no telemóvel a ordem é outra: o título diz onde
+                se está, o formulário é o que a página existe para fazer, e as
+                outras formas de falar vêm depois. Em coluna única, o bloco de
+                contactos — email, três telefones, disponibilidade e redes —
+                empurrava o formulário para lá do segundo ecrã. */}
+            <div className="order-1 lg:order-none lg:col-span-5">
               <p className="text-sm font-medium uppercase tracking-[0.18em] text-primary">
                 Contacto
               </p>
-              <h1 className="mt-4 max-w-[13ch] font-display text-[clamp(2.2rem,5.5vw,4.2rem)] font-extrabold leading-[0.95] tracking-[-0.05em]">
+              <h1 className="t-capa mt-4 max-w-[13ch] font-display font-extrabold">
                 Vamos falar sobre o teu projeto.
               </h1>
               <p className="mt-5 max-w-[44ch] text-lg text-muted">
@@ -54,7 +59,12 @@ export default function ContactoPage() {
                 arrancar ou só uma ideia ainda por arrumar — respondemos na
                 mesma.
               </p>
-              <div className="mt-10">
+            </div>
+
+            {/* O terceiro bloco do grid, e não um filho do título: só assim
+                pode trocar de lugar em telemóvel. Em computador volta para
+                debaixo do título, na coluna da esquerda. */}
+            <div className="order-3 lg:order-none lg:col-span-5 lg:col-start-1 lg:row-start-2 lg:-mt-4">
               {/* Um `h2` a sério para a região; as etiquetas abaixo são `dt`, e
                   não headings de 14px — um leitor de ecrã anunciava "título
                   nível 2: Email" para o que é só o rótulo de um campo. */}
@@ -65,7 +75,7 @@ export default function ContactoPage() {
                   <dd>
                     <a
                       href={`mailto:${site.email}`}
-                      className="mt-1 block font-display text-xl transition-colors hover:text-primary"
+                      className="-mx-2 mt-1 flex min-h-11 items-center px-2 font-display text-xl transition-colors hover:text-primary"
                     >
                       {site.email}
                     </a>
@@ -79,7 +89,7 @@ export default function ContactoPage() {
                         <li key={m.phone}>
                           <a
                             href={`tel:${telHref(m.phone)}`}
-                            className="font-display text-xl transition-colors hover:text-primary"
+                            className="-mx-2 inline-flex min-h-11 items-center px-2 font-display text-xl transition-colors hover:text-primary"
                           >
                             {m.phone}
                           </a>
@@ -108,7 +118,7 @@ export default function ContactoPage() {
                 <div>
                   <dt className="text-sm font-medium text-muted">Redes</dt>
                   <dd>
-                    <ul className="mt-2 flex flex-col gap-2">
+                    <ul className="mt-1 flex flex-col">
                       {socials.map((s) => (
                         <li key={s.label}>
                           {s.href ? (
@@ -116,7 +126,7 @@ export default function ContactoPage() {
                               href={s.href}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-ink transition-colors hover:text-primary"
+                              className="-mx-2 inline-flex min-h-11 items-center px-2 text-ink transition-colors hover:text-primary"
                             >
                               {s.label}
                             </a>
@@ -133,7 +143,6 @@ export default function ContactoPage() {
                   </dd>
                 </div>
               </dl>
-              </div>
             </div>
 
             {/* O formulário ganha painel: é o único objeto da página que se
@@ -141,7 +150,7 @@ export default function ContactoPage() {
                 No protótipo o painel é creme; aqui fica `surface`, porque os
                 campos do `ContactForm` são desenhados para ground escuro e
                 trocá-los era reescrever o formulário para ganhar uma cor. */}
-            <div className="lg:col-span-7">
+            <div className="order-2 lg:order-none lg:col-span-7 lg:col-start-6 lg:row-span-2 lg:row-start-1">
               <h2 className="sr-only">Formulário de contacto</h2>
               <div className="rounded-2xl border border-border bg-surface p-6 sm:p-8">
                 <ContactForm />

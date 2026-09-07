@@ -52,7 +52,7 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `home/HeroHome`   | a capa da página inicial                                                   | reutilizar noutro sítio; e pôr o título em dois elementos — ver abaixo                    |
 | `home/Cruz`       | o "+" que atravessa uma página. `postos` muda o percurso                    | dar-lhe os mesmos postos em duas páginas — o que gasta o gesto é repeti-lo **igual**       |
 | `home/Curva`      | o corte entre dois capítulos                                               | pôr uma linha reta no lugar dela; e usá-la sem `de`, que deixa passar o fundo do `body`     |
-| `home/ComoTrabalhamos` | os quatro passos, em cards que se acumulam                            | transformá-los numa grelha — a acumulação é o ponto                                        |
+| `home/ComoTrabalhamos` | os quatro passos: cards que se acumulam em computador, fila horizontal no telemóvel | transformá-los numa grelha — a acumulação é o ponto; e dar-lhes a pilha no telemóvel, onde não cabe |
 | `home/ProvaCarrossel`  | o trabalho feito, em fila horizontal com a página presa                | usá-lo para hierarquia; lateral lê-se como alcance, não como ordem                          |
 | `home/ServicosMostra`  | os serviços um de cada vez                                            | catalogar aqui os seis — a página inicial apresenta, a `/servicos` cataloga                |
 | `home/Pacotes`    | por onde um projeto começa                                                 | escrever preços; saem de proposta, ver `docs/05`                                            |
@@ -177,6 +177,26 @@ as secções levam `relative`**. A camada do "+" é `fixed z-0`, e uma secção 
 baixo dele. Na página inicial nunca se viu porque lá todas as secções já são
 `relative`; na `/contacto` o "+" apareceu por cima do formulário, a tapar os
 campos.
+
+### O telemóvel não é o computador estreitado
+
+Setembro de 2026, depois de o site estar feito. Medido a 390×844 contra o site
+de referência do `BRIEF`, no mesmo ecrã: os nossos títulos eram **um terço** dos
+dele (30–38px contra 79–113px) e a homepage era **73% mais longa** (15,6 ecrãs
+contra 9). Não havia overflow, nem erros, nem quebras de desempenho — o site
+funcionava; o que ele não era é **composto** para ali.
+
+O que mudou, e o que fica como regra:
+
+| | Regra |
+| --- | --- |
+| **Tipografia** | A escala vive em `globals.css` e o `vw` domina no telemóvel — ver `docs/02`. Nada de texto abaixo de 14px |
+| **Comprimento** | A homepage passou de 15,6 para 13,3 ecrãs. O `verificar-scroll.mjs --mobile` tem um teto por rota — é um **travão de regressão**, não uma meta: quem acrescentar uma secção sabe logo |
+| **Uma forma pode ter duas** | A `ComoTrabalhamos` é uma pilha de cards em computador e uma **fila horizontal** no telemóvel. Quatro cards sobrepostos num ecrã de 390px saíam pelas margens, e a pilha custava 2,8 ecrãs. É a mesma secção com a mesma informação e duas composições — e é o que a referência faz nesta mesma secção |
+| **Pin, mas curto** | O pin fica onde a referência o tem. O que encurta é o percurso: a folga no fim do `ProvaCarrossel` era um ecrã inteiro parado, e passa a 15% no telemóvel. O acordeão da `/servicos` **perde o pin**: lá está deitado, cabe num ecrã e meio, e o pin cobrava 3,4 ecrãs para mostrar o que já se via |
+| **Toque** | 44px de área tocável. Consegue-se com `min-h-11` e `px`, sem mexer no desenho — e com `-mx`/`-my` a compensar, o elemento nem muda de sítio. A exceção é o link **dentro de uma frase**, que não se aumenta: abria buracos entre as linhas (WCAG 2.5.8) |
+| **Ordem de leitura** | O que é margem em computador cai no fluxo no telemóvel, **pela ordem do JSX**. No `/sobre` isso punha as cinco notas antes da primeira frase do texto. Notas de margem escrevem-se **intercaladas** e só depois vão para a margem com `lg:absolute` |
+| **O menu é um lugar** | Ecrã inteiro, links à escala dos títulos. E o header não pode ter `backdrop-blur` com ele aberto: um `backdrop-filter` cria bloco contentor para os `fixed` descendentes, e o painel ficava preso aos 64px do header |
 
 ### Chegar não é o mesmo que aparecer
 
@@ -545,6 +565,8 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | a forma de uma página interior    | a tabela em "As páginas interiores também têm forma própria" — uma forma repetida é o defeito que ela existe para travar |
 | os postos do `Cruz` numa página   | confirma que o gesto continua a "andar até ao fim" no `verificar-scroll.mjs`, e que a meio da página não passa de 0,6 de escala |
 | acrescentares uma secção a uma página com `Cruz` | dá-lhe `relative` — sem isso o "+" é pintado por cima dela |
+| qualquer coisa que se veja no telemóvel | corre o verificador em `--mobile`: ele mede ecrãs de scroll, alvos de toque, texto miúdo e o "+" por cima de texto, e nenhuma dessas quatro coisas era apanhada antes |
+| os postos do `Cruz`              | são **dois** conjuntos: `POSTOS_PAGINA` e `POSTOS_MOBILE`. Em `vw`, o mesmo número é margem num ecrã de 1440 e centro num de 390 |
 | recolheres um testemunho          | `lib/testimonials.ts`; a secção aparece sozinha assim que o array deixar de estar vazio                  |
 | a duração ou o easing             | **`lib/motion.ts`** e a tabela de valores acima — os componentes leem de lá, não têm números próprios      |
 | introduzires um componente que anima | verifica `prefers-reduced-motion` dentro dele: o GSAP não o faz por ti                                   |

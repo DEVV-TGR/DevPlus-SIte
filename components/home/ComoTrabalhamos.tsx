@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 import { useRef } from "react";
-import { gsap, useGSAP, MOVIMENTO } from "@/lib/motion";
+import { gsap, ScrollTrigger, useGSAP, MOVIMENTO } from "@/lib/motion";
 
 /**
  * Os quatro passos, em cards que **chegam com o scroll e se acumulam** por
@@ -16,6 +16,11 @@ import { gsap, useGSAP, MOVIMENTO } from "@/lib/motion";
  * Os textos são os mesmos de `app/servicos/page.tsx` — se mudarem lá, mudam
  * aqui. Não se inventa um processo diferente por página.
  */
+/**
+ * As poses do leque, **só de `md` para cima**. Em telemóvel os cards estão numa
+ * fila horizontal, e um `translate` em vw atirava-os para fora dela — foi assim
+ * que o passo 01 ficou com metade do texto cortada pela margem esquerda.
+ */
 const PASSOS = [
   {
     n: "01",
@@ -23,8 +28,7 @@ const PASSOS = [
     d: "Sentamo-nos contigo a perceber o negócio, quem são os teus clientes e o que queres ganhar com isto. Sem isso, o resto é decoração.",
     img: "/ilustra/t1-conversa.webp",
     alt: "Duas pessoas frente a frente com balões de fala e um caderno.",
-    pose: "translate-x-[-31vw] translate-y-[8svh] -rotate-[5deg]",
-    poseSm: "max-md:translate-x-[-13vw] max-md:translate-y-[0svh] max-md:-rotate-[5deg]",
+    pose: "md:translate-x-[-31vw] md:translate-y-[8svh] md:-rotate-[5deg]",
   },
   {
     n: "02",
@@ -32,8 +36,7 @@ const PASSOS = [
     d: "Mostramos-te o site desenhado antes de ele existir. Vês, dizes o que mudarias, e só depois se escreve código.",
     img: "/ilustra/t2-design.webp",
     alt: "Uma pessoa a desenhar um layout numa prancha, com régua e esquadro.",
-    pose: "translate-x-[-10.5vw] translate-y-[13svh] rotate-[4deg]",
-    poseSm: "max-md:translate-x-[13vw] max-md:translate-y-[6svh] max-md:rotate-[4deg]",
+    pose: "md:translate-x-[-10.5vw] md:translate-y-[13svh] md:rotate-[4deg]",
   },
   {
     n: "03",
@@ -41,8 +44,7 @@ const PASSOS = [
     d: "Abre depressa, funciona bem no telemóvel e aparece nas pesquisas. Não são extras que se pedem, é como fazemos.",
     img: "/ilustra/t3-construcao.webp",
     alt: "Blocos geométricos empilhados a formar uma janela de browser.",
-    pose: "translate-x-[10.5vw] translate-y-[8svh] -rotate-[3deg]",
-    poseSm: "max-md:translate-x-[-13vw] max-md:translate-y-[14svh] max-md:-rotate-[3deg]",
+    pose: "md:translate-x-[10.5vw] md:translate-y-[8svh] md:-rotate-[3deg]",
   },
   {
     n: "04",
@@ -50,8 +52,7 @@ const PASSOS = [
     d: "Pomos o site online, acompanhamos os primeiros dias e afinamos o que for preciso. E ficamos cá para o que vier a seguir.",
     img: "/ilustra/t4-no-ar.webp",
     alt: "Uma janela de browser a subir com um foguete e linhas de velocidade.",
-    pose: "translate-x-[31vw] translate-y-[13svh] rotate-[5deg]",
-    poseSm: "max-md:translate-x-[13vw] max-md:translate-y-[22svh] max-md:rotate-[5deg]",
+    pose: "md:translate-x-[31vw] md:translate-y-[13svh] md:rotate-[5deg]",
   },
 ];
 
@@ -69,6 +70,33 @@ export function ComoTrabalhamos() {
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         gsap.set(cards, { opacity: 1, scale: 1 });
         return;
+      }
+
+      /* **No telemóvel a acumulação não cabe.** Quatro cards sobrepostos num
+         ecrã de 390px saem pelas margens — metade do texto do passo 01 ficava
+         cortada à esquerda — e a pilha custava 2,8 ecrãs de scroll. Aí a
+         secção passa a uma **fila horizontal**: o título fica preso em cima e
+         os cards passam de lado, um de cada vez. É a forma que o site de
+         referência usa nesta mesma secção no iPhone, e é a mesma gramática do
+         `ProvaCarrossel` — lateral lê-se como percorrer uma lista, e é isso
+         que quatro passos são. */
+      if (window.matchMedia("(max-width: 767px)").matches) {
+        const fila = raiz.querySelector<HTMLElement>("[data-fila]");
+        if (!fila) return;
+        gsap.set(cards, { opacity: 1, scale: 1 });
+
+        const percurso = () => Math.max(0, fila.scrollWidth - window.innerWidth);
+        const st = ScrollTrigger.create({
+          trigger: raiz,
+          start: "top top",
+          end: () => `+=${percurso() + window.innerHeight * 0.25}`,
+          pin: palco,
+          scrub: 0.6,
+          invalidateOnRefresh: true,
+          onUpdate: (self) =>
+            gsap.set(fila, { x: -self.progress * percurso(), force3D: true }),
+        });
+        return () => st.kill();
       }
 
       gsap.set(cards, { opacity: 0, scale: 0.92 });
@@ -104,16 +132,23 @@ export function ComoTrabalhamos() {
     >
       <div
         data-palco
-        className="relative grid min-h-[100svh] place-items-center overflow-hidden px-6"
+        /* `justify-start` e não `center`: o palco corta nos dois lados
+           (`overflow-hidden`), e com o conteúdo centrado era o topo do título
+           que desaparecia. Em telemóvel o título encosta ao cimo e a fila
+           ocupa o que sobra. */
+        className="relative flex min-h-[100svh] flex-col justify-start gap-6 overflow-hidden pb-10 pt-24 md:grid md:place-items-center md:gap-0 md:px-6 md:py-0"
       >
         {/* O título tem lugar próprio no terço de cima, e os cards chegam por
             baixo dele. Estavam todos centrados no mesmo ponto: acumulavam-se
             uns por cima dos outros e tapavam o título por inteiro — o que fica
             é uma pilha de caixas sem se perceber a que capítulo pertencem. */}
-        <div className="absolute inset-x-0 top-[10svh] mx-auto max-w-[46rem] px-6 text-center">
+        {/* Em telemóvel o título fica preso no topo enquanto os cards passam
+            por baixo dele — é o que a referência faz nesta secção. Em desktop
+            continua no terço de cima, com os cards em leque por baixo. */}
+        <div className="mx-auto w-full max-w-[46rem] shrink-0 px-6 text-center md:absolute md:inset-x-0 md:top-[10svh]">
           <h2
             id="como-trabalhamos"
-            className="font-display text-[clamp(2.2rem,5.6vw,4.6rem)] font-extrabold leading-[0.95] tracking-[-0.045em]"
+            className="t-seccao font-display font-extrabold"
           >
             Como trabalhamos.
           </h2>
@@ -123,6 +158,13 @@ export function ComoTrabalhamos() {
           </p>
         </div>
 
+        {/* `md:contents` faz o wrapper desaparecer do layout em desktop, e os
+            cards voltam a ser filhos do palco — que é o que o `absolute` das
+            poses precisa como referência. */}
+        <div
+          data-fila
+          className="flex w-max items-stretch gap-4 px-6 will-change-transform md:contents"
+        >
         {PASSOS.map((p) => (
           <article
             key={p.n}
@@ -133,7 +175,7 @@ export function ComoTrabalhamos() {
                invisíveis. O verificador trata os dois casos de maneira
                diferente; ver `scripts/verificar-scroll.mjs`. */
             data-scroll-item
-            className={`absolute grid w-[min(20rem,74vw)] gap-2 rounded-2xl border border-border bg-surface p-5 shadow-[0_30px_60px_-30px_rgb(0_0_0/0.7)] ${p.pose} ${p.poseSm}`}
+            className={`grid w-[78vw] shrink-0 gap-2 rounded-2xl border border-border bg-surface p-5 shadow-[0_30px_60px_-30px_rgb(0_0_0/0.7)] md:absolute md:w-[min(20rem,74vw)] ${p.pose}`}
           >
             <span className="justify-self-start rounded-full bg-primary px-3 py-0.5 text-xs font-semibold uppercase tracking-[0.18em] text-primary-ink">
               Processo
@@ -164,6 +206,7 @@ export function ComoTrabalhamos() {
             </div>
           </article>
         ))}
+        </div>
       </div>
     </section>
   );

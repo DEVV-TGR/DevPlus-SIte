@@ -79,6 +79,25 @@ export const POSTOS_PAGINA: Posto[] = [
   { p: 1.0, s: 1.2, x: -38, y: 30, r: 0, c: "var(--primary)" },
 ];
 
+/**
+ * Os postos do **telemóvel**, e são outros por uma razão de geometria: os
+ * deslocamentos são em `vw`, e num ecrã de 390px `36vw` são 140px — o "+" cai
+ * no meio da coluna de leitura em vez de ficar na margem, que num ecrã de
+ * 1440px é onde ele estava. Medido: tapava os três telefones do `/contacto` e
+ * atravessava os parágrafos do caso de estudo.
+ *
+ * Aqui a escala nunca passa de 1,1 (contra 1,9), e o "+" vive **encostado aos
+ * cantos**: entra por cima à direita, desce pela margem, e assenta em baixo.
+ * Continua a atravessar a página — é a assinatura do site — mas por trás dela,
+ * e não por cima do que se está a ler.
+ */
+export const POSTOS_MOBILE: Posto[] = [
+  { p: 0.0, s: 1.1, x: 40, y: -34, r: 0, c: "var(--primary)" },
+  { p: 0.34, s: 0.42, x: 44, y: 30, r: 8, c: "var(--primary)" },
+  { p: 0.72, s: 0.4, x: -44, y: -32, r: 10, c: "var(--paper-muted)" },
+  { p: 1.0, s: 0.9, x: -42, y: 34, r: 0, c: "var(--primary)" },
+];
+
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 /** Suaviza a passagem entre postos: sem isto o "+" muda de direção em bicos. */
 const suave = (t: number) => t * t * (3 - 2 * t);
@@ -98,7 +117,14 @@ function posto(POSTOS: Posto[], p: number) {
   };
 }
 
-export function Cruz({ postos = POSTOS_HOME }: { postos?: Posto[] }) {
+export function Cruz({
+  postos = POSTOS_HOME,
+  /** O percurso do telemóvel. Só se passa quando a página quer um seu. */
+  postosMobile = POSTOS_MOBILE,
+}: {
+  postos?: Posto[];
+  postosMobile?: Posto[];
+}) {
   const ref = useRef<HTMLDivElement>(null);
 
   useGSAP(
@@ -108,8 +134,13 @@ export function Cruz({ postos = POSTOS_HOME }: { postos?: Posto[] }) {
 
       const reduz = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+      /* Qual dos dois percursos vale é decidido a cada `refresh` e não uma vez
+         na montagem: rodar o telemóvel troca a largura sem desmontar nada. */
+      const estreito = window.matchMedia("(max-width: 767px)");
+      const quais = () => (estreito.matches ? postosMobile : postos);
+
       const pintar = (p: number) => {
-        const v = posto(postos, p);
+        const v = posto(quais(), p);
         el.style.setProperty("--cs", v.s.toFixed(3));
         el.style.setProperty("--cx", `${v.x.toFixed(2)}vw`);
         el.style.setProperty("--cy", `${v.y.toFixed(2)}vh`);
@@ -149,11 +180,17 @@ export function Cruz({ postos = POSTOS_HOME }: { postos?: Posto[] }) {
         onUpdate: (self) => pintar(self.progress),
       });
       pintar(0);
-      return () => st.kill();
+
+      const repintar = () => pintar(st.progress);
+      estreito.addEventListener("change", repintar);
+      return () => {
+        estreito.removeEventListener("change", repintar);
+        st.kill();
+      };
     },
     /* Os postos entram nas dependências: sem isso, uma página que os mude
        continuava com os da anterior depois de uma navegação de cliente. */
-    { scope: ref, dependencies: [postos] },
+    { scope: ref, dependencies: [postos, postosMobile] },
   );
 
   return (

@@ -73,8 +73,18 @@ export function ServicosAcordeao() {
       if (!palco) return;
 
       /* Com movimento reduzido não há pin nem percurso: as seis colunas ficam
-         empilhadas e abrem-se ao clique, que é a outra forma de as ver. */
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+         empilhadas e abrem-se ao clique, que é a outra forma de as ver.
+
+         **E no telemóvel também não.** Lá o acordeão está deitado — seis
+         linhas que cabem num ecrã e meio — e o pin cobrava 3,4 ecrãs de scroll
+         para mostrar o que já se via. Ficam abertas todas e lê-se de uma vez;
+         quem quiser fechar umas continua a poder tocar. */
+      if (
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+        window.matchMedia("(max-width: 767px)").matches
+      ) {
+        return;
+      }
 
       const st = ScrollTrigger.create({
         trigger: raiz,
@@ -110,7 +120,7 @@ export function ServicosAcordeao() {
       </h2>
       <div
         data-palco
-        className="flex min-h-[100svh] flex-col gap-1.5 overflow-hidden px-6 pb-8 pt-24 sm:px-8 md:flex-row md:pt-28"
+        className="flex flex-col gap-1.5 px-6 pb-8 pt-24 sm:px-8 md:min-h-[100svh] md:flex-row md:overflow-hidden md:pt-28"
       >
         {services.map((s, i) => {
           const fig = FIGURAS[i];
@@ -122,13 +132,17 @@ export function ServicosAcordeao() {
               /* O primeiro vem aberto do servidor: sem isto, quem chega com o
                  JavaScript ainda a carregar vê seis colunas fechadas e nenhum
                  texto. */
+              /* Em telemóvel abrem todas: sem o scroll a conduzi-las, cinco
+                 linhas fechadas eram cinco títulos sem resposta. O CSS trata
+                 disso com `max-md:` — o atributo continua a marcar a que o
+                 scroll abriu em desktop. */
               data-aberta={i === 0 ? "true" : "false"}
               aria-expanded={i === 0}
               onClick={() => {
                 manual.current = performance.now() + 2000;
                 abrir(i);
               }}
-              className="group relative grid min-w-0 cursor-pointer content-end overflow-hidden rounded-2xl border border-border bg-surface p-4 text-left transition-[flex-grow,background-color,border-color] duration-[420ms] ease-out data-[aberta=true]:border-primary/45 data-[aberta=true]:bg-primary/10 md:basis-0 md:grow md:p-5 md:data-[aberta=true]:grow-[5]"
+              className="group relative grid min-w-0 cursor-pointer content-end overflow-hidden rounded-2xl border border-border bg-surface p-4 text-left transition-[flex-grow,background-color,border-color] duration-[420ms] ease-out md:data-[aberta=true]:border-primary/45 md:data-[aberta=true]:bg-primary/10 md:basis-0 md:grow md:p-5 md:data-[aberta=true]:grow-[5]"
             >
               <span className="absolute left-4 top-4 text-sm font-extrabold tabular-nums text-primary md:left-5 md:top-5">
                 {String(i + 1).padStart(2, "0")}
@@ -158,11 +172,11 @@ export function ServicosAcordeao() {
               {/* O nome roda quando a coluna está fechada e endireita-se ao
                   abrir: é o que torna seis colunas legíveis a 130px de largura.
                   No telemóvel nunca roda — lá as colunas são linhas. */}
-              <h3 className="m-0 whitespace-nowrap pl-10 font-display text-[clamp(1rem,1.5vw,1.35rem)] font-bold tracking-[-0.02em] group-data-[aberta=true]:text-[clamp(1.5rem,3vw,2.6rem)] md:pl-0 md:[writing-mode:vertical-rl] md:[transform:rotate(180deg)] md:group-data-[aberta=true]:[writing-mode:horizontal-tb] md:group-data-[aberta=true]:[transform:none]">
+              <h3 className="m-0 whitespace-nowrap pl-10 font-display text-[1.35rem] font-bold tracking-[-0.02em] md:pl-0 md:text-[clamp(1rem,1.5vw,1.35rem)] md:[writing-mode:vertical-rl] md:[transform:rotate(180deg)] md:group-data-[aberta=true]:text-[clamp(1.5rem,3vw,2.6rem)] md:group-data-[aberta=true]:[writing-mode:horizontal-tb] md:group-data-[aberta=true]:[transform:none]">
                 {s.title}
               </h3>
 
-              <div className="mt-3 hidden max-w-[44ch] gap-3 group-data-[aberta=true]:grid">
+              <div className="mt-3 grid max-w-[44ch] gap-3 md:hidden md:group-data-[aberta=true]:grid">
                 <p className="text-muted">{s.blurb}</p>
                 <ul className="flex flex-wrap gap-1.5">
                   {s.items.map((it) => (

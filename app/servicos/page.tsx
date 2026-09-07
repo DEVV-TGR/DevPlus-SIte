@@ -104,7 +104,7 @@ export default function ServicosPage() {
       <Section className="relative">
         <Container>
           <Reveal>
-            <h2 className="max-w-[18ch] font-display text-[clamp(2rem,4.5vw,3.4rem)] font-extrabold tracking-[-0.04em]">
+            <h2 className="t-seccao max-w-[18ch] font-display font-extrabold">
               Como um projeto corre.
             </h2>
             <p className="mt-3 max-w-[52ch] text-muted">
@@ -139,7 +139,7 @@ export default function ServicosPage() {
       <Section top={false} className="relative">
         <Container>
           <Reveal>
-            <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+            <h2 className="t-seccao font-display font-extrabold">
               Por onde podemos começar
             </h2>
             <p className="mt-3 max-w-xl text-muted">
@@ -208,7 +208,7 @@ export default function ServicosPage() {
         <Container>
           <div className="grid gap-10 lg:grid-cols-12">
             <Reveal className="lg:col-span-4">
-              <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+              <h2 className="t-seccao font-display font-extrabold">
                 Perguntas frequentes
               </h2>
               <p className="mt-3 text-muted">
@@ -241,7 +241,7 @@ export default function ServicosPage() {
         <Container>
           <Reveal>
             <div className="rounded-2xl border border-border bg-surface p-8 text-center sm:p-12">
-              <h2 className="mx-auto max-w-lg font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+              <h2 className="t-seccao mx-auto max-w-lg font-display font-extrabold">
                 Tens um projeto em mente?
               </h2>
               <p className="mx-auto mt-3 max-w-md text-muted">
