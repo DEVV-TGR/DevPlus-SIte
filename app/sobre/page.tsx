@@ -1,7 +1,9 @@
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Reveal } from "@/components/Reveal";
-import { PageHero } from "@/components/PageHero";
+import { Capa } from "@/components/paginas/Capa";
+import { Cruz, POSTOS_PAGINA } from "@/components/home/Cruz";
+import { Curva } from "@/components/home/Curva";
 import { site } from "@/lib/site";
 import { pageMetadata } from "@/lib/seo";
 
@@ -55,81 +57,95 @@ const beliefs: [string, string][] = [
   ],
 ];
 
+/**
+ * As notas que vão habitar as margens do texto.
+ *
+ * São os mesmos `values` e `differentiators` de antes — o que mudou não foi o
+ * conteúdo, foi o sítio. Estavam em duas secções próprias, uma coluna e um
+ * painel; passam a viver **ao lado** da voz do estúdio, alternadamente à
+ * esquerda e à direita, para o olho não cair sempre do mesmo lado.
+ *
+ * O `topo` é a classe da posição vertical, e só conta a partir dos 1024px:
+ * abaixo disso não há margem para habitar, e as notas entram na coluna, que é
+ * onde cabem. Está escrita por extenso e não montada a partir de um número
+ * porque o Tailwind só gera o que consegue **ler no ficheiro** — uma classe
+ * construída em runtime não chega a existir no CSS.
+ */
+const notas: { lado: "e" | "d"; topo: string; par: [string, string] }[] = [
+  { lado: "e", topo: "lg:top-[6%]", par: values[0] },
+  { lado: "d", topo: "lg:top-[22%]", par: values[1] },
+  { lado: "e", topo: "lg:top-[44%]", par: differentiators[0] },
+  { lado: "d", topo: "lg:top-[62%]", par: differentiators[1] },
+  { lado: "e", topo: "lg:top-[80%]", par: differentiators[2] },
+];
+
 export default function SobrePage() {
   return (
     <>
-      <PageHero
+      <Cruz postos={POSTOS_PAGINA} />
+
+      <Capa
         eyebrow="Sobre"
         title="Estúdio pequeno, projetos poucos, atenção toda."
         intro={`A ${site.name} nasceu de uma ideia simples: a maior parte dos sites podia ser bem melhor. Existimos para acrescentar o que lhes falta.`}
       />
+      <Curva forma="a" de="var(--bg)" cor="var(--bg-deep)" />
 
-      <Section>
-        <Container>
-          <div className="grid gap-12 lg:grid-cols-12">
-            <Reveal className="lg:col-span-7">
-              <div className="space-y-5 text-lg text-muted">
-                <p>
-                  Somos um estúdio pequeno de web design e desenvolvimento.
-                  Trabalhamos sobretudo com negócios que já fazem bem aquilo que
-                  fazem e só precisam que a internet o mostre — restaurantes,
-                  stands, empresas de serviços.
-                </p>
-                <p>
-                  Quem fala contigo é quem desenha e quem escreve o código. Não
-                  há intermediários pelo meio nem modelos prontos a preencher.
-                  E não te deixamos sozinho quando o site fica no ar: o
-                  alojamento e o suporte ficam connosco.
-                </p>
-              </div>
-            </Reveal>
-
-            <Reveal className="lg:col-span-5" delay={0.08}>
-              <div className="flex flex-col divide-y divide-border">
-                {values.map(([title, blurb]) => (
-                  <div key={title} className="py-5 first:pt-0">
-                    <h2 className="font-display text-lg">{title}</h2>
-                    <p className="mt-1.5 text-sm text-muted">{blurb}</p>
-                  </div>
-                ))}
-              </div>
-            </Reveal>
-          </div>
-        </Container>
-      </Section>
-
-      {/* PORQUÊ A DEVPLUS — veio da homepage, que passou a dar o lugar ao
-          trabalho feito e aos testemunhos. Ver docs/04. */}
-      <Section top={false}>
-        <Container>
-          <Reveal>
-            <div className="rounded-2xl border border-border bg-surface p-8 sm:p-12">
-              <h2 className="max-w-md font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                Porquê a {site.name}
+      {/* A VOZ, E AS MARGENS
+          O texto ao meio, estreito, e as notas à volta. Um estúdio pequeno a
+          falar de si não precisa de secções — precisa de uma voz e de notas à
+          margem que não a interrompam. Antes eram dois blocos próprios: uma
+          coluna de valores e um painel "Porquê a DevPlus". Diziam o mesmo, mas
+          obrigavam a lê-los como capítulos. */}
+      <section className="relative bg-bg-deep py-24 sm:py-32 lg:py-40">
+        {notas.map(({ lado, topo, par: [titulo, texto] }) => (
+          <Reveal
+            key={titulo}
+            className={`mx-auto my-8 block max-w-[34rem] px-6 sm:px-8 lg:absolute lg:my-0 lg:max-w-[22rem] lg:px-0 ${
+              lado === "e"
+                ? "lg:left-[max(1.5rem,6vw)]"
+                : "lg:right-[max(1.5rem,6vw)]"
+            } ${topo}`}
+          >
+            <aside className="border-l-2 border-primary pl-4">
+              <h2 className="font-display text-lg font-bold tracking-[-0.02em]">
+                {titulo}
               </h2>
-              <div className="mt-10 grid gap-8 sm:grid-cols-3">
-                {differentiators.map(([title, blurb], i) => (
-                  <Reveal key={title} delay={i * 0.06}>
-                    <div>
-                      <span
-                        aria-hidden
-                        className="block h-px w-10 bg-primary"
-                      />
-                      <h3 className="mt-4 font-display text-lg">{title}</h3>
-                      <p className="mt-2 text-sm text-muted">{blurb}</p>
-                    </div>
-                  </Reveal>
-                ))}
-              </div>
-            </div>
+              <p className="mt-1.5 text-sm text-muted">{texto}</p>
+            </aside>
           </Reveal>
-        </Container>
-      </Section>
+        ))}
 
-      <Section top={false}>
+        <div className="mx-auto grid max-w-[34rem] gap-6 px-6 sm:px-8">
+          <Reveal>
+            <p className="text-[clamp(1.05rem,1.6vw,1.4rem)] leading-[1.55]">
+              Somos um estúdio pequeno de web design e desenvolvimento.
+              Trabalhamos sobretudo com negócios que já fazem bem aquilo que
+              fazem e só precisam que a internet o mostre — restaurantes,
+              stands, empresas de serviços.
+            </p>
+          </Reveal>
+          <Reveal delay={0.06}>
+            <p className="text-[clamp(1.05rem,1.6vw,1.4rem)] leading-[1.55]">
+              Quem fala contigo é quem desenha e quem escreve o código. Não há
+              intermediários pelo meio nem modelos prontos a preencher.
+            </p>
+          </Reveal>
+          <Reveal delay={0.12}>
+            <p className="text-[clamp(1.05rem,1.6vw,1.4rem)] leading-[1.55] text-muted">
+              E não te deixamos sozinho quando o site fica no ar: o alojamento e
+              o suporte ficam connosco. Se alguma coisa falhar, não tens de andar
+              à procura de quem resolve.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+      <Curva forma="b" de="var(--bg-deep)" cor="var(--bg)" />
+
+      <Section className="relative">
         <Container>
           <Reveal>
-            <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+            <h2 className="max-w-[14ch] font-display text-[clamp(2rem,4.5vw,3.4rem)] font-extrabold tracking-[-0.04em]">
               Em que acreditamos
             </h2>
           </Reveal>

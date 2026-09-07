@@ -4,7 +4,10 @@ import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/Reveal";
-import { PageHero } from "@/components/PageHero";
+import { Capa } from "@/components/paginas/Capa";
+import { Cruz, POSTOS_PAGINA } from "@/components/home/Cruz";
+import { Curva } from "@/components/home/Curva";
+import { ServicosAcordeao } from "@/components/paginas/ServicosAcordeao";
 import { FaqJsonLd } from "@/components/JsonLd";
 import { services } from "@/lib/services";
 import { packages } from "@/lib/packages";
@@ -77,58 +80,54 @@ export default function ServicosPage() {
   return (
     <>
       <FaqJsonLd faqs={faqs} />
-      <PageHero
+      <Cruz postos={POSTOS_PAGINA} />
+
+      <Capa
         eyebrow="Serviços"
         title="Design, código e as chaves na tua mão."
         intro="Fazemos tudo o que o teu site precisa, da primeira ideia ao dia em que fica no ar. E deixamos-te o painel para seres tu a mandar nele a partir daí."
+        contas={[
+          { n: String(services.length).padStart(2, "0"), label: "serviços" },
+          { n: String(steps.length).padStart(2, "0"), label: "passos" },
+          { n: String(packages.length).padStart(2, "0"), label: "pontos de partida" },
+        ]}
       />
+      <Curva forma="b" de="var(--bg)" cor="var(--bg-deep)" />
 
-      <Section>
-        <Container>
-          <div className="flex flex-col divide-y divide-border">
-            {services.map((s) => (
-              <Reveal key={s.title}>
-                <div className="grid gap-6 py-10 sm:grid-cols-12 sm:py-14">
-                  <div className="sm:col-span-4">
-                    <h2 className="font-display text-2xl tracking-tight sm:text-3xl">
-                      {s.title}
-                    </h2>
-                  </div>
-                  <div className="sm:col-span-8">
-                    <p className="max-w-xl text-muted">{s.blurb}</p>
-                    <ul className="mt-5 flex flex-wrap gap-2">
-                      {s.items.map((it) => (
-                        <li
-                          key={it}
-                          className="rounded-full border border-border px-3 py-1.5 text-sm text-muted"
-                        >
-                          {it}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </Container>
-      </Section>
+      <ServicosAcordeao />
+      <Curva forma="a" de="var(--bg-deep)" cor="var(--bg)" />
 
-      {/* COMO TRABALHAMOS */}
-      <Section top={false}>
+      {/* COMO TRABALHAMOS — os mesmos quatro passos da página inicial e, de
+          propósito, **não** na mesma forma: ali acumulam-se em cards inclinados
+          sobre o título, aqui correm numa linha com os números pousados nela.
+          Mesma informação, forma diferente. É a regra do docs/04. */}
+      <Section className="relative">
         <Container>
           <Reveal>
-            <h2 className="max-w-lg font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-              Como trabalhamos
+            <h2 className="max-w-[18ch] font-display text-[clamp(2rem,4.5vw,3.4rem)] font-extrabold tracking-[-0.04em]">
+              Como um projeto corre.
             </h2>
+            <p className="mt-3 max-w-[52ch] text-muted">
+              Quatro passos, sempre os mesmos. Sabes onde estás em cada momento.
+            </p>
           </Reveal>
-          <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="relative mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-10">
+            {/* A linha só existe onde os quatro estão lado a lado: em duas
+                colunas ela ligaria passos que não se seguem. */}
+            <span
+              aria-hidden
+              className="absolute inset-x-0 top-[1.15rem] hidden h-px bg-border-strong lg:block"
+            />
             {steps.map(([n, t, d], i) => (
               <Reveal key={n} delay={i * 0.08}>
-                <div className="border-t border-border pt-5">
-                  <span className="font-display text-sm text-primary">{n}</span>
-                  <h3 className="mt-2 font-display text-xl">{t}</h3>
-                  <p className="mt-2 text-sm text-muted">{d}</p>
+                <div className="relative grid gap-2">
+                  <span className="relative z-[1] grid h-9 w-9 place-items-center rounded-full bg-primary text-sm font-extrabold tabular-nums text-primary-ink">
+                    {n}
+                  </span>
+                  <h3 className="mt-2 font-display text-xl font-bold tracking-[-0.02em]">
+                    {t}
+                  </h3>
+                  <p className="text-sm text-muted">{d}</p>
                 </div>
               </Reveal>
             ))}
@@ -137,7 +136,7 @@ export default function ServicosPage() {
       </Section>
 
       {/* PACKAGES */}
-      <Section top={false}>
+      <Section top={false} className="relative">
         <Container>
           <Reveal>
             <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -205,7 +204,7 @@ export default function ServicosPage() {
       </Section>
 
       {/* FAQ */}
-      <Section top={false}>
+      <Section top={false} className="relative">
         <Container>
           <div className="grid gap-10 lg:grid-cols-12">
             <Reveal className="lg:col-span-4">
@@ -238,7 +237,7 @@ export default function ServicosPage() {
         </Container>
       </Section>
 
-      <Section top={false}>
+      <Section top={false} className="relative">
         <Container>
           <Reveal>
             <div className="rounded-2xl border border-border bg-surface p-8 text-center sm:p-12">

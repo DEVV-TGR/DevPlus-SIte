@@ -17,7 +17,13 @@ copia, para não haver duas listas a divergir. Vai lá ver quais são.
 
 São **6**. Aparecem em dois sítios, ambos a ler do mesmo array:
 
-- `app/servicos/page.tsx` — lista completa, em `divide-y` (aguenta qualquer número);
+- `app/servicos/page.tsx` — os seis, no **acordeão de colunas** do
+  `components/paginas/ServicosAcordeao.tsx` (aguenta qualquer número: as colunas
+  repartem a largura entre si). Há ilustração para quatro; o **Branding** e o
+  **Motion & Interação** ficam com o "+" em marca-d'água em vez de uma figura
+  emprestada de outro serviço — se forem geradas, é com o preâmbulo do
+  `scrollcraft/builds/devplus/PLANO-V3.md`, que é o que mantém as nove atuais no
+  mesmo estilo;
 - `app/page.tsx` — teaser, numa grelha `sm:grid-cols-2`, **depois** do trabalho
   selecionado. A oferta vem a seguir à prova, não antes — ver `docs/04`,
   "A homepage conta uma história".
@@ -117,7 +123,8 @@ Só um pacote pode ter `featured`.
 | ----------------------------------- | -------------------------------------------------------------- |
 | a lista de serviços                 | `lib/services.ts`; segue a checklist acima toda                |
 | uma resposta da FAQ sobre dinheiro  | confirma com o Gonçalo **antes** — ver "A FAQ não é copy"      |
-| o número de serviços                | verifica a grelha `sm:grid-cols-2` em `app/page.tsx`           |
+| o número de serviços                | verifica a grelha `sm:grid-cols-2` em `app/page.tsx` **e** o acordeão da `/servicos`: acima de sete colunas, as fechadas deixam de se ler |
+| acrescentares um serviço com figura | põe-na em `public/ilustra/` e acrescenta-a a `FIGURAS`, em `components/paginas/ServicosAcordeao.tsx` — a ordem é a de `lib/services.ts` |
 | um `title`                          | procura esse nome nas `services` de `lib/projects.ts` e alinha |
 | as regras de escrita (blurb, items) | revê os 6 serviços existentes de uma vez                       |
 

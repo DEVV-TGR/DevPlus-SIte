@@ -10,6 +10,9 @@ controla:
   - components/Marquee.tsx
   - components/ProjectsMarquee.tsx
   - components/PageHero.tsx
+  - components/paginas/Capa.tsx
+  - components/paginas/ServicosAcordeao.tsx
+  - components/paginas/PortfolioIndice.tsx
   - components/Providers.tsx
   - components/Nav.tsx
   - components/ContactForm.tsx
@@ -42,9 +45,12 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `Reveal`          | aparecer no scroll (fade + 16px)                                           | envolver cada elemento; envolve o bloco                                                    |
 | `Marquee`         | faixa horizontal infinita, decorativa                                      | pôr lá conteúdo que importe — é `aria-hidden`                                              |
 | `ProjectsMarquee` | a faixa de projetos da página inicial: conteúdo real, focável e arrastável | usá-lo para decoração — para isso é o `Marquee`; e pôr `gap` no track, que parte o ciclo   |
-| `PageHero`        | cabeçalho das páginas internas (eyebrow + h1 + intro)                      | escrever um h1 solto numa página interna                                                   |
+| `PageHero`        | cabeçalho da `/privacidade` — texto que não precisa de composição           | usá-lo nas quatro páginas que ganharam capa própria; para essas é o `paginas/Capa`         |
+| `paginas/Capa`    | a capa de uma página interior: um ecrã só, com o título a ocupá-lo          | pôr-lhe uma figura — a figura é o pico da inicial e repeti-la em cinco capas gasta-a       |
+| `paginas/ServicosAcordeao` | os seis serviços, em colunas que abrem uma de cada vez             | usá-lo na inicial: lá os serviços apresentam-se um a um, aqui catalogam-se                  |
+| `paginas/PortfolioIndice`  | o trabalho em índice, com a capa do ativo numa moldura fixa        | voltar a pôr aqui a grelha de `ProjectCard` — diz o mesmo que a fila da página inicial      |
 | `home/HeroHome`   | a capa da página inicial                                                   | reutilizar noutro sítio; e pôr o título em dois elementos — ver abaixo                    |
-| `home/Cruz`       | o "+" que atravessa a página inicial                                       | usá-lo noutra página; o gesto é da homepage e perde sentido repetido                       |
+| `home/Cruz`       | o "+" que atravessa uma página. `postos` muda o percurso                    | dar-lhe os mesmos postos em duas páginas — o que gasta o gesto é repeti-lo **igual**       |
 | `home/Curva`      | o corte entre dois capítulos                                               | pôr uma linha reta no lugar dela; e usá-la sem `de`, que deixa passar o fundo do `body`     |
 | `home/ComoTrabalhamos` | os quatro passos, em cards que se acumulam                            | transformá-los numa grelha — a acumulação é o ponto                                        |
 | `home/ProvaCarrossel`  | o trabalho feito, em fila horizontal com a página presa                | usá-lo para hierarquia; lateral lê-se como alcance, não como ordem                          |
@@ -134,6 +140,43 @@ da aresta.
   vem antes no DOM. Com um `z` acima de 1 a curva passa a ser a única superfície
   da página por cima do `.grain-overlay` — e vê-se: uma faixa lisa com uma
   aresta reta a atravessá-la de lado a lado.
+
+### As páginas interiores também têm forma própria
+
+Setembro de 2026, a seguir à segunda escrita da homepage. A regra das seis
+formas não acaba na página inicial: se as cinco páginas interiores forem todas
+"cabeçalho mais blocos empilhados", o site volta a ler-se como uma lista, só
+que distribuída por ficheiros.
+
+| Página | A forma | Porque esta |
+| - | --- | --- |
+| `/servicos` | Acordeão de seis colunas verticais, uma aberta de cada vez | Aqui quem chega já sabe o que procura. A inicial **apresenta** quatro serviços um a um; esta **cataloga** os seis, e catalogar quer dizer vê-los todos ao mesmo tempo |
+| `/portfolio` | Índice tipográfico, com a capa do ativo numa moldura que não se mexe | A inicial já mostra o trabalho a passar de lado. Uma grelha de capas aqui era a mesma coisa outra vez — e um índice é a forma de quem procura, não de quem passeia |
+| `/portfolio/[slug]` | Capa a sangrar, e uma ficha técnica que fica presa ao lado do texto | Numa leitura longa a ficha fixa é o que impede que se perca de quem é o projeto a meio do segundo parágrafo |
+| `/sobre` | Coluna central estreita, com as margens habitadas pelas notas | Um estúdio pequeno a falar de si não precisa de secções: precisa de uma voz, e de notas à margem que não a interrompam |
+| `/contacto` | Duas colunas num ecrã, sem percurso | É onde se age. Um formulário que obriga a rolar para se ver inteiro perde gente a meio |
+| `/privacidade` | `PageHero` e texto | É a exceção, e é deliberada: um documento legal não leva composição |
+
+**O "+" deixou de ser só da inicial.** A regra anterior dizia para não o repetir
+noutra página. Estava certa enquanto a homepage era a única com esta gramática;
+com cinco páginas a partilhá-la, o que gastava o gesto não era repeti-lo, era
+repeti-lo **igual**. Cada página passa os seus `postos` — as interiores levam
+quatro em vez de sete — e há duas regras que a inicial não precisou de ter,
+porque lá o "+" vive quase sempre sobre imagem ou sobre vazio:
+
+1. **Grande só onde não há texto corrido**, e por pouco tempo: o primeiro tramo
+   acaba aos 22% do percurso. Com ele a durar até meio, o "+" ainda ia em escala
+   1,6 quando o conteúdo começava, e ao lado das capas do portfólio isso não é
+   um gesto de fundo, é uma mancha a competir com o trabalho.
+2. **Nunca 45°.** Um "+" rodado a meio caminho é um X — e um X grande e cinzento
+   por cima do trabalho lê-se como um botão de fechar.
+
+E uma terceira, que é de pintura e não de composição: **numa página com `Cruz`,
+as secções levam `relative`**. A camada do "+" é `fixed z-0`, e uma secção sem
+`position` é pintada **antes** de qualquer elemento posicionado — ou seja, por
+baixo dele. Na página inicial nunca se viu porque lá todas as secções já são
+`relative`; na `/contacto` o "+" apareceu por cima do formulário, a tapar os
+campos.
 
 ### Chegar não é o mesmo que aparecer
 
@@ -489,6 +532,9 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | acrescentares uma secção pinada   | nada no `Cruz`: o `end: "max"` acompanha sozinho. Confirma na mesma que o verificador diz "anda até ao fim" |
 | os grounds de um capítulo         | o `de` **e** o `cor` da `Curva` que lhe fica ao lado, em `app/page.tsx` — são dois, e o errado é sempre o que se esquece |
 | um elemento que só chega a meio do scroll | marca-o `data-scroll-item`, não `data-reveal-item` — ver "Chegar não é o mesmo que aparecer" |
+| a forma de uma página interior    | a tabela em "As páginas interiores também têm forma própria" — uma forma repetida é o defeito que ela existe para travar |
+| os postos do `Cruz` numa página   | confirma que o gesto continua a "andar até ao fim" no `verificar-scroll.mjs`, e que a meio da página não passa de 0,6 de escala |
+| acrescentares uma secção a uma página com `Cruz` | dá-lhe `relative` — sem isso o "+" é pintado por cima dela |
 | recolheres um testemunho          | `lib/testimonials.ts`; a secção aparece sozinha assim que o array deixar de estar vazio                  |
 | a duração ou o easing             | **`lib/motion.ts`** e a tabela de valores acima — os componentes leem de lá, não têm números próprios      |
 | introduzires um componente que anima | verifica `prefers-reduced-motion` dentro dele: o GSAP não o faz por ti                                   |

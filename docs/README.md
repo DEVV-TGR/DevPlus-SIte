@@ -29,6 +29,7 @@ Se um doc e o código discordarem, é um bug, não uma questão de gosto.
 | `components/ui/*`, `components/Reveal.tsx`, `components/Marquee.tsx`                                      | 04                       |
 | `lib/motion.ts`, `components/Providers.tsx`, `components/Nav.tsx`, `app/template.tsx`                     | 04                       |
 | `components/home/*`, `app/page.tsx`, `scripts/verificar-scroll.mjs`, `scripts/otimizar-ilustra.py`        | 04                       |
+| `components/paginas/*`                                                                                    | 04                       |
 | `lib/packages.ts`                                                                                         | 05                       |
 | `components/Testimonials.tsx`, `lib/testimonials.ts`, a ordem das secções de `app/page.tsx`               | 04                       |
 | `components/ContactForm.tsx`, `lib/contacto.ts`, `app/api/contacto/route.ts`                              | 04                       |
