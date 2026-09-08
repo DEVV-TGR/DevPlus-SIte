@@ -1,9 +1,11 @@
 /** docs: docs/07-estudio.md */
 import {
   ESTADOS,
+  METRICAS,
   PERIODICIDADES,
   TIPOS_RECEITA,
   type Estado,
+  type Metrica,
   type Periodicidade,
   type TipoReceita,
 } from "@/lib/estudio/tipos";
@@ -353,6 +355,51 @@ export function validarReceita(dados: {
     if (!DATA.test(dados.ate)) erros.ate = "Escolhe a data no calendário.";
     else if (!erros.desde && dados.ate < dados.desde)
       erros.ate = "A data de fim é antes do início — troca as datas.";
+  }
+
+  return erros;
+}
+
+/* ------------------------------------------------------------------------
+   Objetivos
+   ------------------------------------------------------------------------ */
+
+export type ErrosObjetivo = Partial<
+  Record<"titulo" | "metrica" | "alvo" | "prazo" | "desde", string>
+>;
+
+export function eMetrica(valor: string): valor is Metrica {
+  return (METRICAS as readonly string[]).includes(valor);
+}
+
+export function validarObjetivo(dados: {
+  titulo: string;
+  metrica: string;
+  alvo: string;
+  prazo: string;
+  desde: string;
+}): ErrosObjetivo {
+  const erros: ErrosObjetivo = {};
+
+  if (!dados.titulo.trim()) erros.titulo = "Escreve o que queres alcançar.";
+  else if (dados.titulo.length > LIMITES.nome)
+    erros.titulo = `O objetivo não pode passar dos ${LIMITES.nome} caracteres.`;
+
+  if (!eMetrica(dados.metrica)) erros.metrica = "Escolhe o que se vai contar.";
+
+  /* O mínimo é 1: um objetivo de zero já está cumprido antes de se escrever, e
+     dividir por ele para a barra dava infinito. */
+  const alvo = validarValor(dados.alvo, { minimo: 1 });
+  if (alvo) erros.alvo = alvo === "Escreve o valor." ? "Escreve o alvo." : alvo;
+
+  if (dados.prazo.trim() && !DATA.test(dados.prazo))
+    erros.prazo = "Escolhe o prazo no calendário.";
+
+  if (dados.desde.trim()) {
+    if (!DATA.test(dados.desde))
+      erros.desde = "Escolhe a data no calendário.";
+    else if (!erros.prazo && dados.prazo.trim() && dados.prazo < dados.desde)
+      erros.prazo = "O prazo é antes do início — troca as datas.";
   }
 
   return erros;

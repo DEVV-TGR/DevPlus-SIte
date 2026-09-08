@@ -166,6 +166,29 @@ create table if not exists gastos (
 create index if not exists gastos_data_idx on gastos (data);
 create index if not exists gastos_projeto_idx on gastos (projeto_id);
 
+-- Onde queremos chegar, e até quando. "10 clientes até ao fim do ano."
+--
+-- O `alvo` escreve-se; o que já está feito **conta-se sozinho** a partir do que
+-- já existe na base. Um objetivo cujo progresso fosse escrito à mão era mais um
+-- número para manter atualizado — e o primeiro a ficar desatualizado.
+--
+-- Por isso a `metrica` é uma lista fechada: só entram aqui coisas que o Estúdio
+-- saiba contar sem ajuda.
+create table if not exists objetivos (
+  id         bigint generated always as identity primary key,
+  titulo     text not null,
+  metrica    text not null
+             constraint objetivos_metrica_check
+             check (metrica in ('clientes', 'projetos', 'entregues', 'recebido')),
+  alvo       numeric(12, 2) not null check (alvo > 0),
+  -- Até quando. `null` = sem data, é um objetivo em aberto.
+  prazo      date,
+  -- A partir de quando conta. `null` = desde sempre — "ter 10 clientes" conta
+  -- os que já cá estão; "ganhar 10 clientes este ano" põe `desde` em janeiro.
+  desde      date,
+  criado_em  timestamptz not null default now()
+);
+
 -- ---------------------------------------------------------------------------
 -- Ajustes
 --

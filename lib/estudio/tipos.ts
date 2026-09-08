@@ -353,3 +353,65 @@ export function proximaOcorrencia(
 
   return candidata;
 }
+
+/* ------------------------------------------------------------------------
+   Objetivos
+
+   Escreve-se o alvo; **o que já está feito conta-se sozinho** a partir do que
+   já existe na base. Um objetivo cujo progresso fosse escrito à mão era mais um
+   número para manter atualizado, e o primeiro a ficar desatualizado.
+
+   Daí a lista de métricas ser fechada: só entram coisas que o Estúdio saiba
+   contar sem ajuda.
+   ------------------------------------------------------------------------ */
+
+export const METRICAS = [
+  "clientes",
+  "projetos",
+  "entregues",
+  "recebido",
+] as const;
+
+export type Metrica = (typeof METRICAS)[number];
+
+export const ROTULO_METRICA: Record<Metrica, string> = {
+  clientes: "Clientes",
+  projetos: "Projetos",
+  entregues: "Projetos entregues",
+  recebido: "Dinheiro recebido",
+};
+
+/** O `recebido` é em euros; os outros contam-se. É o que decide se o número se
+ *  escreve `1 200,00 €` ou `1200`. */
+export function metricaEmEuros(metrica: Metrica): boolean {
+  return metrica === "recebido";
+}
+
+export type Objetivo = {
+  id: number;
+  titulo: string;
+  metrica: Metrica;
+  alvo: number;
+  /** Até quando. `null` = sem data marcada. */
+  prazo: string | null;
+  /** A partir de quando conta. `null` = desde sempre. */
+  desde: string | null;
+  /** Contado pela base, não escrito por ninguém. */
+  feito: number;
+};
+
+/** Um número entre 0 e 100 para a barra. Passado o alvo a barra enche e fica
+ *  por aí — mas o texto ao lado continua a dizer a verdade (`12 de 10`), que
+ *  cumprir de mais não é um erro a esconder. */
+export function percentagemObjetivo(o: Objetivo): number {
+  if (o.alvo <= 0) return 0;
+  return Math.min(100, Math.max(0, (o.feito / o.alvo) * 100));
+}
+
+/** Como se escreve o progresso de um objetivo: `6 de 10`, ou em euros. */
+export function progressoEscrito(o: Objetivo): string {
+  if (metricaEmEuros(o.metrica))
+    return `${formatarEuros(o.feito)} de ${formatarEuros(o.alvo)}`;
+  /* Sem casas decimais numa contagem: "6 de 10" e não "6,00 de 10,00". */
+  return `${Math.round(o.feito)} de ${Math.round(o.alvo)}`;
+}

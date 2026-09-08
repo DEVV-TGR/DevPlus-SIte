@@ -11,6 +11,7 @@ import {
   lerValor,
   validarGasto,
   validarPagamento,
+  validarObjetivo,
   validarReceita,
 } from "@/lib/estudio/validacao";
 import {
@@ -771,4 +772,59 @@ export async function apagarGasto(form: FormData): Promise<void> {
 
   revalidatePath("/estudio");
   revalidatePath("/estudio/gastos");
+}
+
+/* --------------------------------------------------------------------------
+   Objetivos
+
+   Só se escreve o alvo. O que já está feito conta-o a base — ver
+   `listarObjetivos()` em `lib/estudio/dados.ts`.
+   -------------------------------------------------------------------------- */
+
+export async function criarObjetivo(
+  _anterior: EstadoDinheiro,
+  form: FormData,
+): Promise<EstadoDinheiro> {
+  await requerSessao();
+
+  const dados = {
+    titulo: campo(form.get("titulo"), LIMITES.nome),
+    metrica: campo(form.get("metrica"), 20),
+    alvo: campo(form.get("alvo"), 20),
+    prazo: campo(form.get("prazo"), 10),
+    desde: campo(form.get("desde"), 10),
+  };
+
+  const erros = validarObjetivo(dados);
+  if (Object.keys(erros).length > 0) return { erros };
+
+  try {
+    await consulta(
+      `insert into objetivos (titulo, metrica, alvo, prazo, desde)
+       values ($1, $2, $3, $4, $5)`,
+      [
+        dados.titulo.trim(),
+        dados.metrica,
+        lerValor(dados.alvo),
+        ouNulo(dados.prazo),
+        ouNulo(dados.desde),
+      ],
+    );
+  } catch (erro) {
+    console.error("[estudio] falhou criar objetivo:", erro);
+    return { erro: "Não foi possível guardar. Tenta outra vez." };
+  }
+
+  revalidatePath("/estudio");
+  return { ok: true };
+}
+
+export async function apagarObjetivo(form: FormData): Promise<void> {
+  await requerSessao();
+
+  const id = paraId(campo(form.get("id"), 20));
+  if (!id) return;
+
+  await consulta("delete from objetivos where id = $1", [id]);
+  revalidatePath("/estudio");
 }

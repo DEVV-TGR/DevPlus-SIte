@@ -2,10 +2,14 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { EtiquetaEstado } from "@/components/estudio/EtiquetaEstado";
+import { FormularioObjetivo } from "@/components/estudio/FormularioObjetivo";
 import { GraficoCircular } from "@/components/estudio/GraficoCircular";
+import { Objetivos } from "@/components/estudio/Objetivos";
 import { CARTAO, SOBRETITULO } from "@/components/estudio/estilos";
+import { criarObjetivo } from "@/lib/estudio/acoes";
 import {
   gastosDoMes,
+  listarObjetivos,
   listarProjetos,
   porCobrarPorProjeto,
   recorrentes,
@@ -38,7 +42,7 @@ import { cn } from "@/lib/utils";
 export default async function Resumo() {
   await requerSessao();
 
-  const [mes, porCobrar, gastos, repetem, tarefas, projetos] =
+  const [mes, porCobrar, gastos, repetem, tarefas, projetos, objetivos] =
     await Promise.all([
       resumoDoMes(),
       porCobrarPorProjeto(),
@@ -46,6 +50,7 @@ export default async function Resumo() {
       recorrentes(),
       tarefasPorFazer(6),
       listarProjetos(),
+      listarObjetivos(),
     ]);
 
   const hoje = hojeEmLisboa();
@@ -99,26 +104,62 @@ export default async function Resumo() {
         Este mês
       </h1>
 
-      {/* O número que se vem cá ver. Chama-se saldo e não lucro de propósito:
-          não leva ordenados nem impostos, e a palavra errada fazia um número
-          confortável passar por outro. Ver docs/07. */}
-      <div className={cn(CARTAO, "mt-8")}>
-        <p className="text-xs text-muted">Saldo deste mês</p>
-        <p
-          className={cn(
-            "mt-1.5 font-display text-4xl font-semibold tabular-nums tracking-tight",
-            mes.saldo > 0 && "text-accent",
-            mes.saldo < 0 && "text-danger",
-          )}
-        >
-          {formatarEuros(mes.saldo)}
-        </p>
-        <p className="mt-2 text-sm text-muted">
-          Entrou <span className="tabular-nums">{formatarEuros(mes.entrou)}</span>
-          {" · saiu "}
-          <span className="tabular-nums">{formatarEuros(mes.saiu)}</span>
-        </p>
+      {/* Os três números da primeira linha. Chamam-se saldos e não lucros de
+          propósito: não levam ordenados nem impostos, e a palavra errada faria
+          um número confortável passar por outro. Ver docs/07. */}
+      <div className="mt-8 grid gap-4 sm:grid-cols-3">
+        {/* `justify-center` nos dois cartões de saldo: a grelha estica-os todos
+            à altura do mais alto, e com três objetivos na coluna da direita os
+            números ficavam encostados ao topo com um palmo de vazio por baixo.
+            Centrados, o espaço lê-se como respiro em vez de esquecimento. */}
+        <div className={cn(CARTAO, "flex flex-col justify-center")}>
+          <p className="text-xs text-muted">Saldo deste mês</p>
+          <p
+            className={cn(
+              "mt-1.5 font-display text-3xl font-semibold tabular-nums tracking-tight",
+              mes.saldo > 0 && "text-accent",
+              mes.saldo < 0 && "text-danger",
+            )}
+          >
+            {formatarEuros(mes.saldo)}
+          </p>
+          <p className="mt-1.5 text-xs text-muted">
+            entrou {formatarEuros(mes.entrou)} · saiu {formatarEuros(mes.saiu)}
+          </p>
+        </div>
+
+        {/* O do mês diz como está a correr agora; este diz se o estúdio ganha
+            dinheiro. São perguntas diferentes, e por isso são dois números. */}
+        <div className={cn(CARTAO, "flex flex-col justify-center")}>
+          <p className="text-xs text-muted">Saldo desde sempre</p>
+          <p
+            className={cn(
+              "mt-1.5 font-display text-3xl font-semibold tabular-nums tracking-tight",
+              mes.saldoSempre > 0 && "text-accent",
+              mes.saldoSempre < 0 && "text-danger",
+            )}
+          >
+            {formatarEuros(mes.saldoSempre)}
+          </p>
+          <p className="mt-1.5 text-xs text-muted">
+            entrou {formatarEuros(mes.entrouSempre)} · saiu{" "}
+            {formatarEuros(mes.saiuSempre)}
+          </p>
+        </div>
+
+        <div className={CARTAO}>
+          <Objetivos objetivos={objetivos} />
+        </div>
       </div>
+
+      <details className={cn(CARTAO, "mt-4")}>
+        <summary className="cursor-pointer text-sm text-muted transition-colors hover:text-ink">
+          Pôr ou tirar objetivos
+        </summary>
+        <div className="mt-6">
+          <FormularioObjetivo acao={criarObjetivo} objetivos={objetivos} />
+        </div>
+      </details>
 
       <section aria-labelledby="por-cobrar" className={cn(CARTAO, "mt-12")}>
         <div className="flex flex-wrap items-baseline justify-between gap-3">

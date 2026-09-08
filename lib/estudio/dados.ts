@@ -5,6 +5,8 @@ import type {
   ContasProjeto,
   Estado,
   Gasto,
+  Metrica,
+  Objetivo,
   Pagamento,
   Periodicidade,
   Projeto,
@@ -514,6 +516,11 @@ export type ResumoDoMes = {
   saiu: number;
   /** `entrou - saiu`. Não é lucro: não leva ordenados nem impostos. */
   saldo: number;
+  /** O mesmo, desde que o Estúdio existe. Responde a outra pergunta: o do mês
+   *  diz como está a correr agora, este diz se o estúdio ganha dinheiro. */
+  saldoSempre: number;
+  entrouSempre: number;
+  saiuSempre: number;
   porCobrar: number;
   projetosPorCobrar: number;
 };
@@ -522,6 +529,8 @@ export async function resumoDoMes(): Promise<ResumoDoMes> {
   const linha = await consultaUma<{
     entrou: string;
     saiu: string;
+    entrou_sempre: string;
+    saiu_sempre: string;
     por_cobrar: string;
     projetos_por_cobrar: number;
   }>(
@@ -530,6 +539,8 @@ export async function resumoDoMes(): Promise<ResumoDoMes> {
                   where to_char(data, 'YYYY-MM') = ${MES_ATUAL_SQL}), 0) as entrou,
        coalesce((select sum(valor) from gastos
                   where to_char(data, 'YYYY-MM') = ${MES_ATUAL_SQL}), 0) as saiu,
+       coalesce((select sum(valor) from pagamentos), 0) as entrou_sempre,
+       coalesce((select sum(valor) from gastos), 0) as saiu_sempre,
        coalesce((select sum(em_falta) from (
                    select greatest(p.valor - coalesce((
                             select sum(valor) from pagamentos
@@ -546,11 +557,16 @@ export async function resumoDoMes(): Promise<ResumoDoMes> {
 
   const entrou = Number(linha?.entrou ?? 0);
   const saiu = Number(linha?.saiu ?? 0);
+  const entrouSempre = Number(linha?.entrou_sempre ?? 0);
+  const saiuSempre = Number(linha?.saiu_sempre ?? 0);
 
   return {
     entrou,
     saiu,
     saldo: entrou - saiu,
+    entrouSempre,
+    saiuSempre,
+    saldoSempre: entrouSempre - saiuSempre,
     porCobrar: Number(linha?.por_cobrar ?? 0),
     projetosPorCobrar: linha?.projetos_por_cobrar ?? 0,
   };
@@ -664,4 +680,66 @@ export async function recorrentes(): Promise<Recorrente[]> {
       periodicidade: l.periodicidade,
     })),
   ];
+}
+
+/* --------------------------------------------------------------------------
+   Objetivos
+   -------------------------------------------------------------------------- */
+
+/**
+ * Os objetivos, com o progresso **contado pela base**.
+ *
+ * O `case` sobre a métrica é o que faz isto: cada métrica sabe onde ir contar.
+ * A contagem fica do lado do Postgres e não em JavaScript pela mesma razão das
+ * somas de dinheiro — assim não há duas contagens a poderem discordar uma da
+ * outra, e não se traz a tabela inteira de clientes para contar seis linhas.
+ *
+ * O `desde` a `null` quer dizer desde sempre. É ele que separa *ter* 10
+ * clientes (conta os que lá estão) de *ganhar* 10 clientes este ano (conta os
+ * criados a partir de janeiro).
+ */
+export async function listarObjetivos(): Promise<Objetivo[]> {
+  const linhas = await consulta<{
+    id: string;
+    titulo: string;
+    metrica: Metrica;
+    alvo: string;
+    prazo: string | null;
+    desde: string | null;
+    feito: string;
+  }>(
+    `select o.id, o.titulo, o.metrica, o.alvo,
+            to_char(o.prazo, 'YYYY-MM-DD') as prazo,
+            to_char(o.desde, 'YYYY-MM-DD') as desde,
+            case o.metrica
+              when 'clientes' then (
+                select count(*) from clientes c
+                 where o.desde is null
+                    or (c.criado_em at time zone 'Europe/Lisbon')::date >= o.desde)
+              when 'projetos' then (
+                select count(*) from projetos p
+                 where o.desde is null
+                    or (p.criado_em at time zone 'Europe/Lisbon')::date >= o.desde)
+              when 'entregues' then (
+                select count(*) from projetos p
+                 where p.estado = 'entregue'
+                   and (o.desde is null
+                    or (p.criado_em at time zone 'Europe/Lisbon')::date >= o.desde))
+              when 'recebido' then (
+                select coalesce(sum(valor), 0) from pagamentos pg
+                 where o.desde is null or pg.data >= o.desde)
+            end as feito
+       from objetivos o
+      order by o.prazo asc nulls last, o.id asc`,
+  );
+
+  return linhas.map((l) => ({
+    id: Number(l.id),
+    titulo: l.titulo,
+    metrica: l.metrica,
+    alvo: Number(l.alvo),
+    prazo: l.prazo,
+    desde: l.desde,
+    feito: Number(l.feito),
+  }));
 }

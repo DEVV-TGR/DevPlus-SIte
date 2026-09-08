@@ -132,6 +132,32 @@ e pela ação. As regras são deliberadamente previsíveis em vez de espertas: c
 vírgula, a vírgula é o decimal; só com ponto, é decimal se tiver um ou dois
 dígitos a seguir e milhares nos outros casos.
 
+### Objetivos: escreve-se o alvo, conta-se o resto
+
+"10 clientes até ao fim do ano." O alvo escreve-se; **o que já está feito é
+contado pela base**, num `case` sobre a métrica em `listarObjetivos()`. Um
+objetivo cujo progresso fosse escrito à mão era mais um número para manter
+atualizado, e o primeiro a ficar desatualizado — daí a métrica ser uma lista
+fechada com só o que o Estúdio sabe contar sozinho: clientes, projetos, projetos
+entregues, dinheiro recebido.
+
+**O `desde` é o que separa duas coisas que se dizem igual:** *ter* 10 clientes
+conta os que já cá estão; *ganhar* 10 clientes este ano põe `desde` em janeiro e
+conta os criados a partir daí. O formulário explica-o por baixo dos campos,
+porque ninguém adivinha isso de uma etiqueta que diz "a contar de".
+
+**Passado o alvo, a barra enche e o texto diz a verdade** — `12 de 10`, não
+`10 de 10`. Cumprir de mais não é um erro a esconder.
+
+### Dois saldos, não um
+
+O do mês diz como está a correr agora; o de sempre diz se o estúdio ganha
+dinheiro. São perguntas diferentes e por isso são dois números lado a lado.
+
+Os dois cartões de saldo levam `justify-center`: a grelha estica os três à
+altura do mais alto, e com três objetivos na coluna da direita os números
+ficavam encostados ao topo com um palmo de vazio por baixo.
+
 ### O resumo é do mês, e a primeira versão não era
 
 A primeira versão desta página tinha quatro números genéricos e um gráfico de
@@ -390,6 +416,7 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | o que um cliente paga por mês          | é na ficha do **projeto** — a do cliente só mostra a soma                                        |
 | o cálculo do "ainda este mês"          | `proximaOcorrencia()` em `tipos.ts`; testa os meses de 30 e 31 dias e fevereiro                  |
 | o número de fatias do circular         | `MAX_FATIAS` e `tom()` em `GraficoCircular.tsx` — os tons espalham-se pelo total, não são fixos  |
+| as métricas dos objetivos              | `METRICAS` em `tipos.ts`, o `check` do esquema **e** o `case` de `listarObjetivos()` em `dados.ts` |
 | a estrutura de uma página              | abre-a no browser e olha — a ordem das secções e a altura das caixas não se veem num diff        |
 | como se guarda dinheiro                | `lib/estudio/schema.sql` (`numeric`, nunca `float`) e as somas continuam em SQL                  |
 | as cores do gráfico                    | corre o validador da skill `dataviz` antes — a escolha óbvia falhou o teste de daltonismo       |
