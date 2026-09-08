@@ -116,3 +116,16 @@ export function formatarData(data: string): string {
     timeZone: "UTC",
   }).format(new Date(Date.UTC(ano, mes - 1, dia)));
 }
+
+/**
+ * Um projeto reduzido ao que o seletor de repositórios precisa de saber.
+ *
+ * Existe para o seletor não ter de carregar responsáveis, tarefas e datas só
+ * para desenhar uma linha com uma caixa ao lado.
+ */
+export type ProjetoLeve = {
+  id: number;
+  nome: string;
+  repoUrl: string | null;
+  clienteId: number | null;
+};

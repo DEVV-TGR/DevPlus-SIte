@@ -131,6 +131,22 @@ corrige-se depois um a um. Repetir a importação não duplica nada: o que já t
 `app/api/estudio/github/webhook`. Repositório criado na organização, projeto
 criado aqui, em `proposta`.
 
+**Os de um cliente** — o `SeletorDeRepos`, no formulário de cliente novo e na
+ficha de um cliente que já exista. Mistura numa lista só os projetos sem dono e
+os repositórios ainda por importar, porque para quem está a marcar caixas são a
+mesma coisa: "os trabalhos deste cliente". Marcar um repositório que ainda não
+está cá cria o projeto e liga-o, de uma vez.
+
+Isto existe porque o GitHub não sabe de quem é o repositório. Sem ele, a ordem
+era sempre importar primeiro e atribuir depois, em dois ecrãs — e essa ordem era
+a única coisa que obrigava a passar duas vezes pelo mesmo trabalho. O caso comum
+(o repositório já existir quando se cria o cliente) resolve-se no formulário de
+criação; a ficha do cliente é para o caso invulgar, o repositório nascer depois.
+
+Na ficha, **o que se vê é o que fica**: o que estiver marcado fica ligado, o que
+for desmarcado é desligado. Desligar nunca apaga o projeto — deixa-o sem
+cliente, como o `on delete set null` do esquema já fazia.
+
 Três decisões que valem a leitura:
 
 - **A importação não usa token nenhum.** Os repositórios do `DEVV-TGR` são
@@ -202,3 +218,4 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | a `CascaDoSite`                        | confirma que a homepage continua estática (`○`) no output do `npm run build`                    |
 | a organização do GitHub                | `ORGANIZACAO` em `lib/estudio/github.ts` — e o webhook na organização nova                       |
 | o que a importação traz de cada repo   | `importarRepos` em `lib/estudio/acoes.ts` **e** o webhook, para os dois criarem projetos iguais  |
+| o seletor de trabalhos                 | `components/estudio/SeletorDeRepos.tsx` — é usado nos dois sítios, o de criar e o da ficha      |

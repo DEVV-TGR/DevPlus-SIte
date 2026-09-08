@@ -32,7 +32,13 @@ import {
  */
 
 export type EstadoProjeto = { erros?: ErrosProjeto; erro?: string; ok?: boolean };
-export type EstadoCliente = { erros?: ErrosCliente; erro?: string; ok?: boolean };
+export type EstadoCliente = {
+  erros?: ErrosCliente;
+  erro?: string;
+  ok?: boolean;
+  /** Quantos trabalhos ficaram ligados a este cliente nesta gravação. */
+  ligados?: number;
+};
 
 /** `"3"` -> `3`, e qualquer outra coisa -> `null`. Serve para os `id` que
  *  chegam de campos escondidos e de `<select>`. */
@@ -53,6 +59,22 @@ function lerProjeto(form: FormData) {
     deployUrl: campo(form.get("deployUrl"), LIMITES.url),
     notas: campo(form.get("notas"), LIMITES.notas),
   };
+}
+
+/** Os projetos marcados no seletor de trabalhos. */
+function lerProjetosEscolhidos(form: FormData): number[] {
+  return form
+    .getAll("projetos")
+    .map((v) => (typeof v === "string" ? paraId(v) : null))
+    .filter((v): v is number => v !== null);
+}
+
+/** Os repositórios marcados no seletor de trabalhos, por `full_name`. */
+function lerReposEscolhidos(form: FormData): string[] {
+  return form
+    .getAll("repos")
+    .filter((v): v is string => typeof v === "string")
+    .map((v) => v.slice(0, 200));
 }
 
 /** Os responsáveis chegam como uma caixa por pessoa, todas com o mesmo nome.
@@ -190,6 +212,73 @@ export async function apagarProjeto(form: FormData): Promise<void> {
   redirect("/estudio");
 }
 
+/**
+ * Liga trabalhos a um cliente.
+ *
+ * Aceita duas coisas ao mesmo tempo — projetos que já existem e repositórios
+ * que ainda não foram importados — porque para quem está a marcar caixas são a
+ * mesma coisa. Os repositórios são criados aqui, já com o cliente posto.
+ *
+ * Como na importação, **os dados do repositório vêm outra vez do GitHub**, não
+ * do formulário: o browser só diz quais é que foram escolhidos.
+ *
+ * Devolve quantos ficaram ligados, para a página poder dizê-lo.
+ */
+async function ligarAoCliente(
+  clienteId: number,
+  projetoIds: number[],
+  reposEscolhidos: string[],
+): Promise<number> {
+  let ligados = 0;
+
+  if (projetoIds.length > 0) {
+    const atribuidos = await consulta<{ id: string }>(
+      `update projetos set cliente_id = $1, atualizado_em = now()
+        where id = any($2::bigint[])
+       returning id`,
+      [clienteId, projetoIds],
+    );
+    ligados += atribuidos.length;
+  }
+
+  if (reposEscolhidos.length === 0) return ligados;
+
+  const escolhidos = new Set(reposEscolhidos);
+  const { repos, erro } = await listarRepos();
+  /* Um GitHub em baixo não pode desfazer o que já se ligou acima. O cliente
+     fica criado e os projetos existentes ligados; os repositórios importam-se
+     depois. */
+  if (erro) return ligados;
+
+  const aTrazer = repos.filter((r) => escolhidos.has(r.nomeCompleto));
+  if (aTrazer.length === 0) return ligados;
+
+  const jaLa = await consulta<{ repo_url: string }>(
+    "select repo_url from projetos where repo_url is not null",
+  );
+  const conhecidos = new Set(jaLa.map((l) => l.repo_url));
+  const novos = aTrazer.filter((r) => !conhecidos.has(r.url));
+  if (novos.length === 0) return ligados;
+
+  const criados = await consulta<{ id: string }>(
+    `insert into projetos (nome, estado, repo_url, deploy_url, notas, cliente_id)
+     select * from unnest(
+       $1::text[], $2::text[], $3::text[], $4::text[], $5::text[], $6::bigint[]
+     )
+     returning id`,
+    [
+      novos.map((r) => r.nome),
+      novos.map(() => "em-curso"),
+      novos.map((r) => r.url),
+      novos.map((r) => r.homepage),
+      novos.map((r) => r.descricao),
+      novos.map(() => clienteId),
+    ],
+  );
+
+  return ligados + criados.length;
+}
+
 export async function criarCliente(
   _anterior: EstadoCliente,
   form: FormData,
@@ -206,10 +295,13 @@ export async function criarCliente(
   const erros = validarCliente(dados);
   if (Object.keys(erros).length > 0) return { erros };
 
+  let ligados = 0;
+
   try {
-    await consulta(
+    const linha = await consultaUma<{ id: string }>(
       `insert into clientes (nome, email, telefone, notas)
-       values ($1, $2, $3, $4)`,
+       values ($1, $2, $3, $4)
+       returning id`,
       [
         dados.nome.trim(),
         ouNulo(dados.email),
@@ -217,13 +309,22 @@ export async function criarCliente(
         ouNulo(dados.notas),
       ],
     );
+
+    if (!linha) return { erro: "Não foi possível guardar o cliente." };
+
+    ligados = await ligarAoCliente(
+      Number(linha.id),
+      lerProjetosEscolhidos(form),
+      lerReposEscolhidos(form),
+    );
   } catch (erro) {
     console.error("[estudio] falhou criar cliente:", erro);
     return { erro: "Não foi possível guardar o cliente. Tenta outra vez." };
   }
 
   revalidatePath("/estudio/clientes");
-  return { ok: true };
+  revalidatePath("/estudio");
+  return { ok: true, ligados };
 }
 
 export async function guardarCliente(
@@ -412,5 +513,49 @@ export async function importarRepos(
   } catch (erro) {
     console.error("[estudio] falhou importar repos:", erro);
     return { erro: "Não foi possível importar. Tenta outra vez." };
+  }
+}
+
+/**
+ * Define, de uma vez, quais são os trabalhos de um cliente — na ficha dele.
+ *
+ * O que estiver marcado fica ligado; o que **deixou** de estar marcado é
+ * desligado. É o comportamento que uma lista de caixas promete: o que se vê é
+ * o que fica. Desligar não apaga o projeto, só o deixa sem cliente.
+ */
+export async function definirProjetosDoCliente(
+  _anterior: EstadoCliente,
+  form: FormData,
+): Promise<EstadoCliente> {
+  await requerSessao();
+
+  const clienteId = paraId(campo(form.get("clienteId"), 20));
+  if (!clienteId) return { erro: "Cliente não encontrado." };
+
+  const escolhidos = lerProjetosEscolhidos(form);
+
+  try {
+    /* Primeiro tira-se o que foi desmarcado. Com a lista vazia, `= any('{}')`
+       não é verdade para nenhum id e desliga-se tudo — que é exatamente o que
+       desmarcar tudo deve fazer. */
+    await consulta(
+      `update projetos set cliente_id = null, atualizado_em = now()
+        where cliente_id = $1 and not (id = any($2::bigint[]))`,
+      [clienteId, escolhidos],
+    );
+
+    const ligados = await ligarAoCliente(
+      clienteId,
+      escolhidos,
+      lerReposEscolhidos(form),
+    );
+
+    revalidatePath("/estudio");
+    revalidatePath("/estudio/clientes");
+    revalidatePath(`/estudio/clientes/${clienteId}`);
+    return { ok: true, ligados };
+  } catch (erro) {
+    console.error("[estudio] falhou definir os projetos do cliente:", erro);
+    return { erro: "Não foi possível guardar. Tenta outra vez." };
   }
 }

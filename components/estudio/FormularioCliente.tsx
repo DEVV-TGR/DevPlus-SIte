@@ -28,10 +28,14 @@ export function FormularioCliente({
   acao,
   cliente,
   rotulo = "Guardar",
+  extra,
 }: {
   acao: (anterior: EstadoCliente, form: FormData) => Promise<EstadoCliente>;
   cliente?: Cliente;
   rotulo?: string;
+  /** O seletor de trabalhos, quando o formulário o leva. Chega como `node`
+   *  para o formulário não ter de saber nada sobre repositórios. */
+  extra?: React.ReactNode;
 }) {
   const [estado, submeter] = useActionState<EstadoCliente, FormData>(acao, {});
   const form = useRef<HTMLFormElement>(null);
@@ -119,6 +123,8 @@ export function FormularioCliente({
         <Erro id="erro-cliente-notas" mensagem={estado.erros?.notas} />
       </div>
 
+      {extra}
+
       <div className="flex flex-wrap items-center gap-4">
         <BotaoGuardar>{rotulo}</BotaoGuardar>
 
@@ -131,6 +137,9 @@ export function FormularioCliente({
         {estado.ok ? (
           <p role="status" className="text-sm text-accent">
             Guardado.
+            {estado.ligados
+              ? ` ${estado.ligados} ${estado.ligados === 1 ? "trabalho ligado" : "trabalhos ligados"}.`
+              : ""}
           </p>
         ) : null}
       </div>

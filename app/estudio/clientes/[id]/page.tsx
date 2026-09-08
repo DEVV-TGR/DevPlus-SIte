@@ -3,9 +3,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CartaoProjeto } from "@/components/estudio/CartaoProjeto";
 import { FormularioCliente } from "@/components/estudio/FormularioCliente";
-import { SOBRETITULO } from "@/components/estudio/estilos";
-import { apagarCliente, guardarCliente } from "@/lib/estudio/acoes";
-import { obterCliente, projetosDoCliente } from "@/lib/estudio/dados";
+import { FormularioTrabalhos } from "@/components/estudio/FormularioTrabalhos";
+import { CARTAO, SOBRETITULO } from "@/components/estudio/estilos";
+import {
+  apagarCliente,
+  definirProjetosDoCliente,
+  guardarCliente,
+} from "@/lib/estudio/acoes";
+import {
+  listarProjetosLeves,
+  obterCliente,
+  projetosDoCliente,
+} from "@/lib/estudio/dados";
+import { listarRepos } from "@/lib/estudio/repos";
 import { requerSessao } from "@/lib/estudio/sessao";
 import { hojeEmLisboa } from "@/lib/estudio/tipos";
 
@@ -23,8 +33,27 @@ export default async function ClienteFicha({
   const cliente = await obterCliente(numero);
   if (!cliente) notFound();
 
-  const projetos = await projetosDoCliente(cliente.id);
+  const [projetos, leves, { repos, erro }] = await Promise.all([
+    projetosDoCliente(cliente.id),
+    listarProjetosLeves(),
+    listarRepos(),
+  ]);
+
   const hoje = hojeEmLisboa();
+
+  /* O seletor mostra os que não têm dono e os que já são deste — os deste
+     entram marcados, e desmarcá-los é como se lhes tira o cliente. */
+  const atribuiveis = leves.filter(
+    (p) => p.clienteId === null || p.clienteId === cliente.id,
+  );
+  const jaDoCliente = leves
+    .filter((p) => p.clienteId === cliente.id)
+    .map((p) => p.id);
+
+  const jaNoEstudio = new Set(
+    leves.map((p) => p.repoUrl).filter((u): u is string => u !== null),
+  );
+  const porImportar = repos.filter((r) => !jaNoEstudio.has(r.url));
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -40,7 +69,7 @@ export default async function ClienteFicha({
         {cliente.nome}
       </h1>
 
-      <div className="mt-8 grid gap-10 lg:grid-cols-[22rem_1fr]">
+      <div className="mt-8 grid gap-10 lg:grid-cols-[20rem_1fr]">
         <div>
           <h2 className="sr-only">Dados do cliente</h2>
           <FormularioCliente acao={guardarCliente} cliente={cliente} />
@@ -77,12 +106,12 @@ export default async function ClienteFicha({
 
           {projetos.length === 0 ? (
             <p className="mt-3 text-sm text-muted">
-              Ainda não há trabalho para este cliente.{" "}
+              Ainda não há trabalho para este cliente. Marca-o aqui em baixo, ou{" "}
               <Link
                 href="/estudio/projetos/novo"
                 className="underline-offset-4 hover:text-ink hover:underline"
               >
-                Criar um projeto
+                cria um projeto de raiz
               </Link>
               .
             </p>
@@ -93,6 +122,22 @@ export default async function ClienteFicha({
               ))}
             </ul>
           )}
+
+          <details className={`${CARTAO} mt-6`}>
+            <summary className="cursor-pointer text-sm font-medium">
+              Juntar ou tirar trabalhos
+            </summary>
+            <div className="mt-5">
+              <FormularioTrabalhos
+                acao={definirProjetosDoCliente}
+                clienteId={cliente.id}
+                projetos={atribuiveis}
+                repos={porImportar}
+                jaDoCliente={jaDoCliente}
+                erroDoGitHub={erro}
+              />
+            </div>
+          </details>
         </section>
       </div>
     </div>

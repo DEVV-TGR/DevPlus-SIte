@@ -4,6 +4,7 @@ import type {
   Cliente,
   Estado,
   Projeto,
+  ProjetoLeve,
   Tarefa,
   Utilizador,
 } from "@/lib/estudio/tipos";
@@ -212,4 +213,21 @@ export async function reposJaNoEstudio(): Promise<Set<string>> {
     "select repo_url from projetos where repo_url is not null",
   );
   return new Set(linhas.map((l) => l.repo_url));
+}
+
+/** Todos os projetos, no mínimo necessário para o seletor de repositórios. */
+export async function listarProjetosLeves(): Promise<ProjetoLeve[]> {
+  const linhas = await consulta<{
+    id: string;
+    nome: string;
+    repo_url: string | null;
+    cliente_id: string | null;
+  }>("select id, nome, repo_url, cliente_id from projetos order by nome asc");
+
+  return linhas.map((l) => ({
+    id: Number(l.id),
+    nome: l.nome,
+    repoUrl: l.repo_url,
+    clienteId: l.cliente_id === null ? null : Number(l.cliente_id),
+  }));
 }
