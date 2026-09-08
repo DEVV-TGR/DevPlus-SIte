@@ -20,13 +20,24 @@ export type Utilizador = {
 };
 
 /**
- * Os quatro estados por que um trabalho passa, por ordem de vida.
+ * Os cinco estados por que um trabalho passa, por ordem de vida.
  *
  * A ordem do array é a ordem por que aparecem nos filtros e nos seletores —
  * mudá-la muda o site. `parado` fica no fim de propósito: é a exceção, não uma
  * etapa.
+ *
+ * `a-espera` fica a seguir a `em-curso` porque é aí que acontece: um trabalho
+ * não nasce à espera do cliente, fica-o a meio. É o estado que explica metade
+ * dos atrasos — sem ele, um projeto parado à espera de uma resposta é
+ * indistinguível de um projeto parado porque ninguém lhe pegou.
  */
-export const ESTADOS = ["proposta", "em-curso", "entregue", "parado"] as const;
+export const ESTADOS = [
+  "proposta",
+  "em-curso",
+  "a-espera",
+  "entregue",
+  "parado",
+] as const;
 
 export type Estado = (typeof ESTADOS)[number];
 
@@ -34,6 +45,9 @@ export type Estado = (typeof ESTADOS)[number];
 export const ROTULO_ESTADO: Record<Estado, string> = {
   proposta: "Proposta",
   "em-curso": "Em curso",
+  /* Diz de quem é a bola. "Pendente" é jargão, "Em espera" não diz de quem, e
+     "Bloqueado" soa a culpa — isto só diz onde a coisa está parada. */
+  "a-espera": "À espera do cliente",
   entregue: "Entregue",
   parado: "Parado",
 };
@@ -76,8 +90,11 @@ export type Tarefa = {
 
 /**
  * Um prazo está em atraso se já passou e o projeto ainda não está entregue.
- * Um projeto parado continua a contar como atrasado — parar não é entregar, e
- * esconder o atraso era a forma mais rápida de ele ser esquecido.
+ *
+ * `parado` e `a-espera` continuam a contar como atrasados, e é de propósito:
+ * parar não é entregar, e um prazo que passou enquanto se espera por um cliente
+ * continua a ser um prazo que passou — é precisamente quando se lhe liga a
+ * perguntar. Esconder o atraso era a forma mais rápida de ele ser esquecido.
  *
  * Compara-se em `YYYY-MM-DD`, que ordena bem como texto e não envolve fusos.
  */

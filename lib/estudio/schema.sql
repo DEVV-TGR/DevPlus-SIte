@@ -3,9 +3,19 @@
 -- O esquema do Estúdio. Corre-se com `node scripts/estudio-migrar.mjs`.
 --
 -- Tudo é `if not exists`: o ficheiro corre-se as vezes que forem precisas sem
--- estragar nada. Não há sistema de migrações porque ainda não há histórico para
--- migrar — quando o primeiro `alter table` fizer falta, é aqui que se decide se
--- vale a pena montar um. Até lá, uma migração é isto e chega.
+-- estragar nada.
+--
+-- O primeiro `alter table` chegou (o estado `a-espera`), e a decisão foi **não**
+-- montar um sistema de migrações numerado. Em vez disso há a secção "Ajustes" no
+-- fim deste ficheiro: alterações escritas de forma a poderem correr as vezes que
+-- forem precisas, sobre uma base nova ou sobre uma que já existe.
+--
+-- Porquê: um sistema de migrações ganha-se quando há várias bases em estados
+-- diferentes e um histórico que interessa reproduzir. Aqui há uma base e três
+-- pessoas. O dia de montar um é aquele em que um ajuste destes precisar de mexer
+-- em dados — mudar o significado de uma coluna, partir uma tabela em duas — e
+-- não só na forma. Aí a ordem passa a contar, e um ficheiro que corre todo de
+-- cada vez deixa de servir.
 
 create table if not exists utilizadores (
   id            bigint generated always as identity primary key,
@@ -44,7 +54,9 @@ create table if not exists projetos (
   -- histórico do trabalho que se lhe fez.
   cliente_id    bigint references clientes(id) on delete set null,
   estado        text not null default 'proposta'
-                check (estado in ('proposta', 'em-curso', 'entregue', 'parado')),
+                constraint projetos_estado_check
+                check (estado in ('proposta', 'em-curso', 'a-espera',
+                                  'entregue', 'parado')),
   progresso     smallint not null default 0
                 check (progresso between 0 and 100),
   -- `date` e não `timestamptz`: um prazo é um dia, não um instante. Ver o
@@ -78,3 +90,25 @@ create table if not exists tarefas (
 );
 
 create index if not exists tarefas_projeto_idx on tarefas (projeto_id, ordem, id);
+
+
+-- ---------------------------------------------------------------------------
+-- Ajustes
+--
+-- O que os `create table if not exists` lá em cima não conseguem aplicar a uma
+-- base que já existe. Correm sempre, e correr duas vezes não muda nada.
+-- ---------------------------------------------------------------------------
+
+-- 2026-09-08 · o estado `a-espera` ("À espera do cliente").
+--
+-- O `check` de uma tabela que já existe não se altera: substitui-se. Largar
+-- primeiro e voltar a criar é a forma de isto poder correr sobre uma base nova
+-- (onde o `constraint` acabou de nascer com a definição certa) e sobre a antiga
+-- (onde ainda tem só quatro estados) sem se saber em qual se está.
+--
+-- Não mexe em nenhuma linha: só alarga o que passa a ser aceite. Nenhum projeto
+-- muda de estado por causa disto.
+alter table projetos drop constraint if exists projetos_estado_check;
+
+alter table projetos add constraint projetos_estado_check
+  check (estado in ('proposta', 'em-curso', 'a-espera', 'entregue', 'parado'));

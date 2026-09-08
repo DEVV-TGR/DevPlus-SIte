@@ -25,13 +25,18 @@ import type {
 
 /* A ordem por que os projetos aparecem na lista. É uma ordem de atenção, não
    alfabética: o que está a andar primeiro, o que já acabou por último. Dentro
-   de cada grupo, o prazo mais próximo à frente e os sem prazo no fim. */
+   de cada grupo, o prazo mais próximo à frente e os sem prazo no fim.
+
+   `a-espera` vem logo a seguir a `em-curso`, e não lá para baixo com o que está
+   quieto: é a diferença entre "está parado" e "está parado à espera de alguém a
+   quem se pode ligar hoje". Enterrá-lo era garantir que ninguém lhe ligava. */
 const ORDEM = `
   order by case p.estado
              when 'em-curso' then 0
-             when 'proposta' then 1
-             when 'parado'   then 2
-             else 3
+             when 'a-espera' then 1
+             when 'proposta' then 2
+             when 'parado'   then 3
+             else 4
            end,
            p.prazo asc nulls last,
            p.id desc`;

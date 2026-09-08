@@ -88,11 +88,27 @@ renderiza foi escrito por uma das pessoas que entram cá. O dia de refazer a
 conta é aquele em que texto de alguém de fora do estúdio chegar a uma destas
 páginas.
 
-**Nenhuma cor nova.** Os quatro estados cabem nos tokens que docs/02 já tem:
-`muted` para proposta, `accent` para em curso (o doc já reserva o verde para
-essa etiqueta), `primary` para entregue, `danger` para parado e para prazo
-ultrapassado. `parado` a vermelho é uma escolha: um projeto parado não é neutro,
-é uma coisa que alguém tem de destravar.
+**Nenhuma cor nova.** Os cinco estados cabem nos tokens que docs/02 já tem, e o
+que os separa é a pergunta *isto precisa de mim?*: `muted` para proposta (ainda
+não começou), `accent` para em curso (docs/02 já reserva o verde para essa
+etiqueta), **`primary` para à espera do cliente**, `muted` para entregue, e
+`danger` para parado e para prazo ultrapassado.
+
+O laranja está no `a-espera` e não no `entregue` de propósito. É o estado que
+mais precisa de alguém — um trabalho à espera de um cliente não se desbloqueia
+sozinho, e se ninguém lhe pegar fica lá meses. O `entregue` recua: deixou de
+pedir atenção, e a cor diz isso. `parado` a vermelho é a mesma lógica ao
+contrário — um projeto parado não é neutro, é uma coisa que alguém tem de
+destravar.
+
+**`a-espera` conta como atrasado.** Um prazo que passou enquanto se esperava por
+um cliente continua a ser um prazo que passou — é precisamente quando se lhe
+liga a perguntar. Ver `emAtraso()` em `lib/estudio/tipos.ts`.
+
+**E aparece logo a seguir ao que está a andar**, na ordem da lista (`ORDEM` em
+`lib/estudio/dados.ts`). É a diferença entre "está parado" e "está parado à
+espera de alguém a quem se pode ligar hoje"; enterrá-lo era garantir que ninguém
+lhe ligava.
 
 **As fotos do GitHub não aparecem.** `img-src 'self' data: blob:` não deixa
 carregar imagens de outro domínio, e abrir a CSP a `avatars.githubusercontent.com`
@@ -105,6 +121,13 @@ ferramenta de trabalho é meio ecrã de vazio antes de se ver o primeiro projeto
 O ritmo do Estúdio está definido uma vez, em `app/estudio/layout.tsx`, e as
 páginas por baixo não escrevem padding nenhum. `Container`, `Button`, `Reveal` e
 `cn` usam-se como em todo o lado.
+
+**As alterações ao esquema vivem na secção "Ajustes"** do fim de
+`lib/estudio/schema.sql`, escritas para poderem correr sobre uma base nova ou
+sobre uma que já existe. Não há sistema de migrações numerado, e a decisão está
+escrita no topo desse ficheiro: ganha-se um quando houver várias bases em
+estados diferentes, ou quando um ajuste precisar de mexer em **dados** e não só
+na forma. Aí a ordem passa a contar.
 
 **Datas civis, não instantes.** `inicio` e `prazo` são `date` e viajam como
 `YYYY-MM-DD`. Um prazo é um dia, não um momento: passá-lo por `timestamptz`
