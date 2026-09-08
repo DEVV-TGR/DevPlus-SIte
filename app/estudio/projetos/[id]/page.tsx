@@ -4,11 +4,13 @@ import { notFound } from "next/navigation";
 import { EtiquetaEstado } from "@/components/estudio/EtiquetaEstado";
 import { FormularioProjeto } from "@/components/estudio/FormularioProjeto";
 import { Pagamentos } from "@/components/estudio/Pagamentos";
+import { Receitas } from "@/components/estudio/Receitas";
 import { Tarefas } from "@/components/estudio/Tarefas";
 import { CARTAO } from "@/components/estudio/estilos";
 import {
   apagarProjeto,
   guardarProjeto,
+  guardarReceita,
   registarPagamento,
 } from "@/lib/estudio/acoes";
 import {
@@ -18,6 +20,7 @@ import {
   listarTarefas,
   listarUtilizadores,
   obterProjeto,
+  receitasDoProjeto,
 } from "@/lib/estudio/dados";
 import { requerSessao } from "@/lib/estudio/sessao";
 import { emAtraso, formatarData, hojeEmLisboa } from "@/lib/estudio/tipos";
@@ -38,13 +41,15 @@ export default async function Projeto({
   const projeto = await obterProjeto(numero);
   if (!projeto) notFound();
 
-  const [tarefas, clientes, pessoas, contas, pagamentos] = await Promise.all([
-    listarTarefas(projeto.id),
-    listarClientes(),
-    listarUtilizadores(),
-    contasDoProjeto(projeto.id),
-    listarPagamentos(projeto.id),
-  ]);
+  const [tarefas, clientes, pessoas, contas, pagamentos, receitas] =
+    await Promise.all([
+      listarTarefas(projeto.id),
+      listarClientes(),
+      listarUtilizadores(),
+      contasDoProjeto(projeto.id),
+      listarPagamentos(projeto.id),
+      receitasDoProjeto(projeto.id),
+    ]);
 
   const hoje = hojeEmLisboa();
   const atrasado = emAtraso(projeto, hoje);
@@ -139,6 +144,14 @@ export default async function Projeto({
               projetoId={projeto.id}
               contas={contas}
               pagamentos={pagamentos}
+            />
+          </section>
+
+          <section className={CARTAO}>
+            <Receitas
+              acao={guardarReceita}
+              projetoId={projeto.id}
+              receitas={receitas}
             />
           </section>
 

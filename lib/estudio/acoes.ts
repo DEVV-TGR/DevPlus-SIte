@@ -6,7 +6,13 @@ import { redirect } from "next/navigation";
 import { consulta, consultaUma } from "@/lib/estudio/db";
 import { listarRepos } from "@/lib/estudio/repos";
 import { requerSessao } from "@/lib/estudio/sessao";
-import { eEstado, lerValor, validarGasto, validarMensalidade, validarPagamento } from "@/lib/estudio/validacao";
+import {
+  eEstado,
+  lerValor,
+  validarGasto,
+  validarPagamento,
+  validarReceita,
+} from "@/lib/estudio/validacao";
 import {
   campo,
   LIMITES,
@@ -630,81 +636,89 @@ export async function apagarPagamento(form: FormData): Promise<void> {
   revalidatePath(`/estudio/projetos/${projetoId}`);
 }
 
-export async function guardarMensalidade(
+/**
+ * O alojamento ou o domínio de um site.
+ *
+ * Um `id` presente edita; ausente cria. É o que deixa terminar uma receita
+ * (pondo-lhe `ate`) e começar outra a seguir, com o histórico do que se cobrou
+ * antes intacto.
+ */
+export async function guardarReceita(
   _anterior: EstadoDinheiro,
   form: FormData,
 ): Promise<EstadoDinheiro> {
   await requerSessao();
 
-  const clienteId = paraId(campo(form.get("clienteId"), 20));
-  if (!clienteId) return { erro: "Cliente não encontrado." };
+  const projetoId = paraId(campo(form.get("projetoId"), 20));
+  if (!projetoId) return { erro: "Projeto não encontrado." };
 
   const dados = {
     valor: campo(form.get("valor"), 20),
+    tipo: campo(form.get("tipo"), 20),
+    periodicidade: campo(form.get("periodicidade"), 20),
     desde: campo(form.get("desde"), 10),
     ate: campo(form.get("ate"), 10),
-    notas: campo(form.get("notas"), LIMITES.notas),
   };
 
-  const erros = validarMensalidade(dados);
+  const erros = validarReceita(dados);
   if (Object.keys(erros).length > 0) return { erros };
 
-  /* Um `id` presente edita a que existe; ausente cria uma nova. É o que deixa
-     terminar uma mensalidade (pondo-lhe `ate`) e começar outra a seguir, com o
-     histórico do que se cobrou antes intacto. */
   const id = paraId(campo(form.get("id"), 20));
 
   try {
     if (id) {
       await consulta(
-        `update mensalidades set valor = $3, desde = $4, ate = $5, notas = $6
-          where id = $1 and cliente_id = $2`,
+        `update receitas
+            set valor = $3, tipo = $4, periodicidade = $5, desde = $6, ate = $7
+          where id = $1 and projeto_id = $2`,
         [
           id,
-          clienteId,
+          projetoId,
           lerValor(dados.valor),
+          dados.tipo,
+          dados.periodicidade,
           dados.desde,
           ouNulo(dados.ate),
-          ouNulo(dados.notas),
         ],
       );
     } else {
       await consulta(
-        `insert into mensalidades (cliente_id, valor, desde, ate, notas)
-         values ($1, $2, $3, $4, $5)`,
+        `insert into receitas (projeto_id, valor, tipo, periodicidade, desde, ate)
+         values ($1, $2, $3, $4, $5, $6)`,
         [
-          clienteId,
+          projetoId,
           lerValor(dados.valor),
+          dados.tipo,
+          dados.periodicidade,
           dados.desde,
           ouNulo(dados.ate),
-          ouNulo(dados.notas),
         ],
       );
     }
   } catch (erro) {
-    console.error("[estudio] falhou guardar mensalidade:", erro);
+    console.error("[estudio] falhou guardar receita:", erro);
     return { erro: "Não foi possível guardar. Tenta outra vez." };
   }
 
   revalidatePath("/estudio");
-  revalidatePath(`/estudio/clientes/${clienteId}`);
+  revalidatePath(`/estudio/projetos/${projetoId}`);
   return { ok: true };
 }
 
-export async function apagarMensalidade(form: FormData): Promise<void> {
+export async function apagarReceita(form: FormData): Promise<void> {
   await requerSessao();
 
   const id = paraId(campo(form.get("id"), 20));
-  const clienteId = paraId(campo(form.get("clienteId"), 20));
-  if (!id || !clienteId) return;
+  const projetoId = paraId(campo(form.get("projetoId"), 20));
+  if (!id || !projetoId) return;
 
-  await consulta("delete from mensalidades where id = $1 and cliente_id = $2", [
+  await consulta("delete from receitas where id = $1 and projeto_id = $2", [
     id,
-    clienteId,
+    projetoId,
   ]);
 
   revalidatePath("/estudio");
-  revalidatePath(`/estudio/clientes/${clienteId}`);
+  revalidatePath(`/estudio/projetos/${projetoId}`);
 }
 
 export async function criarGasto(

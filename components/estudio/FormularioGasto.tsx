@@ -9,15 +9,43 @@ import {
   hojeEmLisboa,
   PERIODICIDADES,
   ROTULO_PERIODICIDADE,
+  type Cliente,
   type ProjetoLeve,
 } from "@/lib/estudio/tipos";
+
+/**
+ * Agrupa os projetos pelo cliente a que pertencem.
+ *
+ * **Um campo só, agrupado**, e não dois campos (cliente e projeto): com dois,
+ * dava para marcar um gasto com o cliente A e um projeto do cliente B, e aí
+ * nenhum dos dois números ficava certo. Assim encontra-se pelo cliente sem
+ * haver nada que se possa contradizer.
+ */
+function porCliente(projetos: ProjetoLeve[], clientes: Cliente[]) {
+  const nome = new Map(clientes.map((c) => [c.id, c.nome]));
+  const grupos = new Map<string, ProjetoLeve[]>();
+
+  for (const p of projetos) {
+    /* Os projetos sem cliente não desaparecem: juntam-se num grupo próprio, que
+       é onde estão o site da DevPlus e as demonstrações. */
+    const chave =
+      p.clienteId === null ? "Sem cliente" : (nome.get(p.clienteId) ?? "Sem cliente");
+    grupos.set(chave, [...(grupos.get(chave) ?? []), p]);
+  }
+
+  return [...grupos.entries()].sort(([a], [b]) =>
+    a === "Sem cliente" ? 1 : b === "Sem cliente" ? -1 : a.localeCompare(b),
+  );
+}
 
 export function FormularioGasto({
   acao,
   projetos,
+  clientes,
 }: {
   acao: (anterior: EstadoDinheiro, form: FormData) => Promise<EstadoDinheiro>;
   projetos: ProjetoLeve[];
+  clientes: Cliente[];
 }) {
   const [estado, submeter] = useActionState<EstadoDinheiro, FormData>(acao, {});
   const form = useRef<HTMLFormElement>(null);
@@ -129,10 +157,14 @@ export function FormularioGasto({
               não são de projeto nenhum. Esses ficam fora da margem de cada
               trabalho, porque existiriam na mesma sem ele. */}
           <option value="">Do estúdio, não é de um projeto</option>
-          {projetos.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.nome}
-            </option>
+          {porCliente(projetos, clientes).map(([cliente, seus]) => (
+            <optgroup key={cliente} label={cliente}>
+              {seus.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.nome}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
       </div>

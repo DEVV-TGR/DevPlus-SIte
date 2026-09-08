@@ -132,7 +132,12 @@ export function hojeEmLisboa(): string {
 }
 
 /**
- * `2026-09-08` -> `8 set 2026`.
+ * `2026-09-08` -> `08/09/2026`.
+ *
+ * O `month: "short"` está lá de propósito e não é engano: em `pt-PT` o ICU
+ * responde-lhe com a data toda em números, que é como se escrevem datas cá.
+ * Pedir `month: "long"` daria "8 de setembro de 2026", comprido de mais para
+ * uma lista.
  *
  * Constrói-se a data em UTC **e** formata-se em UTC. Com qualquer um dos dois
  * em falta, o dia saltava para trás nos meses de verão — que é exatamente o bug
@@ -182,10 +187,29 @@ export type Pagamento = {
   descricao: string | null;
 };
 
-export type Mensalidade = {
+/**
+ * O que o cliente paga de forma recorrente por um site.
+ *
+ * **Não se chama mensalidade**, e é de propósito: há clientes que pagam ao ano.
+ * O `tipo` diz o que a coisa é; a `periodicidade` diz de quanto em quanto tempo
+ * se paga. Um campo chamado "mensalidade" onde se escreve um valor anual é um
+ * campo que mente, e a soma sairia doze vezes errada.
+ */
+export const TIPOS_RECEITA = ["alojamento", "dominio"] as const;
+
+export type TipoReceita = (typeof TIPOS_RECEITA)[number];
+
+export const ROTULO_RECEITA: Record<TipoReceita, string> = {
+  alojamento: "Alojamento e apoio",
+  dominio: "Domínio",
+};
+
+export type Receita = {
   id: number;
-  clienteId: number;
+  projetoId: number;
+  tipo: TipoReceita;
   valor: number;
+  periodicidade: Periodicidade;
   desde: string;
   /** `null` = ainda ativa. */
   ate: string | null;
@@ -275,3 +299,57 @@ export function formatarMes(mes: string): string {
 /** Um mês na história do dinheiro. Vive aqui, e não em `dados.ts`, para os
  *  gráficos não terem de importar tipos do módulo que fala com a base. */
 export type MesDeContas = { mes: string; entradas: number; saidas: number };
+
+/**
+ * Quando é que uma coisa recorrente volta a acontecer **dentro deste mês**.
+ *
+ * Devolve `YYYY-MM-DD` se ainda estiver para vir antes de o mês acabar, e
+ * `null` se já passou, se cai noutro mês, ou se não se repete.
+ *
+ * É o que faz a lista do "ainda este mês": um alojamento anual com `desde` em
+ * março não aparece em setembro; um mensal aparece todos os meses; e um que já
+ * passou este mês desaparece em vez de ficar a pedir atenção que já teve.
+ *
+ * Faz-se em texto e em UTC, como as outras datas do Estúdio — um `Date` local a
+ * meio disto punha o dia a saltar nos meses de verão.
+ */
+export function proximaOcorrencia(
+  dataBase: string,
+  periodicidade: Periodicidade,
+  hoje: string,
+): string | null {
+  if (periodicidade === "unica") return null;
+
+  const [anoH, mesH] = hoje.split("-").map(Number);
+  const [, mesB, diaB] = dataBase.split("-").map(Number);
+
+  /* O dia 0 do mês seguinte é o último deste. É como se sabe se fevereiro tem
+     28 ou 29 sem tabela nenhuma. */
+  const diasNoMes = new Date(Date.UTC(anoH, mesH, 0)).getUTCDate();
+  const doMes = (dia: number) =>
+    `${anoH}-${String(mesH).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
+
+  let candidata: string | null = null;
+
+  if (periodicidade === "mensal") {
+    /* Um pagamento de dia 31 num mês de 30 cai no último dia, não desaparece. */
+    candidata = doMes(Math.min(diaB, diasNoMes));
+  } else if (periodicidade === "anual") {
+    if (mesB !== mesH) return null;
+    candidata = doMes(Math.min(diaB, diasNoMes));
+  } else {
+    /* Semanal: o próximo dia da semana igual ao da data base, a contar de hoje. */
+    const base = new Date(`${dataBase}T00:00:00Z`);
+    const dia = new Date(`${hoje}T00:00:00Z`);
+    const salto = (base.getUTCDay() - dia.getUTCDay() + 7) % 7;
+    dia.setUTCDate(dia.getUTCDate() + salto);
+    const iso = dia.toISOString().slice(0, 10);
+    candidata = iso.slice(0, 7) === hoje.slice(0, 7) ? iso : null;
+  }
+
+  if (candidata === null) return null;
+  /* Já passou este mês, ou ainda nem tinha começado. */
+  if (candidata < hoje || candidata < dataBase) return null;
+
+  return candidata;
+}

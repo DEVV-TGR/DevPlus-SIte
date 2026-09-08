@@ -3,7 +3,11 @@ import Link from "next/link";
 import { FormularioGasto } from "@/components/estudio/FormularioGasto";
 import { CARTAO, SOBRETITULO } from "@/components/estudio/estilos";
 import { apagarGasto, criarGasto } from "@/lib/estudio/acoes";
-import { listarGastos, listarProjetosLeves } from "@/lib/estudio/dados";
+import {
+  listarClientes,
+  listarGastos,
+  listarProjetosLeves,
+} from "@/lib/estudio/dados";
 import { requerSessao } from "@/lib/estudio/sessao";
 import {
   formatarData,
@@ -27,9 +31,10 @@ import {
 export default async function Gastos() {
   await requerSessao();
 
-  const [gastos, projetos] = await Promise.all([
+  const [gastos, projetos, clientes] = await Promise.all([
     listarGastos(),
     listarProjetosLeves(),
+    listarClientes(),
   ]);
 
   const doEstudio = gastos.filter((g) => g.projetoId === null);
@@ -74,7 +79,11 @@ export default async function Gastos() {
           Gasto novo
         </summary>
         <div className="mt-6">
-          <FormularioGasto acao={criarGasto} projetos={projetos} />
+          <FormularioGasto
+            acao={criarGasto}
+            projetos={projetos}
+            clientes={clientes}
+          />
         </div>
       </details>
 

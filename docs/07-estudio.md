@@ -89,11 +89,22 @@ faseado, um resto. Quem paga a mais não fica a dever ao contrário — o `por
 cobrar` nunca desce abaixo de zero, senão um pagamento a mais abatia dívidas
 verdadeiras de outros projetos.
 
-**A mensalidade é o que está contratado, não um registo de cada mês recebido.**
-O painel diz "a entrar por mês", nunca "recebido". Quando um cliente deixa de
-pagar, põe-se a data de fim em vez de se apagar a linha. Se um dia isto não
-chegar, a mensalidade passa a gerar pagamentos — mas é o dobro do trabalho de
-manutenção e não se paga já.
+**O que o cliente paga todos os meses vive no projeto, não no cliente**, porque
+é o alojamento *daquele site*: um cliente com dois sites pode pagar um e não o
+outro. Na ficha do cliente vê-se a soma, só de leitura; escreve-se na ficha do
+projeto. São duas coisas — **alojamento e apoio** e **domínio** — na tabela
+`receitas`.
+
+**E não se chama "mensalidade" a nada.** Há clientes que pagam ao ano. Um campo
+com esse nome onde se escreve um valor anual é um campo que mente, e a soma
+sairia doze vezes errada. O nome diz o que a coisa **é**; de quanto em quanto
+tempo se paga é a escolha ao lado, como já era nos gastos. (O `docs/05` continua
+a falar de mensalidade ao cliente — isso é copy de venda, e é outra conversa.)
+
+**Guarda o que está contratado, não um registo de cada mês recebido.** Quando um
+cliente deixa de pagar, põe-se a data de fim em vez de se apagar a linha. Se um
+dia isto não chegar, as receitas passam a gerar pagamentos — mas é o dobro do
+trabalho de manutenção e não se paga já.
 
 **Um gasto sem projeto é do estúdio** e não entra na margem de projeto nenhum.
 A Vercel e o Figma existiriam na mesma sem qualquer um dos trabalhos; imputá-los
@@ -121,14 +132,49 @@ e pela ação. As regras são deliberadamente previsíveis em vez de espertas: c
 vírgula, a vírgula é o decimal; só com ponto, é decimal se tiver um ou dois
 dígitos a seguir e milhares nos outros casos.
 
-### O gráfico, e uma cor que se mudou por causa do validador
+### O resumo é do mês, e a primeira versão não era
 
-Há **um** gráfico, em SVG escrito à mão. Uma biblioteca para duas séries de
-barras trazia bundle, mais uma superfície de `npm audit` e uma segunda forma de
-desenhar coisas neste projeto.
+A primeira versão desta página tinha quatro números genéricos e um gráfico de
+doze meses. Estava desenhada para um ano de histórico e foi mostrada a quem
+tinha três semanas de dados: três dos quatro números a zero, e duas barras em
+doze lugares. **O erro não era o desenho, era a escala.**
 
-**Um eixo só.** Entradas e saídas são as duas em euros e partilham a escala — é
-isso que deixa comparar a altura de uma com a da outra.
+Agora responde por ordem: *quanto sobrou este mês*, *a quem tenho de cobrar*,
+*para onde foi o dinheiro*, e *o que ainda falta acontecer antes de o mês
+fechar*.
+
+**Chama-se "saldo" e não "lucro".** Não leva ordenados nem impostos. A palavra
+errada faria um número confortável passar por outro, e é sobre números destes
+que se decide contratar alguém.
+
+**Não há um "a entrar por mês" médio.** Um alojamento anual dividido por doze é
+um número de planeamento, não de tesouraria, e numa página que é toda sobre este
+mês seria o único valor a falar de outra coisa.
+
+**O "ainda este mês"** junta os dois lados na mesma lista, por data: as despesas
+que se repetem e os alojamentos e domínios a receber. Quem converte uma
+periodicidade numa data é o `proximaOcorrencia()` de `lib/estudio/tipos.ts`, em
+JavaScript e não em SQL — a conta envolve meses de 28 a 31 dias e dias da
+semana, e em SQL ficava ilegível para poupar uma passagem por dez linhas. Um
+pagamento de dia 31 num mês de 30 cai no último dia, não desaparece.
+
+### O circular, e três regras que mudaram o que lá está
+
+1. **Nunca um circular de duas fatias.** Com menos de duas despesas mostra-se o
+   número, porque o número é o gráfico.
+2. **Seis fatias no máximo** — as cinco maiores e um "outros". Passadas as seis,
+   as pequenas ficam indistinguíveis e o círculo passa a decoração.
+3. **Uma cor só, em tons.** A DevPlus tem duas cores de marca; seis matizes
+   distinguíveis (e que sobrevivessem a daltonismo) não saíam dali. Um
+   `part-to-whole` ordenado por tamanho pede um degradê de uma cor. Os tons
+   espalham-se pelo intervalo todo consoante o número de fatias — com uma tabela
+   fixa, duas fatias saíam quase iguais.
+
+### O gráfico de barras, e uma cor que se mudou por causa do validador
+
+Houve um gráfico de barras de doze meses, e **saiu** — está no histórico do git
+para quando houver um ano de história para contar. Fica aqui a lição, que é o
+que dele vale a pena guardar.
 
 A escolha óbvia para as duas séries era o verde do `accent` e o cinzento claro
 do `muted`. **O validador de paletas recusou-a:** as duas ficavam a ΔE 4.8 para
@@ -341,6 +387,9 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | a decisão de não haver `proxy.ts`      | relê o comentário da CSP em `next.config.ts` antes — a conta muda                                |
 | a `CascaDoSite`                        | confirma que a homepage continua estática (`○`) no output do `npm run build`                    |
 | a periodicidade dos gastos             | `PERIODICIDADES` e `POR_MES` em `tipos.ts`, o `check` do esquema, e o seletor do formulário      |
+| o que um cliente paga por mês          | é na ficha do **projeto** — a do cliente só mostra a soma                                        |
+| o cálculo do "ainda este mês"          | `proximaOcorrencia()` em `tipos.ts`; testa os meses de 30 e 31 dias e fevereiro                  |
+| o número de fatias do circular         | `MAX_FATIAS` e `tom()` em `GraficoCircular.tsx` — os tons espalham-se pelo total, não são fixos  |
 | a estrutura de uma página              | abre-a no browser e olha — a ordem das secções e a altura das caixas não se veem num diff        |
 | como se guarda dinheiro                | `lib/estudio/schema.sql` (`numeric`, nunca `float`) e as somas continuam em SQL                  |
 | as cores do gráfico                    | corre o validador da skill `dataviz` antes — a escolha óbvia falhou o teste de daltonismo       |

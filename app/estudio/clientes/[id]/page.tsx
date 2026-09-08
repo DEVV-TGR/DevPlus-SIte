@@ -4,23 +4,26 @@ import { notFound } from "next/navigation";
 import { CartaoProjeto } from "@/components/estudio/CartaoProjeto";
 import { FormularioCliente } from "@/components/estudio/FormularioCliente";
 import { FormularioTrabalhos } from "@/components/estudio/FormularioTrabalhos";
-import { Mensalidade } from "@/components/estudio/Mensalidade";
 import { CARTAO, SOBRETITULO } from "@/components/estudio/estilos";
 import {
   apagarCliente,
   definirProjetosDoCliente,
   guardarCliente,
-  guardarMensalidade,
 } from "@/lib/estudio/acoes";
 import {
-  listarMensalidades,
   listarProjetosLeves,
   obterCliente,
   projetosDoCliente,
+  receitasDoCliente,
 } from "@/lib/estudio/dados";
 import { listarRepos } from "@/lib/estudio/repos";
 import { requerSessao } from "@/lib/estudio/sessao";
-import { hojeEmLisboa } from "@/lib/estudio/tipos";
+import {
+  formatarEuros,
+  hojeEmLisboa,
+  ROTULO_CURTO,
+  ROTULO_RECEITA,
+} from "@/lib/estudio/tipos";
 
 export default async function ClienteFicha({
   params,
@@ -36,14 +39,18 @@ export default async function ClienteFicha({
   const cliente = await obterCliente(numero);
   if (!cliente) notFound();
 
-  const [projetos, leves, mensalidades, { repos, erro }] = await Promise.all([
+  const [projetos, leves, receitas, { repos, erro }] = await Promise.all([
     projetosDoCliente(cliente.id),
     listarProjetosLeves(),
-    listarMensalidades(cliente.id),
+    receitasDoCliente(cliente.id),
     listarRepos(),
   ]);
 
   const hoje = hojeEmLisboa();
+
+  const ativas = receitas.filter(
+    (r) => r.desde <= hoje && (r.ate === null || r.ate >= hoje),
+  );
 
   /* O seletor mostra os que não têm dono e os que já são deste — os deste
      entram marcados, e desmarcá-los é como se lhes tira o cliente. */
@@ -78,12 +85,43 @@ export default async function ClienteFicha({
           <h2 className="sr-only">Dados do cliente</h2>
           <FormularioCliente acao={guardarCliente} cliente={cliente} />
 
+          {/* Só de leitura: o sítio onde se escrevem é a ficha de cada projeto,
+              porque o alojamento é *daquele site*. Aqui vê-se o que o cliente
+              paga ao todo, que é a pergunta que se faz na ficha dele. */}
           <div className="mt-10 border-t border-border pt-6">
-            <Mensalidade
-              acao={guardarMensalidade}
-              clienteId={cliente.id}
-              mensalidades={mensalidades}
-            />
+            <h2 className="font-display text-lg font-semibold tracking-tight">
+              O que este cliente paga
+            </h2>
+            {ativas.length === 0 ? (
+              <p className="mt-2 text-sm text-muted">
+                Nada recorrente. O alojamento e o domínio de cada site
+                escrevem-se na ficha do projeto.
+              </p>
+            ) : (
+              <ul className="mt-4 space-y-2">
+                {ativas.map((r) => (
+                  <li
+                    key={r.id}
+                    className="flex items-baseline justify-between gap-3 text-sm"
+                  >
+                    <Link
+                      href={`/estudio/projetos/${r.projetoId}`}
+                      className="min-w-0 truncate underline-offset-4 hover:text-ink hover:underline"
+                    >
+                      {ROTULO_RECEITA[r.tipo]}
+                      <span className="text-muted"> · {r.projetoNome}</span>
+                    </Link>
+                    <span className="shrink-0 tabular-nums text-accent">
+                      {formatarEuros(r.valor)}
+                      <span className="text-muted">
+                        {" "}
+                        /{ROTULO_CURTO[r.periodicidade]}
+                      </span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
         </div>

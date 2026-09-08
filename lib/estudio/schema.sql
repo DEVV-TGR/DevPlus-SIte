@@ -108,27 +108,38 @@ create table if not exists pagamentos (
 create index if not exists pagamentos_projeto_idx on pagamentos (projeto_id);
 create index if not exists pagamentos_data_idx on pagamentos (data);
 
--- A mensalidade de alojamento e suporte, por cliente. É o modelo que o
--- docs/05 descreve, e é o número que diz se o estúdio se aguenta num mês em que
--- não se venda nada.
+-- O que o cliente nos paga de forma recorrente por um site: o alojamento com o
+-- apoio, e o domínio. Presa ao **projeto** e não ao cliente, porque é o
+-- alojamento *daquele site* — um cliente com dois sites pode pagar um e não o
+-- outro.
 --
--- Guarda o que está **contratado**, não um registo de cada mês recebido. Quando
--- um cliente deixa de pagar, põe-se `ate` — não se apaga a linha, que o
--- histórico do que já se cobrou continua a valer.
-create table if not exists mensalidades (
-  id          bigint generated always as identity primary key,
-  cliente_id  bigint not null references clientes(id) on delete cascade,
-  valor       numeric(10, 2) not null check (valor >= 0),
-  desde       date not null,
-  -- `null` = ainda ativa.
-  ate         date,
-  notas       text,
-  criado_em   timestamptz not null default now(),
-  -- Uma data de fim antes do início é sempre um erro de quem escreveu.
-  constraint mensalidades_datas_check check (ate is null or ate >= desde)
+-- Não se chama "mensalidade" em lado nenhum: há clientes que pagam ao ano, e um
+-- campo com esse nome onde se escreve um valor anual é um campo que mente. O
+-- `tipo` diz o que a coisa é; a `periodicidade` diz de quanto em quanto tempo se
+-- paga, e são independentes.
+create table if not exists receitas (
+  id             bigint generated always as identity primary key,
+  projeto_id     bigint not null references projetos(id) on delete cascade,
+  tipo           text not null
+                 constraint receitas_tipo_check
+                 check (tipo in ('alojamento', 'dominio')),
+  -- Sem IVA, como tudo o resto.
+  valor          numeric(10, 2) not null check (valor >= 0),
+  periodicidade  text not null default 'mensal'
+                 constraint receitas_periodicidade_check
+                 check (periodicidade in ('unica', 'semanal', 'mensal', 'anual')),
+  -- É o `desde` que diz em que mês (e dia) se renova.
+  desde          date not null,
+  -- `null` = ainda ativa. Quando um cliente deixa de pagar põe-se a data de
+  -- fim, e não se apaga a linha: o histórico do que já se cobrou continua a
+  -- valer.
+  ate            date,
+  notas          text,
+  criado_em      timestamptz not null default now(),
+  constraint receitas_datas_check check (ate is null or ate >= desde)
 );
 
-create index if not exists mensalidades_cliente_idx on mensalidades (cliente_id);
+create index if not exists receitas_projeto_idx on receitas (projeto_id);
 
 -- O que sai. `projeto_id` a `null` é um gasto do estúdio (a Vercel, o Figma) e
 -- não entra na margem de projeto nenhum — misturá-los fazia um projeto parecer
@@ -226,3 +237,15 @@ alter table gastos drop constraint if exists gastos_periodicidade_check;
 
 alter table gastos add constraint gastos_periodicidade_check
   check (periodicidade in ('unica', 'semanal', 'mensal', 'anual'));
+
+-- 2026-09-08 · as receitas recorrentes mudam-se do cliente para o projeto.
+--
+-- A `mensalidades` estava presa ao cliente, e o alojamento é de um site: um
+-- cliente com dois projetos podia pagar um e não o outro. Ganhou também o
+-- `tipo`, para o domínio caber ao lado do alojamento, e a `periodicidade`, para
+-- quem paga ao ano.
+--
+-- Larga-se sem migrar nada porque a tabela nunca chegou a ter uma linha. Se um
+-- dia isto se repetir com dados lá dentro, o caminho é outro: copiar para a
+-- nova, conferir, e só depois largar.
+drop table if exists mensalidades;

@@ -2,8 +2,10 @@
 import {
   ESTADOS,
   PERIODICIDADES,
+  TIPOS_RECEITA,
   type Estado,
   type Periodicidade,
+  type TipoReceita,
 } from "@/lib/estudio/tipos";
 
 /**
@@ -312,24 +314,40 @@ export function validarPagamento(dados: {
   return erros;
 }
 
-export type ErrosMensalidade = Partial<
-  Record<"valor" | "desde" | "ate", string>
+export type ErrosReceita = Partial<
+  Record<"valor" | "tipo" | "periodicidade" | "desde" | "ate", string>
 >;
 
-export function validarMensalidade(dados: {
+export function eTipoReceita(valor: string): valor is TipoReceita {
+  return (TIPOS_RECEITA as readonly string[]).includes(valor);
+}
+
+/**
+ * O alojamento e o domínio de um site.
+ *
+ * O mínimo é zero e não um cêntimo: uma receita a zero é uma coisa que
+ * acontece — um cliente em cortesia durante uns meses — e é diferente de não
+ * ter receita nenhuma.
+ */
+export function validarReceita(dados: {
   valor: string;
+  tipo: string;
+  periodicidade: string;
   desde: string;
   ate: string;
-}): ErrosMensalidade {
-  const erros: ErrosMensalidade = {};
+}): ErrosReceita {
+  const erros: ErrosReceita = {};
 
-  /* Mínimo zero: uma mensalidade a zero é uma coisa que acontece — um cliente
-     em cortesia durante uns meses — e é diferente de não ter mensalidade. */
   const valor = validarValor(dados.valor, { minimo: 0 });
   if (valor) erros.valor = valor;
 
+  if (!eTipoReceita(dados.tipo)) erros.tipo = "Escolhe do que é a receita.";
+
+  if (!ePeriodicidade(dados.periodicidade))
+    erros.periodicidade = "Escolhe de quanto em quanto tempo é paga.";
+
   if (!dados.desde.trim() || !DATA.test(dados.desde))
-    erros.desde = "Escolhe desde quando é que ela conta.";
+    erros.desde = "Escolhe desde quando é que conta.";
 
   if (dados.ate.trim()) {
     if (!DATA.test(dados.ate)) erros.ate = "Escolhe a data no calendário.";

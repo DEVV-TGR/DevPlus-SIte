@@ -5,13 +5,13 @@ import type {
   ContasProjeto,
   Estado,
   Gasto,
-  Mensalidade,
-  MesDeContas,
   Pagamento,
   Periodicidade,
   Projeto,
   ProjetoLeve,
+  Receita,
   Tarefa,
+  TipoReceita,
   Utilizador,
 } from "@/lib/estudio/tipos";
 
@@ -266,13 +266,6 @@ export async function listarProjetosLeves(): Promise<ProjetoLeve[]> {
    aparece só a converter um total que já vem feito.
    -------------------------------------------------------------------------- */
 
-/** O mês corrente em Lisboa, `YYYY-MM`. Em SQL, para as contas do mês baterem
- *  certo com o calendário de quem as lê e não com UTC. */
-const MES_ATUAL = `to_char(now() at time zone 'Europe/Lisbon', 'YYYY-MM')`;
-
-/** Uma mensalidade está ativa se já começou e ainda não acabou. */
-const MENSALIDADE_ATIVA = `desde <= current_date and (ate is null or ate >= current_date)`;
-
 export async function contasDoProjeto(
   projetoId: number,
 ): Promise<ContasProjeto> {
@@ -330,37 +323,6 @@ export async function listarPagamentos(
   }));
 }
 
-export async function listarMensalidades(
-  clienteId: number,
-): Promise<Mensalidade[]> {
-  const linhas = await consulta<{
-    id: string;
-    cliente_id: string;
-    valor: string;
-    desde: string;
-    ate: string | null;
-    notas: string | null;
-  }>(
-    `select id, cliente_id, valor,
-            to_char(desde, 'YYYY-MM-DD') as desde,
-            to_char(ate,   'YYYY-MM-DD') as ate,
-            notas
-       from mensalidades
-      where cliente_id = $1
-      order by desde desc, id desc`,
-    [clienteId],
-  );
-
-  return linhas.map((l) => ({
-    id: Number(l.id),
-    clienteId: Number(l.cliente_id),
-    valor: Number(l.valor),
-    desde: l.desde,
-    ate: l.ate,
-    notas: l.notas,
-  }));
-}
-
 export async function listarGastos(): Promise<Gasto[]> {
   const linhas = await consulta<{
     id: string;
@@ -386,93 +348,6 @@ export async function listarGastos(): Promise<Gasto[]> {
     data: l.data,
     descricao: l.descricao,
     periodicidade: l.periodicidade,
-  }));
-}
-
-export type ResumoContas = {
-  /** O que entra todos os meses sem se vender nada: as mensalidades ativas. */
-  recorrenteMensal: number;
-  recebidoMes: number;
-  gastosMes: number;
-  /** Σ do que falta cobrar, só onde é positivo. É a lista de quem chatear. */
-  porCobrar: number;
-  /** Quantos projetos é que compõem o `porCobrar`. */
-  projetosPorCobrar: number;
-};
-
-export async function resumoContas(): Promise<ResumoContas> {
-  const linha = await consultaUma<{
-    recorrente: string;
-    recebido_mes: string;
-    gastos_mes: string;
-    por_cobrar: string;
-    projetos_por_cobrar: number;
-  }>(
-    `select
-       coalesce((select sum(valor) from mensalidades
-                  where ${MENSALIDADE_ATIVA}), 0) as recorrente,
-       coalesce((select sum(valor) from pagamentos
-                  where to_char(data, 'YYYY-MM') = ${MES_ATUAL}), 0) as recebido_mes,
-       coalesce((select sum(valor) from gastos
-                  where to_char(data, 'YYYY-MM') = ${MES_ATUAL}), 0) as gastos_mes,
-       coalesce((select sum(em_falta) from (
-                   select greatest(p.valor - coalesce((
-                            select sum(valor) from pagamentos
-                             where projeto_id = p.id), 0), 0) as em_falta
-                     from projetos p
-                    where p.valor is not null) as f), 0) as por_cobrar,
-       (select count(*)::int from (
-          select 1 from projetos p
-           where p.valor is not null
-             and p.valor > coalesce((select sum(valor) from pagamentos
-                                      where projeto_id = p.id), 0)) as n
-       ) as projetos_por_cobrar`,
-  );
-
-  return {
-    recorrenteMensal: Number(linha?.recorrente ?? 0),
-    recebidoMes: Number(linha?.recebido_mes ?? 0),
-    gastosMes: Number(linha?.gastos_mes ?? 0),
-    porCobrar: Number(linha?.por_cobrar ?? 0),
-    projetosPorCobrar: linha?.projetos_por_cobrar ?? 0,
-  };
-}
-
-/**
- * Os últimos `meses` meses, do mais antigo para o mais recente.
- *
- * A série é gerada pelo Postgres, e não a partir das linhas que existem: um mês
- * sem movimento tem de aparecer a zero, senão o gráfico salta o mês e uma
- * paragem de trabalho lê-se como se nunca tivesse acontecido.
- */
-export async function movimentoMensal(meses = 12): Promise<MesDeContas[]> {
-  const linhas = await consulta<{
-    mes: string;
-    entradas: string;
-    saidas: string;
-  }>(
-    `with serie as (
-       select to_char(d, 'YYYY-MM') as mes
-         from generate_series(
-                date_trunc('month', now() at time zone 'Europe/Lisbon')
-                  - make_interval(months => $1::int - 1),
-                date_trunc('month', now() at time zone 'Europe/Lisbon'),
-                interval '1 month') as d
-     )
-     select s.mes,
-            coalesce((select sum(valor) from pagamentos
-                       where to_char(data, 'YYYY-MM') = s.mes), 0) as entradas,
-            coalesce((select sum(valor) from gastos
-                       where to_char(data, 'YYYY-MM') = s.mes), 0) as saidas
-       from serie s
-      order by s.mes asc`,
-    [meses],
-  );
-
-  return linhas.map((l) => ({
-    mes: l.mes,
-    entradas: Number(l.entradas),
-    saidas: Number(l.saidas),
   }));
 }
 
@@ -564,4 +439,229 @@ export async function tarefasPorFazer(
     projetoNome: l.projeto_nome,
     estadoProjeto: l.estado,
   }));
+}
+
+/* --------------------------------------------------------------------------
+   Receitas recorrentes — o alojamento e o domínio de cada site
+   -------------------------------------------------------------------------- */
+
+type LinhaReceita = {
+  id: string;
+  projeto_id: string;
+  tipo: TipoReceita;
+  valor: string;
+  periodicidade: Periodicidade;
+  desde: string;
+  ate: string | null;
+  notas: string | null;
+};
+
+const CAMPOS_RECEITA = `
+  id, projeto_id, tipo, valor, periodicidade,
+  to_char(desde, 'YYYY-MM-DD') as desde,
+  to_char(ate,   'YYYY-MM-DD') as ate,
+  notas`;
+
+function paraReceita(l: LinhaReceita): Receita {
+  return {
+    id: Number(l.id),
+    projetoId: Number(l.projeto_id),
+    tipo: l.tipo,
+    valor: Number(l.valor),
+    periodicidade: l.periodicidade,
+    desde: l.desde,
+    ate: l.ate,
+    notas: l.notas,
+  };
+}
+
+export async function receitasDoProjeto(projetoId: number): Promise<Receita[]> {
+  const linhas = await consulta<LinhaReceita>(
+    `select ${CAMPOS_RECEITA} from receitas
+      where projeto_id = $1
+      order by tipo asc, desde desc`,
+    [projetoId],
+  );
+  return linhas.map(paraReceita);
+}
+
+export type ReceitaDeCliente = Receita & { projetoNome: string };
+
+/** As receitas dos projetos de um cliente. Na ficha dele vê-se a soma, mas o
+ *  sítio onde se escrevem é o projeto — é o alojamento *daquele* site. */
+export async function receitasDoCliente(
+  clienteId: number,
+): Promise<ReceitaDeCliente[]> {
+  const linhas = await consulta<LinhaReceita & { projeto_nome: string }>(
+    `select ${CAMPOS_RECEITA}, p.nome as projeto_nome
+       from receitas r
+       join projetos p on p.id = r.projeto_id
+      where p.cliente_id = $1
+      order by p.nome asc, r.tipo asc`,
+    [clienteId],
+  );
+  return linhas.map((l) => ({ ...paraReceita(l), projetoNome: l.projeto_nome }));
+}
+
+/* --------------------------------------------------------------------------
+   O resumo do mês
+   -------------------------------------------------------------------------- */
+
+const MES_ATUAL_SQL = `to_char(now() at time zone 'Europe/Lisbon', 'YYYY-MM')`;
+
+export type ResumoDoMes = {
+  entrou: number;
+  saiu: number;
+  /** `entrou - saiu`. Não é lucro: não leva ordenados nem impostos. */
+  saldo: number;
+  porCobrar: number;
+  projetosPorCobrar: number;
+};
+
+export async function resumoDoMes(): Promise<ResumoDoMes> {
+  const linha = await consultaUma<{
+    entrou: string;
+    saiu: string;
+    por_cobrar: string;
+    projetos_por_cobrar: number;
+  }>(
+    `select
+       coalesce((select sum(valor) from pagamentos
+                  where to_char(data, 'YYYY-MM') = ${MES_ATUAL_SQL}), 0) as entrou,
+       coalesce((select sum(valor) from gastos
+                  where to_char(data, 'YYYY-MM') = ${MES_ATUAL_SQL}), 0) as saiu,
+       coalesce((select sum(em_falta) from (
+                   select greatest(p.valor - coalesce((
+                            select sum(valor) from pagamentos
+                             where projeto_id = p.id), 0), 0) as em_falta
+                     from projetos p
+                    where p.valor is not null) as f), 0) as por_cobrar,
+       (select count(*)::int from (
+          select 1 from projetos p
+           where p.valor is not null
+             and p.valor > coalesce((select sum(valor) from pagamentos
+                                      where projeto_id = p.id), 0)) as n
+       ) as projetos_por_cobrar`,
+  );
+
+  const entrou = Number(linha?.entrou ?? 0);
+  const saiu = Number(linha?.saiu ?? 0);
+
+  return {
+    entrou,
+    saiu,
+    saldo: entrou - saiu,
+    porCobrar: Number(linha?.por_cobrar ?? 0),
+    projetosPorCobrar: linha?.projetos_por_cobrar ?? 0,
+  };
+}
+
+/** Os gastos deste mês, para o circular. Um por linha — quem os agrupa em
+ *  fatias é o componente, que é quem sabe quantas cabem. */
+export async function gastosDoMes(): Promise<Gasto[]> {
+  const linhas = await consulta<{
+    id: string;
+    projeto_id: string | null;
+    projeto_nome: string | null;
+    valor: string;
+    data: string;
+    descricao: string;
+    periodicidade: Periodicidade;
+  }>(
+    `select g.id, g.projeto_id, p.nome as projeto_nome, g.valor,
+            to_char(g.data, 'YYYY-MM-DD') as data, g.descricao, g.periodicidade
+       from gastos g
+       left join projetos p on p.id = g.projeto_id
+      where to_char(g.data, 'YYYY-MM') = ${MES_ATUAL_SQL}
+      order by g.valor desc`,
+  );
+
+  return linhas.map((l) => ({
+    id: Number(l.id),
+    projetoId: l.projeto_id === null ? null : Number(l.projeto_id),
+    projetoNome: l.projeto_nome,
+    valor: Number(l.valor),
+    data: l.data,
+    descricao: l.descricao,
+    periodicidade: l.periodicidade,
+  }));
+}
+
+export type Recorrente = {
+  chave: string;
+  lado: "entra" | "sai";
+  descricao: string;
+  contexto: string | null;
+  valor: number;
+  /** A data de referência: o dia em que se pagou, ou o dia em que começou. */
+  base: string;
+  periodicidade: Periodicidade;
+};
+
+/**
+ * Tudo o que se repete, dos dois lados, em bruto.
+ *
+ * Quem decide o que ainda vem este mês é o `proximaOcorrencia()` de
+ * `lib/estudio/tipos.ts`, em JavaScript — a conta envolve meses de 28 a 31 dias
+ * e dias da semana, e em SQL ficava ilegível para poupar uma passagem por uma
+ * lista de dez linhas.
+ */
+export async function recorrentes(): Promise<Recorrente[]> {
+  const [saidas, entradas] = await Promise.all([
+    consulta<{
+      id: string;
+      descricao: string;
+      projeto_nome: string | null;
+      valor: string;
+      data: string;
+      periodicidade: Periodicidade;
+    }>(
+      `select g.id, g.descricao, p.nome as projeto_nome, g.valor,
+              to_char(g.data, 'YYYY-MM-DD') as data, g.periodicidade
+         from gastos g
+         left join projetos p on p.id = g.projeto_id
+        where g.periodicidade <> 'unica'`,
+    ),
+    consulta<{
+      id: string;
+      tipo: TipoReceita;
+      projeto_nome: string;
+      cliente_nome: string | null;
+      valor: string;
+      desde: string;
+      periodicidade: Periodicidade;
+    }>(
+      `select r.id, r.tipo, p.nome as projeto_nome, c.nome as cliente_nome,
+              r.valor, to_char(r.desde, 'YYYY-MM-DD') as desde, r.periodicidade
+         from receitas r
+         join projetos p on p.id = r.projeto_id
+         left join clientes c on c.id = p.cliente_id
+        where r.periodicidade <> 'unica'
+          and (r.ate is null or r.ate >= current_date)`,
+    ),
+  ]);
+
+  return [
+    ...saidas.map((l) => ({
+      chave: `gasto-${l.id}`,
+      lado: "sai" as const,
+      descricao: l.descricao,
+      contexto: l.projeto_nome,
+      valor: Number(l.valor),
+      base: l.data,
+      periodicidade: l.periodicidade,
+    })),
+    ...entradas.map((l) => ({
+      chave: `receita-${l.id}`,
+      lado: "entra" as const,
+      descricao:
+        l.tipo === "dominio" ? "Domínio" : "Alojamento e apoio",
+      contexto: l.cliente_nome
+        ? `${l.projeto_nome} · ${l.cliente_nome}`
+        : l.projeto_nome,
+      valor: Number(l.valor),
+      base: l.desde,
+      periodicidade: l.periodicidade,
+    })),
+  ];
 }
