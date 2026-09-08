@@ -374,11 +374,29 @@ export const METRICAS = [
 
 export type Metrica = (typeof METRICAS)[number];
 
+/**
+ * O nome diz **o que se conta**, não a tabela de onde vem.
+ *
+ * Isto começou por ser só "Clientes", e estava errado: contava toda a gente na
+ * lista, incluindo quem só tem uma proposta por responder. Um objetivo de "10
+ * clientes" com propostas lá dentro é um objetivo que se cumpre sozinho a
+ * mandar emails.
+ */
 export const ROTULO_METRICA: Record<Metrica, string> = {
-  clientes: "Clientes",
+  clientes: "Clientes com trabalho entregue",
   projetos: "Projetos",
   entregues: "Projetos entregues",
   recebido: "Dinheiro recebido",
+};
+
+/** Uma linha por métrica, para o formulário não deixar dúvidas sobre o que vai
+ *  contar antes de alguém guardar um objetivo que conta outra coisa. */
+export const EXPLICA_METRICA: Record<Metrica, string> = {
+  clientes:
+    "Quem já tem pelo menos um projeto entregue. Propostas e trabalho a andar não contam.",
+  projetos: "Todos os projetos, incluindo os vossos.",
+  entregues: "Os projetos em «Entregue».",
+  recebido: "A soma dos pagamentos recebidos.",
 };
 
 /** O `recebido` é em euros; os outros contam-se. É o que decide se o número se

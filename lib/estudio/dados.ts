@@ -712,10 +712,23 @@ export async function listarObjetivos(): Promise<Objetivo[]> {
             to_char(o.prazo, 'YYYY-MM-DD') as prazo,
             to_char(o.desde, 'YYYY-MM-DD') as desde,
             case o.metrica
+              /* Um cliente só conta quando já lhe entregámos alguma coisa.
+                 Contar toda a gente na tabela metia lá dentro os potenciais e
+                 os que só têm uma proposta por responder — e um objetivo de
+                 "10 clientes" assim cumpre-se a mandar emails.
+
+                 O 'desde' continua a filtrar pela data em que o CLIENTE
+                 entrou na lista, e não pela da entrega: "angariar 10 clientes
+                 este ano" conta os que chegaram este ano e a quem já se
+                 entregou. Não guardamos data de entrega — se um dia isso fizer
+                 falta, é uma coluna nova em projetos. */
               when 'clientes' then (
                 select count(*) from clientes c
-                 where o.desde is null
-                    or (c.criado_em at time zone 'Europe/Lisbon')::date >= o.desde)
+                 where exists (select 1 from projetos p
+                                where p.cliente_id = c.id
+                                  and p.estado = 'entregue')
+                   and (o.desde is null
+                    or (c.criado_em at time zone 'Europe/Lisbon')::date >= o.desde))
               when 'projetos' then (
                 select count(*) from projetos p
                  where o.desde is null

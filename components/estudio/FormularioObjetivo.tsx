@@ -7,6 +7,7 @@ import { CAMPO, ETIQUETA } from "@/components/estudio/estilos";
 import { apagarObjetivo, type EstadoDinheiro } from "@/lib/estudio/acoes";
 import {
   formatarData,
+  EXPLICA_METRICA,
   METRICAS,
   progressoEscrito,
   ROTULO_METRICA,
@@ -109,6 +110,18 @@ export function FormularioObjetivo({
             </select>
           </div>
         </div>
+
+        {/* O que cada métrica conta, escrito. Sem isto, "Clientes" parecia
+            contar toda a gente da lista — e contava mesmo, até isto ser
+            corrigido. */}
+        <ul className="space-y-1 text-xs text-muted">
+          {METRICAS.map((m) => (
+            <li key={m}>
+              <span className="text-ink">{ROTULO_METRICA[m]}</span>{" "}
+              {EXPLICA_METRICA[m]}
+            </li>
+          ))}
+        </ul>
 
         <div className="grid gap-5 sm:grid-cols-3">
           <div>

@@ -138,8 +138,23 @@ dígitos a seguir e milhares nos outros casos.
 contado pela base**, num `case` sobre a métrica em `listarObjetivos()`. Um
 objetivo cujo progresso fosse escrito à mão era mais um número para manter
 atualizado, e o primeiro a ficar desatualizado — daí a métrica ser uma lista
-fechada com só o que o Estúdio sabe contar sozinho: clientes, projetos, projetos
-entregues, dinheiro recebido.
+fechada com só o que o Estúdio sabe contar sozinho.
+
+**Um cliente só conta quando já lhe entregámos alguma coisa.** A primeira versão
+contava as linhas da tabela `clientes`, e estava errada: lá dentro estão também
+os potenciais e quem só tem uma proposta por responder. Um objetivo de "10
+clientes" assim cumpre-se a mandar emails. Hoje conta quem tem pelo menos um
+projeto em `entregue` — com os dados reais, isso é 2 e não 6, e a diferença é o
+ponto todo.
+
+**Os projetos vossos contam nas métricas de projetos**, e isso foi decidido: um
+objetivo de "20 projetos" inclui o site da DevPlus e as demonstrações. Se um dia
+não fizer sentido, o sítio de mudar é o mesmo `case`.
+
+**O nome de cada métrica diz o que ela conta**, e não a tabela de onde vem. Foi
+chamar-lhe "Clientes" que escondeu o erro — o formulário mostra agora uma linha
+por métrica a explicar o que entra na conta, antes de alguém guardar um objetivo
+que conta outra coisa.
 
 **O `desde` é o que separa duas coisas que se dizem igual:** *ter* 10 clientes
 conta os que já cá estão; *ganhar* 10 clientes este ano põe `desde` em janeiro e
