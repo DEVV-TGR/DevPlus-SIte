@@ -92,6 +92,21 @@ jobs:
           verificar /robots.txt                      200
           verificar /uma-rota-que-nao-existe         404
 
+          # O Estúdio. Este job corre sem segredos nenhuns — sem `DATABASE_URL`,
+          # sem GitHub OAuth — e é de propósito que assim se verifica:
+          #
+          #   · `/estudio` tem de redirecionar para a entrada **sem tocar na
+          #     base**. Se um dia responder 500, alguém pôs uma consulta antes
+          #     da verificação do cookie (ver `requerSessao` em
+          #     lib/estudio/sessao.ts).
+          #   · `/estudio/entrar` tem de renderizar na mesma. É a página que
+          #     prova que o site inteiro continua a compilar e a arrancar sem a
+          #     base de dados configurada.
+          #
+          # Ver docs/07-estudio.md.
+          verificar /estudio                         307
+          verificar /estudio/entrar                  200
+
       # Os cabeçalhos de segurança são configuração, e configuração parte-se sem
       # ninguém dar por isso. Aqui, parte-se com o CI vermelho.
       - name: Os cabeçalhos de segurança estão lá

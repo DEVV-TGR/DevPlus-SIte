@@ -1,0 +1,335 @@
+/** docs: docs/07-estudio.md */
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { consulta, consultaUma } from "@/lib/estudio/db";
+import { requerSessao } from "@/lib/estudio/sessao";
+import {
+  campo,
+  LIMITES,
+  ouNulo,
+  validarCliente,
+  validarProjeto,
+  validarTarefa,
+  type ErrosCliente,
+  type ErrosProjeto,
+} from "@/lib/estudio/validacao";
+
+/**
+ * As escritas do Estúdio.
+ *
+ * **Cada ação começa por `requerSessao()`.** Uma Server Action é um endpoint
+ * como outro qualquer — quem souber o identificador chama-a de fora do
+ * formulário, e a página onde o botão vive não protege nada. A verificação vive
+ * aqui, ao lado da escrita, e não num sítio que se possa contornar.
+ *
+ * Validação: sempre a de `lib/estudio/validacao.ts`, a mesma que o formulário
+ * corre no browser. Nunca uma segunda cópia — ver `lib/contacto.ts`, que já
+ * fazia isto para o formulário de contacto.
+ */
+
+export type EstadoProjeto = { erros?: ErrosProjeto; erro?: string; ok?: boolean };
+export type EstadoCliente = { erros?: ErrosCliente; erro?: string; ok?: boolean };
+
+/** `"3"` -> `3`, e qualquer outra coisa -> `null`. Serve para os `id` que
+ *  chegam de campos escondidos e de `<select>`. */
+function paraId(valor: string): number | null {
+  const n = Number(valor);
+  return Number.isInteger(n) && n > 0 ? n : null;
+}
+
+function lerProjeto(form: FormData) {
+  return {
+    nome: campo(form.get("nome"), LIMITES.nome),
+    clienteId: campo(form.get("clienteId"), 20),
+    estado: campo(form.get("estado"), 20),
+    progresso: campo(form.get("progresso"), 5),
+    inicio: campo(form.get("inicio"), 10),
+    prazo: campo(form.get("prazo"), 10),
+    repoUrl: campo(form.get("repoUrl"), LIMITES.url),
+    deployUrl: campo(form.get("deployUrl"), LIMITES.url),
+    notas: campo(form.get("notas"), LIMITES.notas),
+  };
+}
+
+/** Os responsáveis chegam como uma caixa por pessoa, todas com o mesmo nome.
+ *  Escolhidos à mão, sempre — nunca se acrescenta quem está a gravar. */
+function lerResponsaveis(form: FormData): number[] {
+  return form
+    .getAll("responsaveis")
+    .map((v) => (typeof v === "string" ? paraId(v) : null))
+    .filter((v): v is number => v !== null);
+}
+
+async function definirResponsaveis(projetoId: number, ids: number[]) {
+  await consulta("delete from projeto_responsaveis where projeto_id = $1", [
+    projetoId,
+  ]);
+
+  if (ids.length === 0) return;
+
+  /* Um `insert` só, com a lista a ser desdobrada pela base. O `::bigint[]`
+     obriga a que só entrem números — o array vai como parâmetro, nunca colado
+     ao texto da consulta. */
+  await consulta(
+    `insert into projeto_responsaveis (projeto_id, utilizador_id)
+     select $1, id from unnest($2::bigint[]) as id
+     on conflict do nothing`,
+    [projetoId, ids],
+  );
+}
+
+export async function criarProjeto(
+  _anterior: EstadoProjeto,
+  form: FormData,
+): Promise<EstadoProjeto> {
+  await requerSessao();
+
+  const dados = lerProjeto(form);
+  const erros = validarProjeto(dados);
+  if (Object.keys(erros).length > 0) return { erros };
+
+  let id: number;
+
+  try {
+    const linha = await consultaUma<{ id: string }>(
+      `insert into projetos
+         (nome, cliente_id, estado, progresso, inicio, prazo,
+          repo_url, deploy_url, notas)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       returning id`,
+      [
+        dados.nome.trim(),
+        paraId(dados.clienteId),
+        dados.estado,
+        Number(dados.progresso),
+        ouNulo(dados.inicio),
+        ouNulo(dados.prazo),
+        ouNulo(dados.repoUrl),
+        ouNulo(dados.deployUrl),
+        ouNulo(dados.notas),
+      ],
+    );
+
+    if (!linha) return { erro: "Não foi possível criar o projeto." };
+
+    id = Number(linha.id);
+    await definirResponsaveis(id, lerResponsaveis(form));
+  } catch (erro) {
+    /* Nunca o conteúdo do formulário no log: passam por aqui notas sobre
+       clientes. É a mesma regra do `app/api/contacto/route.ts`. */
+    console.error("[estudio] falhou criar projeto:", erro);
+    return { erro: "Não foi possível criar o projeto. Tenta outra vez." };
+  }
+
+  revalidatePath("/estudio");
+  /* `redirect` atira — tem de ficar fora do `try`, senão o `catch` apanhava-o e
+     transformava uma gravação bem-sucedida num erro. */
+  redirect(`/estudio/projetos/${id}`);
+}
+
+export async function guardarProjeto(
+  _anterior: EstadoProjeto,
+  form: FormData,
+): Promise<EstadoProjeto> {
+  await requerSessao();
+
+  const id = paraId(campo(form.get("id"), 20));
+  if (!id) return { erro: "Projeto não encontrado." };
+
+  const dados = lerProjeto(form);
+  const erros = validarProjeto(dados);
+  if (Object.keys(erros).length > 0) return { erros };
+
+  try {
+    await consulta(
+      `update projetos
+          set nome = $2, cliente_id = $3, estado = $4, progresso = $5,
+              inicio = $6, prazo = $7, repo_url = $8, deploy_url = $9,
+              notas = $10, atualizado_em = now()
+        where id = $1`,
+      [
+        id,
+        dados.nome.trim(),
+        paraId(dados.clienteId),
+        dados.estado,
+        Number(dados.progresso),
+        ouNulo(dados.inicio),
+        ouNulo(dados.prazo),
+        ouNulo(dados.repoUrl),
+        ouNulo(dados.deployUrl),
+        ouNulo(dados.notas),
+      ],
+    );
+
+    await definirResponsaveis(id, lerResponsaveis(form));
+  } catch (erro) {
+    console.error("[estudio] falhou guardar projeto:", erro);
+    return { erro: "Não foi possível guardar. Tenta outra vez." };
+  }
+
+  revalidatePath("/estudio");
+  revalidatePath(`/estudio/projetos/${id}`);
+  return { ok: true };
+}
+
+export async function apagarProjeto(form: FormData): Promise<void> {
+  await requerSessao();
+
+  const id = paraId(campo(form.get("id"), 20));
+  if (!id) return;
+
+  /* As tarefas e os responsáveis vão atrás por `on delete cascade`, declarado
+     no esquema. Ver `lib/estudio/schema.sql`. */
+  await consulta("delete from projetos where id = $1", [id]);
+
+  revalidatePath("/estudio");
+  redirect("/estudio");
+}
+
+export async function criarCliente(
+  _anterior: EstadoCliente,
+  form: FormData,
+): Promise<EstadoCliente> {
+  await requerSessao();
+
+  const dados = {
+    nome: campo(form.get("nome"), LIMITES.nome),
+    email: campo(form.get("email"), LIMITES.email),
+    telefone: campo(form.get("telefone"), LIMITES.telefone),
+    notas: campo(form.get("notas"), LIMITES.notas),
+  };
+
+  const erros = validarCliente(dados);
+  if (Object.keys(erros).length > 0) return { erros };
+
+  try {
+    await consulta(
+      `insert into clientes (nome, email, telefone, notas)
+       values ($1, $2, $3, $4)`,
+      [
+        dados.nome.trim(),
+        ouNulo(dados.email),
+        ouNulo(dados.telefone),
+        ouNulo(dados.notas),
+      ],
+    );
+  } catch (erro) {
+    console.error("[estudio] falhou criar cliente:", erro);
+    return { erro: "Não foi possível guardar o cliente. Tenta outra vez." };
+  }
+
+  revalidatePath("/estudio/clientes");
+  return { ok: true };
+}
+
+export async function guardarCliente(
+  _anterior: EstadoCliente,
+  form: FormData,
+): Promise<EstadoCliente> {
+  await requerSessao();
+
+  const id = paraId(campo(form.get("id"), 20));
+  if (!id) return { erro: "Cliente não encontrado." };
+
+  const dados = {
+    nome: campo(form.get("nome"), LIMITES.nome),
+    email: campo(form.get("email"), LIMITES.email),
+    telefone: campo(form.get("telefone"), LIMITES.telefone),
+    notas: campo(form.get("notas"), LIMITES.notas),
+  };
+
+  const erros = validarCliente(dados);
+  if (Object.keys(erros).length > 0) return { erros };
+
+  try {
+    await consulta(
+      `update clientes set nome = $2, email = $3, telefone = $4, notas = $5
+        where id = $1`,
+      [
+        id,
+        dados.nome.trim(),
+        ouNulo(dados.email),
+        ouNulo(dados.telefone),
+        ouNulo(dados.notas),
+      ],
+    );
+  } catch (erro) {
+    console.error("[estudio] falhou guardar cliente:", erro);
+    return { erro: "Não foi possível guardar. Tenta outra vez." };
+  }
+
+  revalidatePath("/estudio/clientes");
+  revalidatePath(`/estudio/clientes/${id}`);
+  revalidatePath("/estudio");
+  return { ok: true };
+}
+
+export async function apagarCliente(form: FormData): Promise<void> {
+  await requerSessao();
+
+  const id = paraId(campo(form.get("id"), 20));
+  if (!id) return;
+
+  /* Os projetos ficam, com o cliente a `null` — `on delete set null` no
+     esquema. Apagar um cliente não pode levar atrás o trabalho que se lhe fez. */
+  await consulta("delete from clientes where id = $1", [id]);
+
+  revalidatePath("/estudio/clientes");
+  revalidatePath("/estudio");
+  redirect("/estudio/clientes");
+}
+
+export async function juntarTarefa(form: FormData): Promise<void> {
+  await requerSessao();
+
+  const projetoId = paraId(campo(form.get("projetoId"), 20));
+  if (!projetoId) return;
+
+  const texto = campo(form.get("texto"), LIMITES.tarefa);
+  if (validarTarefa(texto)) return;
+
+  /* A tarefa nova entra no fim. `coalesce` porque a primeira de todas não tem
+     máximo nenhum de que partir. */
+  await consulta(
+    `insert into tarefas (projeto_id, texto, ordem)
+     values ($1, $2, coalesce((select max(ordem) + 1 from tarefas
+                                where projeto_id = $1), 0))`,
+    [projetoId, texto.trim()],
+  );
+
+  revalidatePath(`/estudio/projetos/${projetoId}`);
+}
+
+export async function alternarTarefa(form: FormData): Promise<void> {
+  await requerSessao();
+
+  const id = paraId(campo(form.get("id"), 20));
+  const projetoId = paraId(campo(form.get("projetoId"), 20));
+  if (!id || !projetoId) return;
+
+  /* O `and projeto_id` não é decoração: sem ele, um id de tarefa doutro projeto
+     passava aqui na mesma. */
+  await consulta(
+    "update tarefas set feita = not feita where id = $1 and projeto_id = $2",
+    [id, projetoId],
+  );
+
+  revalidatePath(`/estudio/projetos/${projetoId}`);
+}
+
+export async function apagarTarefa(form: FormData): Promise<void> {
+  await requerSessao();
+
+  const id = paraId(campo(form.get("id"), 20));
+  const projetoId = paraId(campo(form.get("projetoId"), 20));
+  if (!id || !projetoId) return;
+
+  await consulta("delete from tarefas where id = $1 and projeto_id = $2", [
+    id,
+    projetoId,
+  ]);
+
+  revalidatePath(`/estudio/projetos/${projetoId}`);
+}
