@@ -8,6 +8,7 @@ import type {
   Mensalidade,
   MesDeContas,
   Pagamento,
+  Periodicidade,
   Projeto,
   ProjetoLeve,
   Tarefa,
@@ -368,10 +369,10 @@ export async function listarGastos(): Promise<Gasto[]> {
     valor: string;
     data: string;
     descricao: string;
-    recorrente: boolean;
+    periodicidade: Periodicidade;
   }>(
     `select g.id, g.projeto_id, p.nome as projeto_nome, g.valor,
-            to_char(g.data, 'YYYY-MM-DD') as data, g.descricao, g.recorrente
+            to_char(g.data, 'YYYY-MM-DD') as data, g.descricao, g.periodicidade
        from gastos g
        left join projetos p on p.id = g.projeto_id
       order by g.data desc, g.id desc`,
@@ -384,7 +385,7 @@ export async function listarGastos(): Promise<Gasto[]> {
     valor: Number(l.valor),
     data: l.data,
     descricao: l.descricao,
-    recorrente: l.recorrente,
+    periodicidade: l.periodicidade,
   }));
 }
 

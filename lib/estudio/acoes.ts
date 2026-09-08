@@ -717,6 +717,7 @@ export async function criarGasto(
     valor: campo(form.get("valor"), 20),
     data: campo(form.get("data"), 10),
     descricao: campo(form.get("descricao"), LIMITES.nome),
+    periodicidade: campo(form.get("periodicidade"), 20),
   };
 
   const erros = validarGasto(dados);
@@ -724,7 +725,7 @@ export async function criarGasto(
 
   try {
     await consulta(
-      `insert into gastos (projeto_id, valor, data, descricao, recorrente)
+      `insert into gastos (projeto_id, valor, data, descricao, periodicidade)
        values ($1, $2, $3, $4, $5)`,
       [
         /* Sem projeto = gasto do estúdio. Não entra na margem de projeto
@@ -733,7 +734,7 @@ export async function criarGasto(
         lerValor(dados.valor),
         dados.data,
         dados.descricao.trim(),
-        form.get("recorrente") === "on",
+        dados.periodicidade,
       ],
     );
   } catch (erro) {

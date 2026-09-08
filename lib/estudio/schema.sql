@@ -142,9 +142,13 @@ create table if not exists gastos (
   valor       numeric(10, 2) not null check (valor > 0),
   data        date not null,
   descricao   text not null,
-  -- Marca as despesas que se repetem todos os meses, para se poder ver o custo
-  -- fixo do estúdio separado do que foi só uma vez.
-  recorrente  boolean not null default false,
+  -- De quanto em quanto tempo se paga. Um booleano "recorrente" não chegava:
+  -- um domínio paga-se uma vez por ano e o alojamento todos os meses, e somar
+  -- os dois como se fossem a mesma coisa dava um custo fixo errado por doze
+  -- vezes. Ver `POR_MES` em `lib/estudio/tipos.ts`, que os põe na mesma escala.
+  periodicidade text not null default 'unica'
+                constraint gastos_periodicidade_check
+                check (periodicidade in ('unica', 'semanal', 'mensal', 'anual')),
   criado_em   timestamptz not null default now()
 );
 
@@ -192,3 +196,33 @@ alter table projetos add constraint projetos_estado_check
 -- Entra a `null` nos projetos que já existem: `null` quer dizer "ainda não se
 -- combinou", que é diferente de zero.
 alter table projetos add column if not exists valor numeric(10, 2);
+
+-- 2026-09-08 · a periodicidade dos gastos.
+--
+-- Substitui o booleano `recorrente`, que não distinguia um alojamento mensal de
+-- um domínio anual. A conversão é direta: o que era recorrente passa a mensal,
+-- que era o que ele queria dizer.
+--
+-- Os três passos correm sobre uma base nova (onde a coluna já nasceu com a
+-- definição certa e o `recorrente` nunca existiu) e sobre a antiga, sem se
+-- saber em qual se está.
+alter table gastos add column if not exists periodicidade text not null default 'unica';
+
+-- Num bloco `do` com SQL dinâmico, e não num `update` normal: uma consulta que
+-- mencione `recorrente` numa base onde essa coluna já não existe rebenta ao ser
+-- lida, muito antes de o `where` decidir seja o que for. O `execute` só é
+-- analisado se a coluna estiver mesmo lá.
+do $$
+begin
+  if exists (select 1 from information_schema.columns
+              where table_name = 'gastos' and column_name = 'recorrente') then
+    execute 'update gastos set periodicidade = ''mensal'' where recorrente';
+  end if;
+end $$;
+
+alter table gastos drop column if exists recorrente;
+
+alter table gastos drop constraint if exists gastos_periodicidade_check;
+
+alter table gastos add constraint gastos_periodicidade_check
+  check (periodicidade in ('unica', 'semanal', 'mensal', 'anual'));

@@ -5,7 +5,12 @@ import { useActionState, useEffect, useRef } from "react";
 import { BotaoGuardar } from "@/components/estudio/BotaoGuardar";
 import { CAMPO, ETIQUETA } from "@/components/estudio/estilos";
 import type { EstadoDinheiro } from "@/lib/estudio/acoes";
-import { hojeEmLisboa, type ProjetoLeve } from "@/lib/estudio/tipos";
+import {
+  hojeEmLisboa,
+  PERIODICIDADES,
+  ROTULO_PERIODICIDADE,
+  type ProjetoLeve,
+} from "@/lib/estudio/tipos";
 
 export function FormularioGasto({
   acao,
@@ -23,8 +28,8 @@ export function FormularioGasto({
   }, [estado.ok]);
 
   return (
-    <form ref={form} action={submeter} className="space-y-4" noValidate>
-      <div className="grid gap-4 sm:grid-cols-2">
+    <form ref={form} action={submeter} className="space-y-5" noValidate>
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         <div>
           <label htmlFor="gasto-valor" className={ETIQUETA}>
             Quanto <span className="text-muted">(sem IVA)</span>
@@ -62,8 +67,36 @@ export function FormularioGasto({
             </p>
           ) : null}
         </div>
+
+        <div>
+          <label htmlFor="gasto-periodicidade" className={ETIQUETA}>
+            De quanto em quanto tempo
+          </label>
+          {/* Um seletor e não uma caixa "é recorrente": um domínio paga-se uma
+              vez por ano e o alojamento todos os meses, e tratá-los como a mesma
+              coisa dava um custo fixo errado por doze vezes. */}
+          <select
+            id="gasto-periodicidade"
+            name="periodicidade"
+            defaultValue="unica"
+            className={CAMPO}
+            aria-invalid={erros.periodicidade ? true : undefined}
+          >
+            {PERIODICIDADES.map((p) => (
+              <option key={p} value={p}>
+                {ROTULO_PERIODICIDADE[p]}
+              </option>
+            ))}
+          </select>
+          {erros.periodicidade ? (
+            <p role="alert" className="mt-1.5 text-sm text-danger">
+              {erros.periodicidade}
+            </p>
+          ) : null}
+        </div>
       </div>
 
+      <div className="grid gap-5 sm:grid-cols-2">
       <div>
         <label htmlFor="gasto-descricao" className={ETIQUETA}>
           De que é
@@ -103,21 +136,7 @@ export function FormularioGasto({
           ))}
         </select>
       </div>
-
-      <label className="flex cursor-pointer items-start gap-3">
-        <input
-          type="checkbox"
-          name="recorrente"
-          className="mt-0.5 h-4 w-4 accent-[var(--primary)]"
-        />
-        <span className="text-sm">
-          Repete-se todos os meses
-          <span className="block text-xs text-muted">
-            Para se poder ver o custo fixo do estúdio separado do que foi só uma
-            vez.
-          </span>
-        </span>
-      </label>
+      </div>
 
       <div className="flex flex-wrap items-center gap-4">
         <BotaoGuardar>Registar gasto</BotaoGuardar>

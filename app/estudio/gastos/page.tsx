@@ -5,7 +5,12 @@ import { CARTAO, SOBRETITULO } from "@/components/estudio/estilos";
 import { apagarGasto, criarGasto } from "@/lib/estudio/acoes";
 import { listarGastos, listarProjetosLeves } from "@/lib/estudio/dados";
 import { requerSessao } from "@/lib/estudio/sessao";
-import { formatarData, formatarEuros } from "@/lib/estudio/tipos";
+import {
+  formatarData,
+  formatarEuros,
+  POR_MES,
+  ROTULO_CURTO,
+} from "@/lib/estudio/tipos";
 
 /**
  * O que sai.
@@ -14,6 +19,10 @@ import { formatarData, formatarEuros } from "@/lib/estudio/tipos";
  * Vercel, o Figma). Os do estúdio não entram na margem de projeto nenhum — se
  * entrassem, um projeto parecia pior por causa de uma despesa que existiria na
  * mesma sem ele.
+ *
+ * A página é uma coluna só, de cima a baixo: o formulário abre em cima, a lista
+ * fica por baixo com o ecrã todo. Espremer as duas coisas lado a lado deixava a
+ * descrição de um gasto sem sítio para se ler.
  */
 export default async function Gastos() {
   await requerSessao();
@@ -24,54 +33,87 @@ export default async function Gastos() {
   ]);
 
   const doEstudio = gastos.filter((g) => g.projetoId === null);
-  const fixosPorMes = gastos
-    .filter((g) => g.recorrente)
-    .reduce((total, g) => total + g.valor, 0);
+
+  /* O custo fixo põe as periodicidades todas na mesma escala. Sem isto, somar
+     um domínio anual com um alojamento mensal dava um número doze vezes errado
+     — ver `POR_MES` em `lib/estudio/tipos.ts`. */
+  const fixoPorMes = gastos.reduce(
+    (total, g) => total + g.valor * POR_MES[g.periodicidade],
+    0,
+  );
+
+  const repetem = gastos.filter((g) => g.periodicidade !== "unica");
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-4xl">
       <p className={SOBRETITULO}>Estúdio</p>
       <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
         Gastos
       </h1>
-      <p className="mt-1.5 text-sm text-muted">
-        Todos os valores sem IVA.
-        {fixosPorMes > 0
-          ? ` ${formatarEuros(fixosPorMes)} por mês em despesas que se repetem.`
-          : ""}
-      </p>
+      <p className="mt-2 text-sm text-muted">Todos os valores sem IVA.</p>
 
-      <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_22rem]">
-        <div>
-          {gastos.length === 0 ? (
-            <div className={CARTAO}>
-              <h2 className="font-display text-lg font-semibold tracking-tight">
-                Ainda não há gastos registados.
-              </h2>
-              <p className="mt-2 text-sm text-muted">
-                Começa pelos que se repetem — o alojamento, os domínios, as
-                ferramentas. São os que se esquecem e os que mais pesam ao fim
-                do ano.
-              </p>
-            </div>
-          ) : (
-            <ul className="divide-y divide-border border-y border-border">
+      {repetem.length > 0 ? (
+        <div className={`${CARTAO} mt-8`}>
+          <p className="text-xs text-muted">Custo fixo do estúdio</p>
+          <p className="mt-1.5 font-display text-2xl font-semibold tabular-nums tracking-tight">
+            {formatarEuros(fixoPorMes)}
+            <span className="ml-1.5 text-base font-normal text-muted">
+              por mês
+            </span>
+          </p>
+          <p className="mt-1.5 text-xs text-muted">
+            {repetem.length}{" "}
+            {repetem.length === 1 ? "despesa que se repete" : "despesas que se repetem"},
+            com as semanais e as anuais já convertidas para mês.
+          </p>
+        </div>
+      ) : null}
+
+      <details className={`${CARTAO} mt-8`} open={gastos.length === 0}>
+        <summary className="cursor-pointer font-display text-lg font-semibold tracking-tight">
+          Gasto novo
+        </summary>
+        <div className="mt-6">
+          <FormularioGasto acao={criarGasto} projetos={projetos} />
+        </div>
+      </details>
+
+      <section aria-labelledby="lista-gastos" className="mt-12">
+        <h2
+          id="lista-gastos"
+          className="font-display text-lg font-semibold tracking-tight"
+        >
+          Tudo o que já saiu
+        </h2>
+
+        {gastos.length === 0 ? (
+          <p className="mt-3 max-w-lg text-sm text-muted">
+            Ainda não há gastos registados. Começa pelos que se repetem — o
+            alojamento, os domínios, as ferramentas. São os que se esquecem e os
+            que mais pesam ao fim do ano.
+          </p>
+        ) : (
+          <>
+            <ul className="mt-5 divide-y divide-border border-y border-border">
               {gastos.map((g) => (
-                <li key={g.id} className="flex items-center gap-3 py-3">
+                <li
+                  key={g.id}
+                  className="flex flex-wrap items-center gap-x-4 gap-y-1.5 py-4"
+                >
                   <span className="w-24 shrink-0 text-sm font-medium tabular-nums">
                     {formatarEuros(g.valor)}
                   </span>
 
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm">
-                      {g.descricao}
-                      {g.recorrente ? (
-                        <span className="ml-2 rounded-full border border-border px-2 py-0.5 text-[0.6875rem] text-muted">
-                          todos os meses
+                    <span className="flex flex-wrap items-center gap-2">
+                      <span className="truncate text-sm">{g.descricao}</span>
+                      {g.periodicidade !== "unica" ? (
+                        <span className="shrink-0 rounded-full border border-border px-2 py-0.5 text-[0.6875rem] text-muted">
+                          {ROTULO_CURTO[g.periodicidade]}
                         </span>
                       ) : null}
                     </span>
-                    <span className="block truncate text-xs text-muted">
+                    <span className="mt-0.5 block truncate text-xs text-muted">
                       {formatarData(g.data)}
                       {" · "}
                       {g.projetoId && g.projetoNome ? (
@@ -87,7 +129,7 @@ export default async function Gastos() {
                     </span>
                   </span>
 
-                  <form action={apagarGasto}>
+                  <form action={apagarGasto} className="shrink-0">
                     <input type="hidden" name="id" value={g.id} />
                     <button
                       type="submit"
@@ -100,27 +142,18 @@ export default async function Gastos() {
                 </li>
               ))}
             </ul>
-          )}
 
-          {doEstudio.length > 0 ? (
-            <p className="mt-4 text-xs text-muted">
-              {doEstudio.length}{" "}
-              {doEstudio.length === 1 ? "gasto é" : "gastos são"} do estúdio e
-              não {doEstudio.length === 1 ? "entra" : "entram"} na margem de
-              projeto nenhum.
-            </p>
-          ) : null}
-        </div>
-
-        <aside className={CARTAO}>
-          <h2 className="font-display text-lg font-semibold tracking-tight">
-            Gasto novo
-          </h2>
-          <div className="mt-5">
-            <FormularioGasto acao={criarGasto} projetos={projetos} />
-          </div>
-        </aside>
-      </div>
+            {doEstudio.length > 0 ? (
+              <p className="mt-4 text-xs text-muted">
+                {doEstudio.length}{" "}
+                {doEstudio.length === 1 ? "gasto é" : "gastos são"} do estúdio e
+                não {doEstudio.length === 1 ? "entra" : "entram"} na margem de
+                projeto nenhum.
+              </p>
+            ) : null}
+          </>
+        )}
+      </section>
     </div>
   );
 }

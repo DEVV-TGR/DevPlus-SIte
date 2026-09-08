@@ -192,6 +192,46 @@ export type Mensalidade = {
   notas: string | null;
 };
 
+/**
+ * De quanto em quanto tempo se paga um gasto.
+ *
+ * Um booleano "recorrente" não chegava: um domínio paga-se uma vez por ano e o
+ * alojamento todos os meses, e somar os dois como se fossem a mesma coisa dava
+ * um custo fixo errado por doze vezes.
+ */
+export const PERIODICIDADES = ["unica", "semanal", "mensal", "anual"] as const;
+
+export type Periodicidade = (typeof PERIODICIDADES)[number];
+
+export const ROTULO_PERIODICIDADE: Record<Periodicidade, string> = {
+  unica: "Uma vez só",
+  semanal: "Todas as semanas",
+  mensal: "Todos os meses",
+  anual: "Todos os anos",
+};
+
+/** Curto, para caber na etiqueta ao lado de um gasto na lista. */
+export const ROTULO_CURTO: Record<Periodicidade, string> = {
+  unica: "uma vez",
+  semanal: "semanal",
+  mensal: "mensal",
+  anual: "anual",
+};
+
+/**
+ * Quanto é que cada periodicidade custa por mês.
+ *
+ * `52 / 12` e não `4`: um ano tem 52 semanas, não 48, e arredondar para quatro
+ * escondia quase um mês de despesa por ano. `unica` vale zero — um gasto que
+ * aconteceu uma vez não é custo fixo, é história.
+ */
+export const POR_MES: Record<Periodicidade, number> = {
+  unica: 0,
+  semanal: 52 / 12,
+  mensal: 1,
+  anual: 1 / 12,
+};
+
 export type Gasto = {
   id: number;
   /** `null` = gasto do estúdio, não de um projeto. */
@@ -200,7 +240,7 @@ export type Gasto = {
   valor: number;
   data: string;
   descricao: string;
-  recorrente: boolean;
+  periodicidade: Periodicidade;
 };
 
 /** As contas de um projeto: o que se combinou, o que entrou, o que falta. */

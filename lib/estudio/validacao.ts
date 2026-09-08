@@ -1,5 +1,10 @@
 /** docs: docs/07-estudio.md */
-import { ESTADOS, type Estado } from "@/lib/estudio/tipos";
+import {
+  ESTADOS,
+  PERIODICIDADES,
+  type Estado,
+  type Periodicidade,
+} from "@/lib/estudio/tipos";
 
 /**
  * As regras dos formulários do Estúdio, num só sítio — o formulário valida para
@@ -257,16 +262,24 @@ export function validarValor(
   return undefined;
 }
 
+export function ePeriodicidade(valor: string): valor is Periodicidade {
+  return (PERIODICIDADES as readonly string[]).includes(valor);
+}
+
 export type ErrosGasto = Partial<
-  Record<"valor" | "data" | "descricao", string>
+  Record<"valor" | "data" | "descricao" | "periodicidade", string>
 >;
 
 export function validarGasto(dados: {
   valor: string;
   data: string;
   descricao: string;
+  periodicidade: string;
 }): ErrosGasto {
   const erros: ErrosGasto = {};
+
+  if (!ePeriodicidade(dados.periodicidade))
+    erros.periodicidade = "Escolhe de quanto em quanto tempo se paga.";
 
   const valor = validarValor(dados.valor);
   if (valor) erros.valor = valor;

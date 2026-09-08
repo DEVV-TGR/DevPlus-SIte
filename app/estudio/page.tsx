@@ -88,7 +88,7 @@ export default async function Resumo() {
 
   if (vazio) {
     return (
-      <div className="mx-auto max-w-2xl py-10 text-center">
+      <div className="mx-auto max-w-2xl py-16 text-center">
         <p className={SOBRETITULO}>Estúdio</p>
         <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight">
           Ainda não há nada para resumir.
@@ -109,7 +109,10 @@ export default async function Resumo() {
   }
 
   return (
-    <>
+    /* Uma coluna, de cima a baixo. Antes isto era duas colunas com três caixas
+       espremidas à direita, e o nome de um projeto não tinha sítio para se ler.
+       O ecrã tem altura de sobra; a largura é que é cara. */
+    <div className="mx-auto max-w-4xl">
       <p className={SOBRETITULO}>Estúdio</p>
       <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
         Resumo
@@ -139,7 +142,7 @@ export default async function Resumo() {
         />
       </div>
 
-      <section aria-labelledby="movimento" className={cn(CARTAO, "mt-8")}>
+      <section aria-labelledby="movimento" className={cn(CARTAO, "mt-12")}>
         <h2
           id="movimento"
           className="font-display text-lg font-semibold tracking-tight"
@@ -154,8 +157,7 @@ export default async function Resumo() {
         </div>
       </section>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-2">
-        <section aria-labelledby="por-cobrar" className={CARTAO}>
+      <section aria-labelledby="por-cobrar" className={cn(CARTAO, "mt-12")}>
           <h2
             id="por-cobrar"
             className="font-display text-lg font-semibold tracking-tight"
@@ -173,7 +175,7 @@ export default async function Resumo() {
                valores, e o texto de uma lista lê-se melhor do que texto dentro
                de um desenho. O valor está sempre escrito — a barra é o reforço,
                não a informação. */
-            <ul className="mt-4 space-y-3">
+            <ul className="mt-5 space-y-4">
               {porCobrar.slice(0, 8).map((p) => (
                 <li key={p.id}>
                   <Link
@@ -211,9 +213,12 @@ export default async function Resumo() {
               ))}
             </ul>
           )}
-        </section>
+      </section>
 
-        <div className="space-y-8">
+      {/* `items-start`: sem ele, a grelha estica os dois cartões à altura do
+          mais alto, e o das tarefas ficava com meio ecrã de vazio por baixo de
+          uma linha de texto. */}
+      <div className="mt-12 grid items-start gap-8 lg:grid-cols-2">
           <section aria-labelledby="precisam" className={CARTAO}>
             <h2
               id="precisam"
@@ -227,7 +232,7 @@ export default async function Resumo() {
                 Nada bloqueado nem atrasado. Bom sinal.
               </p>
             ) : (
-              <ul className="mt-4 space-y-2.5">
+              <ul className="mt-5 space-y-3">
                 {precisamDeTi.map((p) => (
                   <li key={p.id}>
                     <Link
@@ -264,7 +269,7 @@ export default async function Resumo() {
                 ainda não escreveste nenhuma — cada projeto tem uma checklist.
               </p>
             ) : (
-              <ul className="mt-4 space-y-2.5">
+              <ul className="mt-5 space-y-3">
                 {tarefas.map((t) => (
                   <li key={t.id}>
                     <Link
@@ -281,8 +286,7 @@ export default async function Resumo() {
               </ul>
             )}
           </section>
-        </div>
       </div>
-    </>
+    </div>
   );
 }

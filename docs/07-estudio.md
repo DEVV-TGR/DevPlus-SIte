@@ -99,6 +99,13 @@ manutenção e não se paga já.
 A Vercel e o Figma existiriam na mesma sem qualquer um dos trabalhos; imputá-los
 a um deles fazia-o parecer pior do que é.
 
+**Um gasto tem periodicidade, não um sim/não.** `unica`, `semanal`, `mensal` ou
+`anual`. Um booleano "recorrente" não chegava: um domínio paga-se uma vez por
+ano e o alojamento todos os meses, e somá-los como se fossem a mesma coisa dava
+um custo fixo errado por doze vezes. O `POR_MES` em `lib/estudio/tipos.ts` põe-os
+na mesma escala — e a semanal conta `52 / 12`, não `4`, porque um ano tem 52
+semanas e arredondar para quatro escondia quase um mês de despesa por ano.
+
 ### As somas fazem-se todas em SQL
 
 O `pg` devolve `numeric` como texto, e o `number` do JavaScript não é exato.
@@ -197,6 +204,17 @@ pegava.
 carregar imagens de outro domínio, e abrir a CSP a `avatars.githubusercontent.com`
 era pagar caro por uma bolinha. Mostram-se iniciais. O `avatar_url` fica
 guardado para o dia em que valha a pena.
+
+**Uma coluna, e secções com ar.** As páginas do Estúdio empilham-se de cima a
+baixo — nada de duas colunas com caixas espremidas ao lado. O ecrã tem altura de
+sobra; a largura é que é cara, e um nome de projeto ou a descrição de um gasto
+precisam de sítio para se lerem. Onde há mesmo duas colunas (o "precisa de ti" e
+as "tarefas" do resumo), leva `items-start`: sem isso a grelha estica os dois
+cartões à altura do mais alto e o mais curto fica com meio ecrã de vazio.
+
+**O que apaga fica sempre no fim.** Depois de tudo o resto, atrás de um
+`details` e de um separador. Um botão de apagar a meio da página, ao lado do de
+guardar, é um acidente à espera de acontecer.
 
 **O Estúdio não usa `Section`.** É uma exceção assumida a docs/04: o `Section`
 codifica o ritmo do site de marketing (`pt-16 sm:pt-24 lg:pt-32`), que numa
@@ -322,6 +340,8 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | quem aloja a base                      | nomeia-o em `app/privacidade/page.tsx`, na secção "Partilha com terceiros"                      |
 | a decisão de não haver `proxy.ts`      | relê o comentário da CSP em `next.config.ts` antes — a conta muda                                |
 | a `CascaDoSite`                        | confirma que a homepage continua estática (`○`) no output do `npm run build`                    |
+| a periodicidade dos gastos             | `PERIODICIDADES` e `POR_MES` em `tipos.ts`, o `check` do esquema, e o seletor do formulário      |
+| a estrutura de uma página              | abre-a no browser e olha — a ordem das secções e a altura das caixas não se veem num diff        |
 | como se guarda dinheiro                | `lib/estudio/schema.sql` (`numeric`, nunca `float`) e as somas continuam em SQL                  |
 | as cores do gráfico                    | corre o validador da skill `dataviz` antes — a escolha óbvia falhou o teste de daltonismo       |
 | acrescentares uma rota em `/estudio`   | acrescenta-a ao teste de fumo em `.github/workflows/ci.yml`                                      |

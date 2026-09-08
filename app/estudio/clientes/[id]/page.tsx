@@ -60,7 +60,7 @@ export default async function ClienteFicha({
   const porImportar = repos.filter((r) => !jaNoEstudio.has(r.url));
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-3xl">
       <Link
         href="/estudio/clientes"
         className="text-sm text-muted underline-offset-4 hover:text-ink hover:underline"
@@ -73,7 +73,7 @@ export default async function ClienteFicha({
         {cliente.nome}
       </h1>
 
-      <div className="mt-8 grid gap-10 lg:grid-cols-[20rem_1fr]">
+      <div className="mt-12">
         <div>
           <h2 className="sr-only">Dados do cliente</h2>
           <FormularioCliente acao={guardarCliente} cliente={cliente} />
@@ -86,29 +86,9 @@ export default async function ClienteFicha({
             />
           </div>
 
-          <details className="mt-10 border-t border-border pt-6">
-            <summary className="cursor-pointer text-sm text-muted transition-colors hover:text-ink">
-              Apagar este cliente
-            </summary>
-            <div className="mt-4">
-              <p className="text-sm text-muted">
-                Os projetos ficam — passam apenas a não ter cliente. Os
-                contactos e as notas desaparecem.
-              </p>
-              <form action={apagarCliente} className="mt-3">
-                <input type="hidden" name="id" value={cliente.id} />
-                <button
-                  type="submit"
-                  className="rounded-full border border-danger/40 px-4 py-2 text-sm text-danger transition-colors hover:bg-danger/10"
-                >
-                  Apagar {cliente.nome}
-                </button>
-              </form>
-            </div>
-          </details>
         </div>
 
-        <section aria-labelledby="projetos-do-cliente">
+        <section aria-labelledby="projetos-do-cliente" className="mt-16">
           <h2
             id="projetos-do-cliente"
             className="font-display text-lg font-semibold tracking-tight"
@@ -151,6 +131,27 @@ export default async function ClienteFicha({
             </div>
           </details>
         </section>
+
+        <details className="mt-16 border-t border-border pt-6">
+          <summary className="cursor-pointer text-sm text-muted transition-colors hover:text-ink">
+            Apagar este cliente
+          </summary>
+          <div className="mt-4">
+            <p className="text-sm text-muted">
+              Os projetos ficam — passam apenas a não ter cliente. Os
+              contactos e as notas desaparecem.
+            </p>
+            <form action={apagarCliente} className="mt-3">
+              <input type="hidden" name="id" value={cliente.id} />
+              <button
+                type="submit"
+                className="rounded-full border border-danger/40 px-4 py-2 text-sm text-danger transition-colors hover:bg-danger/10"
+              >
+                Apagar {cliente.nome}
+              </button>
+            </form>
+          </div>
+        </details>
       </div>
     </div>
   );

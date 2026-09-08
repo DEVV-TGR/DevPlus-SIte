@@ -50,7 +50,7 @@ export default async function Projeto({
   const atrasado = emAtraso(projeto, hoje);
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-3xl">
       <Link
         href="/estudio/projetos"
         className="text-sm text-muted underline-offset-4 hover:text-ink hover:underline"
@@ -117,7 +117,10 @@ export default async function Projeto({
         </ul>
       ) : null}
 
-      <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_20rem]">
+      {/* Uma coluna. O formulário, o dinheiro e as tarefas seguidos, cada um
+          com o seu espaço — antes o dinheiro e as tarefas viviam espremidos
+          numa coluna de 20rem ao lado. */}
+      <div className="mt-12">
         <div>
           <h2 className="sr-only">Detalhes do projeto</h2>
           <FormularioProjeto
@@ -127,44 +130,46 @@ export default async function Projeto({
             pessoas={pessoas}
           />
 
-          {/* Num `details` de propósito: apagar não pode estar a um clique de
-              distância do botão de guardar. Sem `confirm()` do browser — um
-              diálogo do sistema não se pode desenhar nem traduzir. */}
-          <details className="mt-12 border-t border-border pt-6">
-            <summary className="cursor-pointer text-sm text-muted transition-colors hover:text-ink">
-              Apagar este projeto
-            </summary>
-            <div className="mt-4">
-              <p className="text-sm text-muted">
-                Apaga o projeto e as suas tarefas. Não há como voltar atrás.
-              </p>
-              <form action={apagarProjeto} className="mt-3">
-                <input type="hidden" name="id" value={projeto.id} />
-                <button
-                  type="submit"
-                  className="rounded-full border border-danger/40 px-4 py-2 text-sm text-danger transition-colors hover:bg-danger/10"
-                >
-                  Apagar {projeto.nome}
-                </button>
-              </form>
-            </div>
-          </details>
         </div>
 
-        <div className="space-y-8">
-          <aside className={CARTAO}>
+        <div className="mt-12 space-y-12">
+          <section className={CARTAO}>
             <Pagamentos
               acao={registarPagamento}
               projetoId={projeto.id}
               contas={contas}
               pagamentos={pagamentos}
             />
-          </aside>
+          </section>
 
-          <aside className={CARTAO}>
+          <section className={CARTAO}>
             <Tarefas projetoId={projeto.id} tarefas={tarefas} />
-          </aside>
+          </section>
         </div>
+
+        {/* Num `details` de propósito: apagar não pode estar a um clique de
+            distância do botão de guardar. Sem `confirm()` do browser — um
+            diálogo do sistema não se pode desenhar nem traduzir. */}
+        <details className="mt-16 border-t border-border pt-6">
+          <summary className="cursor-pointer text-sm text-muted transition-colors hover:text-ink">
+            Apagar este projeto
+          </summary>
+          <div className="mt-4">
+            <p className="text-sm text-muted">
+              Apaga o projeto e as suas tarefas. Não há como voltar atrás.
+            </p>
+            <form action={apagarProjeto} className="mt-3">
+              <input type="hidden" name="id" value={projeto.id} />
+              <button
+                type="submit"
+                className="rounded-full border border-danger/40 px-4 py-2 text-sm text-danger transition-colors hover:bg-danger/10"
+              >
+                Apagar {projeto.nome}
+              </button>
+            </form>
+          </div>
+        </details>
+
       </div>
     </div>
   );
