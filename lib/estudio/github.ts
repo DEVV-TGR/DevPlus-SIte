@@ -15,6 +15,16 @@ import { site } from "@/lib/site";
  * ninguém, e um token guardado é só uma coisa a mais que pode fugir.
  */
 
+/**
+ * A organização do estúdio no GitHub.
+ *
+ * Está aqui e não em `lib/site.ts` de propósito: `site.ts` é a identidade
+ * pública — o que aparece no site, nos metadados e nos dados estruturados — e a
+ * organização nunca aparece em lado nenhum disso. É um detalhe da ferramenta
+ * interna, e é aqui que se lê. Ver docs/07.
+ */
+export const ORGANIZACAO = "DEVV-TGR";
+
 const AUTORIZAR = "https://github.com/login/oauth/authorize";
 const TOKEN = "https://github.com/login/oauth/access_token";
 const UTILIZADOR = "https://api.github.com/user";

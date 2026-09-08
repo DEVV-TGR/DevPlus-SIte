@@ -106,6 +106,7 @@ jobs:
           # Ver docs/07-estudio.md.
           verificar /estudio                         307
           verificar /estudio/entrar                  200
+          verificar /estudio/importar                307
 
       # Os cabeçalhos de segurança são configuração, e configuração parte-se sem
       # ninguém dar por isso. Aqui, parte-se com o CI vermelho.

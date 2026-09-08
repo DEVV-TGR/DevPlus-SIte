@@ -117,6 +117,38 @@ serializa-o mesmo quando não o renderiza. São uns quilobytes de conteúdo púb
 numa ferramenta interna — custo conhecido, e o preço de não tocar em ficheiros
 que os PR #54 e #65 estão a reescrever.
 
+## Trazer do GitHub
+
+Duas coisas diferentes, e vale a pena não as confundir:
+
+**Os repositórios que já existem** — `/estudio/importar`. Lista os repositórios
+da organização, marca os que já cá estão e tu escolhes quais viram projeto. Vem
+o nome, o link e a descrição; o estado escolhe-se para todos de uma vez e
+corrige-se depois um a um. Repetir a importação não duplica nada: o que já tem
+`repo_url` conhecido é saltado.
+
+**Os que forem criados de agora em diante** — o webhook em
+`app/api/estudio/github/webhook`. Repositório criado na organização, projeto
+criado aqui, em `proposta`.
+
+Três decisões que valem a leitura:
+
+- **A importação não usa token nenhum.** Os repositórios do `DEVV-TGR` são
+  públicos, e a API pública devolve-os a quem perguntar. Não foi preciso alargar
+  o `scope` da OAuth App (continua em `read:user`), nem guardar o token de quem
+  entra, nem criar um PAT. O `GITHUB_TOKEN` existe, é opcional, e serve para ver
+  repositórios privados ou subir o limite de 60 pedidos por hora.
+- **O formulário manda só os nomes escolhidos; os dados vêm outra vez do
+  GitHub.** Não é desconfiança de quem carrega no botão — é que assim o nome e o
+  link não podem chegar torcidos por um formulário remendado.
+- **O webhook é a única rota do Estúdio sem sessão.** Quem a chama é o GitHub,
+  que não tem cookie. A prova é a assinatura `sha256` do corpo, comparada em
+  tempo constante, e é a primeira coisa que a rota faz. Responde 200 ao que for
+  legítimo mas não interessar (um `ping`, um evento que não é `created`): o
+  GitHub desativa webhooks que respondem com erro, e um evento que não nos diz
+  respeito não é um erro. O `insert` traz `where not exists` para o evento poder
+  ser reenviado sem criar o projeto duas vezes.
+
 ## Pôr isto a andar
 
 1. **Base de dados.** Cria um Postgres (na Vercel, o mesmo projeto) e põe a
@@ -132,17 +164,21 @@ que os PR #54 e #65 estão a reescrever.
    conseguem entrar no Estúdio**.
 4. **`ESTUDIO_LOGINS`** com os logins do GitHub de quem entra, separados por
    vírgulas.
-5. As mesmas variáveis nas Environment Variables do projeto na Vercel.
+5. **Webhook** (só depois de estar em produção): gera um segredo com
+   `openssl rand -hex 32`, põe-no em `GITHUB_WEBHOOK_SECRET`, e cria o webhook
+   em `DEVV-TGR -> Settings -> Webhooks` com a Payload URL
+   `https://devplus.pt/api/estudio/github/webhook`, content type
+   `application/json` e só o evento **Repositories**.
+6. As mesmas variáveis nas Environment Variables do projeto na Vercel.
 
 ## Lacunas por preencher
 
 Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 
-- [ ] **Criar projetos a partir do GitHub.** Um webhook `repository` da
-      organização `DEVV-TGR` a criar o projeto no Estúdio já ligado ao repo. O
-      campo `repo_url` e o login pelo GitHub já cá estão à espera. Falta a rota,
-      a verificação da assinatura do webhook e decidir o que fazer com repos
-      privados de teste.
+- [ ] **Ligar o webhook na organização.** O código está feito; falta o passo
+      manual em `DEVV-TGR -> Settings -> Webhooks` e pôr o
+      `GITHUB_WEBHOOK_SECRET` na Vercel. Só se consegue testar a sério depois de
+      estar em produção — o GitHub não chama `localhost`.
 - [ ] **Raiz própria.** Quando os PR #54 e #65 fundirem, ver se o Estúdio não
       fica melhor com `app/(site)` e `app/(estudio)` em vez da `CascaDoSite` —
       resolvia o rodapé no payload e o Lenis, que hoje continua a suavizar o
@@ -164,3 +200,5 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | quem aloja a base                      | nomeia-o em `app/privacidade/page.tsx`, na secção "Partilha com terceiros"                      |
 | a decisão de não haver `proxy.ts`      | relê o comentário da CSP em `next.config.ts` antes — a conta muda                                |
 | a `CascaDoSite`                        | confirma que a homepage continua estática (`○`) no output do `npm run build`                    |
+| a organização do GitHub                | `ORGANIZACAO` em `lib/estudio/github.ts` — e o webhook na organização nova                       |
+| o que a importação traz de cada repo   | `importarRepos` em `lib/estudio/acoes.ts` **e** o webhook, para os dois criarem projetos iguais  |

@@ -204,3 +204,12 @@ export async function listarUtilizadores(): Promise<Utilizador[]> {
     avatarUrl: l.avatar_url,
   }));
 }
+
+/** Os `repo_url` que já estão no Estúdio. É por eles que a importação sabe o
+ *  que não deve trazer duas vezes. */
+export async function reposJaNoEstudio(): Promise<Set<string>> {
+  const linhas = await consulta<{ repo_url: string }>(
+    "select repo_url from projetos where repo_url is not null",
+  );
+  return new Set(linhas.map((l) => l.repo_url));
+}

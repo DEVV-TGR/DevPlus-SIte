@@ -29,6 +29,7 @@ export const metadata: Metadata = {
 const links = [
   { href: "/estudio", label: "Projetos" },
   { href: "/estudio/clientes", label: "Clientes" },
+  { href: "/estudio/importar", label: "Importar" },
 ];
 
 export default async function EstudioLayout({

@@ -4,7 +4,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { consulta, consultaUma } from "@/lib/estudio/db";
+import { listarRepos } from "@/lib/estudio/repos";
 import { requerSessao } from "@/lib/estudio/sessao";
+import { eEstado } from "@/lib/estudio/validacao";
 import {
   campo,
   LIMITES,
@@ -332,4 +334,83 @@ export async function apagarTarefa(form: FormData): Promise<void> {
   ]);
 
   revalidatePath(`/estudio/projetos/${projetoId}`);
+}
+
+export type EstadoImportacao = {
+  erro?: string;
+  criados?: number;
+  ignorados?: number;
+};
+
+/**
+ * Traz repositórios da organização para dentro do Estúdio.
+ *
+ * O formulário manda só os `full_name` escolhidos — **os dados vêm outra vez do
+ * GitHub**, não do que o browser enviou. Não é desconfiança de quem carrega no
+ * botão: é que assim o nome e o link não podem chegar torcidos por um
+ * formulário remendado, e o código fica com uma fonte só.
+ *
+ * Repetir a importação não duplica nada: o que já existe pelo `repo_url` é
+ * saltado, e diz-se quantos foram.
+ */
+export async function importarRepos(
+  _anterior: EstadoImportacao,
+  form: FormData,
+): Promise<EstadoImportacao> {
+  await requerSessao();
+
+  const escolhidos = new Set(
+    form
+      .getAll("repos")
+      .filter((v): v is string => typeof v === "string")
+      .map((v) => v.slice(0, 200)),
+  );
+
+  if (escolhidos.size === 0)
+    return { erro: "Escolhe pelo menos um repositório." };
+
+  const estado = campo(form.get("estado"), 20);
+  if (!eEstado(estado)) return { erro: "Escolhe um estado da lista." };
+
+  const { repos, erro } = await listarRepos();
+  if (erro) return { erro };
+
+  const aTrazer = repos.filter((r) => escolhidos.has(r.nomeCompleto));
+  if (aTrazer.length === 0)
+    return { erro: "Nenhum dos repositórios escolhidos existe já no GitHub." };
+
+  try {
+    const jaLa = await consulta<{ repo_url: string }>(
+      "select repo_url from projetos where repo_url is not null",
+    );
+    const conhecidos = new Set(jaLa.map((l) => l.repo_url));
+
+    const novos = aTrazer.filter((r) => !conhecidos.has(r.url));
+    const ignorados = aTrazer.length - novos.length;
+
+    if (novos.length === 0) return { criados: 0, ignorados };
+
+    /* Um `insert` só. As listas vão como parâmetros e a base desdobra-as — em
+       lado nenhum se cola texto do GitHub dentro da consulta. */
+    await consulta(
+      `insert into projetos (nome, estado, repo_url, deploy_url, notas)
+       select * from unnest(
+         $1::text[], $2::text[], $3::text[], $4::text[], $5::text[]
+       )`,
+      [
+        novos.map((r) => r.nome),
+        novos.map(() => estado),
+        novos.map((r) => r.url),
+        novos.map((r) => r.homepage),
+        novos.map((r) => r.descricao),
+      ],
+    );
+
+    revalidatePath("/estudio");
+    revalidatePath("/estudio/importar");
+    return { criados: novos.length, ignorados };
+  } catch (erro) {
+    console.error("[estudio] falhou importar repos:", erro);
+    return { erro: "Não foi possível importar. Tenta outra vez." };
+  }
 }
