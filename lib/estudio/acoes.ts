@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { consulta, consultaUma } from "@/lib/estudio/db";
 import { listarRepos } from "@/lib/estudio/repos";
 import { requerSessao } from "@/lib/estudio/sessao";
-import { eEstado } from "@/lib/estudio/validacao";
+import { eEstado, lerValor, validarGasto, validarMensalidade, validarPagamento } from "@/lib/estudio/validacao";
 import {
   campo,
   LIMITES,
@@ -53,6 +53,7 @@ function lerProjeto(form: FormData) {
     clienteId: campo(form.get("clienteId"), 20),
     estado: campo(form.get("estado"), 20),
     progresso: campo(form.get("progresso"), 5),
+    valor: campo(form.get("valor"), 20),
     inicio: campo(form.get("inicio"), 10),
     prazo: campo(form.get("prazo"), 10),
     repoUrl: campo(form.get("repoUrl"), LIMITES.url),
@@ -119,15 +120,16 @@ export async function criarProjeto(
   try {
     const linha = await consultaUma<{ id: string }>(
       `insert into projetos
-         (nome, cliente_id, estado, progresso, inicio, prazo,
+         (nome, cliente_id, estado, progresso, valor, inicio, prazo,
           repo_url, deploy_url, notas)
-       values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
        returning id`,
       [
         dados.nome.trim(),
         paraId(dados.clienteId),
         dados.estado,
         Number(dados.progresso),
+        lerValor(dados.valor),
         ouNulo(dados.inicio),
         ouNulo(dados.prazo),
         ouNulo(dados.repoUrl),
@@ -170,8 +172,8 @@ export async function guardarProjeto(
     await consulta(
       `update projetos
           set nome = $2, cliente_id = $3, estado = $4, progresso = $5,
-              inicio = $6, prazo = $7, repo_url = $8, deploy_url = $9,
-              notas = $10, atualizado_em = now()
+              valor = $6, inicio = $7, prazo = $8, repo_url = $9,
+              deploy_url = $10, notas = $11, atualizado_em = now()
         where id = $1`,
       [
         id,
@@ -179,6 +181,7 @@ export async function guardarProjeto(
         paraId(dados.clienteId),
         dados.estado,
         Number(dados.progresso),
+        lerValor(dados.valor),
         ouNulo(dados.inicio),
         ouNulo(dados.prazo),
         ouNulo(dados.repoUrl),
@@ -558,4 +561,199 @@ export async function definirProjetosDoCliente(
     console.error("[estudio] falhou definir os projetos do cliente:", erro);
     return { erro: "Não foi possível guardar. Tenta outra vez." };
   }
+}
+
+/* --------------------------------------------------------------------------
+   Dinheiro
+
+   Os valores chegam como texto — `1.500,50` é como se escreve cá — e passam
+   todos pelo `lerValor()` de `lib/estudio/validacao.ts`, o mesmo que o
+   formulário usa. Nunca um `Number()` direto: `Number("1.500,50")` é `NaN`, e
+   um `NaN` que chegue à base é um valor perdido em silêncio.
+   -------------------------------------------------------------------------- */
+
+export type EstadoDinheiro = {
+  erros?: Record<string, string>;
+  erro?: string;
+  ok?: boolean;
+};
+
+export async function registarPagamento(
+  _anterior: EstadoDinheiro,
+  form: FormData,
+): Promise<EstadoDinheiro> {
+  await requerSessao();
+
+  const projetoId = paraId(campo(form.get("projetoId"), 20));
+  if (!projetoId) return { erro: "Projeto não encontrado." };
+
+  const dados = {
+    valor: campo(form.get("valor"), 20),
+    data: campo(form.get("data"), 10),
+    descricao: campo(form.get("descricao"), LIMITES.nome),
+  };
+
+  const erros = validarPagamento(dados);
+  if (Object.keys(erros).length > 0) return { erros };
+
+  try {
+    await consulta(
+      `insert into pagamentos (projeto_id, valor, data, descricao)
+       values ($1, $2, $3, $4)`,
+      [projetoId, lerValor(dados.valor), dados.data, ouNulo(dados.descricao)],
+    );
+  } catch (erro) {
+    console.error("[estudio] falhou registar pagamento:", erro);
+    return { erro: "Não foi possível registar. Tenta outra vez." };
+  }
+
+  revalidatePath("/estudio");
+  revalidatePath(`/estudio/projetos/${projetoId}`);
+  return { ok: true };
+}
+
+export async function apagarPagamento(form: FormData): Promise<void> {
+  await requerSessao();
+
+  const id = paraId(campo(form.get("id"), 20));
+  const projetoId = paraId(campo(form.get("projetoId"), 20));
+  if (!id || !projetoId) return;
+
+  /* O `and projeto_id` não é decoração: sem ele, um id de pagamento doutro
+     projeto passava aqui na mesma. Mesma regra das tarefas. */
+  await consulta("delete from pagamentos where id = $1 and projeto_id = $2", [
+    id,
+    projetoId,
+  ]);
+
+  revalidatePath("/estudio");
+  revalidatePath(`/estudio/projetos/${projetoId}`);
+}
+
+export async function guardarMensalidade(
+  _anterior: EstadoDinheiro,
+  form: FormData,
+): Promise<EstadoDinheiro> {
+  await requerSessao();
+
+  const clienteId = paraId(campo(form.get("clienteId"), 20));
+  if (!clienteId) return { erro: "Cliente não encontrado." };
+
+  const dados = {
+    valor: campo(form.get("valor"), 20),
+    desde: campo(form.get("desde"), 10),
+    ate: campo(form.get("ate"), 10),
+    notas: campo(form.get("notas"), LIMITES.notas),
+  };
+
+  const erros = validarMensalidade(dados);
+  if (Object.keys(erros).length > 0) return { erros };
+
+  /* Um `id` presente edita a que existe; ausente cria uma nova. É o que deixa
+     terminar uma mensalidade (pondo-lhe `ate`) e começar outra a seguir, com o
+     histórico do que se cobrou antes intacto. */
+  const id = paraId(campo(form.get("id"), 20));
+
+  try {
+    if (id) {
+      await consulta(
+        `update mensalidades set valor = $3, desde = $4, ate = $5, notas = $6
+          where id = $1 and cliente_id = $2`,
+        [
+          id,
+          clienteId,
+          lerValor(dados.valor),
+          dados.desde,
+          ouNulo(dados.ate),
+          ouNulo(dados.notas),
+        ],
+      );
+    } else {
+      await consulta(
+        `insert into mensalidades (cliente_id, valor, desde, ate, notas)
+         values ($1, $2, $3, $4, $5)`,
+        [
+          clienteId,
+          lerValor(dados.valor),
+          dados.desde,
+          ouNulo(dados.ate),
+          ouNulo(dados.notas),
+        ],
+      );
+    }
+  } catch (erro) {
+    console.error("[estudio] falhou guardar mensalidade:", erro);
+    return { erro: "Não foi possível guardar. Tenta outra vez." };
+  }
+
+  revalidatePath("/estudio");
+  revalidatePath(`/estudio/clientes/${clienteId}`);
+  return { ok: true };
+}
+
+export async function apagarMensalidade(form: FormData): Promise<void> {
+  await requerSessao();
+
+  const id = paraId(campo(form.get("id"), 20));
+  const clienteId = paraId(campo(form.get("clienteId"), 20));
+  if (!id || !clienteId) return;
+
+  await consulta("delete from mensalidades where id = $1 and cliente_id = $2", [
+    id,
+    clienteId,
+  ]);
+
+  revalidatePath("/estudio");
+  revalidatePath(`/estudio/clientes/${clienteId}`);
+}
+
+export async function criarGasto(
+  _anterior: EstadoDinheiro,
+  form: FormData,
+): Promise<EstadoDinheiro> {
+  await requerSessao();
+
+  const dados = {
+    valor: campo(form.get("valor"), 20),
+    data: campo(form.get("data"), 10),
+    descricao: campo(form.get("descricao"), LIMITES.nome),
+  };
+
+  const erros = validarGasto(dados);
+  if (Object.keys(erros).length > 0) return { erros };
+
+  try {
+    await consulta(
+      `insert into gastos (projeto_id, valor, data, descricao, recorrente)
+       values ($1, $2, $3, $4, $5)`,
+      [
+        /* Sem projeto = gasto do estúdio. Não entra na margem de projeto
+           nenhum, porque existiria na mesma sem ele. */
+        paraId(campo(form.get("projetoId"), 20)),
+        lerValor(dados.valor),
+        dados.data,
+        dados.descricao.trim(),
+        form.get("recorrente") === "on",
+      ],
+    );
+  } catch (erro) {
+    console.error("[estudio] falhou criar gasto:", erro);
+    return { erro: "Não foi possível guardar o gasto. Tenta outra vez." };
+  }
+
+  revalidatePath("/estudio");
+  revalidatePath("/estudio/gastos");
+  return { ok: true };
+}
+
+export async function apagarGasto(form: FormData): Promise<void> {
+  await requerSessao();
+
+  const id = paraId(campo(form.get("id"), 20));
+  if (!id) return;
+
+  await consulta("delete from gastos where id = $1", [id]);
+
+  revalidatePath("/estudio");
+  revalidatePath("/estudio/gastos");
 }

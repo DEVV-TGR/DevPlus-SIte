@@ -92,6 +92,65 @@ create table if not exists tarefas (
 create index if not exists tarefas_projeto_idx on tarefas (projeto_id, ordem, id);
 
 
+-- O que se recebeu mesmo, por projeto. Vários por projeto de propósito: um
+-- sinal, um faseado, um resto. A soma destes contra o `projetos.valor` é que dá
+-- o "por cobrar" — o número que faz ligar a alguém.
+create table if not exists pagamentos (
+  id          bigint generated always as identity primary key,
+  projeto_id  bigint not null references projetos(id) on delete cascade,
+  -- Sem IVA, como o `projetos.valor`. O IVA nunca foi nosso.
+  valor       numeric(10, 2) not null check (valor > 0),
+  data        date not null,
+  descricao   text,
+  criado_em   timestamptz not null default now()
+);
+
+create index if not exists pagamentos_projeto_idx on pagamentos (projeto_id);
+create index if not exists pagamentos_data_idx on pagamentos (data);
+
+-- A mensalidade de alojamento e suporte, por cliente. É o modelo que o
+-- docs/05 descreve, e é o número que diz se o estúdio se aguenta num mês em que
+-- não se venda nada.
+--
+-- Guarda o que está **contratado**, não um registo de cada mês recebido. Quando
+-- um cliente deixa de pagar, põe-se `ate` — não se apaga a linha, que o
+-- histórico do que já se cobrou continua a valer.
+create table if not exists mensalidades (
+  id          bigint generated always as identity primary key,
+  cliente_id  bigint not null references clientes(id) on delete cascade,
+  valor       numeric(10, 2) not null check (valor >= 0),
+  desde       date not null,
+  -- `null` = ainda ativa.
+  ate         date,
+  notas       text,
+  criado_em   timestamptz not null default now(),
+  -- Uma data de fim antes do início é sempre um erro de quem escreveu.
+  constraint mensalidades_datas_check check (ate is null or ate >= desde)
+);
+
+create index if not exists mensalidades_cliente_idx on mensalidades (cliente_id);
+
+-- O que sai. `projeto_id` a `null` é um gasto do estúdio (a Vercel, o Figma) e
+-- não entra na margem de projeto nenhum — misturá-los fazia um projeto parecer
+-- pior por causa de uma despesa que existiria na mesma sem ele.
+--
+-- `on delete set null` e não `cascade`: apagar um projeto não pode apagar a
+-- despesa que já se pagou por causa dele. O dinheiro saiu à mesma.
+create table if not exists gastos (
+  id          bigint generated always as identity primary key,
+  projeto_id  bigint references projetos(id) on delete set null,
+  valor       numeric(10, 2) not null check (valor > 0),
+  data        date not null,
+  descricao   text not null,
+  -- Marca as despesas que se repetem todos os meses, para se poder ver o custo
+  -- fixo do estúdio separado do que foi só uma vez.
+  recorrente  boolean not null default false,
+  criado_em   timestamptz not null default now()
+);
+
+create index if not exists gastos_data_idx on gastos (data);
+create index if not exists gastos_projeto_idx on gastos (projeto_id);
+
 -- ---------------------------------------------------------------------------
 -- Ajustes
 --
@@ -122,3 +181,14 @@ alter table projetos drop constraint if exists projetos_estado_check;
 alter table projetos add constraint projetos_estado_check
   check (estado in ('proposta', 'em-curso', 'a-espera', 'visita',
                     'entregue', 'parado'));
+
+-- 2026-09-08 · o valor acordado de cada projeto.
+--
+-- `numeric` e não `float`: dinheiro em vírgula flutuante acumula cêntimos que
+-- ninguém consegue explicar três meses depois. O `pg` devolve `numeric` como
+-- texto, e é por isso que as somas se fazem todas em SQL — ver o topo de
+-- `lib/estudio/dados.ts`.
+--
+-- Entra a `null` nos projetos que já existem: `null` quer dizer "ainda não se
+-- combinou", que é diferente de zero.
+alter table projetos add column if not exists valor numeric(10, 2);

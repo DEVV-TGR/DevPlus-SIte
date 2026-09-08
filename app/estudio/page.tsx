@@ -1,201 +1,288 @@
 /** docs: docs/07-estudio.md */
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { CartaoProjeto } from "@/components/estudio/CartaoProjeto";
-import { CARTAO, PASTILHA, SOBRETITULO } from "@/components/estudio/estilos";
-import { listarProjetos, listarUtilizadores } from "@/lib/estudio/dados";
+import { EtiquetaEstado } from "@/components/estudio/EtiquetaEstado";
+import { GraficoMeses } from "@/components/estudio/GraficoMeses";
+import { CARTAO, SOBRETITULO } from "@/components/estudio/estilos";
+import {
+  listarProjetos,
+  movimentoMensal,
+  porCobrarPorProjeto,
+  resumoContas,
+  tarefasPorFazer,
+} from "@/lib/estudio/dados";
 import { requerSessao } from "@/lib/estudio/sessao";
 import {
   emAtraso,
-  ESTADOS,
+  formatarData,
+  formatarEuros,
   hojeEmLisboa,
-  ROTULO_ESTADO,
-  type Estado,
 } from "@/lib/estudio/tipos";
 import { cn } from "@/lib/utils";
 
 /**
- * Tudo o que temos em mãos, por ordem de atenção: o que está a andar primeiro,
- * o que já acabou por último. A ordem vem da base — ver `ORDEM` em
- * `lib/estudio/dados.ts`.
+ * O resumo — a página de entrada do Estúdio.
  *
- * Os filtros são links com `searchParams`, não estado no browser. Assim o
- * endereço filtrado partilha-se e sobrevive a um refresh, e a página continua a
- * ser de servidor — sem um único componente de cliente nesta lista.
+ * Cada número aqui responde a uma pergunta que se faz mesmo, e a ordem é a das
+ * perguntas: *aguento-me este mês?*, *quanto entrou?*, *quanto saiu?*, *a quem
+ * tenho de ligar?*.
+ *
+ * **Não há aqui a palavra "lucro"**, e é deliberado. Receitas menos gastos, sem
+ * ordenados e sem impostos, é margem — chamar-lhe lucro dava um número
+ * confortável e errado, e é sobre números destes que se decide contratar
+ * alguém. Ver docs/07.
  */
 
-type Filtros = { estado?: string; quem?: string };
-
-/** Constrói o link de um filtro, mantendo o outro. Clicar no que já está
- *  escolhido desliga-o — é o que uma pastilha de filtro deve fazer. */
-function href(atual: Filtros, mudanca: Filtros): string {
-  const params = new URLSearchParams();
-  const estado = mudanca.estado ?? atual.estado;
-  const quem = mudanca.quem ?? atual.quem;
-
-  if (estado) params.set("estado", estado);
-  if (quem) params.set("quem", quem);
-
-  const query = params.toString();
-  return query ? `/estudio?${query}` : "/estudio";
+function Numero({
+  rotulo,
+  valor,
+  nota,
+  destaque,
+}: {
+  rotulo: string;
+  valor: string;
+  nota?: string;
+  destaque?: "primary" | "accent";
+}) {
+  return (
+    <div className={CARTAO}>
+      <p className="text-xs text-muted">{rotulo}</p>
+      <p
+        className={cn(
+          "mt-1.5 font-display text-2xl font-semibold tabular-nums tracking-tight",
+          destaque === "primary" && "text-primary",
+          destaque === "accent" && "text-accent",
+        )}
+      >
+        {valor}
+      </p>
+      {nota ? <p className="mt-1 text-xs text-muted">{nota}</p> : null}
+    </div>
+  );
 }
 
-export default async function Estudio({
-  searchParams,
-}: {
-  searchParams: Promise<Filtros>;
-}) {
+export default async function Resumo() {
   await requerSessao();
 
-  const [{ estado, quem }, projetos, pessoas] = await Promise.all([
-    searchParams,
+  const [contas, meses, porCobrar, tarefas, projetos] = await Promise.all([
+    resumoContas(),
+    movimentoMensal(12),
+    porCobrarPorProjeto(),
+    tarefasPorFazer(8),
     listarProjetos(),
-    listarUtilizadores(),
   ]);
 
   const hoje = hojeEmLisboa();
 
-  const filtrados = projetos.filter((p) => {
-    if (estado && p.estado !== estado) return false;
-    if (quem && !p.responsaveis.some((r) => String(r.id) === quem)) return false;
-    return true;
-  });
+  /* O que não anda sozinho: os bloqueados e os que já passaram do prazo. A
+     ordem vem da base, que já sabe pôr à frente o que depende de nós. */
+  const precisamDeTi = projetos
+    .filter(
+      (p) =>
+        p.estado === "visita" || p.estado === "a-espera" || emAtraso(p, hoje),
+    )
+    .slice(0, 6);
 
-  const atrasados = projetos.filter((p) => emAtraso(p, hoje)).length;
-  const emCurso = projetos.filter((p) => p.estado === "em-curso").length;
-  const aEspera = projetos.filter((p) => p.estado === "a-espera").length;
-  const porVisitar = projetos.filter((p) => p.estado === "visita").length;
+  const vazio = projetos.length === 0;
+  const maiorDivida = porCobrar[0]?.porCobrar ?? 0;
 
-  const pastilha = (ativa: boolean) =>
-    cn(
-      PASTILHA,
-      "transition-colors",
-      ativa
-        ? "border-primary/50 bg-primary/10 text-primary"
-        : "border-border text-muted hover:border-ink/30 hover:text-ink",
+  if (vazio) {
+    return (
+      <div className="mx-auto max-w-2xl py-10 text-center">
+        <p className={SOBRETITULO}>Estúdio</p>
+        <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight">
+          Ainda não há nada para resumir.
+        </h1>
+        <p className="mx-auto mt-3 max-w-md text-sm text-muted">
+          Traz os repositórios do GitHub ou cria um projeto à mão. Assim que
+          houver trabalho e valores, é aqui que se vê o que entra, o que sai e a
+          quem é preciso ligar.
+        </p>
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <Button href="/estudio/importar">Importar do GitHub</Button>
+          <Button href="/estudio/projetos/novo" variant="outline">
+            Projeto novo
+          </Button>
+        </div>
+      </div>
     );
+  }
 
   return (
     <>
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className={SOBRETITULO}>Estúdio</p>
-          <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
-            Projetos
-          </h1>
-          {projetos.length > 0 ? (
-            <p className="mt-1.5 text-sm text-muted">
-              {projetos.length}{" "}
-              {projetos.length === 1 ? "projeto" : "projetos"} · {emCurso} a
-              andar
-              {porVisitar > 0 ? (
-                <>
-                  {" · "}
-                  <span className="text-primary">
-                    {porVisitar} por visitar
-                  </span>
-                </>
-              ) : null}
-              {aEspera > 0 ? (
-                <>
-                  {" · "}
-                  <span className="text-primary">
-                    {aEspera} à espera de resposta
-                  </span>
-                </>
-              ) : null}
-              {atrasados > 0 ? (
-                <>
-                  {" · "}
-                  <span className="font-medium text-danger">
-                    {atrasados}{" "}
-                    {atrasados === 1 ? "atrasado" : "atrasados"}
-                  </span>
-                </>
-              ) : null}
-            </p>
-          ) : null}
-        </div>
+      <p className={SOBRETITULO}>Estúdio</p>
+      <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
+        Resumo
+      </h1>
 
-        <Button href="/estudio/projetos/novo">Projeto novo</Button>
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Numero
+          rotulo="A entrar por mês"
+          valor={formatarEuros(contas.recorrenteMensal)}
+          nota="mensalidades contratadas"
+          destaque={contas.recorrenteMensal > 0 ? "accent" : undefined}
+        />
+        <Numero
+          rotulo="Recebido este mês"
+          valor={formatarEuros(contas.recebidoMes)}
+        />
+        <Numero rotulo="Gasto este mês" valor={formatarEuros(contas.gastosMes)} />
+        <Numero
+          rotulo="Por cobrar"
+          valor={formatarEuros(contas.porCobrar)}
+          nota={
+            contas.projetosPorCobrar > 0
+              ? `${contas.projetosPorCobrar} ${contas.projetosPorCobrar === 1 ? "projeto" : "projetos"}`
+              : "está tudo pago"
+          }
+          destaque={contas.porCobrar > 0 ? "primary" : undefined}
+        />
       </div>
 
-      {projetos.length === 0 ? (
-        /* O vazio diz o que fazer a seguir, não pede desculpa. Ver docs/04,
-           "Secções que se escondem sozinhas". */
-        <div className={cn(CARTAO, "mt-8 text-center")}>
-          <h2 className="font-display text-lg font-semibold tracking-tight">
-            Ainda não há nada aqui.
-          </h2>
-          <p className="mx-auto mt-2 max-w-sm text-sm text-muted">
-            Cria o primeiro projeto e este ecrã passa a ser o sítio onde se vê o
-            que está a andar, quem o está a fazer e o que falta.
-          </p>
-          <div className="mt-5">
-            <Button href="/estudio/projetos/novo">Criar o primeiro</Button>
-          </div>
+      <section aria-labelledby="movimento" className={cn(CARTAO, "mt-8")}>
+        <h2
+          id="movimento"
+          className="font-display text-lg font-semibold tracking-tight"
+        >
+          Entradas e saídas
+        </h2>
+        <p className="mt-1 text-sm text-muted">
+          Os últimos doze meses. Todos os valores sem IVA.
+        </p>
+        <div className="mt-6">
+          <GraficoMeses meses={meses} />
         </div>
-      ) : (
-        <>
-          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="sr-only">Filtrar por estado</span>
-              <Link
-                href={href({ estado, quem }, { estado: "" })}
-                className={pastilha(!estado)}
-              >
-                Todos
-              </Link>
-              {ESTADOS.map((e: Estado) => (
-                <Link
-                  key={e}
-                  href={href({ estado, quem }, { estado: estado === e ? "" : e })}
-                  className={pastilha(estado === e)}
-                >
-                  {ROTULO_ESTADO[e]}
-                </Link>
-              ))}
-            </div>
+      </section>
 
-            {pessoas.length > 0 ? (
-              <div className="flex flex-wrap items-center gap-1.5">
-                <span className="sr-only">Filtrar por pessoa</span>
-                {pessoas.map((p) => (
-                  <Link
-                    key={p.id}
-                    href={href(
-                      { estado, quem },
-                      { quem: quem === String(p.id) ? "" : String(p.id) },
-                    )}
-                    className={pastilha(quem === String(p.id))}
-                  >
-                    {p.nome}
-                  </Link>
-                ))}
-              </div>
-            ) : null}
-          </div>
+      <div className="mt-8 grid gap-8 lg:grid-cols-2">
+        <section aria-labelledby="por-cobrar" className={CARTAO}>
+          <h2
+            id="por-cobrar"
+            className="font-display text-lg font-semibold tracking-tight"
+          >
+            Por cobrar
+          </h2>
 
-          {filtrados.length === 0 ? (
-            <p className="mt-8 text-sm text-muted">
-              Nenhum projeto com este filtro.{" "}
-              <Link
-                href="/estudio"
-                className="underline-offset-4 hover:text-ink hover:underline"
-              >
-                Ver todos
-              </Link>
-              .
+          {porCobrar.length === 0 ? (
+            <p className="mt-3 text-sm text-muted">
+              Não há nada por cobrar. Ou está tudo pago, ou ainda não puseste
+              valores nos projetos.
             </p>
           ) : (
-            <ul className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {filtrados.map((p) => (
-                <CartaoProjeto key={p.id} projeto={p} hoje={hoje} />
+            /* Barras em HTML e não em SVG: é uma lista ordenada com nomes e
+               valores, e o texto de uma lista lê-se melhor do que texto dentro
+               de um desenho. O valor está sempre escrito — a barra é o reforço,
+               não a informação. */
+            <ul className="mt-4 space-y-3">
+              {porCobrar.slice(0, 8).map((p) => (
+                <li key={p.id}>
+                  <Link
+                    href={`/estudio/projetos/${p.id}`}
+                    className="block rounded-lg p-1.5 transition-colors hover:bg-surface-2"
+                  >
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="min-w-0 truncate text-sm">
+                        {p.nome}
+                        {p.clienteNome ? (
+                          <span className="text-muted"> · {p.clienteNome}</span>
+                        ) : null}
+                      </span>
+                      <span className="shrink-0 text-sm font-medium tabular-nums text-primary">
+                        {formatarEuros(p.porCobrar)}
+                      </span>
+                    </div>
+                    <div
+                      className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-surface-2"
+                      aria-hidden
+                    >
+                      <div
+                        className="h-full rounded-full bg-primary"
+                        style={{
+                          width: `${maiorDivida > 0 ? (p.porCobrar / maiorDivida) * 100 : 0}%`,
+                        }}
+                      />
+                    </div>
+                    <p className="mt-1 text-xs text-muted">
+                      {formatarEuros(p.recebido)} recebidos de{" "}
+                      {formatarEuros(p.valor)}
+                    </p>
+                  </Link>
+                </li>
               ))}
             </ul>
           )}
-        </>
-      )}
+        </section>
+
+        <div className="space-y-8">
+          <section aria-labelledby="precisam" className={CARTAO}>
+            <h2
+              id="precisam"
+              className="font-display text-lg font-semibold tracking-tight"
+            >
+              Precisa de ti
+            </h2>
+
+            {precisamDeTi.length === 0 ? (
+              <p className="mt-3 text-sm text-muted">
+                Nada bloqueado nem atrasado. Bom sinal.
+              </p>
+            ) : (
+              <ul className="mt-4 space-y-2.5">
+                {precisamDeTi.map((p) => (
+                  <li key={p.id}>
+                    <Link
+                      href={`/estudio/projetos/${p.id}`}
+                      className="flex items-center justify-between gap-3 rounded-lg p-1.5 transition-colors hover:bg-surface-2"
+                    >
+                      <span className="min-w-0 truncate text-sm">{p.nome}</span>
+                      <span className="flex shrink-0 items-center gap-2">
+                        {emAtraso(p, hoje) && p.prazo ? (
+                          <span className="text-xs text-danger">
+                            {formatarData(p.prazo)}
+                          </span>
+                        ) : null}
+                        <EtiquetaEstado estado={p.estado} />
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section aria-labelledby="tarefas-pendentes" className={CARTAO}>
+            <h2
+              id="tarefas-pendentes"
+              className="font-display text-lg font-semibold tracking-tight"
+            >
+              Tarefas por fazer
+            </h2>
+
+            {tarefas.length === 0 ? (
+              <p className="mt-3 text-sm text-muted">
+                Sem tarefas por fazer. Se isso te parece estranho, é porque
+                ainda não escreveste nenhuma — cada projeto tem uma checklist.
+              </p>
+            ) : (
+              <ul className="mt-4 space-y-2.5">
+                {tarefas.map((t) => (
+                  <li key={t.id}>
+                    <Link
+                      href={`/estudio/projetos/${t.projetoId}`}
+                      className="block rounded-lg p-1.5 transition-colors hover:bg-surface-2"
+                    >
+                      <span className="block truncate text-sm">{t.texto}</span>
+                      <span className="block truncate text-xs text-muted">
+                        {t.projetoNome}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
+      </div>
     </>
   );
 }

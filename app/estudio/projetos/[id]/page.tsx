@@ -3,11 +3,18 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EtiquetaEstado } from "@/components/estudio/EtiquetaEstado";
 import { FormularioProjeto } from "@/components/estudio/FormularioProjeto";
+import { Pagamentos } from "@/components/estudio/Pagamentos";
 import { Tarefas } from "@/components/estudio/Tarefas";
 import { CARTAO } from "@/components/estudio/estilos";
-import { apagarProjeto, guardarProjeto } from "@/lib/estudio/acoes";
 import {
+  apagarProjeto,
+  guardarProjeto,
+  registarPagamento,
+} from "@/lib/estudio/acoes";
+import {
+  contasDoProjeto,
   listarClientes,
+  listarPagamentos,
   listarTarefas,
   listarUtilizadores,
   obterProjeto,
@@ -31,10 +38,12 @@ export default async function Projeto({
   const projeto = await obterProjeto(numero);
   if (!projeto) notFound();
 
-  const [tarefas, clientes, pessoas] = await Promise.all([
+  const [tarefas, clientes, pessoas, contas, pagamentos] = await Promise.all([
     listarTarefas(projeto.id),
     listarClientes(),
     listarUtilizadores(),
+    contasDoProjeto(projeto.id),
+    listarPagamentos(projeto.id),
   ]);
 
   const hoje = hojeEmLisboa();
@@ -43,7 +52,7 @@ export default async function Projeto({
   return (
     <div className="mx-auto max-w-5xl">
       <Link
-        href="/estudio"
+        href="/estudio/projetos"
         className="text-sm text-muted underline-offset-4 hover:text-ink hover:underline"
       >
         ← Projetos
@@ -142,9 +151,20 @@ export default async function Projeto({
           </details>
         </div>
 
-        <aside className={CARTAO}>
-          <Tarefas projetoId={projeto.id} tarefas={tarefas} />
-        </aside>
+        <div className="space-y-8">
+          <aside className={CARTAO}>
+            <Pagamentos
+              acao={registarPagamento}
+              projetoId={projeto.id}
+              contas={contas}
+              pagamentos={pagamentos}
+            />
+          </aside>
+
+          <aside className={CARTAO}>
+            <Tarefas projetoId={projeto.id} tarefas={tarefas} />
+          </aside>
+        </div>
       </div>
     </div>
   );

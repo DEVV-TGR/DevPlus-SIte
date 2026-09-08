@@ -46,8 +46,7 @@ try {
     `select table_name
        from information_schema.tables
       where table_schema = 'public'
-        and table_name in ('utilizadores', 'sessoes', 'clientes',
-                           'projetos', 'projeto_responsaveis', 'tarefas')
+        and table_type = 'BASE TABLE'
       order by table_name`,
   );
 

@@ -111,7 +111,7 @@ export function FormularioProjeto({
         </div>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <label htmlFor="progresso" className={ETIQUETA}>
             Progresso (%)
@@ -130,6 +130,27 @@ export function FormularioProjeto({
             aria-describedby={erros.progresso ? "erro-progresso" : undefined}
           />
           <Erro id="erro-progresso" mensagem={erros.progresso} />
+        </div>
+
+        <div>
+          <label htmlFor="valor" className={ETIQUETA}>
+            Valor combinado <span className="text-muted">(sem IVA)</span>
+          </label>
+          {/* Texto e não `type="number"`: escreve-se `1.500,50` cá, e um campo
+              numérico do browser recusa a vírgula em metade das configurações.
+              Quem trata disto é o `lerValor()` de `lib/estudio/validacao.ts`,
+              o mesmo que a ação usa. */}
+          <input
+            id="valor"
+            name="valor"
+            inputMode="decimal"
+            placeholder="1500,50"
+            defaultValue={projeto?.valor ?? ""}
+            className={CAMPO}
+            aria-invalid={erros.valor ? true : undefined}
+            aria-describedby={erros.valor ? "erro-valor" : undefined}
+          />
+          <Erro id="erro-valor" mensagem={erros.valor} />
         </div>
 
         <div>

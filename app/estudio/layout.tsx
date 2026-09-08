@@ -26,10 +26,13 @@ export const metadata: Metadata = {
   title: "Estúdio",
 };
 
+/* O "Importar" saiu daqui e desceu para a página de projetos, ao lado do
+   "Projeto novo": são as duas formas de um projeto entrar, e procura-se lá. */
 const links = [
-  { href: "/estudio", label: "Projetos" },
+  { href: "/estudio", label: "Resumo" },
+  { href: "/estudio/projetos", label: "Projetos" },
   { href: "/estudio/clientes", label: "Clientes" },
-  { href: "/estudio/importar", label: "Importar" },
+  { href: "/estudio/gastos", label: "Gastos" },
 ];
 
 export default async function EstudioLayout({

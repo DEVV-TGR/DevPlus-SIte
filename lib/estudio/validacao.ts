@@ -22,7 +22,15 @@ export const LIMITES = {
 
 export type ErrosProjeto = Partial<
   Record<
-    "nome" | "estado" | "progresso" | "inicio" | "prazo" | "repoUrl" | "deployUrl" | "notas",
+    | "nome"
+    | "estado"
+    | "progresso"
+    | "valor"
+    | "inicio"
+    | "prazo"
+    | "repoUrl"
+    | "deployUrl"
+    | "notas",
     string
   >
 >;
@@ -36,6 +44,7 @@ export const CAMPOS_PROJETO = [
   "nome",
   "estado",
   "progresso",
+  "valor",
   "inicio",
   "prazo",
   "repoUrl",
@@ -72,6 +81,7 @@ export type DadosProjeto = {
   clienteId: string;
   estado: string;
   progresso: string;
+  valor: string;
   inicio: string;
   prazo: string;
   repoUrl: string;
@@ -91,6 +101,11 @@ export function validarProjeto(dados: DadosProjeto): ErrosProjeto {
   const progresso = Number(dados.progresso);
   if (!Number.isInteger(progresso) || progresso < 0 || progresso > 100)
     erros.progresso = "O progresso é um número de 0 a 100.";
+
+  /* Vazio vale: um projeto pode existir muito antes de haver preço combinado,
+     e `null` na base quer dizer isso mesmo — não é zero. */
+  const valor = validarValor(dados.valor, { vazioVale: true });
+  if (valor) erros.valor = valor;
 
   if (dados.inicio && !DATA.test(dados.inicio))
     erros.inicio = "Escolhe uma data de início no calendário.";
@@ -164,4 +179,150 @@ export function campo(valor: FormDataEntryValue | null, maximo: number): string 
 export function ouNulo(valor: string): string | null {
   const limpo = valor.trim();
   return limpo === "" ? null : limpo;
+}
+
+/* ------------------------------------------------------------------------
+   Dinheiro
+   ------------------------------------------------------------------------ */
+
+/** `numeric(10,2)` na base dá quase cem milhões. Isto é um teto de sanidade
+ *  muito abaixo disso: um valor com sete dígitos num estúdio de três pessoas é
+ *  quase de certeza um zero a mais. */
+export const VALOR_MAXIMO = 9_999_999.99;
+
+/**
+ * Lê um valor em euros escrito por uma pessoa. Devolve `null` se não der.
+ *
+ * Em Portugal escreve-se `1.500,50`, e um `parseFloat` disso dá `1`. As regras
+ * são estas, e são deliberadamente previsíveis em vez de espertas:
+ *
+ * - Se houver **vírgula**, a vírgula é o decimal e os pontos são milhares.
+ *   `1.500,50` -> 1500.50
+ * - Se só houver **ponto**, é decimal quando tem 1 ou 2 dígitos a seguir, e
+ *   milhares nos outros casos. `1.50` -> 1.50, `1.500` -> 1500.
+ * - `€`, espaços e espaços duros são ignorados.
+ *
+ * O caso ambíguo (`1.500` querer dizer um euro e meio) não existe na prática:
+ * ninguém escreve o preço de um trabalho assim.
+ */
+export function lerValor(texto: string): number | null {
+  const limpo = texto
+    .replace(/[\s  ]/g, "")
+    .replace(/€/g, "")
+    .trim();
+
+  if (!limpo) return null;
+  if (!/^-?[\d.,]+$/.test(limpo)) return null;
+
+  let normalizado: string;
+
+  if (limpo.includes(",")) {
+    normalizado = limpo.replace(/\./g, "").replace(",", ".");
+  } else {
+    const ponto = limpo.lastIndexOf(".");
+    const decimais = ponto === -1 ? -1 : limpo.length - ponto - 1;
+    normalizado =
+      decimais === 1 || decimais === 2 ? limpo : limpo.replace(/\./g, "");
+  }
+
+  const numero = Number(normalizado);
+  if (!Number.isFinite(numero)) return null;
+
+  /* Arredonda aos cêntimos aqui, uma vez, para não haver um `1500.0000001` a
+     chegar à base e a estragar somas depois. */
+  return Math.round(numero * 100) / 100;
+}
+
+/**
+ * Valida um valor em euros. Devolve a mensagem de erro, ou `undefined`.
+ *
+ * `vazioVale` para os campos onde não ter valor é uma resposta legítima — o
+ * `projetos.valor` por combinar, por exemplo. `null` na base quer dizer "ainda
+ * não se combinou", que não é a mesma coisa que zero.
+ */
+export function validarValor(
+  texto: string,
+  { vazioVale = false, minimo = 0.01 } = {},
+): string | undefined {
+  if (!texto.trim()) {
+    return vazioVale ? undefined : "Escreve o valor.";
+  }
+
+  const valor = lerValor(texto);
+  if (valor === null) return "Escreve o valor em euros, por exemplo 1500,50.";
+  if (valor < 0) return "O valor não pode ser negativo.";
+  if (valor < minimo) return `O valor tem de ser pelo menos ${minimo}.`;
+  if (valor > VALOR_MAXIMO) return "Esse valor parece ter um zero a mais.";
+
+  return undefined;
+}
+
+export type ErrosGasto = Partial<
+  Record<"valor" | "data" | "descricao", string>
+>;
+
+export function validarGasto(dados: {
+  valor: string;
+  data: string;
+  descricao: string;
+}): ErrosGasto {
+  const erros: ErrosGasto = {};
+
+  const valor = validarValor(dados.valor);
+  if (valor) erros.valor = valor;
+
+  if (!dados.data.trim()) erros.data = "Escolhe a data no calendário.";
+  else if (!DATA.test(dados.data)) erros.data = "Escolhe a data no calendário.";
+
+  if (!dados.descricao.trim())
+    erros.descricao = "Diz do que é o gasto, nem que seja numa palavra.";
+  else if (dados.descricao.length > LIMITES.nome)
+    erros.descricao = `A descrição não pode passar dos ${LIMITES.nome} caracteres.`;
+
+  return erros;
+}
+
+export type ErrosPagamento = Partial<Record<"valor" | "data", string>>;
+
+export function validarPagamento(dados: {
+  valor: string;
+  data: string;
+}): ErrosPagamento {
+  const erros: ErrosPagamento = {};
+
+  const valor = validarValor(dados.valor);
+  if (valor) erros.valor = valor;
+
+  if (!dados.data.trim() || !DATA.test(dados.data))
+    erros.data = "Escolhe a data em que o dinheiro entrou.";
+
+  return erros;
+}
+
+export type ErrosMensalidade = Partial<
+  Record<"valor" | "desde" | "ate", string>
+>;
+
+export function validarMensalidade(dados: {
+  valor: string;
+  desde: string;
+  ate: string;
+}): ErrosMensalidade {
+  const erros: ErrosMensalidade = {};
+
+  /* Mínimo zero: uma mensalidade a zero é uma coisa que acontece — um cliente
+     em cortesia durante uns meses — e é diferente de não ter mensalidade. */
+  const valor = validarValor(dados.valor, { minimo: 0 });
+  if (valor) erros.valor = valor;
+
+  if (!dados.desde.trim() || !DATA.test(dados.desde))
+    erros.desde = "Escolhe desde quando é que ela conta.";
+
+  if (dados.ate.trim()) {
+    if (!DATA.test(dados.ate)) erros.ate = "Escolhe a data no calendário.";
+    else if (!erros.desde && dados.ate < dados.desde)
+      erros.ate = "A data de fim é antes do início — troca as datas.";
+  }
+
+  return erros;
 }

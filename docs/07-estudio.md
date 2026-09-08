@@ -47,6 +47,7 @@ Em texto corrido escreve-se **Estúdio**, com maiúscula, quando é este sítio.
 | `lib/estudio/acoes.ts`        | as escritas, em Server Actions                  |
 | `lib/estudio/validacao.ts`    | as regras dos formulários, partilhadas          |
 | `lib/estudio/sessao.ts`       | cookie, sessão e `requerSessao()`               |
+| `components/estudio/GraficoMeses.tsx` | o único gráfico, em SVG escrito à mão   |
 | `lib/estudio/github.ts`       | o OAuth                                         |
 | `components/estudio/`         | os componentes, sobre as primitivas de `ui/`    |
 
@@ -63,6 +64,79 @@ a gente — transformava uma variável esquecida num Estúdio aberto ao mundo.
 **Os responsáveis de um projeto escolhem-se sempre à mão**, de uma lista de
 quem já entrou. Nunca se atribui automaticamente a quem está a gravar: quem
 mexe num projeto não é, na maior parte das vezes, quem o está a fazer.
+
+## O dinheiro
+
+`/estudio` é o resumo; a lista de projetos vive em `/estudio/projetos`.
+
+**Não se chama "lucro" a nada, e a palavra não aparece na interface.** Receitas
+menos gastos, sem ordenados e sem impostos, é **margem**. Chamar-lhe lucro dava
+um número confortável e errado, e é sobre números destes que se decide contratar
+alguém.
+
+**Todos os valores são sem IVA.** O IVA nunca foi nosso: passa por nós para o
+Estado, e metê-lo aqui inflacionava a margem com dinheiro que não é do estúdio.
+Os campos dizem-no, para ninguém ter de adivinhar ao escrever.
+
+**Acordado e recebido são coisas diferentes**, e é a distinção que faz esta
+página valer alguma coisa. O `projetos.valor` é o que ficou combinado; a tabela
+`pagamentos` é o que entrou mesmo. A diferença é o **por cobrar** — o único
+número aqui que faz alguém pegar no telefone. Um painel que somasse só valores
+acordados mostrava dinheiro que ainda não existe.
+
+**Vários pagamentos por projeto**, porque é assim que se paga: um sinal, um
+faseado, um resto. Quem paga a mais não fica a dever ao contrário — o `por
+cobrar` nunca desce abaixo de zero, senão um pagamento a mais abatia dívidas
+verdadeiras de outros projetos.
+
+**A mensalidade é o que está contratado, não um registo de cada mês recebido.**
+O painel diz "a entrar por mês", nunca "recebido". Quando um cliente deixa de
+pagar, põe-se a data de fim em vez de se apagar a linha. Se um dia isto não
+chegar, a mensalidade passa a gerar pagamentos — mas é o dobro do trabalho de
+manutenção e não se paga já.
+
+**Um gasto sem projeto é do estúdio** e não entra na margem de projeto nenhum.
+A Vercel e o Figma existiriam na mesma sem qualquer um dos trabalhos; imputá-los
+a um deles fazia-o parecer pior do que é.
+
+### As somas fazem-se todas em SQL
+
+O `pg` devolve `numeric` como texto, e o `number` do JavaScript não é exato.
+Somar cinquenta valores em vírgula flutuante acumula cêntimos que ninguém
+consegue explicar três meses depois. Em `lib/estudio/dados.ts` o `Number()`
+aparece só a converter um total que já vem somado pelo Postgres.
+
+### A escrever, aceitam-se vírgulas
+
+`1.500,50` é como se escreve cá, e `Number("1.500,50")` é `NaN`. Quem trata
+disso é o `lerValor()` de `lib/estudio/validacao.ts`, partilhado pelo formulário
+e pela ação. As regras são deliberadamente previsíveis em vez de espertas: com
+vírgula, a vírgula é o decimal; só com ponto, é decimal se tiver um ou dois
+dígitos a seguir e milhares nos outros casos.
+
+### O gráfico, e uma cor que se mudou por causa do validador
+
+Há **um** gráfico, em SVG escrito à mão. Uma biblioteca para duas séries de
+barras trazia bundle, mais uma superfície de `npm audit` e uma segunda forma de
+desenhar coisas neste projeto.
+
+**Um eixo só.** Entradas e saídas são as duas em euros e partilham a escala — é
+isso que deixa comparar a altura de uma com a da outra.
+
+A escolha óbvia para as duas séries era o verde do `accent` e o cinzento claro
+do `muted`. **O validador de paletas recusou-a:** as duas ficavam a ΔE 4.8 para
+quem tem daltonismo deutan, ou seja, indistinguíveis para cerca de uma em cada
+doze pessoas — e somos três homens a usar isto. Trocar o cinzento claro pelo
+escuro do `border-strong` leva a separação a 25.3. Não se decidiu a olho; correu-se
+o validador.
+
+Ficam dois avisos por resolver nesse validador, e é deliberado: a "banda de
+luminosidade" e o "piso de croma" são parâmetros da paleta de referência dele, e
+chocam com os tokens do docs/02 — que não se inventam. Os testes que protegem
+quem lê (separação para daltonismo, visão normal, contraste) passam todos.
+
+A identidade nunca depende só da cor: há legenda, o valor de cada barra aparece
+ao passar o rato, e há uma tabela com os números por baixo.
 
 ## Decisões que não estão no código
 
@@ -248,6 +322,9 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | quem aloja a base                      | nomeia-o em `app/privacidade/page.tsx`, na secção "Partilha com terceiros"                      |
 | a decisão de não haver `proxy.ts`      | relê o comentário da CSP em `next.config.ts` antes — a conta muda                                |
 | a `CascaDoSite`                        | confirma que a homepage continua estática (`○`) no output do `npm run build`                    |
+| como se guarda dinheiro                | `lib/estudio/schema.sql` (`numeric`, nunca `float`) e as somas continuam em SQL                  |
+| as cores do gráfico                    | corre o validador da skill `dataviz` antes — a escolha óbvia falhou o teste de daltonismo       |
+| acrescentares uma rota em `/estudio`   | acrescenta-a ao teste de fumo em `.github/workflows/ci.yml`                                      |
 | a organização do GitHub                | `ORGANIZACAO` em `lib/estudio/github.ts` — e o webhook na organização nova                       |
 | o que a importação traz de cada repo   | `importarRepos` em `lib/estudio/acoes.ts` **e** o webhook, para os dois criarem projetos iguais  |
 | o seletor de trabalhos                 | `components/estudio/SeletorDeRepos.tsx` — é usado nos dois sítios, o de criar e o da ficha      |

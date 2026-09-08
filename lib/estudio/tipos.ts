@@ -80,6 +80,9 @@ export type Projeto = {
   /** 0 a 100. É escrito à mão — não se calcula a partir das tarefas, porque
    *  metade do trabalho de um projeto nunca chega a virar tarefa. */
   progresso: number;
+  /** O que ficou combinado, **sem IVA**. `null` = ainda não se combinou, que
+   *  não é a mesma coisa que zero. */
+  valor: number | null;
   /** `YYYY-MM-DD` ou `null`. Datas civis, sem hora e sem fuso: um prazo é um
    *  dia, e passá-lo por `timestamptz` fazia-o saltar um dia consoante quem o
    *  lia. Ver docs/07. */
@@ -158,3 +161,77 @@ export type ProjetoLeve = {
   repoUrl: string | null;
   clienteId: number | null;
 };
+
+/* ------------------------------------------------------------------------
+   Dinheiro
+
+   Todos os valores são **sem IVA**. O IVA nunca foi nosso: passa por nós para
+   o Estado, e metê-lo aqui inflacionava a margem com dinheiro que não é do
+   estúdio. Os campos dizem-no, para ninguém ter de adivinhar ao escrever.
+
+   E não se chama "lucro" a nada. Receitas menos gastos, sem ordenados e sem
+   impostos, é **margem** — chamar-lhe lucro dava um número confortável e
+   errado, e é sobre números destes que se decide contratar alguém.
+   ------------------------------------------------------------------------ */
+
+export type Pagamento = {
+  id: number;
+  projetoId: number;
+  valor: number;
+  data: string;
+  descricao: string | null;
+};
+
+export type Mensalidade = {
+  id: number;
+  clienteId: number;
+  valor: number;
+  desde: string;
+  /** `null` = ainda ativa. */
+  ate: string | null;
+  notas: string | null;
+};
+
+export type Gasto = {
+  id: number;
+  /** `null` = gasto do estúdio, não de um projeto. */
+  projetoId: number | null;
+  projetoNome: string | null;
+  valor: number;
+  data: string;
+  descricao: string;
+  recorrente: boolean;
+};
+
+/** As contas de um projeto: o que se combinou, o que entrou, o que falta. */
+export type ContasProjeto = {
+  /** `null` = ainda não se combinou valor. Diferente de zero. */
+  valor: number | null;
+  recebido: number;
+  /** `valor - recebido`, nunca abaixo de zero — quem pagou a mais não fica a
+   *  dever negativo, e somar negativos escondia dívidas de outros projetos. */
+  porCobrar: number;
+  gastos: number;
+};
+
+export function formatarEuros(valor: number): string {
+  return new Intl.NumberFormat("pt-PT", {
+    style: "currency",
+    currency: "EUR",
+    maximumFractionDigits: 2,
+  }).format(valor);
+}
+
+/** `2026-09` -> `set 26`. Para os eixos dos gráficos, onde não cabe mais. */
+export function formatarMes(mes: string): string {
+  const [ano, m] = mes.split("-").map(Number);
+  const nome = new Intl.DateTimeFormat("pt-PT", {
+    month: "short",
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(ano, m - 1, 1)));
+  return `${nome} ${String(ano).slice(2)}`;
+}
+
+/** Um mês na história do dinheiro. Vive aqui, e não em `dados.ts`, para os
+ *  gráficos não terem de importar tipos do módulo que fala com a base. */
+export type MesDeContas = { mes: string; entradas: number; saidas: number };

@@ -4,13 +4,16 @@ import { notFound } from "next/navigation";
 import { CartaoProjeto } from "@/components/estudio/CartaoProjeto";
 import { FormularioCliente } from "@/components/estudio/FormularioCliente";
 import { FormularioTrabalhos } from "@/components/estudio/FormularioTrabalhos";
+import { Mensalidade } from "@/components/estudio/Mensalidade";
 import { CARTAO, SOBRETITULO } from "@/components/estudio/estilos";
 import {
   apagarCliente,
   definirProjetosDoCliente,
   guardarCliente,
+  guardarMensalidade,
 } from "@/lib/estudio/acoes";
 import {
+  listarMensalidades,
   listarProjetosLeves,
   obterCliente,
   projetosDoCliente,
@@ -33,9 +36,10 @@ export default async function ClienteFicha({
   const cliente = await obterCliente(numero);
   if (!cliente) notFound();
 
-  const [projetos, leves, { repos, erro }] = await Promise.all([
+  const [projetos, leves, mensalidades, { repos, erro }] = await Promise.all([
     projetosDoCliente(cliente.id),
     listarProjetosLeves(),
+    listarMensalidades(cliente.id),
     listarRepos(),
   ]);
 
@@ -73,6 +77,14 @@ export default async function ClienteFicha({
         <div>
           <h2 className="sr-only">Dados do cliente</h2>
           <FormularioCliente acao={guardarCliente} cliente={cliente} />
+
+          <div className="mt-10 border-t border-border pt-6">
+            <Mensalidade
+              acao={guardarMensalidade}
+              clienteId={cliente.id}
+              mensalidades={mensalidades}
+            />
+          </div>
 
           <details className="mt-10 border-t border-border pt-6">
             <summary className="cursor-pointer text-sm text-muted transition-colors hover:text-ink">
