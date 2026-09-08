@@ -88,27 +88,36 @@ renderiza foi escrito por uma das pessoas que entram cá. O dia de refazer a
 conta é aquele em que texto de alguém de fora do estúdio chegar a uma destas
 páginas.
 
-**Nenhuma cor nova.** Os cinco estados cabem nos tokens que docs/02 já tem, e o
-que os separa é a pergunta *isto precisa de mim?*: `muted` para proposta (ainda
-não começou), `accent` para em curso (docs/02 já reserva o verde para essa
-etiqueta), **`primary` para à espera do cliente**, `muted` para entregue, e
-`danger` para parado e para prazo ultrapassado.
+**Nenhuma cor nova**, com seis estados. Os tokens de docs/02 chegam porque o que
+os separa não é só a cor:
 
-O laranja está no `a-espera` e não no `entregue` de propósito. É o estado que
-mais precisa de alguém — um trabalho à espera de um cliente não se desbloqueia
-sozinho, e se ninguém lhe pegar fica lá meses. O `entregue` recua: deixou de
-pedir atenção, e a cor diz isso. `parado` a vermelho é a mesma lógica ao
-contrário — um projeto parado não é neutro, é uma coisa que alguém tem de
-destravar.
+| Estado | Sinal | Porquê |
+| --- | --- | --- |
+| Proposta | `muted`, contorno | ainda não começou; não pede nada |
+| Em curso | `accent` | docs/02 já reserva o verde para esta etiqueta |
+| À espera do cliente | laranja de **contorno** | bloqueado; a bola está com ele |
+| Falta ir lá | laranja **cheio** | bloqueado; a bola está connosco |
+| Entregue | `muted`, contorno | acabou; deixou de pedir atenção |
+| Parado | `danger` | não é neutro: alguém tem de o destravar |
 
-**`a-espera` conta como atrasado.** Um prazo que passou enquanto se esperava por
-um cliente continua a ser um prazo que passou — é precisamente quando se lhe
-liga a perguntar. Ver `emAtraso()` em `lib/estudio/tipos.ts`.
+**Os dois bloqueios partilham o laranja de propósito.** O que os distingue é o
+preenchimento, e isso quer dizer uma coisa concreta: na etiqueta cheia, a bola
+está contigo. Esperar por um cliente é a bola dele; ter de lá ir é a nossa, e é a
+única que se resolve se alguém se mexer — daí ser a mais forte do painel.
 
-**E aparece logo a seguir ao que está a andar**, na ordem da lista (`ORDEM` em
-`lib/estudio/dados.ts`). É a diferença entre "está parado" e "está parado à
-espera de alguém a quem se pode ligar hoje"; enterrá-lo era garantir que ninguém
-lhe ligava.
+O laranja saiu do `entregue` quando o `a-espera` nasceu. É caro de mais para se
+gastar no que já não pede nada.
+
+**Os dois contam como atrasados.** Um prazo que passou enquanto se esperava por
+um cliente — ou enquanto faltava lá ir — continua a ser um prazo que passou. É
+precisamente aí que se liga a perguntar, ou que se mete o carro a andar. Ver
+`emAtraso()` em `lib/estudio/tipos.ts`.
+
+**E aparecem logo a seguir ao que está a andar**, na ordem da lista (`ORDEM` em
+`lib/estudio/dados.ts`), com o `visita` à frente do `a-espera` — o que depende de
+nós lê-se primeiro. É a diferença entre "está parado" e "está parado à espera de
+alguém a quem se pode ligar hoje"; enterrá-los era garantir que ninguém lhes
+pegava.
 
 **As fotos do GitHub não aparecem.** `img-src 'self' data: blob:` não deixa
 carregar imagens de outro domínio, e abrir a CSP a `avatars.githubusercontent.com`

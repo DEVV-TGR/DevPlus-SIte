@@ -27,16 +27,22 @@ import type {
    alfabética: o que está a andar primeiro, o que já acabou por último. Dentro
    de cada grupo, o prazo mais próximo à frente e os sem prazo no fim.
 
-   `a-espera` vem logo a seguir a `em-curso`, e não lá para baixo com o que está
-   quieto: é a diferença entre "está parado" e "está parado à espera de alguém a
-   quem se pode ligar hoje". Enterrá-lo era garantir que ninguém lhe ligava. */
+   Os dois estados de bloqueio vêm logo a seguir ao que está a andar, e não lá
+   para baixo com o que está quieto: é a diferença entre "está parado" e "está
+   parado à espera de alguém a quem se pode ligar hoje". Enterrá-los era garantir
+   que ninguém lhes pegava.
+
+   Entre os dois, `visita` fica à frente de `a-espera` por uma razão só: é o que
+   depende de nós. Esperar por um cliente é a bola dele; ir lá é a nossa, e o que
+   está ao nosso alcance resolver hoje merece ser lido primeiro. */
 const ORDEM = `
   order by case p.estado
              when 'em-curso' then 0
-             when 'a-espera' then 1
-             when 'proposta' then 2
-             when 'parado'   then 3
-             else 4
+             when 'visita'   then 1
+             when 'a-espera' then 2
+             when 'proposta' then 3
+             when 'parado'   then 4
+             else 5
            end,
            p.prazo asc nulls last,
            p.id desc`;

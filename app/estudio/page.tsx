@@ -64,6 +64,7 @@ export default async function Estudio({
   const atrasados = projetos.filter((p) => emAtraso(p, hoje)).length;
   const emCurso = projetos.filter((p) => p.estado === "em-curso").length;
   const aEspera = projetos.filter((p) => p.estado === "a-espera").length;
+  const porVisitar = projetos.filter((p) => p.estado === "visita").length;
 
   const pastilha = (ativa: boolean) =>
     cn(
@@ -87,6 +88,14 @@ export default async function Estudio({
               {projetos.length}{" "}
               {projetos.length === 1 ? "projeto" : "projetos"} · {emCurso} a
               andar
+              {porVisitar > 0 ? (
+                <>
+                  {" · "}
+                  <span className="text-primary">
+                    {porVisitar} por visitar
+                  </span>
+                </>
+              ) : null}
               {aEspera > 0 ? (
                 <>
                   {" · "}

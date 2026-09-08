@@ -20,21 +20,28 @@ export type Utilizador = {
 };
 
 /**
- * Os cinco estados por que um trabalho passa, por ordem de vida.
+ * Os seis estados por que um trabalho passa, por ordem de vida.
  *
  * A ordem do array é a ordem por que aparecem nos filtros e nos seletores —
  * mudá-la muda o site. `parado` fica no fim de propósito: é a exceção, não uma
  * etapa.
  *
- * `a-espera` fica a seguir a `em-curso` porque é aí que acontece: um trabalho
- * não nasce à espera do cliente, fica-o a meio. É o estado que explica metade
- * dos atrasos — sem ele, um projeto parado à espera de uma resposta é
- * indistinguível de um projeto parado porque ninguém lhe pegou.
+ * `a-espera` e `visita` ficam a seguir a `em-curso` porque é aí que acontecem:
+ * um trabalho não nasce bloqueado, fica-o a meio. São os dois estados que
+ * explicam quase todos os atrasos, e **são bloqueios diferentes**:
+ *
+ * - `a-espera` — a bola está com o cliente. Falta ele responder.
+ * - `visita` — a bola está connosco. Falta lá ir, quase sempre outra vez,
+ *   porque da primeira não estavam ou não havia tempo.
+ *
+ * Sem os separar, os dois cairiam em `parado`, e "parado" não diz a quem se há
+ * de ligar nem quem tem de se mexer.
  */
 export const ESTADOS = [
   "proposta",
   "em-curso",
   "a-espera",
+  "visita",
   "entregue",
   "parado",
 ] as const;
@@ -48,6 +55,10 @@ export const ROTULO_ESTADO: Record<Estado, string> = {
   /* Diz de quem é a bola. "Pendente" é jargão, "Em espera" não diz de quem, e
      "Bloqueado" soa a culpa — isto só diz onde a coisa está parada. */
   "a-espera": "À espera do cliente",
+  /* Diz o que falta fazer, que é o tom do resto do site. "Visita por marcar"
+     não serve — nem sempre é de marcar; "Por visitar" soa a que nunca lá se foi,
+     e o caso normal é ter de voltar porque não estavam. */
+  visita: "Falta ir lá",
   entregue: "Entregue",
   parado: "Parado",
 };
@@ -91,10 +102,11 @@ export type Tarefa = {
 /**
  * Um prazo está em atraso se já passou e o projeto ainda não está entregue.
  *
- * `parado` e `a-espera` continuam a contar como atrasados, e é de propósito:
- * parar não é entregar, e um prazo que passou enquanto se espera por um cliente
- * continua a ser um prazo que passou — é precisamente quando se lhe liga a
- * perguntar. Esconder o atraso era a forma mais rápida de ele ser esquecido.
+ * Todos os outros contam como atrasados, e é de propósito: parar não é
+ * entregar, e um prazo que passou enquanto se esperava por um cliente — ou
+ * enquanto faltava lá ir — continua a ser um prazo que passou. É precisamente
+ * aí que se liga a perguntar, ou que se mete o carro a andar. Esconder o atraso
+ * era a forma mais rápida de ele ser esquecido.
  *
  * Compara-se em `YYYY-MM-DD`, que ordena bem como texto e não envolve fusos.
  */

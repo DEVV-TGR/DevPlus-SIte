@@ -56,7 +56,7 @@ create table if not exists projetos (
   estado        text not null default 'proposta'
                 constraint projetos_estado_check
                 check (estado in ('proposta', 'em-curso', 'a-espera',
-                                  'entregue', 'parado')),
+                                  'visita', 'entregue', 'parado')),
   progresso     smallint not null default 0
                 check (progresso between 0 and 100),
   -- `date` e não `timestamptz`: um prazo é um dia, não um instante. Ver o
@@ -110,5 +110,15 @@ create index if not exists tarefas_projeto_idx on tarefas (projeto_id, ordem, id
 -- muda de estado por causa disto.
 alter table projetos drop constraint if exists projetos_estado_check;
 
+-- 2026-09-08 · o estado `visita` ("Falta ir lá").
+--
+-- Chegou logo a seguir ao `a-espera`, e por isso não há aqui dois `alter` — há
+-- um só, com a lista final. Os ajustes deste ficheiro correm todos de cada vez
+-- e não guardam histórico: o que interessa é o estado a que se quer chegar, e
+-- dois passos onde basta um seriam só mais uma coisa para manter.
+--
+-- No dia em que um ajuste precisar de mexer em **dados** — e não só na forma —
+-- isto deixa de servir, porque aí a ordem passa a contar. Ver o topo.
 alter table projetos add constraint projetos_estado_check
-  check (estado in ('proposta', 'em-curso', 'a-espera', 'entregue', 'parado'));
+  check (estado in ('proposta', 'em-curso', 'a-espera', 'visita',
+                    'entregue', 'parado'));

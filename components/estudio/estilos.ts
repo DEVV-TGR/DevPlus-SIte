@@ -28,9 +28,15 @@ export const SOBRETITULO = "text-xs uppercase tracking-[0.18em] text-muted";
  *
  * - `proposta` — ainda não começou. Neutro, não pede nada.
  * - `em-curso` — o verde que docs/02 reserva para esta etiqueta. Está a andar.
- * - `a-espera` — **laranja**, que docs/02 dá aos destaques. É o estado que mais
- *   precisa de alguém: um trabalho à espera de um cliente não se desbloqueia
- *   sozinho, e se ninguém lhe pegar fica lá meses.
+ * - `a-espera` — **laranja de contorno**, que docs/02 dá aos destaques. Um
+ *   trabalho à espera de um cliente não se desbloqueia sozinho, e se ninguém lhe
+ *   pegar fica lá meses.
+ * - `visita` — **laranja cheio**. É o mesmo laranja de propósito: os dois são
+ *   bloqueios. O que os separa não é a cor, é o preenchimento, e isso quer dizer
+ *   uma coisa concreta — **na etiqueta cheia, a bola está contigo**. Ligar a
+ *   alguém e esperar é uma coisa; ter de lá ir é outra, e é a que só depende de
+ *   nós. É a mais forte do painel porque é a única que se resolve sozinha se
+ *   alguém se mexer.
  * - `entregue` — recua. Um trabalho acabado não tem de ser a coisa mais forte no
  *   ecrã; deixou de precisar de atenção, e a cor diz isso.
  * - `parado` — `danger`, porque um projeto parado não é neutro: é uma coisa que
@@ -43,6 +49,9 @@ export const COR_ESTADO: Record<Estado, string> = {
   proposta: "border-border-strong text-muted",
   "em-curso": "border-accent/40 text-accent",
   "a-espera": "border-primary/50 text-primary",
+  /* `primary-ink` sobre `primary` é o par que docs/02 mede em 7.26:1 — não se
+     escreve texto em `ink` por cima do laranja. */
+  visita: "border-transparent bg-primary text-primary-ink",
   entregue: "border-border text-muted",
   parado: "border-danger/40 text-danger",
 };
@@ -54,6 +63,7 @@ export const COR_BARRA: Record<Estado, string> = {
   proposta: "bg-border-strong",
   "em-curso": "bg-accent",
   "a-espera": "bg-primary",
+  visita: "bg-primary-strong",
   entregue: "bg-border-strong",
   parado: "bg-danger",
 };
