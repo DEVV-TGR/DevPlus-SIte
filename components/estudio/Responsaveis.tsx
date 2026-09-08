@@ -1,5 +1,5 @@
 /** docs: docs/07-estudio.md */
-import type { Utilizador } from "@/lib/estudio/tipos";
+import { iniciais, type Utilizador } from "@/lib/estudio/tipos";
 
 /**
  * Quem está no projeto, em iniciais.
@@ -10,14 +10,6 @@ import type { Utilizador } from "@/lib/estudio/tipos";
  * mostrar uma bolinha era pagar caro por muito pouco. O `avatar_url` fica
  * guardado na base para o dia em que valha a pena.
  */
-
-function iniciais(nome: string): string {
-  const partes = nome.trim().split(/\s+/);
-  if (partes.length === 0) return "?";
-  if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
-  return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
-}
-
 export function Responsaveis({
   pessoas,
   vazio = "Sem ninguém atribuído",

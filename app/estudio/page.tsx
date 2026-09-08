@@ -22,6 +22,7 @@ import {
   formatarData,
   formatarEuros,
   hojeEmLisboa,
+  iniciais,
   proximaOcorrencia,
 } from "@/lib/estudio/tipos";
 import { cn } from "@/lib/utils";
@@ -344,14 +345,28 @@ export default async function Resumo() {
             <ul className="mt-5 space-y-3">
               {tarefas.map((t) => (
                 <li key={t.id}>
+                  {/* Aqui as tarefas são de leitura. Editar é na ficha do
+                      projeto — esta é a vista do que está por fazer em todo o
+                      lado, e um campo por linha fazia dela um formulário. */}
                   <Link
                     href={`/estudio/projetos/${t.projetoId}`}
-                    className="block rounded-lg p-1.5 transition-colors hover:bg-surface-2"
+                    className="flex items-start gap-2.5 rounded-lg p-1.5 transition-colors hover:bg-surface-2"
                   >
-                    <span className="block truncate text-sm">{t.texto}</span>
-                    <span className="block truncate text-xs text-muted">
-                      {t.projetoNome}
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm">{t.texto}</span>
+                      <span className="block truncate text-xs text-muted">
+                        {t.projetoNome}
+                      </span>
                     </span>
+                    {t.utilizadorNome ? (
+                      <span
+                        title={t.utilizadorNome}
+                        className="mt-0.5 grid h-6 min-w-6 shrink-0 place-items-center rounded-full border border-border-strong bg-surface-2 px-1.5 text-[0.625rem] font-medium text-ink"
+                      >
+                        <span aria-hidden>{iniciais(t.utilizadorNome)}</span>
+                        <span className="sr-only">{t.utilizadorNome}</span>
+                      </span>
+                    ) : null}
                   </Link>
                 </li>
               ))}

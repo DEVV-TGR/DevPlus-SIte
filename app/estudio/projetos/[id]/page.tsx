@@ -156,7 +156,11 @@ export default async function Projeto({
           </section>
 
           <section className={CARTAO}>
-            <Tarefas projetoId={projeto.id} tarefas={tarefas} />
+            <Tarefas
+              projetoId={projeto.id}
+              tarefas={tarefas}
+              pessoas={pessoas}
+            />
           </section>
         </div>
 

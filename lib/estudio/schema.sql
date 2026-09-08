@@ -83,6 +83,10 @@ create table if not exists projeto_responsaveis (
 create table if not exists tarefas (
   id          bigint generated always as identity primary key,
   projeto_id  bigint not null references projetos(id) on delete cascade,
+  -- Quem fica com ela. `null` = ainda ninguém. `on delete set null` e não
+  -- `cascade`: se alguém sair do estúdio, a tarefa fica — o trabalho não
+  -- desaparece com a pessoa.
+  utilizador_id bigint references utilizadores(id) on delete set null,
   texto       text not null,
   feita       boolean not null default false,
   ordem       integer not null default 0,
@@ -272,3 +276,16 @@ alter table gastos add constraint gastos_periodicidade_check
 -- dia isto se repetir com dados lá dentro, o caminho é outro: copiar para a
 -- nova, conferir, e só depois largar.
 drop table if exists mensalidades;
+
+-- 2026-09-08 · as tarefas passam a poder ter dono.
+alter table tarefas add column if not exists utilizador_id bigint;
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'tarefas_utilizador_fk') then
+    alter table tarefas add constraint tarefas_utilizador_fk
+      foreign key (utilizador_id) references utilizadores(id) on delete set null;
+  end if;
+end $$;
+
+create index if not exists tarefas_utilizador_idx on tarefas (utilizador_id);

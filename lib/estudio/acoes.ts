@@ -406,12 +406,46 @@ export async function juntarTarefa(form: FormData): Promise<void> {
   /* A tarefa nova entra no fim. `coalesce` porque a primeira de todas não tem
      máximo nenhum de que partir. */
   await consulta(
-    `insert into tarefas (projeto_id, texto, ordem)
-     values ($1, $2, coalesce((select max(ordem) + 1 from tarefas
-                                where projeto_id = $1), 0))`,
-    [projetoId, texto.trim()],
+    `insert into tarefas (projeto_id, texto, utilizador_id, ordem)
+     values ($1, $2, $3, coalesce((select max(ordem) + 1 from tarefas
+                                    where projeto_id = $1), 0))`,
+    [projetoId, texto.trim(), paraId(campo(form.get("utilizadorId"), 20))],
   );
 
+  revalidatePath(`/estudio/projetos/${projetoId}`);
+}
+
+/**
+ * Muda o texto de uma tarefa e quem fica com ela.
+ *
+ * Só existe na ficha do projeto. No resumo as tarefas são de leitura: aquilo é
+ * uma vista do que está por fazer em todo o lado, e um campo de edição por
+ * linha transformava-o num formulário gigante que ninguém pediu.
+ */
+export async function guardarTarefa(form: FormData): Promise<void> {
+  await requerSessao();
+
+  const id = paraId(campo(form.get("id"), 20));
+  const projetoId = paraId(campo(form.get("projetoId"), 20));
+  if (!id || !projetoId) return;
+
+  const texto = campo(form.get("texto"), LIMITES.tarefa);
+  /* Texto vazio não apaga a tarefa — deixa-a como estava. Apagar é um botão
+     próprio, e não uma consequência de limpar um campo sem querer. */
+  if (validarTarefa(texto)) return;
+
+  await consulta(
+    `update tarefas set texto = $3, utilizador_id = $4
+      where id = $1 and projeto_id = $2`,
+    [
+      id,
+      projetoId,
+      texto.trim(),
+      paraId(campo(form.get("utilizadorId"), 20)),
+    ],
+  );
+
+  revalidatePath("/estudio");
   revalidatePath(`/estudio/projetos/${projetoId}`);
 }
 

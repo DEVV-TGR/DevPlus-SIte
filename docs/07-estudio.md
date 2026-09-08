@@ -132,6 +132,24 @@ e pela ação. As regras são deliberadamente previsíveis em vez de espertas: c
 vírgula, a vírgula é o decimal; só com ponto, é decimal se tiver um ou dois
 dígitos a seguir e milhares nos outros casos.
 
+### As tarefas: a caixa marca, o texto edita
+
+São dois alvos de clique diferentes, e é de propósito. Antes o texto todo
+marcava como feita, e não havia onde carregar para corrigir uma tarefa mal
+escrita a não ser apagá-la e escrevê-la outra vez. Agora a caixa marca, e clicar
+no texto abre a edição — texto, quem fica com ela, e o apagar lá dentro.
+
+**O apagar mudou-se para dentro da edição.** Um botão de apagar ao lado de cada
+tarefa é um clique errado à espera de acontecer.
+
+**Editar existe só na ficha do projeto.** No resumo as tarefas são de leitura —
+aquilo é a vista do que está por fazer em todo o lado, e um campo de edição por
+linha transformava-a num formulário gigante que ninguém pediu. O dono vê-se nos
+dois sítios; muda-se num só.
+
+`on delete set null` no dono: se alguém sair do estúdio, a tarefa fica. O
+trabalho não desaparece com a pessoa.
+
 ### Objetivos: escreve-se o alvo, conta-se o resto
 
 "10 clientes até ao fim do ano." O alvo escreve-se; **o que já está feito é
@@ -431,6 +449,7 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | o que um cliente paga por mês          | é na ficha do **projeto** — a do cliente só mostra a soma                                        |
 | o cálculo do "ainda este mês"          | `proximaOcorrencia()` em `tipos.ts`; testa os meses de 30 e 31 dias e fevereiro                  |
 | o número de fatias do circular         | `MAX_FATIAS` e `tom()` em `GraficoCircular.tsx` — os tons espalham-se pelo total, não são fixos  |
+| a edição de tarefas                    | é só em `components/estudio/Tarefas.tsx` — o resumo mostra-as, não lhes mexe                     |
 | as métricas dos objetivos              | `METRICAS` em `tipos.ts`, o `check` do esquema **e** o `case` de `listarObjetivos()` em `dados.ts` |
 | a estrutura de uma página              | abre-a no browser e olha — a ordem das secções e a altura das caixas não se veem num diff        |
 | como se guarda dinheiro                | `lib/estudio/schema.sql` (`numeric`, nunca `float`) e as somas continuam em SQL                  |

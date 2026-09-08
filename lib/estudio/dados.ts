@@ -165,11 +165,15 @@ export async function listarTarefas(projetoId: number): Promise<Tarefa[]> {
     texto: string;
     feita: boolean;
     ordem: number;
+    utilizador_id: string | null;
+    utilizador_nome: string | null;
   }>(
-    `select id, projeto_id, texto, feita, ordem
-       from tarefas
-      where projeto_id = $1
-      order by feita asc, ordem asc, id asc`,
+    `select t.id, t.projeto_id, t.texto, t.feita, t.ordem,
+            t.utilizador_id, u.nome as utilizador_nome
+       from tarefas t
+       left join utilizadores u on u.id = t.utilizador_id
+      where t.projeto_id = $1
+      order by t.feita asc, t.ordem asc, t.id asc`,
     [projetoId],
   );
 
@@ -179,6 +183,8 @@ export async function listarTarefas(projetoId: number): Promise<Tarefa[]> {
     texto: l.texto,
     feita: l.feita,
     ordem: l.ordem,
+    utilizadorId: l.utilizador_id === null ? null : Number(l.utilizador_id),
+    utilizadorNome: l.utilizador_nome,
   }));
 }
 
@@ -413,11 +419,15 @@ export async function tarefasPorFazer(
     ordem: number;
     projeto_nome: string;
     estado: Estado;
+    utilizador_id: string | null;
+    utilizador_nome: string | null;
   }>(
     `select t.id, t.projeto_id, t.texto, t.feita, t.ordem,
-            p.nome as projeto_nome, p.estado
+            p.nome as projeto_nome, p.estado,
+            t.utilizador_id, u.nome as utilizador_nome
        from tarefas t
        join projetos p on p.id = t.projeto_id
+       left join utilizadores u on u.id = t.utilizador_id
       where t.feita = false
       order by case p.estado
                  when 'em-curso' then 0
@@ -438,6 +448,8 @@ export async function tarefasPorFazer(
     texto: l.texto,
     feita: l.feita,
     ordem: l.ordem,
+    utilizadorId: l.utilizador_id === null ? null : Number(l.utilizador_id),
+    utilizadorNome: l.utilizador_nome,
     projetoNome: l.projeto_nome,
     estadoProjeto: l.estado,
   }));

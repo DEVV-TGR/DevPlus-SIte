@@ -100,6 +100,9 @@ export type Tarefa = {
   texto: string;
   feita: boolean;
   ordem: number;
+  /** Quem fica com ela. `null` = ainda ninguém. */
+  utilizadorId: number | null;
+  utilizadorNome: string | null;
 };
 
 /**
@@ -432,4 +435,18 @@ export function progressoEscrito(o: Objetivo): string {
     return `${formatarEuros(o.feito)} de ${formatarEuros(o.alvo)}`;
   /* Sem casas decimais numa contagem: "6 de 10" e não "6,00 de 10,00". */
   return `${Math.round(o.feito)} de ${Math.round(o.alvo)}`;
+}
+
+/**
+ * As iniciais de um nome, para a bolinha de quem está atribuído.
+ *
+ * Vive aqui e não no componente porque é usada em dois sítios — nos
+ * responsáveis de um projeto e no dono de uma tarefa — e duas cópias disto
+ * divergiam à primeira pessoa com três nomes.
+ */
+export function iniciais(nome: string): string {
+  const partes = nome.trim().split(/\s+/).filter(Boolean);
+  if (partes.length === 0) return "?";
+  if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
+  return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
 }
