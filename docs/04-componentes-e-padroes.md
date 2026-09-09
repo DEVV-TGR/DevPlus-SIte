@@ -2,6 +2,10 @@
 doc: componentes-e-padroes
 fonte-de-verdade: codigo
 controla:
+  - lib/motion.ts
+  - components/home/ComoTrabalhamos.tsx
+  - components/home/ProvaCarrossel.tsx
+  - components/home/ServicosMostra.tsx
   - components/ui/Button.tsx
   - components/ui/Container.tsx
   - components/ui/Section.tsx
@@ -245,7 +249,7 @@ O que mudou, e o que fica como regra:
 | **Tipografia** | A escala vive em `globals.css` e o `vw` domina no telemóvel — ver `docs/02`. Nada de texto abaixo de 14px |
 | **Comprimento** | A homepage passou de 15,6 para 13,3 ecrãs. O `verificar-scroll.mjs --mobile` tem um teto por rota — é um **travão de regressão**, não uma meta: quem acrescentar uma secção sabe logo |
 | **Uma forma pode ter duas** | A `ComoTrabalhamos` é uma pilha de cards em computador e uma **fila horizontal** no telemóvel. Quatro cards sobrepostos num ecrã de 390px saíam pelas margens, e a pilha custava 2,8 ecrãs. É a mesma secção com a mesma informação e duas composições — e é o que a referência faz nesta mesma secção |
-| **Pin, mas curto** | O pin fica onde a referência o tem. O que encurta é o percurso: a folga no fim do `ProvaCarrossel` era um ecrã inteiro parado, e passa a 15% no telemóvel. O acordeão da `/servicos` **perde o pin**: lá está deitado, cabe num ecrã e meio, e o pin cobrava 3,4 ecrãs para mostrar o que já se via |
+| **Pin, mas curto** | O pin fica onde a referência o tem. O que encurta é o percurso: a folga de um ecrã inteiro no fim do `ProvaCarrossel` acabou — virou a **pausa** de toda a gente, que no telemóvel é um décimo de ecrã (ver "Cada secção pinada abre e fecha com uma pausa"). O acordeão da `/servicos` **perde o pin**: lá está deitado, cabe num ecrã e meio, e o pin cobrava 3,4 ecrãs para mostrar o que já se via |
 | **Toque** | 44px de área tocável. Consegue-se com `min-h-11` e `px`, sem mexer no desenho — e com `-mx`/`-my` a compensar, o elemento nem muda de sítio. A exceção é o link **dentro de uma frase**, que não se aumenta: abria buracos entre as linhas (WCAG 2.5.8) |
 | **Ordem de leitura** | O que é margem em computador cai no fluxo no telemóvel, **pela ordem do JSX**. No `/sobre` isso punha as cinco notas antes da primeira frase do texto. Notas de margem escrevem-se **intercaladas** e só depois vão para a margem com `lg:absolute` |
 | **O menu é um lugar** | Ecrã inteiro, links à escala dos títulos. E o header não pode ter `backdrop-blur` com ele aberto: um `backdrop-filter` cria bloco contentor para os `fixed` descendentes, e o painel ficava preso aos 64px do header |
@@ -307,6 +311,7 @@ uma medição a 120 fps sobre um site de referência, registada em
 | Curva | **`power2.out`** | `[0.22, 1, 0.36, 1]` |
 | Stagger entre irmãos | **0,15 s** | 0,06–0,08 s |
 | Deslocamento de entrada | **44 px** | 16 px |
+| Pausa de uma secção pinada | **0,35 ecrãs** (0,1 no telemóvel) | não havia |
 
 - **A opacidade e a posição têm durações diferentes de propósito.** O bloco acaba
   de aparecer aos 290 ms e continua a assentar até aos 475 ms. Com uma duração
@@ -395,6 +400,55 @@ uma medição a 120 fps sobre um site de referência, registada em
   verificada. **Não o alastres ao `<body>` nem a componentes:** aí um aviso destes é
   um bug a sério e tem de aparecer.
 - Hover em cards: `-translate-y-1` no grupo. Botões: `active:scale-[0.97]`.
+
+### Cada secção pinada abre e fecha com uma pausa
+
+As secções pinadas encadeavam-se sem respiro: cada uma começava a animar no
+instante em que a anterior acabava, e acabava no instante em que a seguinte
+começava. O primeiro card de uma secção já entrava enquanto a anterior ainda
+saía, e **não havia um momento em que se visse um capítulo parado e inteiro**.
+
+A pausa é um **tramo de scroll morto** nos dois extremos do pin: a página está
+presa, a animação não anda. Antes de arrancar mostra o capítulo por começar —
+o título sozinho, a primeira capa, o serviço 01 — e depois de acabar mostra-o
+inteiro, quieto, antes de a página deslizar para o seguinte.
+
+Três coisas que a definem:
+
+- **É espaço, não tempo.** Numa secção com `scrub` o relógio é a roda do rato.
+  O token conta-se em **ecrãs de scroll**, não em segundos.
+- **É igual em todas.** `ComoTrabalhamos`, `ProvaCarrossel`, `ServicosMostra` e
+  o `ServicosAcordeao` da `/servicos` usam o mesmo número. É gramática do site,
+  não afinação de uma secção — quem escrever a próxima chama `comPausa` e tem-na.
+- **Vem de `lib/motion.ts`.** O valor é `MOVIMENTO.pausa` e a aritmética é a
+  função `comPausa(animacao)`, que recebe o comprimento da animação em px e
+  devolve o `end` do trigger já com as duas pausas somadas, mais a conversão do
+  progresso de volta ao tramo do meio. **Não se escreve a pausa à mão** — havia
+  duas assim antes desta regra, uma em cada carrossel, e eram diferentes uma da
+  outra.
+
+Duas notas de quem a montou:
+
+- **Numa timeline a pausa da saída tem de ter um tramo que a ocupe.** O GSAP
+  encurta a timeline ao último tween, e o `scrub` volta a esticá-la até ao fim
+  do pin — a pausa desaparecia sozinha. O `ComoTrabalhamos` fecha com um
+  `tl.to({}, { duration: fracao })` só para isso.
+- **`comPausa` chama-se dentro do `end: () => …` e do `onUpdate`**, nunca uma
+  vez na montagem: a pausa é uma fração da altura do ecrã, e o ecrã muda de
+  tamanho e de breakpoint sem o componente voltar a montar.
+
+**O que isto custa em altura**, medido a 9 de setembro de 2026: a homepage passa
+de 13,4 para 14,5 ecrãs em computador, e de 13,3 para 13,5 no telemóvel — onde o
+travão do verificador está em 14. É por isso que a pausa do telemóvel é um
+décimo de ecrã e não 0,35: a 0,15 a página ia a 13,8, o que gastava a margem
+toda e deixava o travão a disparar ao primeiro que lhe tocasse. Em troca, a
+folga de um ecrã inteiro que o `ProvaCarrossel` tinha no fim desapareceu — era
+esta pausa, escrita à mão e só de um lado.
+
+E os postos do `Cruz` **não mexeram**: as fronteiras entre capítulos deslocaram-se
+menos de 0,04 do percurso, e nenhum posto mudou de capítulo — o de
+`--paper-muted` continua a cair a meio do creme do `ProvaCarrossel`. Foi medido,
+não presumido; ver a linha da tabela no fim deste doc.
 
 ### O que o GSAP custou a aprender
 
@@ -624,6 +678,9 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | os postos do `Cruz`              | são **dois** conjuntos: `POSTOS_PAGINA` e `POSTOS_MOBILE`. Em `vw`, o mesmo número é margem num ecrã de 1440 e centro num de 390 |
 | recolheres um testemunho          | `lib/testimonials.ts`; a secção aparece sozinha assim que o array deixar de estar vazio                  |
 | a duração ou o easing             | **`lib/motion.ts`** e a tabela de valores acima — os componentes leem de lá, não têm números próprios      |
+| a pausa de uma secção pinada      | `MOVIMENTO.pausa` / `pausaMovel` em **`lib/motion.ts`**, e nada nos componentes: eles chamam `comPausa`. Depois corre o verificador em `--mobile` — a pausa conta duas vezes por secção e a homepage tem teto |
+| acrescentares uma secção pinada nova | dá-lhe a pausa com `comPausa`, como as outras quatro. Uma secção que arranca no primeiro pixel do pin volta a colar-se à anterior |
+| o percurso de uma secção pinada   | volta a medir onde caem as fronteiras dos capítulos e confirma que os postos do `Cruz` não mudaram de capítulo — sobretudo o de `--paper-muted`, que só se lê sobre o creme |
 | introduzires um componente que anima | verifica `prefers-reduced-motion` dentro dele: o GSAP não o faz por ti                                   |
 | o espaçamento vertical            | `components/ui/Section.tsx`, não as páginas                                                               |
 | a largura máxima                  | `components/ui/Container.tsx`, não as páginas                                                             |

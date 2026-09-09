@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 import { useRef } from "react";
-import { gsap, ScrollTrigger, useGSAP, MOVIMENTO } from "@/lib/motion";
+import { gsap, ScrollTrigger, useGSAP, MOVIMENTO, comPausa } from "@/lib/motion";
 
 /**
  * Os quatro passos, em cards que **chegam com o scroll e se acumulam** por
@@ -89,23 +89,46 @@ export function ComoTrabalhamos() {
         const st = ScrollTrigger.create({
           trigger: raiz,
           start: "top top",
-          end: () => `+=${percurso() + window.innerHeight * 0.25}`,
+          /* Os 25% de ecrã que aqui sobravam no fim eram a mesma ideia da
+             pausa, escrita à mão e só de um lado. Agora são as duas, e vêm do
+             `MOVIMENTO`. */
+          end: () => `+=${comPausa(percurso()).total}`,
           pin: palco,
           scrub: 0.6,
           invalidateOnRefresh: true,
-          onUpdate: (self) =>
-            gsap.set(fila, { x: -self.progress * percurso(), force3D: true }),
+          onUpdate: (self) => {
+            const d = percurso();
+            gsap.set(fila, {
+              x: -comPausa(d).progresso(self.progress) * d,
+              force3D: true,
+            });
+          },
         });
         return () => st.kill();
       }
 
       gsap.set(cards, { opacity: 0, scale: 0.92 });
 
+      /* O leque ocupa 180% de ecrã, como sempre ocupou. O que é novo são as
+         duas pausas em volta: o título fica sozinho e parado antes de o
+         primeiro card chegar, e os quatro ficam parados e inteiros antes de a
+         página seguir. */
+      const percurso = () => comPausa(window.innerHeight * 1.8);
+      const { fracao } = percurso();
+
+      /* O ritmo dos cards está em unidades da timeline, e é o `scrub` que as
+         estica para caber no percurso. Por isso o que aqui se escreve são
+         **frações do percurso todo** — e a animação vale o que sobra depois de
+         tirar as duas pausas. */
+      const DUR = 0.6;
+      const PASSO = 0.7;
+      const escala = (1 - fracao * 2) / (PASSO * (cards.length - 1) + DUR);
+
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: raiz,
           start: "top top",
-          end: "+=180%",
+          end: () => `+=${percurso().total}`,
           pin: palco,
           scrub: 0.6,
         },
@@ -116,10 +139,15 @@ export function ComoTrabalhamos() {
       cards.forEach((c, i) => {
         tl.to(
           c,
-          { opacity: 1, scale: 1, duration: 0.6, ease: MOVIMENTO.ease },
-          i * 0.7,
+          { opacity: 1, scale: 1, duration: DUR * escala, ease: MOVIMENTO.ease },
+          fracao + i * PASSO * escala,
         );
       });
+
+      /* A pausa da saída tem de estar **na** timeline: sem um tramo que a
+         ocupe, o GSAP encurta-a ao último card e o `scrub` volta a esticar
+         tudo até ao fim do pin — a pausa desaparecia sozinha. */
+      tl.to({}, { duration: fracao }, 1 - fracao);
     },
     { scope: ref },
   );

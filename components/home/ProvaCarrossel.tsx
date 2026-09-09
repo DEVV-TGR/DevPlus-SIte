@@ -4,7 +4,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
-import { gsap, ScrollTrigger, useGSAP } from "@/lib/motion";
+import { gsap, ScrollTrigger, useGSAP, comPausa } from "@/lib/motion";
 import { Button } from "@/components/ui/Button";
 import { projects } from "@/lib/projects";
 
@@ -39,20 +39,27 @@ export function ProvaCarrossel() {
       }
 
       const percurso = () => Math.max(0, fila.scrollWidth - window.innerWidth);
-      const movel = () => window.matchMedia("(max-width: 767px)").matches;
 
+      /* A folga que aqui estava no fim — um ecrã inteiro em computador, 15% no
+         telemóvel — era uma pausa de saída feita à mão, e só desta secção.
+         Passou a ser a pausa de todas as secções pinadas, vem do
+         `MOVIMENTO.pausa`, e agora há outra igual **antes**: o cabeçalho e a
+         primeira capa ficam parados um momento antes de a fila arrancar. */
       const st = ScrollTrigger.create({
         trigger: raiz,
         start: "top top",
-        /* A folga no fim era um ecrã inteiro: em desktop é a pausa depois do
-           último projeto, no telemóvel eram 844px de scroll com a fila já
-           parada. Lá basta 40% — a secção passa de 4 ecrãs para 3. */
-        end: () => `+=${percurso() + window.innerHeight * (movel() ? 0.15 : 1)}`,
+        end: () => `+=${comPausa(percurso()).total}`,
         pin: palco,
         scrub: 0.8,
         invalidateOnRefresh: true,
-        onUpdate: (self) =>
-          gsap.set(fila, { x: -self.progress * percurso(), force3D: true }),
+        onUpdate: (self) => {
+          /* O `scrollWidth` custa um reflow: mede-se uma vez por frame. */
+          const d = percurso();
+          gsap.set(fila, {
+            x: -comPausa(d).progresso(self.progress) * d,
+            force3D: true,
+          });
+        },
       });
 
       return () => st.kill();

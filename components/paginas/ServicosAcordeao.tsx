@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 import { useCallback, useRef } from "react";
-import { ScrollTrigger, useGSAP } from "@/lib/motion";
+import { ScrollTrigger, useGSAP, comPausa } from "@/lib/motion";
 import { Logo } from "@/components/Logo";
 import { services } from "@/lib/services";
 
@@ -86,21 +86,23 @@ export function ServicosAcordeao() {
         return;
       }
 
+      /* Os 240% são o percurso das seis colunas. À volta deles ficam as duas
+         pausas do `comPausa`, como em qualquer secção pinada: a primeira
+         coluna fica aberta e parada antes de a passagem começar, e a última
+         fica aberta e parada depois de ela acabar. */
+      const animacao = () => window.innerHeight * 2.4;
+
       const st = ScrollTrigger.create({
         trigger: raiz,
         start: "top top",
-        end: "+=240%",
+        end: () => `+=${comPausa(animacao()).total}`,
         pin: palco,
         scrub: 0.6,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
           if (performance.now() < manual.current) return;
-          abrir(
-            Math.min(
-              services.length - 1,
-              Math.floor(self.progress * services.length),
-            ),
-          );
+          const p = comPausa(animacao()).progresso(self.progress);
+          abrir(Math.min(services.length - 1, Math.floor(p * services.length)));
         },
       });
 

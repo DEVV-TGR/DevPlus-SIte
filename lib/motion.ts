@@ -72,6 +72,69 @@ export const MOVIMENTO = {
    * o defeito.
    */
   escalaDe: 0.94,
+
+  /**
+   * A **pausa** de uma secção pinada, em ecrãs de scroll: o tramo morto antes
+   * de a animação arrancar, e outro igual depois de ela acabar.
+   *
+   * Não é tempo. Numa secção com `scrub` o relógio é a roda do rato, por isso
+   * a pausa mede-se em espaço — 0,35 de um ecrã de scroll com a página presa
+   * e nada a mexer.
+   *
+   * Existe porque os capítulos se encadeavam sem respiro: cada um começava a
+   * animar no instante em que o anterior acabava, e o primeiro card de uma
+   * secção já entrava enquanto a anterior ainda saía. Nunca havia um momento
+   * em que se visse **um capítulo parado e inteiro** — que é o que a pausa da
+   * saída mostra, e o que a da entrada anuncia.
+   */
+  pausa: 0.35,
+
+  /**
+   * A mesma pausa no telemóvel, e é mais curta por aritmética: são três
+   * secções pinadas, cada pausa conta duas vezes, e a homepage tem um teto de
+   * ecrãs que o `scripts/verificar-scroll.mjs` guarda. Medido: a 0,35 a página
+   * ia a 15 ecrãs; a 0,15 ficava em 13,8 contra um teto de 14, o que gastava a
+   * margem toda e deixava o travão a disparar ao primeiro que lhe tocasse. Um
+   * décimo de ecrã são ~84px de pausa num iPhone, e a página fica em 13,5.
+   */
+  pausaMovel: 0.1,
 } as const;
+
+/**
+ * O percurso de uma secção pinada, **com a pausa nos dois extremos**.
+ *
+ * Recebe o comprimento da animação em px — o que a secção precisa para contar
+ * o que tem — e devolve o `end` já com as duas pausas somadas, mais a
+ * conversão do progresso do trigger de volta ao tramo do meio.
+ *
+ * Chama-se **dentro** do `end: () => …` e do `onUpdate`, nunca uma vez na
+ * montagem: a pausa é uma fração da altura do ecrã, e o ecrã muda de tamanho e
+ * de breakpoint sem o componente voltar a montar.
+ */
+export function comPausa(animacao: number) {
+  const pausa =
+    window.innerHeight *
+    (window.matchMedia("(max-width: 767px)").matches
+      ? MOVIMENTO.pausaMovel
+      : MOVIMENTO.pausa);
+  const total = animacao + pausa * 2;
+
+  return {
+    /** O percurso todo, em px. É isto que vai para o `end` do trigger. */
+    total,
+    /**
+     * A pausa em fração do percurso, para quem escreve a animação numa
+     * timeline: lá as durações são relativas, e o `scrub` estica-as para caber
+     * no percurso todo.
+     */
+    fracao: pausa / total,
+    /**
+     * O progresso do trigger recortado à animação: fica em 0 enquanto a pausa
+     * de entrada corre, e em 1 durante a de saída.
+     */
+    progresso: (p: number) =>
+      animacao > 0 ? gsap.utils.clamp(0, 1, (p * total - pausa) / animacao) : 0,
+  };
+}
 
 export { gsap, ScrollTrigger, useGSAP };
