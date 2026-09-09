@@ -236,27 +236,6 @@ export default function ServicosPage() {
           </div>
         </Container>
       </Section>
-
-      <Section top={false} className="relative">
-        <Container>
-          <Reveal>
-            <div className="rounded-2xl border border-border bg-surface p-8 text-center sm:p-12">
-              <h2 className="t-seccao mx-auto max-w-lg font-display font-extrabold">
-                Tens um projeto em mente?
-              </h2>
-              <p className="mx-auto mt-3 max-w-md text-muted">
-                Conta-nos o que tens em mente, mesmo que ainda seja só uma
-                ideia. Damos-te notícias depressa.
-              </p>
-              <div className="mt-6 flex justify-center">
-                <Button href="/contacto" variant="primary">
-                  Começar a conversa
-                </Button>
-              </div>
-            </div>
-          </Reveal>
-        </Container>
-      </Section>
     </>
   );
 }

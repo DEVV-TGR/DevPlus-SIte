@@ -7,6 +7,7 @@ controla:
   - components/ui/Section.tsx
   - components/ui/ProjectCard.tsx
   - components/Reveal.tsx
+  - components/Fecho.tsx
   - components/Marquee.tsx
   - components/ProjectsMarquee.tsx
   - components/PageHero.tsx
@@ -41,7 +42,7 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | ----------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | `ui/Container`    | largura máxima (`max-w-6xl`) e padding lateral                             | criar outro wrapper de largura                                                             |
 | `ui/Section`      | espaçamento vertical entre blocos; `top`/`bottom` desligam cada metade      | pôr padding vertical à mão, ou tentar anulá-lo com `pt-0` — ver abaixo                     |
-| `ui/Button`       | 3 variantes: `primary`, `outline`, `ghost`                                 | usar `<a>` cru com classes de botão; links externos já são detetados pelo `http` no `href` |
+| `ui/Button`       | 4 variantes: `primary`, `outline`, `ghost`, `contraste` (esta só sobre o ground laranja) | usar `<a>` cru com classes de botão; links externos já são detetados pelo `http` no `href`; e usar o `primary` sobre o laranja, onde ele desaparece |
 | `ui/ProjectCard`  | um projeto na grelha (capa, etiquetas, serviços)                           | duplicar o card noutra página                                                              |
 | `Reveal`          | aparecer no scroll (fade + 16px)                                           | envolver cada elemento; envolve o bloco                                                    |
 | `Marquee`         | faixa horizontal infinita, decorativa                                      | pôr lá conteúdo que importe — é `aria-hidden`                                              |
@@ -57,7 +58,7 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `home/ProvaCarrossel`  | o trabalho feito, em fila horizontal com a página presa                | usá-lo para hierarquia; lateral lê-se como alcance, não como ordem                          |
 | `home/ServicosMostra`  | os serviços um de cada vez                                            | catalogar aqui os seis — a página inicial apresenta, a `/servicos` cataloga                |
 | `home/Pacotes`    | por onde um projeto começa                                                 | escrever preços; saem de proposta, ver `docs/05`                                            |
-| `home/Fecho`      | o convite, no fim                                                          | deixá-lo esbater-se para o rodapé                                                          |
+| `Fecho`           | o convite, e é a **cabeça do rodapé** — não uma secção antes dele           | usá-lo fora do `Footer`, ou pôr um segundo CTA neste bloco: é o defeito que ele veio corrigir |
 | `Hero` *(sem uso)* | era a capa antiga                                                         | —                                                                                          |
 | `Testimonials`    | o que os clientes dizem, na homepage a seguir aos serviços                 | inventar a frase de um cliente para encher a secção — ver abaixo                           |
 | `Wordmark`        | o logótipo com link para "/"                                               | ver `docs/03`                                                                              |
@@ -96,10 +97,12 @@ diferente**, e é essa a regra que agora governa esta página:
 | 2 | A prova | Fila horizontal, com a página presa | Lateral lê-se como **alcance**; vertical lê-se como argumento. Aqui não se argumenta |
 | 3 | Serviços | Um de cada vez, número enorme, navegação em círculos | Uma lista lê-se; isto **opera-se**, e quem procura um serviço salta-lhe em cima |
 | 4 | Por onde começar | Grelha de pacotes: três e um caminho | O quarto não é um card, é a saída para quem não se revê nos três |
-| 5 | O convite | Fecho quente, que resolve | A última sensação é a que se leva |
 
-**Seis formas, zero repetidas.** Se acrescentares um capítulo, ele traz uma
+**Cinco formas, zero repetidas.** Se acrescentares um capítulo, ele traz uma
 forma nova ou não entra.
+
+O convite era o capítulo 5 desta tabela e **deixou de viver aqui**: é hoje o
+rodapé inteiro, igual nas seis páginas. Ver "O fim do site é um bloco só".
 
 Os grounds mudam por capítulo com cortes duros, separados por `Curva` — ver os
 tokens em `docs/02`. O `Cruz` é a única coisa que atravessa todos.
@@ -192,6 +195,96 @@ desapareciam. Por isso a prop **`ground="claro"`** troca o acento para
 O `ground` não se deduz do `de` porque o `de` é uma string de CSS que o servidor
 não resolve. Hoje há **uma só** passagem clara em todo o site: a terceira da
 página inicial.
+
+### O fim do site é um bloco só
+
+Setembro de 2026, issue #73. A página inicial **acabava duas vezes**: a
+`home/Fecho` — ground laranja, um convite, dois botões — e logo a seguir o
+rodapé, com outro título de convite ("Vamos somar ao teu próximo projeto"),
+outro botão para `/contacto` e só depois a navegação. Dois grounds, dois
+títulos, dois CTAs para o mesmo sítio, um a seguir ao outro. E, depois de uma
+página inteira de capítulos com movimento, o último capítulo era o único
+completamente parado.
+
+Hoje é **um bloco só**, e é o mesmo nas seis páginas: a `Curva` para o laranja,
+o convite (`components/Fecho.tsx`) e, **no mesmo ground**, a navegação, as redes
+e o legal. O corte entre o laranja e o rodapé deixou de se ver porque deixou de
+haver dois grounds — não é uma emenda melhor feita, é uma emenda que não existe.
+
+| | |
+| --- | --- |
+| Onde vive | `components/Footer.tsx`, montado uma vez em `app/layout.tsx` |
+| Quem anima | `components/Fecho.tsx`, o único cliente do bloco |
+| O ground | `--primary`, com a `Curva` a trazê-lo de `--bg` |
+| O CTA | **um**: "Começar a conversa". O email fica por baixo, a fazer o segundo caminho |
+
+**A `Curva` mudou de dono.** Estava na `app/page.tsx`, ao lado do `Fecho`;
+passou para dentro do `Footer`. Por isso o `de` é `var(--bg)` e é o mesmo em
+todas as páginas — **as seis acabam num ground `--bg`**, e se alguma passar a
+acabar noutro, é a metade de cima daquele SVG que denuncia.
+
+#### O que resolve, resolve com movimento
+
+Quatro gestos, e nenhum deles é a condição de o conteúdo existir:
+
+1. **O título sobe de dentro de uma máscara**, uma linha de cada vez. O `h2`
+   continua a ser um elemento só — quem lê com leitor de ecrã recebe a frase
+   inteira; as máscaras são `span`s por dentro.
+2. **A poeira de "+" converge para a régua** que fecha o convite, e a régua
+   desenha-se com ela. É a peça que o `Cruz` andou a atravessar a página a
+   pousar: o gesto do site **resolve** em vez de desvanecer.
+3. **O subtítulo, o CTA e o email chegam a seguir**, com o `stagger` da casa.
+4. **A zona de baixo entra em `Reveal`**, escalonada — o bloco continua a
+   acontecer depois da régua.
+
+E dois que respondem ao rato, não ao scroll: o "+" do CTA roda 90° no hover
+(a mesma coisa que o `Lockup` faz), e o botão inverte para creme.
+
+**A viagem da poeira mede-se até `"max"`, não até ao fim da banda.** A banda tem
+70svh: entre estar toda visível e o fundo dela chegar ao fim do ecrã há menos de
+200px de scroll, portanto com `end: "bottom bottom"` a poeira espalhada **nunca
+se via** — quem chegasse ao convite já a apanhava reunida. Com `end: "max"` a
+viagem acaba exatamente quando a página acaba, que é o que ela quer dizer.
+
+**A poeira tem as mesmas três regras da `Curva`**, e uma quarta que é só dela:
+
+1. Nada de rotações perto de 45° — um "+" a meio caminho é um X.
+2. A geometria vem do `Logo`, nunca se redesenha à mão (`docs/03`).
+3. Vive **fora** de qualquer SVG esticado, em caixas quadradas.
+4. **Nenhuma semente passa de 0,22 de opacidade**, porque ela passa por trás do
+   texto a caminho da régua e escurece o ground debaixo dele. Os números estão
+   no `docs/02`: a 0,22, o `paper-ink` cai a 4.18:1 e falha, o `primary-ink`
+   fica em 4.81:1 — e é por isso que o texto do convite é todo `primary-ink`.
+
+Com `prefers-reduced-motion` a poeira fica onde foi semeada, a régua está
+desenhada e o convite lê-se inteiro. O que não há é a viagem.
+
+#### O "+" da página mergulha por baixo do laranja
+
+O `Cruz` é uma camada `fixed` em `z-0` e o rodapé é um ground **opaco**: no
+último ecrã o "+" da página não se vê, faça ele o que fizer. Isso não é uma
+avaria a corrigir com `z-index` — pô-lo por cima do laranja era pô-lo por cima
+do CTA. O último posto passou a **descer e crescer**, como quem passa por baixo,
+e quem continua o gesto do outro lado é a poeira do `Fecho`.
+
+Duas consequências práticas: o último posto do `POSTOS_HOME` voltou a
+`--primary` (o creme servia para marca-d'água **sobre** o laranja, e já não há
+laranja nenhum onde pousar), e o `verificar-scroll.mjs` continua a dizer "anda
+até ao fim" porque o que ele mede são as variáveis do gesto, não a visibilidade.
+
+#### Três coisas que este bloco custou a aprender
+
+- **`translate` e `transform` não são a mesma propriedade.** A poeira centra-se
+  com `translate: -50% -50%` (a propriedade CSS) e o GSAP escreve o `transform`
+  — as duas somam-se sem se pisarem. Com o `-translate-x-1/2` do Tailwind, o
+  primeiro `gsap.set` apagava a centragem e a poeira saltava meio símbolo.
+- **Uma máscara de linha corta as descidas.** Com `line-height: 0.95`, o "q" de
+  "que" passa a linha de base e o `overflow-hidden` come-lhe o rabo. O par
+  `pb-[0.14em] -mb-[0.14em]` devolve o espaço sem mexer no ritmo.
+- **A 390px o título partia-se no hífen.** "Conta-nos o que" não cabe, e o único
+  sítio por onde a linha quebrava era **dentro da palavra**: o convite abria com
+  "Conta-" sozinho. O `whitespace-nowrap` no "Conta-nos" resolve, e não se vê no
+  texto que o leitor de ecrã recebe.
 
 ### As páginas interiores também têm forma própria
 
@@ -608,6 +701,9 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | --------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | criares um primitivo novo         | acrescenta-o à tabela acima                                                                               |
 | a ordem ou a forma das secções    | `app/page.tsx` **e** a tabela em "A homepage conta uma história" — uma forma repetida é o defeito que ela existe para travar |
+| o fecho, o rodapé ou o convite    | `components/Fecho.tsx` e `components/Footer.tsx` são **o mesmo bloco** — mexer num sem olhar para o outro é como o #73 nasceu. E o texto é de marca: ver `docs/01` |
+| o ground em que uma página acaba  | o `de` da `Curva` que abre o `Footer` — ele é um só e serve as seis páginas |
+| a poeira do `Fecho`               | nenhuma semente acima de 0,22 e nenhuma rotação perto de 45°; se subires a opacidade, volta a medir o texto por cima — os números estão no `docs/02` |
 | as ilustrações da homepage        | volta a correr `python3 scripts/otimizar-ilustra.py <ficheiro>`; PNG por otimizar não entram em `public/` |
 | qualquer coisa com scroll         | corre `node scripts/verificar-scroll.mjs` nas três passagens (normal, `--mobile`, `--reduzido`)          |
 | a ligação do Lenis ao GSAP        | rola com a **roda do rato** antes de dar por bom — o `window.scrollTo` é nativo e passa ao lado da avaria |

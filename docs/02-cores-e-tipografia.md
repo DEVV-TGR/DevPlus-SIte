@@ -74,6 +74,8 @@ Fica aqui registado para ninguém voltar a discutir isto por instinto:
 | `primary` sobre `bg`          | 7.45:1  | passa AA                                   |
 | `accent` sobre `bg`           | 10.12:1 | passa AA                                   |
 | `primary-ink` sobre `primary` | 7.26:1  | passa AA                                   |
+| `paper-ink` sobre `primary`   | 6.07:1  | passa AA — é o tom de apoio sobre o laranja |
+| `paper-muted` sobre `primary` | 2.95:1  | **falha** — parece o candidato óbvio e não é |
 | `danger` sobre `bg`           | 6.27:1  | passa AA                                   |
 | `border` sobre `bg`           | 1.49:1  | **falha** os 3:1 de 1.4.11 — só decorativo |
 | `border-strong` sobre `bg`    | 3.56:1  | passa 1.4.11 — é o dos controlos           |
@@ -82,6 +84,25 @@ O texto do site **não tem problema de contraste em lado nenhum**, incluindo em
 `muted`. O único falhanço era a `border` a servir de contorno a campos e ao botão
 `outline`, onde é a única forma de perceber que ali existe um controlo — daí o
 `border-strong`.
+
+### O ground laranja tem duas tintas, e uma delas depende do que está por baixo
+
+O rodapé é o único bloco do site com texto sobre `--primary` (ver `docs/01`), e
+lá há duas medições a respeitar:
+
+- **`paper-ink` é o tom de apoio** sobre o laranja, e `paper-muted` **não serve**
+  — 2.95:1. Sobre o creme são estes dois que fazem par; sobre o laranja só o
+  primeiro atravessa.
+- **O laranja do convite não está limpo.** A poeira de "+" do `Fecho` passa por
+  trás do texto, e um símbolo a 0,22 de opacidade escurece o ground debaixo dele:
+  aí o `paper-ink` cai a **4.18:1** e falha, e o `primary-ink` fica em 4.81:1. Por
+  isso o texto do convite é todo `primary-ink` e a hierarquia faz-se por tamanho
+  e peso — que é a regra geral deste doc, aqui por obrigação e não por gosto. O
+  `paper-ink` fica para a zona de baixo do rodapé, onde a poeira não chega.
+
+**Transparências sobre o laranja medem-se sempre.** `primary-ink/85` dá 5.86:1 e
+passa; `primary-ink/70` dá 4.31:1 e falha por pouco. É por isso que a regra do
+`docs/04` diz "escuro e **opaco**".
 
 ## Os hex duplicados — e porquê
 
@@ -197,6 +218,7 @@ suavidade que essa estrutura existe para recusar. Ver `docs/04`.
 | `--paper` | o capítulo da prova | O trabalho lê-se melhor sobre claro, e a mudança marca que ali se mostra em vez de se argumentar |
 | `--paper-ink` | texto sobre `--paper` | 12.6:1 |
 | `--paper-muted` | apoio sobre `--paper` | 6.1:1 |
+| `--primary` | o fecho, que é o rodapé inteiro | O último ground do site, e o único quente. Ver `docs/01` |
 
 **`--paper` nunca se usa sozinho.** Sobre creme, o `--ink` é invisível: quem
 usa o fundo usa também a tinta que lhe pertence. É por isso que são quatro
@@ -214,5 +236,6 @@ tokens e não dois.
 
 | um dos grounds dos capítulos       | `app/globals.css` **e** a tabela "Os grounds dos capítulos" acima            |
 | `--paper`                          | verifica `--paper-ink` e `--paper-muted` no mesmo passo — vivem em par        |
+| `--primary` (o ground do rodapé)   | volta a medir as duas tintas sobre ele **e** o pior caso com a poeira do `Fecho` por baixo — a secção "O ground laranja tem duas tintas" tem os números |
 | a medida de um título              | `t-capa` / `t-seccao` / `t-obra` em `app/globals.css`, e a tabela acima — não escrevas um `clamp` novo num componente sem dizer porquê |
 | a escala do corpo em telemóvel     | o bloco `@media (max-width: 767px)` de `app/globals.css`; e corre o verificador em `--mobile`, que falha abaixo de 14px |

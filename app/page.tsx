@@ -5,7 +5,6 @@ import { ComoTrabalhamos } from "@/components/home/ComoTrabalhamos";
 import { ProvaCarrossel } from "@/components/home/ProvaCarrossel";
 import { ServicosMostra } from "@/components/home/ServicosMostra";
 import { Pacotes } from "@/components/home/Pacotes";
-import { Fecho } from "@/components/home/Fecho";
 import { Testimonials } from "@/components/Testimonials";
 import { pageMetadata } from "@/lib/seo";
 
@@ -14,7 +13,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata({ path: "/" });
 
 /**
- * A página inicial: seis capítulos, e **cada um com uma forma diferente**.
+ * A página inicial: cinco capítulos, e **cada um com uma forma diferente**.
  *
  * A versão anterior tinha sete secções que eram todas a mesma: título grande,
  * texto, uma coisa por baixo. Mudava a cor e o conteúdo, mas o molde era o
@@ -28,7 +27,12 @@ export const metadata = pageMetadata({ path: "/" });
  * | 2 | A prova            | Fila horizontal, com a página presa               |
  * | 3 | Serviços           | Um de cada vez, com navegação em círculos         |
  * | 4 | Por onde começar   | Grelha de pacotes, três e um caminho              |
- * | 5 | O convite          | Fecho quente, que resolve                         |
+ *
+ * O sexto capítulo — **o convite** — deixou de viver aqui. Era a `home/Fecho`
+ * seguida do rodapé, e isso fazia a página acabar duas vezes: dois grounds,
+ * dois títulos de convite, dois CTAs para `/contacto`. Hoje é o rodapé inteiro
+ * (`components/Footer.tsx`), e a `Curva` que trazia o laranja foi com ele — por
+ * isso as seis páginas do site acabam da mesma maneira. Ver docs/04.
  *
  * Os grounds mudam por capítulo, com cortes duros: numa página de capítulos um
  * corte não é um gradiente. O `Cruz` é a única coisa que os atravessa a todos.
@@ -54,9 +58,6 @@ export default function Home() {
 
       {/* Não renderiza nada enquanto não houver frases reais — ver docs/04. */}
       <Testimonials />
-
-      <Curva forma="a" de="var(--bg)" cor="var(--primary)" />
-      <Fecho />
     </>
   );
 }

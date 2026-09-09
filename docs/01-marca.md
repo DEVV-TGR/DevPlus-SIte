@@ -28,9 +28,14 @@ texto corrido**: páginas, metadata, emails, propostas.
 Errado, sempre: ~~Dev Plus~~, ~~devplus~~, ~~DEV+~~, ~~Devplus~~, ~~D+~~.
 
 O "+" não é decoração: significa o que acrescentamos a cada projeto. É de onde vem
-a linha do rodapé ("Vamos somar ao teu próximo projeto") e o destaque do h1
-("Web design que **soma** ao teu negócio"). Copy nova pode jogar com _somar_,
-_acrescentar_, _mais_ — mas sem forçar. Uma piada de "+" por página é o limite.
+o destaque do h1 ("Web design que **soma** ao teu negócio"). Copy nova pode jogar
+com _somar_, _acrescentar_, _mais_ — mas sem forçar. Uma piada de "+" por página
+é o limite.
+
+> A linha "Vamos somar ao teu próximo projeto" era o segundo exemplo disto e
+> **saiu em setembro de 2026**: era o título do rodapé, e ficava a três centímetros
+> de outro convite com outro CTA para o mesmo sítio. O site passou a ter um
+> convite só — ver "O rodapé é o fecho do site", abaixo.
 
 ## Os dados
 
@@ -171,7 +176,7 @@ uma destas, procura no repositório quantas vezes já lá está:
 | -------------------------- | -------------------------------------------- |
 | "de raiz" / "sem templates" | uma vez, em `/sobre`                        |
 | "24 a 48 horas úteis"      | `/contacto` e o estado de sucesso do formulário |
-| "Falar connosco"           | o botão fixo da navegação e o do rodapé; nos CTA dentro das páginas, varia |
+| "Falar connosco"           | **só** o botão fixo da navegação — o do rodapé desapareceu com o fecho novo, e o CTA de lá é "Começar a conversa"; nos CTA dentro das páginas, varia |
 
 ## Metadata
 
@@ -309,6 +314,25 @@ da Política de Privacidade. Três regras:
   cria a aparência de cumprimento, que é o pior dos dois mundos, porque o
   consumidor que clica não encontra a entidade.
 
+## O rodapé é o fecho do site
+
+Setembro de 2026. O rodapé deixou de ser a caixa de links que vem depois do
+conteúdo: é **o fim do percurso**, e é igual nas seis páginas — a `Curva` para o
+laranja, o convite (`components/Fecho.tsx`), e por baixo, no mesmo ground, a
+navegação, as redes e o legal. A forma e o movimento estão no `docs/04`; o que é
+de marca fica aqui:
+
+- **Um convite, um CTA.** Antes eram dois títulos de convite e dois botões para
+  `/contacto` seguidos — o do `home/Fecho` e o do rodapé. Se acrescentares um
+  segundo CTA a este bloco, estás a reabrir o defeito.
+- **O email e as redes vêm de `lib/site.ts`**, como em todo o lado.
+- **A marca aqui é o símbolo isolado, não o lockup.** O "+" do `Lockup` é sempre
+  `--primary` (`docs/03`), e sobre o ground laranja isso deixa de ser um logótipo
+  e passa a ser um buraco no "D". O `Logo` pinta em `currentColor` — é a variante
+  que o `docs/03` já prevê para fundos onde o laranja não se lê.
+- **O Livro de Reclamações continua no rodapé**, pela mesma razão de sempre: tem
+  de estar em todas as páginas sem ser preciso procurar.
+
 ## Ao alterar este documento
 
 | Se mudares…                                      | Faz também                                                                                                                                           |
@@ -326,6 +350,7 @@ da Política de Privacidade. Três regras:
 | passar a haver sede ou sociedade constituída     | `lib/site.ts`, o `address` em `components/JsonLd.tsx`, e a identificação (designação social, NIF, morada) em `app/privacidade/page.tsx` — no mesmo PR |
 | passar a haver selo oficial do Livro de Reclamações | põe o ficheiro em `public/`, troca o texto pelo selo em `components/Footer.tsx` — descarregado da plataforma, nunca redesenhado                    |
 | a forma de escrever o nome                       | `docs/03` (o lockup) e o `aria-label` em `components/Wordmark.tsx`                                                                                   |
+| o convite do fecho (título, subtítulo ou CTA)    | `components/Fecho.tsx` — é o único convite do site, e a forma dele está no `docs/04`. Se o puseres a dizer o mesmo que outro CTA da página, é o defeito do #73 outra vez |
 | o tom de voz                                     | revê `components/Hero.tsx`, `app/sobre/page.tsx` e os `blurb` em `lib/services.ts`                                                                   |
 | a morada, o telefone ou qualquer dado da empresa | `lib/site.ts` **e** `components/JsonLd.tsx` — os dados estruturados dizem ao Google quem é a DevPlus, e uma divergência ali é pior do que a ausência |
 
