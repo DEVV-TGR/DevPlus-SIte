@@ -1,7 +1,9 @@
 /** docs: docs/07-estudio.md */
 import { consulta, consultaUma } from "@/lib/estudio/db";
+import { vencimentosAte } from "@/lib/estudio/tipos";
 import type {
   Cliente,
+  Cobranca,
   ContasProjeto,
   Estado,
   Gasto,
@@ -11,6 +13,7 @@ import type {
   Periodicidade,
   Projeto,
   ProjetoLeve,
+  Recebimento,
   Receita,
   Tarefa,
   TipoReceita,
@@ -518,6 +521,128 @@ export async function receitasDoCliente(
 }
 
 /* --------------------------------------------------------------------------
+   Cobranças — os vencimentos que já chegaram e ainda não foram pagos
+
+   A `receitas` diz o que está contratado; a `recebimentos` diz o que já entrou.
+   O que falta entre as duas é uma cobrança por fazer, e é o que faz um
+   alojamento anual voltar a pedir atenção um ano depois de ter sido pago.
+
+   **A conta faz-se em JavaScript e não em SQL**, ao contrário das somas de
+   dinheiro. Não é distração: aqui não se somam euros, geram-se datas — e gerar
+   uma série de vencimentos com meses de 28 a 31 dias em SQL dava uma consulta
+   que ninguém voltava a ler. O `vencimentosAte()` de `lib/estudio/tipos.ts` é o
+   mesmo que a ficha do projeto usa, para as duas páginas não poderem discordar.
+   -------------------------------------------------------------------------- */
+
+type LinhaCobranca = {
+  id: string;
+  projeto_id: string;
+  projeto_nome: string;
+  cliente_id: string | null;
+  cliente_nome: string | null;
+  tipo: TipoReceita;
+  valor: string;
+  periodicidade: Periodicidade;
+  desde: string;
+  ate: string | null;
+  pagos: string[];
+};
+
+const DE_COBRANCAS = `
+  select r.id, r.projeto_id, p.nome as projeto_nome, p.cliente_id,
+         c.nome as cliente_nome, r.tipo, r.valor, r.periodicidade,
+         to_char(r.desde, 'YYYY-MM-DD') as desde,
+         to_char(r.ate,   'YYYY-MM-DD') as ate,
+         coalesce((select array_agg(to_char(x.vencimento, 'YYYY-MM-DD'))
+                     from recebimentos x where x.receita_id = r.id),
+                  '{}') as pagos
+    from receitas r
+    join projetos p on p.id = r.projeto_id
+    left join clientes c on c.id = p.cliente_id`;
+
+/**
+ * O que há para cobrar dos alojamentos e domínios, do mais antigo ao mais
+ * recente — o mais antigo primeiro porque é o que está à espera há mais tempo.
+ *
+ * Sem `projetoId` são as de todos os projetos, que é o que o resumo mostra.
+ */
+export async function cobrancasPorReceber(
+  hoje: string,
+  projetoId?: number,
+): Promise<Cobranca[]> {
+  const linhas = await consulta<LinhaCobranca>(
+    `${DE_COBRANCAS} where $1::bigint is null or r.projeto_id = $1`,
+    [projetoId ?? null],
+  );
+
+  const cobrancas: Cobranca[] = [];
+
+  for (const l of linhas) {
+    const valor = Number(l.valor);
+    /* Uma receita a zero — um cliente em cortesia — não gera lembretes. Não há
+       nada para cobrar, e uma linha de 0,00 € no "por cobrar" era só ruído. */
+    if (valor <= 0) continue;
+
+    const pagos = new Set(l.pagos);
+
+    for (const vencimento of vencimentosAte(
+      l.desde,
+      l.periodicidade,
+      l.ate,
+      hoje,
+    )) {
+      if (pagos.has(vencimento)) continue;
+      cobrancas.push({
+        receitaId: Number(l.id),
+        projetoId: Number(l.projeto_id),
+        projetoNome: l.projeto_nome,
+        clienteId: l.cliente_id === null ? null : Number(l.cliente_id),
+        clienteNome: l.cliente_nome,
+        tipo: l.tipo,
+        valor,
+        periodicidade: l.periodicidade,
+        vencimento,
+      });
+    }
+  }
+
+  return cobrancas.sort((a, b) => a.vencimento.localeCompare(b.vencimento));
+}
+
+/** O que já se recebeu dos alojamentos e domínios de um projeto, do mais
+ *  recente para trás. */
+export async function recebimentosDoProjeto(
+  projetoId: number,
+): Promise<Recebimento[]> {
+  const linhas = await consulta<{
+    id: string;
+    receita_id: string;
+    vencimento: string;
+    valor: string;
+    data: string;
+    notas: string | null;
+  }>(
+    `select rc.id, rc.receita_id,
+            to_char(rc.vencimento, 'YYYY-MM-DD') as vencimento,
+            rc.valor, to_char(rc.data, 'YYYY-MM-DD') as data, rc.notas
+       from recebimentos rc
+       join receitas r on r.id = rc.receita_id
+      where r.projeto_id = $1
+      order by rc.vencimento desc, rc.id desc`,
+    [projetoId],
+  );
+
+  return linhas.map((l) => ({
+    id: Number(l.id),
+    receitaId: Number(l.receita_id),
+    vencimento: l.vencimento,
+    valor: Number(l.valor),
+    data: l.data,
+    notas: l.notas,
+  }));
+}
+
+/* --------------------------------------------------------------------------
    O resumo do mês
    -------------------------------------------------------------------------- */
 
@@ -548,10 +673,13 @@ export async function resumoDoMes(): Promise<ResumoDoMes> {
   }>(
     `select
        coalesce((select sum(valor) from pagamentos
-                  where to_char(data, 'YYYY-MM') = ${MES_ATUAL_SQL}), 0) as entrou,
+                  where to_char(data, 'YYYY-MM') = ${MES_ATUAL_SQL}), 0)
+       + coalesce((select sum(valor) from recebimentos
+                    where to_char(data, 'YYYY-MM') = ${MES_ATUAL_SQL}), 0) as entrou,
        coalesce((select sum(valor) from gastos
                   where to_char(data, 'YYYY-MM') = ${MES_ATUAL_SQL}), 0) as saiu,
-       coalesce((select sum(valor) from pagamentos), 0) as entrou_sempre,
+       coalesce((select sum(valor) from pagamentos), 0)
+       + coalesce((select sum(valor) from recebimentos), 0) as entrou_sempre,
        coalesce((select sum(valor) from gastos), 0) as saiu_sempre,
        coalesce((select sum(em_falta) from (
                    select greatest(p.valor - coalesce((
@@ -750,8 +878,14 @@ export async function listarObjetivos(): Promise<Objetivo[]> {
                  where p.estado = 'entregue'
                    and (o.desde is null
                     or (p.criado_em at time zone 'Europe/Lisbon')::date >= o.desde))
+              /* Os pagamentos dos projetos **e** os alojamentos e domínios
+                 já cobrados. Contar só os primeiros deixava de fora quase
+                 todo o dinheiro recorrente, que é o que paga as contas. */
               when 'recebido' then (
-                select coalesce(sum(valor), 0) from pagamentos pg
+                select coalesce(sum(valor), 0) from (
+                  select valor, data from pagamentos
+                  union all
+                  select valor, data from recebimentos) pg
                  where o.desde is null or pg.data >= o.desde)
             end as feito
        from objetivos o

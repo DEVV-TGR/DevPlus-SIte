@@ -4,7 +4,11 @@
 import { useActionState } from "react";
 import { BotaoGuardar } from "@/components/estudio/BotaoGuardar";
 import { CAMPO, ETIQUETA } from "@/components/estudio/estilos";
-import { apagarReceita, type EstadoDinheiro } from "@/lib/estudio/acoes";
+import {
+  apagarRecebimento,
+  apagarReceita,
+  type EstadoDinheiro,
+} from "@/lib/estudio/acoes";
 import {
   formatarData,
   formatarEuros,
@@ -14,6 +18,8 @@ import {
   ROTULO_PERIODICIDADE,
   ROTULO_RECEITA,
   TIPOS_RECEITA,
+  type Cobranca,
+  type Recebimento,
   type Receita,
   type TipoReceita,
 } from "@/lib/estudio/tipos";
@@ -29,24 +35,44 @@ import {
  *
  * Vive no projeto e não no cliente porque é o alojamento *daquele site* — um
  * cliente com dois sites pode pagar um e não o outro.
+ *
+ * Debaixo de cada uma está o que ela já rendeu: as **cobranças por fazer** —
+ * os vencimentos que chegaram e ainda não foram pagos — e o histórico do que
+ * entrou. É aqui que se corrige um valor ou uma data; no resumo há só o botão
+ * de dar baixa, que serve o caso normal.
  */
+
+/** `150` -> `150,00`, para o campo já vir escrito como se escreve cá. O
+ *  `lerValor()` da validação lê a vírgula sem se queixar. */
+function paraCampo(valor: number): string {
+  return valor.toFixed(2).replace(".", ",");
+}
 
 function Bloco({
   tipo,
   projetoId,
   receitas,
+  cobrancas,
+  recebimentos,
   submeter,
+  submeterRecebimento,
   estado,
   hoje,
 }: {
   tipo: TipoReceita;
   projetoId: number;
   receitas: Receita[];
+  cobrancas: Cobranca[];
+  recebimentos: Recebimento[];
   submeter: (form: FormData) => void;
+  submeterRecebimento: (form: FormData) => void;
   estado: EstadoDinheiro;
   hoje: string;
 }) {
   const minhas = receitas.filter((r) => r.tipo === tipo);
+  const meusIds = new Set(minhas.map((r) => r.id));
+  const porCobrar = cobrancas.filter((c) => meusIds.has(c.receitaId));
+  const jaEntrou = recebimentos.filter((r) => meusIds.has(r.receitaId));
   const ativa = minhas.find(
     (r) => r.desde <= hoje && (r.ate === null || r.ate >= hoje),
   );
@@ -89,6 +115,103 @@ function Bloco({
                 <button
                   type="submit"
                   aria-label={`Apagar ${ROTULO_RECEITA[tipo].toLowerCase()} de ${formatarEuros(r.valor)}`}
+                  className="rounded px-1.5 py-0.5 transition-colors hover:bg-surface-2 hover:text-danger"
+                >
+                  Apagar
+                </button>
+              </form>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      {/* O que já se venceu e ainda não foi pago. Um por linha, com o valor e a
+          data já escritos: o caso normal é carregar em "Registar" sem tocar em
+          nada, e os campos existem para o caso em que o cliente pagou a menos
+          ou pagou tarde. */}
+      {porCobrar.length > 0 ? (
+        <div className="mt-4 rounded-lg border border-primary/30 p-3">
+          <p className="text-xs font-medium text-primary">
+            {porCobrar.length === 1
+              ? "Uma cobrança por fazer"
+              : `${porCobrar.length} cobranças por fazer`}
+          </p>
+
+          <ul className="mt-3 space-y-3">
+            {porCobrar.map((c) => (
+              <li key={`${c.receitaId}-${c.vencimento}`}>
+                <form
+                  action={submeterRecebimento}
+                  className="flex flex-wrap items-center gap-2"
+                  noValidate
+                >
+                  <input type="hidden" name="receitaId" value={c.receitaId} />
+                  <input
+                    type="hidden"
+                    name="vencimento"
+                    value={c.vencimento}
+                  />
+                  <span className="w-full text-xs text-muted sm:w-auto sm:flex-1">
+                    Venceu a {formatarData(c.vencimento)}
+                  </span>
+                  <label className="sr-only" htmlFor={`entrou-${c.receitaId}-${c.vencimento}`}>
+                    Quanto entrou
+                  </label>
+                  <input
+                    id={`entrou-${c.receitaId}-${c.vencimento}`}
+                    name="valor"
+                    inputMode="decimal"
+                    defaultValue={paraCampo(c.valor)}
+                    className="w-24 rounded-lg border border-border-strong bg-surface px-2.5 py-1.5 text-sm tabular-nums"
+                  />
+                  <label className="sr-only" htmlFor={`quando-${c.receitaId}-${c.vencimento}`}>
+                    Quando entrou
+                  </label>
+                  <input
+                    id={`quando-${c.receitaId}-${c.vencimento}`}
+                    name="data"
+                    type="date"
+                    defaultValue={hoje}
+                    className="rounded-lg border border-border-strong bg-surface px-2.5 py-1.5 text-sm"
+                  />
+                  <button
+                    type="submit"
+                    className="rounded-full border border-border-strong px-3 py-1.5 text-xs transition-colors hover:border-accent hover:text-accent"
+                  >
+                    Registar
+                  </button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {/* O histórico. Apagar aqui é desfazer: a cobrança volta a aparecer por
+          fazer, que é o que se quer quando o dinheiro afinal não era aquele. */}
+      {jaEntrou.length > 0 ? (
+        <ul className="mt-3 space-y-1">
+          {jaEntrou.map((r) => (
+            <li
+              key={r.id}
+              className="flex items-center gap-3 text-xs text-muted"
+            >
+              <span className="tabular-nums text-accent">
+                {formatarEuros(r.valor)}
+              </span>
+              <span className="min-w-0 flex-1 truncate">
+                entrou a {formatarData(r.data)}
+                {r.data !== r.vencimento
+                  ? ` · venceu a ${formatarData(r.vencimento)}`
+                  : ""}
+                {r.notas ? ` · ${r.notas}` : ""}
+              </span>
+              <form action={apagarRecebimento}>
+                <input type="hidden" name="id" value={r.id} />
+                <input type="hidden" name="projetoId" value={projetoId} />
+                <button
+                  type="submit"
+                  aria-label={`Apagar o recebimento de ${formatarEuros(r.valor)}`}
                   className="rounded px-1.5 py-0.5 transition-colors hover:bg-surface-2 hover:text-danger"
                 >
                   Apagar
@@ -195,14 +318,29 @@ function Bloco({
 
 export function Receitas({
   acao,
+  acaoRecebimento,
   projetoId,
   receitas,
+  cobrancas,
+  recebimentos,
 }: {
   acao: (anterior: EstadoDinheiro, form: FormData) => Promise<EstadoDinheiro>;
+  acaoRecebimento: (
+    anterior: EstadoDinheiro,
+    form: FormData,
+  ) => Promise<EstadoDinheiro>;
   projetoId: number;
   receitas: Receita[];
+  cobrancas: Cobranca[];
+  recebimentos: Recebimento[];
 }) {
   const [estado, submeter] = useActionState<EstadoDinheiro, FormData>(acao, {});
+  /* Um estado próprio para as cobranças: um erro ao registar um recebimento
+     não tem nada que apagar a mensagem de "Guardado" da receita ao lado. */
+  const [estadoRecebimento, submeterRecebimento] = useActionState<
+    EstadoDinheiro,
+    FormData
+  >(acaoRecebimento, {});
   const hoje = hojeEmLisboa();
 
   return (
@@ -224,7 +362,10 @@ export function Receitas({
             tipo={tipo}
             projetoId={projetoId}
             receitas={receitas}
+            cobrancas={cobrancas}
+            recebimentos={recebimentos}
             submeter={submeter}
+            submeterRecebimento={submeterRecebimento}
             estado={estado}
             hoje={hoje}
           />
@@ -239,6 +380,19 @@ export function Receitas({
       {estado.ok ? (
         <p role="status" className="mt-4 text-sm text-accent">
           Guardado.
+        </p>
+      ) : null}
+      {estadoRecebimento.erro ?? estadoRecebimento.erros?.valor ??
+      estadoRecebimento.erros?.data ? (
+        <p role="alert" className="mt-4 text-sm text-danger">
+          {estadoRecebimento.erro ??
+            estadoRecebimento.erros?.valor ??
+            estadoRecebimento.erros?.data}
+        </p>
+      ) : null}
+      {estadoRecebimento.ok ? (
+        <p role="status" className="mt-4 text-sm text-accent">
+          Cobrança registada.
         </p>
       ) : null}
     </section>

@@ -289,3 +289,43 @@ begin
 end $$;
 
 create index if not exists tarefas_utilizador_idx on tarefas (utilizador_id);
+
+-- 2026-09-09 · o que já se recebeu de cada receita recorrente.
+--
+-- A `receitas` guarda o que está **contratado**; faltava onde guardar o que
+-- entrou mesmo por causa dela. Sem isto, os 150 € que a Taskuinha pagou pelo
+-- ano de alojamento não tinham sítio nenhum: em `pagamentos` abatiam ao valor
+-- combinado do site, e uma mensalidade não abate a um site.
+--
+-- A linha é a prova de que **aquele vencimento** está pago. Um vencimento sem
+-- linha correspondente é uma cobrança por fazer, e é isso que aparece no "por
+-- cobrar" do resumo. Quem calcula os vencimentos a partir do `desde` e da
+-- periodicidade é o `vencimentosAte()` de `lib/estudio/tipos.ts` — não se
+-- guardam na base, porque uma tabela de vencimentos por gerar seria uma coisa
+-- para manter atualizada todos os meses, e o mês em que ninguém a corresse era
+-- o mês em que o Estúdio deixava de avisar.
+--
+-- `on delete cascade`: apagar uma receita apaga o histórico dela. É diferente
+-- dos `pagamentos`, e de propósito — um recebimento sem a receita que o
+-- explica é um número órfão que ninguém sabe ler.
+create table if not exists recebimentos (
+  id          bigint generated always as identity primary key,
+  receita_id  bigint not null references receitas(id) on delete cascade,
+  -- O vencimento que esta linha salda, em `YYYY-MM-DD`. É a chave: é por ele
+  -- que uma cobrança sai da lista, e não pela data em que o dinheiro entrou.
+  vencimento  date not null,
+  -- Sem IVA, como tudo o resto. Pode não ser igual ao valor da receita: um ano
+  -- pago adiantado com desconto entra pelo que entrou mesmo.
+  valor       numeric(10, 2) not null check (valor > 0),
+  -- Quando é que o dinheiro entrou. Costuma ser perto do vencimento, mas não
+  -- tem de ser — e é esta a data que conta para o saldo do mês.
+  data        date not null,
+  notas       text,
+  criado_em   timestamptz not null default now(),
+  -- Um vencimento só se cobra uma vez. Sem isto, carregar duas vezes no botão
+  -- "Recebido" duplicava a entrada no saldo.
+  constraint recebimentos_unicos unique (receita_id, vencimento)
+);
+
+create index if not exists recebimentos_receita_idx on recebimentos (receita_id);
+create index if not exists recebimentos_data_idx on recebimentos (data);

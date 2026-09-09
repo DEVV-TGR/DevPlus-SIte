@@ -357,6 +357,109 @@ export function proximaOcorrencia(
   return candidata;
 }
 
+/**
+ * O que já se recebeu por causa de uma receita recorrente.
+ *
+ * Uma linha destas é a prova de que **aquele vencimento** está pago. É o que
+ * falta na `receitas`, que guarda só o que está contratado.
+ */
+export type Recebimento = {
+  id: number;
+  receitaId: number;
+  /** O vencimento que esta linha salda. */
+  vencimento: string;
+  valor: number;
+  /** Quando é que o dinheiro entrou. É esta que conta para o saldo do mês. */
+  data: string;
+  notas: string | null;
+};
+
+/**
+ * Uma cobrança por fazer: um vencimento que já chegou e ainda não foi pago.
+ *
+ * Não vive na base. É a diferença entre os vencimentos que o `vencimentosAte()`
+ * calcula e os `recebimentos` que já lá estão — e é isso que aparece no "por
+ * cobrar" do resumo, ao lado do que os clientes devem dos projetos.
+ */
+export type Cobranca = {
+  receitaId: number;
+  projetoId: number;
+  projetoNome: string;
+  clienteId: number | null;
+  clienteNome: string | null;
+  tipo: TipoReceita;
+  valor: number;
+  periodicidade: Periodicidade;
+  vencimento: string;
+};
+
+/**
+ * Um teto de sanidade para a lista de vencimentos.
+ *
+ * Uma receita mensal com um `desde` escrito com um zero a mais no ano —
+ * `1026-08-11` em vez de `2026` — geraria doze mil linhas antes de alguém dar
+ * por isso. Quatrocentos chegam para trinta anos de mensalidades ou sete de
+ * semanas, e o que passe disso é engano, não histórico.
+ */
+const MAXIMO_VENCIMENTOS = 400;
+
+/**
+ * Todos os vencimentos de uma coisa recorrente, do `desde` até hoje.
+ *
+ * É o outro lado do `proximaOcorrencia()`: aquele responde "o que ainda vem
+ * este mês", este responde "o que já se venceu e devia estar pago". Os dois
+ * são precisos, e nenhum serve para o trabalho do outro.
+ *
+ * Faz-se em texto e em UTC, como todas as datas do Estúdio. Os meses contam-se
+ * em meses (`ano * 12 + mês`) e não com um `Date` a saltar de 30 em 30 dias, que
+ * é como um vencimento de dia 31 se transforma em dia 1 ao fim de um ano. Um
+ * vencimento de dia 31 num mês de 30 cai no último dia, como no
+ * `proximaOcorrencia()`.
+ */
+export function vencimentosAte(
+  desde: string,
+  periodicidade: Periodicidade,
+  ate: string | null,
+  hoje: string,
+): string[] {
+  /* A receita pode ter acabado antes de hoje. Aí o limite é o fim dela: não se
+     cobra um mês em que já não havia contrato. */
+  const limite = ate !== null && ate < hoje ? ate : hoje;
+  if (desde > limite) return [];
+  if (periodicidade === "unica") return [desde];
+
+  const dois = (n: number) => String(n).padStart(2, "0");
+  const datas: string[] = [];
+
+  if (periodicidade === "semanal") {
+    const dia = new Date(`${desde}T00:00:00Z`);
+    for (let i = 0; i < MAXIMO_VENCIMENTOS; i++) {
+      const iso = dia.toISOString().slice(0, 10);
+      if (iso > limite) break;
+      datas.push(iso);
+      dia.setUTCDate(dia.getUTCDate() + 7);
+    }
+    return datas;
+  }
+
+  const [ano, mes, dia] = desde.split("-").map(Number);
+  const salto = periodicidade === "mensal" ? 1 : 12;
+
+  for (let i = 0; i < MAXIMO_VENCIMENTOS; i++) {
+    const meses = ano * 12 + (mes - 1) + i * salto;
+    const a = Math.floor(meses / 12);
+    const m = (meses % 12) + 1;
+    /* O dia 0 do mês seguinte é o último deste — a mesma conta do
+       `proximaOcorrencia()`, e a razão por que fevereiro não precisa de tabela. */
+    const diasNoMes = new Date(Date.UTC(a, m, 0)).getUTCDate();
+    const iso = `${a}-${dois(m)}-${dois(Math.min(dia, diasNoMes))}`;
+    if (iso > limite) break;
+    datas.push(iso);
+  }
+
+  return datas;
+}
+
 /* ------------------------------------------------------------------------
    Objetivos
 
@@ -399,7 +502,8 @@ export const EXPLICA_METRICA: Record<Metrica, string> = {
     "Quem já tem pelo menos um projeto entregue. Propostas e trabalho a andar não contam.",
   projetos: "Todos os projetos, incluindo os vossos.",
   entregues: "Os projetos em «Entregue».",
-  recebido: "A soma dos pagamentos recebidos.",
+  recebido:
+    "Os pagamentos dos projetos mais os alojamentos e domínios já cobrados.",
 };
 
 /** O `recebido` é em euros; os outros contam-se. É o que decide se o número se

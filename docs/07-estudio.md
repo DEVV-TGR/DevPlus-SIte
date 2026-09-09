@@ -101,10 +101,53 @@ sairia doze vezes errada. O nome diz o que a coisa **é**; de quanto em quanto
 tempo se paga é a escolha ao lado, como já era nos gastos. (O `docs/05` continua
 a falar de mensalidade ao cliente — isso é copy de venda, e é outra conversa.)
 
-**Guarda o que está contratado, não um registo de cada mês recebido.** Quando um
-cliente deixa de pagar, põe-se a data de fim em vez de se apagar a linha. Se um
-dia isto não chegar, as receitas passam a gerar pagamentos — mas é o dobro do
-trabalho de manutenção e não se paga já.
+**Guarda o que está contratado.** Quando um cliente deixa de pagar, põe-se a
+data de fim em vez de se apagar a linha: o histórico do que já se cobrou
+continua a valer.
+
+**E cada receita gera cobranças** — ver a secção a seguir. Este doc dizia aqui
+que isso não se pagava já; passou a pagar-se no dia em que a maior parte do
+dinheiro que entra deixou de ser o preço de um site.
+
+### As cobranças, e porque não são pagamentos
+
+Uma receita diz o que está **contratado**; um `recebimento` diz que **aquele
+vencimento** foi pago. A diferença entre os dois — os vencimentos que já
+chegaram e não têm recebimento — são as **cobranças por fazer**, e aparecem no
+"por cobrar" do resumo ao lado do que os clientes devem dos projetos. É o que
+faz um alojamento pago à cabeça voltar a pedir atenção um ano depois, sozinho.
+
+**Um recebimento não é um pagamento, e a distinção é o ponto todo.** Um
+`pagamento` abate ao valor combinado do projeto; uma mensalidade não abate a um
+site. Foi isto que obrigou à tabela nova: no mesmo mês entraram 125 € do site do
+Império e 10 € do alojamento dele, e somá-los fazia o Estúdio dizer que ele já
+só devia 115 € — o único número da página que faz pegar no telefone, errado por
+dez euros.
+
+**Os vencimentos não se guardam.** Calculam-se a partir do `desde` e da
+periodicidade, no `vencimentosAte()` de `tipos.ts`. Uma tabela de vencimentos
+por gerar era uma coisa para manter atualizada todos os meses, e o mês em que
+ninguém a corresse era o mês em que o Estúdio deixava de avisar. É o outro lado
+do `proximaOcorrencia()`: aquele responde "o que ainda vem este mês", este "o
+que já se venceu e devia estar pago", e nenhum serve para o trabalho do outro.
+
+**Os dois lados contam no saldo**, porque os dois são dinheiro que entrou. O
+`resumoDoMes()` soma as duas tabelas, e a métrica `recebido` dos objetivos
+também — um objetivo de dinheiro que ignorasse as mensalidades ignorava aquilo
+de que o estúdio vai viver.
+
+**O botão de dar baixa está no resumo, e não só na ficha.** No resumo entra pelo
+valor da receita e com a data de hoje, que é o caso normal: vi que entrou,
+dou-lhe baixa. Corrigir o valor, corrigir a data ou desfazer é na ficha do
+projeto, onde se vê o histórico todo. Obrigar a abrir uma ficha para carregar
+num sítio era garantir que ficavam por marcar.
+
+**Uma receita a zero não gera cobranças.** Um cliente em cortesia continua a ser
+uma linha de receita — o valor é que é zero — e não há ali nada para cobrar.
+
+**As cobranças aparecem antes dos projetos na lista do "por cobrar".** Um site
+por pagar está à espera há semanas e não muda hoje; uma mensalidade que venceu
+ontem é a única coisa daquela página que se resolve com uma mensagem.
 
 **Um gasto sem projeto é do estúdio** e não entra na margem de projeto nenhum.
 A Vercel e o Figma existiriam na mesma sem qualquer um dos trabalhos; imputá-los
@@ -453,6 +496,8 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | as métricas dos objetivos              | `METRICAS` em `tipos.ts`, o `check` do esquema **e** o `case` de `listarObjetivos()` em `dados.ts` |
 | a estrutura de uma página              | abre-a no browser e olha — a ordem das secções e a altura das caixas não se veem num diff        |
 | como se guarda dinheiro                | `lib/estudio/schema.sql` (`numeric`, nunca `float`) e as somas continuam em SQL                  |
+| o cálculo dos vencimentos              | `vencimentosAte()` em `tipos.ts`; testa fevereiro, um mês de 30 e um `desde` a dia 31           |
+| o que conta como dinheiro que entrou   | `resumoDoMes()` **e** o `case 'recebido'` de `listarObjetivos()` — os dois somam as duas tabelas |
 | as cores do gráfico                    | corre o validador da skill `dataviz` antes — a escolha óbvia falhou o teste de daltonismo       |
 | acrescentares uma rota em `/estudio`   | acrescenta-a ao teste de fumo em `.github/workflows/ci.yml`                                      |
 | a organização do GitHub                | `ORGANIZACAO` em `lib/estudio/github.ts` — e o webhook na organização nova                       |

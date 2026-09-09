@@ -12,14 +12,17 @@ import {
   guardarProjeto,
   guardarReceita,
   registarPagamento,
+  registarRecebimento,
 } from "@/lib/estudio/acoes";
 import {
+  cobrancasPorReceber,
   contasDoProjeto,
   listarClientes,
   listarPagamentos,
   listarTarefas,
   listarUtilizadores,
   obterProjeto,
+  recebimentosDoProjeto,
   receitasDoProjeto,
 } from "@/lib/estudio/dados";
 import { requerSessao } from "@/lib/estudio/sessao";
@@ -41,17 +44,29 @@ export default async function Projeto({
   const projeto = await obterProjeto(numero);
   if (!projeto) notFound();
 
-  const [tarefas, clientes, pessoas, contas, pagamentos, receitas] =
-    await Promise.all([
-      listarTarefas(projeto.id),
-      listarClientes(),
-      listarUtilizadores(),
-      contasDoProjeto(projeto.id),
-      listarPagamentos(projeto.id),
-      receitasDoProjeto(projeto.id),
-    ]);
-
+  /* Antes das consultas: é o `hoje` que decide que vencimentos já chegaram. */
   const hoje = hojeEmLisboa();
+
+  const [
+    tarefas,
+    clientes,
+    pessoas,
+    contas,
+    pagamentos,
+    receitas,
+    cobrancas,
+    recebimentos,
+  ] = await Promise.all([
+    listarTarefas(projeto.id),
+    listarClientes(),
+    listarUtilizadores(),
+    contasDoProjeto(projeto.id),
+    listarPagamentos(projeto.id),
+    receitasDoProjeto(projeto.id),
+    cobrancasPorReceber(hoje, projeto.id),
+    recebimentosDoProjeto(projeto.id),
+  ]);
+
   const atrasado = emAtraso(projeto, hoje);
 
   return (
@@ -150,8 +165,11 @@ export default async function Projeto({
           <section className={CARTAO}>
             <Receitas
               acao={guardarReceita}
+              acaoRecebimento={registarRecebimento}
               projetoId={projeto.id}
               receitas={receitas}
+              cobrancas={cobrancas}
+              recebimentos={recebimentos}
             />
           </section>
 

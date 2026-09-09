@@ -6,7 +6,9 @@ import { redirect } from "next/navigation";
 import { consulta, consultaUma } from "@/lib/estudio/db";
 import { listarRepos } from "@/lib/estudio/repos";
 import { requerSessao } from "@/lib/estudio/sessao";
+import { hojeEmLisboa } from "@/lib/estudio/tipos";
 import {
+  eData,
   eEstado,
   lerValor,
   validarGasto,
@@ -751,6 +753,137 @@ export async function apagarReceita(form: FormData): Promise<void> {
     id,
     projetoId,
   ]);
+
+  revalidatePath("/estudio");
+  revalidatePath(`/estudio/projetos/${projetoId}`);
+}
+
+/* --------------------------------------------------------------------------
+   Cobranças
+
+   Uma receita diz o que está contratado; um recebimento diz que **aquele
+   vencimento** já foi pago. É o que tira a cobrança da lista do resumo e o que
+   põe o dinheiro no saldo do mês, sem abater ao valor combinado do projeto —
+   uma mensalidade não abate a um site.
+   -------------------------------------------------------------------------- */
+
+/** O projeto a que uma receita pertence. Serve para duas coisas ao mesmo
+ *  tempo: confirmar que a receita existe antes de se escrever nela, e saber
+ *  que ficha é que há de ser revalidada. */
+async function receitaEProjeto(
+  receitaId: number,
+): Promise<{ projetoId: number; valor: number } | null> {
+  const linha = await consultaUma<{ projeto_id: string; valor: string }>(
+    "select projeto_id, valor from receitas where id = $1",
+    [receitaId],
+  );
+  return linha
+    ? { projetoId: Number(linha.projeto_id), valor: Number(linha.valor) }
+    : null;
+}
+
+/**
+ * Marca uma cobrança como recebida, num clique.
+ *
+ * É o botão do resumo: entra pelo valor da receita e com a data de hoje, que é
+ * o caso normal — vi que entrou, dou-lhe baixa. Corrigir o valor ou a data
+ * faz-se na ficha do projeto, que é onde se vê o histórico todo.
+ *
+ * `on conflict do nothing`: dois cliques seguidos no mesmo botão não podem
+ * pôr o dinheiro duas vezes no saldo.
+ */
+export async function marcarRecebida(form: FormData): Promise<void> {
+  await requerSessao();
+
+  const receitaId = paraId(campo(form.get("receitaId"), 20));
+  const vencimento = campo(form.get("vencimento"), 10);
+  if (!receitaId || !eData(vencimento)) return;
+
+  const receita = await receitaEProjeto(receitaId);
+  if (!receita || receita.valor <= 0) return;
+
+  await consulta(
+    `insert into recebimentos (receita_id, vencimento, valor, data)
+     values ($1, $2, $3, $4)
+     on conflict on constraint recebimentos_unicos do nothing`,
+    [receitaId, vencimento, receita.valor, hojeEmLisboa()],
+  );
+
+  revalidatePath("/estudio");
+  revalidatePath(`/estudio/projetos/${receita.projetoId}`);
+}
+
+/**
+ * O mesmo, mas com o valor e a data escritos à mão — na ficha do projeto.
+ *
+ * `do update` e não `do nothing`: registar por cima de um vencimento que já lá
+ * está é como se corrige um valor mal escrito. Sem isso, a única forma de
+ * emendar era apagar e voltar a escrever.
+ */
+export async function registarRecebimento(
+  _anterior: EstadoDinheiro,
+  form: FormData,
+): Promise<EstadoDinheiro> {
+  await requerSessao();
+
+  const receitaId = paraId(campo(form.get("receitaId"), 20));
+  const vencimento = campo(form.get("vencimento"), 10);
+  if (!receitaId || !eData(vencimento))
+    return { erro: "Cobrança não encontrada." };
+
+  const receita = await receitaEProjeto(receitaId);
+  if (!receita) return { erro: "Cobrança não encontrada." };
+
+  const dados = {
+    valor: campo(form.get("valor"), 20),
+    data: campo(form.get("data"), 10),
+  };
+
+  const erros = validarPagamento(dados);
+  if (Object.keys(erros).length > 0) return { erros };
+
+  try {
+    await consulta(
+      `insert into recebimentos (receita_id, vencimento, valor, data, notas)
+       values ($1, $2, $3, $4, $5)
+       on conflict on constraint recebimentos_unicos
+         do update set valor = excluded.valor, data = excluded.data,
+                       notas = excluded.notas`,
+      [
+        receitaId,
+        vencimento,
+        lerValor(dados.valor),
+        dados.data,
+        ouNulo(campo(form.get("notas"), LIMITES.nome)),
+      ],
+    );
+  } catch (erro) {
+    console.error("[estudio] falhou registar recebimento:", erro);
+    return { erro: "Não foi possível registar. Tenta outra vez." };
+  }
+
+  revalidatePath("/estudio");
+  revalidatePath(`/estudio/projetos/${receita.projetoId}`);
+  return { ok: true };
+}
+
+/** Desfaz um recebimento. A cobrança volta a aparecer por fazer, que é o que
+ *  se quer quando o dinheiro afinal não era aquele. */
+export async function apagarRecebimento(form: FormData): Promise<void> {
+  await requerSessao();
+
+  const id = paraId(campo(form.get("id"), 20));
+  const projetoId = paraId(campo(form.get("projetoId"), 20));
+  if (!id || !projetoId) return;
+
+  /* O `join` não é decoração: sem ele, um id de recebimento de outro projeto
+     era apagado daqui na mesma. Mesma regra das tarefas e dos pagamentos. */
+  await consulta(
+    `delete from recebimentos rc
+      using receitas r
+      where rc.id = $1 and r.id = rc.receita_id and r.projeto_id = $2`,
+    [id, projetoId],
+  );
 
   revalidatePath("/estudio");
   revalidatePath(`/estudio/projetos/${projetoId}`);

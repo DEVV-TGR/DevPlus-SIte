@@ -70,6 +70,12 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 /** Datas civis, `YYYY-MM-DD`. É o que o `<input type="date">` envia. */
 const DATA = /^\d{4}-\d{2}-\d{2}$/;
 
+/** Uma data civil, `YYYY-MM-DD`. É o que o `<input type="date">` envia, e o que
+ *  as colunas `date` do Estúdio guardam — ver docs/07. */
+export function eData(valor: string): boolean {
+  return DATA.test(valor);
+}
+
 export function eEstado(valor: string): valor is Estado {
   return (ESTADOS as readonly string[]).includes(valor);
 }

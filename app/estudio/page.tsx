@@ -6,8 +6,9 @@ import { FormularioObjetivo } from "@/components/estudio/FormularioObjetivo";
 import { GraficoCircular } from "@/components/estudio/GraficoCircular";
 import { Objetivos } from "@/components/estudio/Objetivos";
 import { CARTAO, SOBRETITULO } from "@/components/estudio/estilos";
-import { criarObjetivo } from "@/lib/estudio/acoes";
+import { criarObjetivo, marcarRecebida } from "@/lib/estudio/acoes";
 import {
+  cobrancasPorReceber,
   gastosDoMes,
   listarObjetivos,
   listarProjetos,
@@ -24,6 +25,7 @@ import {
   hojeEmLisboa,
   iniciais,
   proximaOcorrencia,
+  ROTULO_RECEITA,
 } from "@/lib/estudio/tipos";
 import { cn } from "@/lib/utils";
 
@@ -43,18 +45,28 @@ import { cn } from "@/lib/utils";
 export default async function Resumo() {
   await requerSessao();
 
-  const [mes, porCobrar, gastos, repetem, tarefas, projetos, objetivos] =
-    await Promise.all([
-      resumoDoMes(),
-      porCobrarPorProjeto(),
-      gastosDoMes(),
-      recorrentes(),
-      tarefasPorFazer(6),
-      listarProjetos(),
-      listarObjetivos(),
-    ]);
-
+  /* Antes das consultas: é o `hoje` que decide que vencimentos já chegaram. */
   const hoje = hojeEmLisboa();
+
+  const [
+    mes,
+    porCobrar,
+    cobrancas,
+    gastos,
+    repetem,
+    tarefas,
+    projetos,
+    objetivos,
+  ] = await Promise.all([
+    resumoDoMes(),
+    porCobrarPorProjeto(),
+    cobrancasPorReceber(hoje),
+    gastosDoMes(),
+    recorrentes(),
+    tarefasPorFazer(6),
+    listarProjetos(),
+    listarObjetivos(),
+  ]);
 
   /* O que ainda vem antes de o mês acabar, dos dois lados na mesma lista: o que
      há para pagar e o que há para receber. Quem sabe converter uma
@@ -75,6 +87,18 @@ export default async function Resumo() {
     .slice(0, 6);
 
   const maiorDivida = porCobrar[0]?.porCobrar ?? 0;
+
+  /* A única soma de euros do Estúdio feita fora do Postgres, e não há como:
+     as cobranças nascem de datas geradas em JavaScript, não de linhas de uma
+     tabela. Arredonda-se aos cêntimos aqui, uma vez, para não haver um
+     `160.00000000000003` a chegar ao ecrã. */
+  const totalCobrancas =
+    Math.round(cobrancas.reduce((soma, c) => soma + c.valor, 0) * 100) / 100;
+  const totalPorCobrar =
+    Math.round((mes.porCobrar + totalCobrancas) * 100) / 100;
+
+  /* Uma cobrança de um mês que já fechou está atrasada, e diz-se. */
+  const mesAtual = hoje.slice(0, 7);
 
   if (projetos.length === 0) {
     return (
@@ -170,18 +194,70 @@ export default async function Resumo() {
           >
             Por cobrar, e a quem
           </h2>
-          {mes.porCobrar > 0 ? (
+          {totalPorCobrar > 0 ? (
             <p className="text-lg font-semibold tabular-nums text-primary">
-              {formatarEuros(mes.porCobrar)}
+              {formatarEuros(totalPorCobrar)}
             </p>
           ) : null}
         </div>
 
+        {/* Primeiro os alojamentos e domínios que se venceram, e não os
+            projetos: um site por pagar está lá há semanas e não muda hoje; uma
+            mensalidade que venceu ontem é a única coisa nesta página que se
+            resolve com uma mensagem. Cada uma tem o botão de lhe dar baixa
+            aqui — obrigar a abrir a ficha do projeto para carregar num sítio
+            era garantir que ficavam por marcar. */}
+        {cobrancas.length > 0 ? (
+          <ul className="mt-5 divide-y divide-border border-y border-border">
+            {cobrancas.map((c) => (
+              <li
+                key={`${c.receitaId}-${c.vencimento}`}
+                className="flex flex-wrap items-center gap-x-3 gap-y-2 py-3"
+              >
+                <Link
+                  href={`/estudio/projetos/${c.projetoId}`}
+                  className="min-w-0 flex-1 rounded-lg p-1.5 transition-colors hover:bg-surface-2"
+                >
+                  <span className="block truncate text-sm font-medium">
+                    {ROTULO_RECEITA[c.tipo]}
+                  </span>
+                  <span className="block truncate text-xs text-muted">
+                    {c.clienteNome ?? c.projetoNome}
+                    {" · venceu a "}
+                    <span
+                      className={cn(
+                        c.vencimento.slice(0, 7) < mesAtual && "text-danger",
+                      )}
+                    >
+                      {formatarData(c.vencimento)}
+                    </span>
+                  </span>
+                </Link>
+                <span className="shrink-0 text-sm font-medium tabular-nums text-primary">
+                  {formatarEuros(c.valor)}
+                </span>
+                <form action={marcarRecebida}>
+                  <input type="hidden" name="receitaId" value={c.receitaId} />
+                  <input type="hidden" name="vencimento" value={c.vencimento} />
+                  <button
+                    type="submit"
+                    className="rounded-full border border-border-strong px-3 py-1 text-xs transition-colors hover:border-accent hover:text-accent"
+                  >
+                    Recebido
+                  </button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+
         {porCobrar.length === 0 ? (
-          <p className="mt-3 text-sm text-muted">
-            Não há nada por cobrar. Ou está tudo pago, ou ainda não puseste
-            valores nos projetos.
-          </p>
+          cobrancas.length === 0 ? (
+            <p className="mt-3 text-sm text-muted">
+              Não há nada por cobrar. Ou está tudo pago, ou ainda não puseste
+              valores nos projetos.
+            </p>
+          ) : null
         ) : (
           <ul className="mt-5 space-y-4">
             {porCobrar.slice(0, 8).map((p) => (
