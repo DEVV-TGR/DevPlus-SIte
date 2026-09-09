@@ -22,6 +22,8 @@ controla:
   - lib/testimonials.ts
   - app/page.tsx#ordem-das-seccoes
   - components/home/Curva.tsx
+  - components/home/ComoTrabalhamos.tsx
+  - lib/motion.ts
 relacionado:
   - docs/02-cores-e-tipografia.md
 ---
@@ -305,6 +307,7 @@ uma medição a 120 fps sobre um site de referência, registada em
 | Entrada da página (hero) | **0,95 s** | 0,6 s |
 | Transição entre páginas | 0,45 s | 0,45 s |
 | Curva | **`power2.out`** | `[0.22, 1, 0.36, 1]` |
+| Curva de quem assenta (`easeCarta`) | **`back.out(1.4)`** | não existia |
 | Stagger entre irmãos | **0,15 s** | 0,06–0,08 s |
 | Deslocamento de entrada | **44 px** | 16 px |
 
@@ -314,6 +317,12 @@ uma medição a 120 fps sobre um site de referência, registada em
   tem peso.
 - **A curva é mais suave do que a anterior.** A `[0.22, 1, 0.36, 1]` ia em 96% do
   percurso a meio do tempo; a `power2.out` vai em 84%. A antiga dispara e trava.
+- **Há uma segunda curva, e só para gestos com percurso.** O `easeCarta`
+  (`back.out(1.4)`) passa do destino e volta — medido, ~7% da distância — e é o
+  que faz um card dos passos ler-se como uma carta a assentar em vez de uma
+  caixa a travar a direito. Aplica-se a **posição e rotação**; numa opacidade ou
+  numa cor, ultrapassar o destino é um `flash`. O `1.4` é deliberadamente mais
+  curto do que o `1.7` que o GSAP traz: acima dos 10% aquilo vira brinquedo.
 - `Reveal` dispara uma vez (`once: true`) — nada re-anima ao subir.
 - **Nada de `setState` a partir de um callback do GSAP.** Vale para o
   `onComplete` de uma animação e vale para o `onUpdate` de um ScrollTrigger. O
@@ -482,6 +491,20 @@ do Club**: se um dia o projeto tiver licença, é aqui que se usa. Para um risco
   não faz nada.
 - **Os cards do processo acumulam-se, e por isso não levam `stagger`.** Cada um
   tem a sua fatia do percurso e **fica**; um stagger fá-los-ia suceder-se.
+- **E são atirados para a mesa, não acesos no sítio.** Cada card entra de fora
+  do palco — os das pontas pelo lado, os do meio de baixo — rodado a mais do que
+  a inclinação em que acaba, e assenta nela com o `easeCarta`. O
+  `overflow-hidden` do palco corta-os à entrada, e é isso que se quer ver: uma
+  carta a aparecer pela borda da mesa. Um `fade` com escala, que era o que havia,
+  materializava o card exatamente onde ele já estava.
+- **As poses do leque são dados, não classes.** Vivem no array `PASSOS` de
+  `components/home/ComoTrabalhamos.tsx` (`pousa` e `atira`, em `vw`/`svh`/graus),
+  porque o GSAP tem de animar de uma para a outra e o `transform` inline dele
+  ganha sempre a uma classe. Chegam ao CSS por custom properties no `style` do
+  card, que um `md:[transform:…]` lê — é o que põe o leque de pé antes da
+  hidratação, sem JavaScript e com `prefers-reduced-motion`. Por isso o ramo de
+  movimento reduzido **acende os cards e mais nada**: um `scale: 1` inline
+  bastava para o GSAP tomar conta do `transform` e apagar o leque.
 
 ## Acessibilidade
 
