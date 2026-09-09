@@ -21,6 +21,7 @@ controla:
   - components/Testimonials.tsx
   - lib/testimonials.ts
   - app/page.tsx#ordem-das-seccoes
+  - components/home/Curva.tsx
 relacionado:
   - docs/02-cores-e-tipografia.md
 ---
@@ -121,13 +122,18 @@ O `"max"` é o único valor que o GSAP volta a corrigir num **segundo passe**, n
 fim do `_refreshAll`, já com os espaçadores dos pins no sítio. Se acrescentares
 uma secção pinada à página, o gesto acompanha sozinho.
 
-### A fronteira entre capítulos tem três camadas
+### A fronteira entre capítulos tem cinco camadas
 
-A `Curva` não é só a forma sólida. São quatro coisas, de baixo para cima: o
+A `Curva` não é só a forma sólida. São cinco coisas, de baixo para cima: o
 ground do capítulo que fica para trás (a prop **`de`**), a forma sólida com a
 cor do que chega (`cor`), três **linhas de nível** que sobem para dentro do
-capítulo anterior a esbater-se, e uma **costura** de pontos cinco unidades acima
-da aresta.
+capítulo anterior a esbater-se, uma **costura** de pontos cinco unidades acima
+da aresta, e o **"+" semeado ao longo dela**.
+
+Tudo o que não é a forma sólida vive **acima** da fronteira, sobre o ground do
+capítulo que fica para trás. É o que faz a divisória ler-se como uma margem em
+vez de um corte de tesoura — e é o que a distingue de um separador de template,
+numa peça que se repete dez vezes no site.
 
 - **O `de` não é opcional por preguiça.** Sem ele a metade de cima do SVG é
   transparente e deixa passar o fundo do `body`: no par claro→escuro da
@@ -140,6 +146,52 @@ da aresta.
   vem antes no DOM. Com um `z` acima de 1 a curva passa a ser a única superfície
   da página por cima do `.grain-overlay` — e vê-se: uma faixa lisa com uma
   aresta reta a atravessá-la de lado a lado.
+
+#### A curva é dados, não uma string de path
+
+O `d` deriva dos pontos de controlo, e não o contrário. Uma string de path serve
+para desenhar e mais nada, e os "+" precisam de saber **por onde é que a curva
+passa**. A alternativa — medi-la no browser com `getPointAtLength` — obrigava a
+`Curva` a ser componente de cliente e a esperar pelo DOM para desenhar uma coisa
+que é estática. Assim os pontos e o traço não podem divergir: são a mesma fonte.
+
+#### O "+" da divisória tem três regras
+
+A geometria vem do `Logo`, que a lê de `lib/brand.ts`. Nunca se redesenha à mão
+— ver `docs/03`.
+
+1. **Nada de rotações perto de 45°.** Um "+" a meio caminho é um X, e um X ao
+   longo da fronteira lê-se como um botão de fechar. É a mesma regra do `Cruz`,
+   e vem do mesmo sítio: do protótipo, onde aconteceu.
+2. **Nenhum "+" atravessa a aresta.** Metade laranja sobre o capítulo que fica e
+   metade sobre o que chega não se lê como símbolo, lê-se como erro de recorte.
+   O `dy` de cada um tem de ser maior do que meia altura do símbolo mais as
+   cinco unidades da costura. Foi a primeira versão da lista, e via-se.
+3. **A poeira não sobrevive a uma faixa de 60px.** Num ecrã estreito a divisória
+   encolhe para o mínimo do `clamp` mas continua a ter 1440 unidades de largura,
+   ou seja os "+" ficam quatro vezes mais juntos e com 3px. Medido a 580px: os
+   pequenos leem-se como sujidade em cima da costura. Abaixo de `md` ficam só os
+   seis maiores.
+
+Os "+" vivem **fora** do SVG. Lá dentro apanhavam o `preserveAspectRatio="none"`,
+que estica tudo com a caixa — num ecrã de 390px a divisória é 0.27× em largura e
+0.39× em altura, e o símbolo chegava oval. Fora dele são caixas quadradas
+posicionadas em percentagem da mesma caixa, e o mapeamento do `viewBox` é linear,
+portanto a percentagem dá exatamente o ponto da curva.
+
+#### O acento muda com o ground que fica para trás
+
+Sobre escuro o `--primary` dá ~7.9:1 e lê-se sozinho. Sobre o `--paper` dá
+~2.2:1, e a mesma divisória que tem carácter entre dois capítulos escuros ficava
+a boiar na passagem da prova para os serviços: os ecos a 0.12 e 0.22 de opacidade
+desapareciam. Por isso a prop **`ground="claro"`** troca o acento para
+`--primary-strong` e sobe as opacidades — o que se iguala entre as dez passagens
+é a **presença**, não o número. Nenhuma das duas cores é nova: são tokens do
+`app/globals.css`.
+
+O `ground` não se deduz do `de` porque o `de` é uma string de CSS que o servidor
+não resolve. Hoje há **uma só** passagem clara em todo o site: a terceira da
+página inicial.
 
 ### As páginas interiores também têm forma própria
 
@@ -561,6 +613,9 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | a ligação do Lenis ao GSAP        | rola com a **roda do rato** antes de dar por bom — o `window.scrollTo` é nativo e passa ao lado da avaria |
 | acrescentares uma secção pinada   | nada no `Cruz`: o `end: "max"` acompanha sozinho. Confirma na mesma que o verificador diz "anda até ao fim" |
 | os grounds de um capítulo         | o `de` **e** o `cor` da `Curva` que lhe fica ao lado, em `app/page.tsx` — são dois, e o errado é sempre o que se esquece |
+| um ground de capítulo para claro  | o `ground="claro"` da `Curva` que lhe fica ao lado — sem ele os ecos e a costura desaparecem sobre o creme |
+| a sementeira de "+" da `Curva`    | confirma que nenhum atravessa a aresta: o `dy` tem de ser maior do que meia altura do símbolo mais cinco unidades |
+| a forma de uma curva              | mexe nos pontos de controlo, não no `d` — ele é derivado, e os "+" saem dos mesmos números |
 | um elemento que só chega a meio do scroll | marca-o `data-scroll-item`, não `data-reveal-item` — ver "Chegar não é o mesmo que aparecer" |
 | a forma de uma página interior    | a tabela em "As páginas interiores também têm forma própria" — uma forma repetida é o defeito que ela existe para travar |
 | os postos do `Cruz` numa página   | confirma que o gesto continua a "andar até ao fim" no `verificar-scroll.mjs`, e que a meio da página não passa de 0,6 de escala |
