@@ -56,7 +56,7 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `home/ComoTrabalhamos` | os quatro passos: cards que se acumulam em computador, fila horizontal no telemóvel | transformá-los numa grelha — a acumulação é o ponto; e dar-lhes a pilha no telemóvel, onde não cabe |
 | `home/ProvaCarrossel`  | o trabalho feito, em fila horizontal com a página presa                | usá-lo para hierarquia; lateral lê-se como alcance, não como ordem                          |
 | `home/ServicosMostra`  | os serviços um de cada vez                                            | catalogar aqui os seis — a página inicial apresenta, a `/servicos` cataloga                |
-| `home/Pacotes`    | por onde um projeto começa                                                 | escrever preços; saem de proposta, ver `docs/05`                                            |
+| `home/Pacotes`    | por onde um projeto começa                                                 | escrever preços; saem de proposta, ver `docs/05`. E distinguir o destacado só com a etiqueta |
 | `home/Fecho`      | o convite, no fim                                                          | deixá-lo esbater-se para o rodapé                                                          |
 | `Hero` *(sem uso)* | era a capa antiga                                                         | —                                                                                          |
 | `Testimonials`    | o que os clientes dizem, na homepage a seguir aos serviços                 | inventar a frase de um cliente para encher a secção — ver abaixo                           |
@@ -286,6 +286,28 @@ E o array só se preenche com frases que um cliente disse mesmo e autorizou. Um
 testemunho inventado atribuído a um cliente real é uma avaliação falsa, não é
 texto de rascunho — quem o lê não tem como distinguir.
 
+### O pacote destacado é um ground, não uma etiqueta
+
+Os quatro cards de "Por onde podemos começar" eram todos `bg-paper`, e o mais
+escolhido distinguia-se por um rótulo no canto superior direito. Numa fila de
+quatro colunas isso não faz o olho parar em lado nenhum: o rótulo lê-se depois
+de já se ter lido os quatro títulos, e nessa altura já não recomenda nada.
+
+Agora o card destacado é **`bg-primary` inteiro**, com `text-primary-ink` —
+7,26:1, o par já medido no `docs/02` e o mesmo que o `Fecho` usa. O texto de
+apoio vai a `/85` (5,86:1) para manter a hierarquia sem cair abaixo dos 4,5:1, e
+o "+" da lista troca o laranja pela tinta do ground: sobre o creme ele tem
+2,30:1 e é decorativo, sobre laranja desaparecia de vez.
+
+**A etiqueta fica.** Se o destaque passasse a ser só a cor, quem não a distingue
+deixava de saber qual é o pacote recomendado — 1.4.1 da WCAG. É ela que o diz
+por escrito; a cor é que o diz à distância.
+
+A coluna inteira acaba em laranja, porque o botão por baixo é `primary` como o
+dos outros três. Não é acidente: o que separa o botão do card é o `gap-3` com o
+ground escuro a passar no meio, e essa é a regra que não se desfaz — o botão
+vive **por fora** da caixa.
+
 ## Movimento
 
 **A biblioteca é o GSAP.** Setembro de 2026: o Motion saiu do projeto e o
@@ -394,7 +416,21 @@ uma medição a 120 fps sobre um site de referência, registada em
   **só nesse elemento e só nos atributos dele**; a árvore por baixo continua
   verificada. **Não o alastres ao `<body>` nem a componentes:** aí um aviso destes é
   um bug a sério e tem de aparecer.
-- Hover em cards: `-translate-y-1` no grupo. Botões: `active:scale-[0.97]`.
+- **Hover em cards: o contorno acende, e o card sobe — mas são duas coisas.** O
+  anel está sempre lá, `ring-2 ring-transparent`, para que o hover não mexa no
+  tamanho da caixa; o que muda é a cor — e acende **com a cor que o card não
+  tem**: `ring-primary` sobre creme e sobre `surface`, `ring-ink` sobre o card
+  laranja dos pacotes. Ali `ring-primary-ink` parece a escolha óbvia e não é: o
+  anel desenha-se por fora da caixa, sobre o ground escuro, e `primary-ink`
+  contra `bg` são 0,02 de luminosidade — não se via, e em movimento reduzido
+  esse card ficava sem resposta nenhuma. O deslocamento é `-translate-y-1` e vive **sozinho atrás
+  de `motion-safe:`** — a regra global de `globals.css` corta a *duração* da
+  transição, não o deslocamento, portanto sem essa variante quem pede movimento
+  reduzido continua a ver o card saltar, só que instantaneamente. Com ela sobra a
+  mudança de cor, que é o que se quer. `duration-200`, a mesma dos botões: é
+  resposta a um gesto, não uma entrada — e por isso é um dos poucos números que
+  não vem do `MOVIMENTO`, que é a gramática do scroll. Botões:
+  `active:scale-[0.97]`.
 
 ### O que o GSAP custou a aprender
 
@@ -622,6 +658,8 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | acrescentares uma secção a uma página com `Cruz` | dá-lhe `relative` — sem isso o "+" é pintado por cima dela |
 | qualquer coisa que se veja no telemóvel | corre o verificador em `--mobile`: ele mede ecrãs de scroll, alvos de toque, texto miúdo e o "+" por cima de texto, e nenhuma dessas quatro coisas era apanhada antes |
 | os postos do `Cruz`              | são **dois** conjuntos: `POSTOS_PAGINA` e `POSTOS_MOBILE`. Em `vw`, o mesmo número é margem num ecrã de 1440 e centro num de 390 |
+| o ground de um card, ou o pacote destacado | confirma o contraste do título, do texto de apoio **e** do "+" da lista: são três, e o que se esquece é sempre o terceiro |
+| um hover que desloca               | mete o deslocamento atrás de `motion-safe:` — a regra global corta a duração, não o `translate`, e sem a variante ele continua a acontecer |
 | recolheres um testemunho          | `lib/testimonials.ts`; a secção aparece sozinha assim que o array deixar de estar vazio                  |
 | a duração ou o easing             | **`lib/motion.ts`** e a tabela de valores acima — os componentes leem de lá, não têm números próprios      |
 | introduzires um componente que anima | verifica `prefers-reduced-motion` dentro dele: o GSAP não o faz por ti                                   |

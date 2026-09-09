@@ -4,7 +4,10 @@ export type Package = {
   name: string;
   desc: string;
   points: string[];
-  /** O mais escolhido leva etiqueta. Só um pode ter. */
+  /**
+   * O mais escolhido. Só um pode ter: na página inicial pinta o card inteiro
+   * de laranja, e dois destaques não destacam nada. Ver `docs/05`.
+   */
   featured?: boolean;
 };
 
