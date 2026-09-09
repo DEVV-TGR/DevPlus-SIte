@@ -22,6 +22,7 @@ controla:
   - lib/testimonials.ts
   - app/page.tsx#ordem-das-seccoes
   - components/home/Curva.tsx
+  - components/home/ServicosMostra.tsx
 relacionado:
   - docs/02-cores-e-tipografia.md
 ---
@@ -55,7 +56,7 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `home/Curva`      | o corte entre dois capítulos                                               | pôr uma linha reta no lugar dela; e usá-la sem `de`, que deixa passar o fundo do `body`     |
 | `home/ComoTrabalhamos` | os quatro passos: cards que se acumulam em computador, fila horizontal no telemóvel | transformá-los numa grelha — a acumulação é o ponto; e dar-lhes a pilha no telemóvel, onde não cabe |
 | `home/ProvaCarrossel`  | o trabalho feito, em fila horizontal com a página presa                | usá-lo para hierarquia; lateral lê-se como alcance, não como ordem                          |
-| `home/ServicosMostra`  | os serviços um de cada vez                                            | catalogar aqui os seis — a página inicial apresenta, a `/servicos` cataloga                |
+| `home/ServicosMostra`  | os serviços um de cada vez, com a meia-roda à direita a escolher qual | catalogar aqui os seis — a página inicial apresenta, a `/servicos` cataloga; e trocar o hover pelo clique, em vez de o acrescentar |
 | `home/Pacotes`    | por onde um projeto começa                                                 | escrever preços; saem de proposta, ver `docs/05`                                            |
 | `home/Fecho`      | o convite, no fim                                                          | deixá-lo esbater-se para o rodapé                                                          |
 | `Hero` *(sem uso)* | era a capa antiga                                                         | —                                                                                          |
@@ -94,7 +95,7 @@ diferente**, e é essa a regra que agora governa esta página:
 | 0 | Capa | Tipografia partida pelas duas margens, figura no vão | É o pico da página, e um pico precisa de composição, não de um cabeçalho |
 | 1 | Como trabalhamos | Quatro cards inclinados que chegam com o scroll e se **acumulam** sobre o título | No fim vê-se o processo todo de uma vez. Quatro caixas lado a lado diziam o mesmo e não se lembravam |
 | 2 | A prova | Fila horizontal, com a página presa | Lateral lê-se como **alcance**; vertical lê-se como argumento. Aqui não se argumenta |
-| 3 | Serviços | Um de cada vez, número enorme, navegação em círculos | Uma lista lê-se; isto **opera-se**, e quem procura um serviço salta-lhe em cima |
+| 3 | Serviços | Um de cada vez, número enorme, meia-roda à direita | Uma lista lê-se; isto **opera-se**, e quem procura um serviço passa-lhe o rato por cima |
 | 4 | Por onde começar | Grelha de pacotes: três e um caminho | O quarto não é um card, é a saída para quem não se revê nos três |
 | 5 | O convite | Fecho quente, que resolve | A última sensação é a que se leva |
 
@@ -479,9 +480,58 @@ do Club**: se um dia o projeto tiver licença, é aqui que se usa. Para um risco
   de opacidade continua tabulável e continua a ser lida, o que punha quatro
   botões "Falar sobre isto" na ordem de teclado, três deles invisíveis. E o
   `[hidden]` precisa de regra explícita quando há um `display` declarado, senão
-  não faz nada.
+  não faz nada. **Mas um elemento com `hidden` não anima**, portanto quem sai só
+  o recebe no fim da saída — até lá fica `inert`, que tira do teclado e do leitor
+  de ecrã sem tirar do ecrã.
 - **Os cards do processo acumulam-se, e por isso não levam `stagger`.** Cada um
   tem a sua fatia do percurso e **fica**; um stagger fá-los-ia suceder-se.
+
+### A meia-roda dos serviços
+
+Setembro de 2026. A navegação da `ServicosMostra` era uma coluna de quatro
+botões redondos e a troca era um corte seco. Passou a uma **meia-roda** encostada
+à direita — um semicírculo com os quatro serviços ao longo do arco, que se
+percorre com o rato sem clicar. O que se aprendeu a fazê-la:
+
+- **Os segmentos são `<button>` recortados com `clip-path`, não SVG.** O
+  `clip-path` recorta também o **hit-testing**, portanto quatro botões
+  sobrepostos na mesma caixa só respondem cada um dentro da sua fatia — e
+  continuam a ser botões, com `role="tab"`, teclado e leitor de ecrã de borla.
+  Um `<path>` dentro de um SVG obrigava a reconstruir tudo isso à mão.
+- **O `clip-path` corta o `outline` do foco.** O indicador global de
+  `focus-visible` desenha-se na caixa do botão, que o recorte deita fora: o foco
+  ficava invisível. Por isso o anel de foco vive **dentro** do sector, à volta do
+  número. É a mesma regra de sempre — não se anula o foco sem pôr outra coisa no
+  lugar —, só que aqui quem o anulava era a forma.
+- **A geometria é `polygon()` calculado, não uma string escrita à mão.** O centro
+  do círculo é o canto **direito** da caixa, que tem um raio de largura e dois de
+  altura: o `x` conta em raios e o `y` em meios. As mesmas funções desenham o
+  sector, o anel de fundo e a posição do número — se fossem três, divergiam.
+- **A escala do ativo obriga a devolver o `transform` ao CSS.** A montagem roda
+  cada segmento para o seu sítio e deixa `rotate: 0` escrito no `style`, o que
+  ganha à classe que faz o ativo crescer. A entrada acaba com
+  `clearProps: "transform"` — `"all"` continua proibido, ver acima.
+- **Os segmentos são superfícies opacas.** Com uma tinta translúcida por cima do
+  que está atrás, num ecrã estreito a roda cai sobre o círculo da figura, que tem
+  a mesma luminosidade, e restavam quatro números a flutuar no escuro.
+- **Chegar e trocar são dois gestos, e não se podem ler igual.** A entrada é a
+  roda a **montar-se** de cima para baixo com a cena a chegar por baixo; a troca é
+  a roda a **girar** — as peças saem e entram pelo lado para onde ela andou, e a
+  figura chega com um resto de rotação. E a troca não sobrepõe as duas cenas: duas
+  ilustrações a atravessarem-se a meio do crossfade liam-se como um borrão.
+- **O hover precisa da mesma trégua que o clique**, e de mais uma: enquanto o
+  ponteiro está **em cima** da roda, o scroll não manda de todo, e a trégua de dois
+  segundos só começa a contar quando o rato sai. Por baixo dele o scroll continuou
+  a andar; sem isto, o serviço que o rato acabou de escolher durava um frame.
+- **O rato acrescenta, não substitui.** Um toque também dispara `pointerenter` e
+  muitas vezes nunca manda o `pointerleave` — é a mesma lição do `ProjectsMarquee`.
+  O dedo fica de fora do hover e chega ao serviço pelo clique, como sempre.
+- **As peças desta secção não levam `data-reveal-item`.** É a exceção à regra, e é
+  deliberada: a secção está quatro capítulos abaixo da dobra, portanto não há frame
+  visível para tapar, e marcá-las punha o `verificar-scroll.mjs` a reportar como
+  presas as posições em que a secção ainda vem a subir e a entrada ainda não
+  disparou. Quem esconde é o `gsap.set` na hidratação; sem JavaScript nada se
+  esconde, que é o que a regra protege.
 
 ## Acessibilidade
 
@@ -617,6 +667,7 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | a sementeira de "+" da `Curva`    | confirma que nenhum atravessa a aresta: o `dy` tem de ser maior do que meia altura do símbolo mais cinco unidades |
 | a forma de uma curva              | mexe nos pontos de controlo, não no `d` — ele é derivado, e os "+" saem dos mesmos números |
 | um elemento que só chega a meio do scroll | marca-o `data-scroll-item`, não `data-reveal-item` — ver "Chegar não é o mesmo que aparecer" |
+| a forma da roda dos serviços      | a geometria sai das constantes `ARCO` / `FOLGA` / `R_DENTRO` do `ServicosMostra.tsx`, e o sector, o anel de fundo e a posição do número das mesmas funções — não escrevas um `polygon()` à mão |
 | a forma de uma página interior    | a tabela em "As páginas interiores também têm forma própria" — uma forma repetida é o defeito que ela existe para travar |
 | os postos do `Cruz` numa página   | confirma que o gesto continua a "andar até ao fim" no `verificar-scroll.mjs`, e que a meio da página não passa de 0,6 de escala |
 | acrescentares uma secção a uma página com `Cruz` | dá-lhe `relative` — sem isso o "+" é pintado por cima dela |
