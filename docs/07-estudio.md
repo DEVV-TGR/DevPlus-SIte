@@ -47,7 +47,7 @@ Em texto corrido escreve-se **Estúdio**, com maiúscula, quando é este sítio.
 | `lib/estudio/acoes.ts`        | as escritas, em Server Actions                  |
 | `lib/estudio/validacao.ts`    | as regras dos formulários, partilhadas          |
 | `lib/estudio/sessao.ts`       | cookie, sessão e `requerSessao()`               |
-| `components/estudio/GraficoMeses.tsx` | o único gráfico, em SVG escrito à mão   |
+| `components/estudio/GraficoCircular.tsx` | os circulares, em SVG escrito à mão  |
 | `lib/estudio/github.ts`       | o OAuth                                         |
 | `components/estudio/`         | os componentes, sobre as primitivas de `ui/`    |
 
@@ -247,14 +247,44 @@ porque ninguém adivinha isso de uma etiqueta que diz "a contar de".
 **Passado o alvo, a barra enche e o texto diz a verdade** — `12 de 10`, não
 `10 de 10`. Cumprir de mais não é um erro a esconder.
 
-### Dois saldos, não um
+**E ocupam a linha toda.** Isto viveu num terço de linha, ao lado dos dois
+saldos, e não dava: um objetivo é uma frase que alguém escreveu — "Dinheiro até
+ao final do ano" — e num terço de linha o `truncate` comia-a a meio. O cartão
+dizia menos do que estava escrito nele. Cabiam três e os restantes viravam um
+"e mais N" que ninguém abria, e cinco dos seis textos eram `text-muted` a 11-14
+px ao lado de números em corpo 30.
 
-O do mês diz como está a correr agora; o de sempre diz se o estúdio ganha
+Agora aparecem todos, os títulos envolvem em vez de cortar, e a barra tem altura
+e um fundo que se distingue do cartão. Em ecrã largo vão a duas colunas dentro
+da linha, para a altura não crescer com a largura — uma barra de 900 px para
+dizer "6 de 10" é espaço gasto sem nada em troca.
+
+### Três cartões, e o terceiro é teu
+
+O saldo do mês diz como está a correr agora; o de sempre diz se o estúdio ganha
 dinheiro. São perguntas diferentes e por isso são dois números lado a lado.
 
-Os dois cartões de saldo levam `justify-center`: a grelha estica os três à
-altura do mais alto, e com três objetivos na coluna da direita os números
-ficavam encostados ao topo com um palmo de vazio por baixo.
+**O terceiro é o número de tarefas por fazer de quem está a ver a página**, e é
+a única coisa do Estúdio que muda consoante quem entra. Todo o resto mostra o
+mesmo a toda a gente, de propósito: somos três e o trabalho é partilhado. Mas
+"o que é que *eu* tenho para fazer" não se responde com um número de toda a
+gente.
+
+**Só o número, e sem cor.** A lista das tarefas está no fundo da mesma página, e
+duas listas iguais no mesmo ecrã não são informação, são ruído. Sem cor
+semântica porque duas tarefas por fazer não são boas nem más — pintar o zero de
+verde era inventar um juízo que não é nosso.
+
+**As tarefas sem dono aparecem à parte e não somadas.** São trabalho por
+atribuir, não trabalho de ninguém, e hoje são a maioria. Somá-las ao número de
+cada pessoa fazia toda a gente parecer ter o mesmo; escondê-las fazia delas
+tarefas que ninguém vê.
+
+**Esta é a primeira consulta do resumo filtrada por quem está autenticado.** Até
+aqui a página chamava `requerSessao()` e deitava fora o que ele devolve.
+
+Os dois cartões de saldo levam `justify-center` porque a grelha estica os três à
+altura do mais alto.
 
 ### O resumo é do mês, e a primeira versão não era
 
@@ -263,9 +293,16 @@ doze meses. Estava desenhada para um ano de histórico e foi mostrada a quem
 tinha três semanas de dados: três dos quatro números a zero, e duas barras em
 doze lugares. **O erro não era o desenho, era a escala.**
 
-Agora responde por ordem: *quanto sobrou este mês*, *a quem tenho de cobrar*,
-*para onde foi o dinheiro*, e *o que ainda falta acontecer antes de o mês
-fechar*.
+Agora responde por ordem: *quanto sobrou este mês e o que tenho para fazer*,
+*onde queremos chegar*, *a quem tenho de cobrar e o que ainda falta acontecer*,
+*de onde veio e para onde foi o dinheiro*, e *o que temos em mãos*.
+
+**E nem tudo é do mês, desde que os circulares ganharam filtro.** O `h1`
+continua a dizer "Este mês" porque é o que a página assume por omissão, e porque
+os saldos, o "por cobrar" e o "ainda este mês" continuam todos a sê-lo. Os dois
+circulares é que passaram a dizer, no centro da roda, o período que estão a
+mostrar — e foi por isso que o texto do centro deixou de estar escrito dentro do
+componente.
 
 **Chama-se "saldo" e não "lucro".** Não leva ordenados nem impostos. A palavra
 errada faria um número confortável passar por outro, e é sobre números destes
@@ -293,6 +330,67 @@ pagamento de dia 31 num mês de 30 cai no último dia, não desaparece.
    `part-to-whole` ordenado por tamanho pede um degradê de uma cor. Os tons
    espalham-se pelo intervalo todo consoante o número de fatias — com uma tabela
    fixa, duas fatias saíam quase iguais.
+4. **O texto do centro é uma prop, nunca está escrito lá dentro.** Esteve: dizia
+   `este mês`, cozido no SVG. No dia em que o mesmo componente passou a desenhar
+   também "desde sempre", passou a ser uma legenda a mentir — e uma legenda a
+   mentir é pior do que não ter legenda nenhuma.
+
+### Cada circular tem o seu período
+
+São **dois filtros e não um**. "De onde veio este ano" e "para onde foi este
+mês" são perguntas que se fazem ao mesmo tempo, e um filtro partilhado obrigava
+a escolher uma delas. O risco — comparar dois períodos diferentes sem dar por
+isso — resolve-se com o período escrito no centro de cada roda.
+
+**O estado vive no endereço, não no browser.** São links com `searchParams`, e
+não botões com estado: o Estúdio inteiro funciona sem JavaScript de cliente, e
+um seletor com estado obrigava a tornar a página de cliente, arrastando consigo
+as consultas todas. De borla vêm três coisas que um `useState` não dava — um
+`/estudio?saidas=ano` é partilhável, o botão de voltar funciona, e recarregar
+não perde a escolha.
+
+**O valor por omissão não aparece no endereço.** `/estudio` e
+`/estudio?saidas=mes` mostram a mesma coisa, e um endereço que só carrega o que
+foi mesmo escolhido lê-se melhor quando se manda a alguém.
+
+**Um período que não existe é o período por omissão, nunca um erro.** Um
+`?saidas=banana` mostra o mês. Uma página de resumo não se recusa a desenhar por
+causa da barra de endereço.
+
+**E é isso que a torna segura.** O período vem de fora e escolhe um pedaço de
+SQL. O `lerPeriodo()` de `tipos.ts` estreita-o à lista fechada **antes** de
+chegar perto do `dados.ts`, e o `ONDE_PERIODO` é um `Record` de três predicados
+escritos à mão — não uma função que aceita texto. Se um dia isto aceitar uma
+`string`, é uma injeção de SQL a partir do endereço. O comentário no código diz
+isto por palavras, e não "interpola o período".
+
+**Cada link leva uma âncora** (`#de-onde`, `#para-onde`). Sem ela, cada clique
+atirava a página para o topo e deixava o gráfico que se está a filtrar a meio.
+
+### De onde veio o dinheiro, e de que projeto
+
+O espelho do "para onde foi", e faltava: via-se sempre o que saiu e nunca o que
+entrou.
+
+**Soma as duas tabelas** — `pagamentos` e `recebimentos` — como o
+`resumoDoMes()` e como o `case 'recebido'` dos objetivos. Os dois são dinheiro
+que entrou, e um gráfico que ignorasse o segundo ignorava aquilo de que o
+estúdio vai viver. Aqui somam-se de propósito, ao contrário do "por cobrar": lá,
+misturar um recebimento com um pagamento fazia o Estúdio dizer que um cliente
+devia menos dez euros do que devia — o único número da página que faz pegar no
+telefone, errado. Aqui a pergunta é só "de onde veio", e a resposta é o mesmo
+projeto.
+
+**As entradas repartem-se por projeto; as saídas por descrição.** Uma despesa
+interessa pelo nome ("Vercel Pro", "360imprimir — ementas"); uma entrada
+interessa por *de quem veio*, e um projeto pago em três prestações são três
+linhas que ninguém quer ver separadas no mesmo círculo.
+
+**Os dois somam em SQL**, e o "para onde foi" passou a somar também. Devolvia uma
+linha por gasto e deixava o componente juntá-las, o que era contra a regra da
+casa — e dava um erro a sério: dois gastos com a mesma descrição no mesmo mês
+viravam duas fatias iguais no mesmo círculo, com a mesma chave de React. Com o
+`group by`, o total não muda e as fatias passam a ser uma por descrição.
 
 ### O gráfico de barras, e uma cor que se mudou por causa do validador
 
@@ -378,9 +476,32 @@ guardado para o dia em que valha a pena.
 **Uma coluna, e secções com ar.** As páginas do Estúdio empilham-se de cima a
 baixo — nada de duas colunas com caixas espremidas ao lado. O ecrã tem altura de
 sobra; a largura é que é cara, e um nome de projeto ou a descrição de um gasto
-precisam de sítio para se lerem. Onde há mesmo duas colunas (o "precisa de ti" e
-as "tarefas" do resumo), leva `items-start`: sem isso a grelha estica os dois
-cartões à altura do mais alto e o mais curto fica com meio ecrã de vazio.
+precisam de sítio para se lerem. A regra continua a valer para as **listas de
+texto longo** — os gastos, os projetos, as fichas.
+
+O resumo é a exceção, e tem hoje três linhas de duas colunas: o "por cobrar" ao
+lado do "ainda este mês", os dois circulares, e o "em cima da mesa" ao lado das
+tarefas. São pares de coisas curtas que se leem melhor juntas do que empilhadas
+com meia página de largura por usar. **Todas levam `items-start`**: sem isso a
+grelha estica os dois cartões à altura do mais alto e o mais curto fica com meio
+ecrã de vazio.
+
+**"Em cima da mesa" chamava-se "Precisa de ti"**, e mostrava seis projetos
+filtrados por bloqueio ou atraso. O nome deixou de ser verdade no momento em que
+passou a mostrar tudo o que está aberto — uma proposta, que este doc descreve
+como "ainda não começou, não pede nada", não precisa de ninguém. Agora mostra
+tudo o que não está `entregue` nem `parado`, agrupado por estado, e é o
+agrupamento que diz o que urge; o `emAtraso()` continua a pintar a data de
+vermelho, e é isso que continua a dizer o que precisa mesmo de ti.
+
+**Os parados ficam de fora com os entregues.** Um projeto parado não está em
+mãos, e pô-lo ao lado do que anda fazia a lista deixar de responder à pergunta
+que lhe dá o nome.
+
+**Sem corte a seis.** Cortar escondia metade do que está aberto, numa lista que
+existe precisamente para se ver o todo. Quem a torna legível é o agrupamento —
+e a ordem dos grupos não se decide no componente, vem do `ORDEM` de `dados.ts`,
+tal como a ordem dos meses nos gastos vem do `order by`.
 
 **O que apaga fica sempre no fim.** Depois de tudo o resto, atrás de um
 `details` e de um separador. Um botão de apagar a meio da página, ao lado do de
@@ -521,9 +642,15 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | a estrutura de uma página              | abre-a no browser e olha — a ordem das secções e a altura das caixas não se veem num diff        |
 | como se guarda dinheiro                | `lib/estudio/schema.sql` (`numeric`, nunca `float`) e as somas continuam em SQL                  |
 | o cálculo dos vencimentos              | `vencimentosAte()` em `tipos.ts`; testa fevereiro, um mês de 30 e um `desde` a dia 31           |
-| o que conta como dinheiro que entrou   | `resumoDoMes()` **e** o `case 'recebido'` de `listarObjetivos()` — os dois somam as duas tabelas |
+| o que conta como dinheiro que entrou   | `resumoDoMes()`, o `case 'recebido'` de `listarObjetivos()` **e** `entradasDoPeriodo()` — os três somam as duas tabelas |
 | as cores do gráfico                    | corre o validador da skill `dataviz` antes — a escolha óbvia falhou o teste de daltonismo       |
 | acrescentares uma rota em `/estudio`   | acrescenta-a ao teste de fumo em `.github/workflows/ci.yml`                                      |
 | a organização do GitHub                | `ORGANIZACAO` em `lib/estudio/github.ts` — e o webhook na organização nova                       |
 | o que a importação traz de cada repo   | `importarRepos` em `lib/estudio/acoes.ts` **e** o webhook, para os dois criarem projetos iguais  |
 | o seletor de trabalhos                 | `components/estudio/SeletorDeRepos.tsx` — é usado nos dois sítios, o de criar e o da ficha      |
+| os períodos dos circulares             | `PERIODOS`/`lerPeriodo()` em `tipos.ts` **e** `ONDE_PERIODO` em `dados.ts` — o valor do endereço nunca chega ao SQL |
+| o texto do centro de um circular       | é a prop `nota`, nunca escrito lá dentro: os dois gráficos dizem períodos diferentes            |
+| um filtro por `searchParams` numa página | acrescenta um endereço **com o filtro** ao teste de fumo em `.github/workflows/ci.yml`         |
+| uma consulta filtrada pela pessoa       | guarda o retorno de `requerSessao()` — o resumo deitava-o fora até `tarefasPendentesDe()`       |
+| o que aparece em "Em cima da mesa"     | o filtro está em `app/estudio/page.tsx`; a ordem dos grupos vem do `ORDEM` de `dados.ts`        |
+| quantos objetivos se mostram            | `components/estudio/Objetivos.tsx` — a linha é inteira e o título não se corta                  |

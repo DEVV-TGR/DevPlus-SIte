@@ -11,10 +11,12 @@ import type {
   Objetivo,
   Pagamento,
   Periodicidade,
+  Periodo,
   Projeto,
   ProjetoLeve,
   Recebimento,
   Receita,
+  Reparticao,
   Tarefa,
   TipoReceita,
   Utilizador,
@@ -648,6 +650,28 @@ export async function recebimentosDoProjeto(
 
 const MES_ATUAL_SQL = `to_char(now() at time zone 'Europe/Lisbon', 'YYYY-MM')`;
 
+/**
+ * O pedaço de `where` que limita uma coluna de data a um período.
+ *
+ * **Nenhum destes textos vem de fora.** São três constantes escritas aqui, e o
+ * que chega do endereço só serve de *chave* depois de passar pelo `lerPeriodo()`
+ * de `tipos.ts`, que devolve sempre um dos três. É esta a razão de o período ser
+ * um `Record` e não uma função que recebe texto: assim não há forma de escrever
+ * a chamada de maneira a que um valor do utilizador acabe dentro da consulta.
+ *
+ * O argumento `col` é o nome qualificado da coluna (`g.data`, `rc.data`), e vem
+ * sempre de literais deste ficheiro — nunca de dados.
+ */
+const ONDE_PERIODO: Record<Periodo, (col: string) => string> = {
+  mes: (col) => `to_char(${col}, 'YYYY-MM') = ${MES_ATUAL_SQL}`,
+  ano: (col) =>
+    `to_char(${col}, 'YYYY') = to_char(now() at time zone 'Europe/Lisbon', 'YYYY')`,
+  /* `true` e não a ausência da cláusula: quem chama concatena sempre um `where`,
+     e um predicado sempre verdadeiro poupa dois caminhos na construção da
+     consulta — que é onde estas coisas se partem. */
+  sempre: () => `true`,
+};
+
 export type ResumoDoMes = {
   entrou: number;
   saiu: number;
@@ -712,35 +736,101 @@ export async function resumoDoMes(): Promise<ResumoDoMes> {
   };
 }
 
-/** Os gastos deste mês, para o circular. Um por linha — quem os agrupa em
- *  fatias é o componente, que é quem sabe quantas cabem. */
-export async function gastosDoMes(): Promise<Gasto[]> {
-  const linhas = await consulta<{
-    id: string;
-    projeto_id: string | null;
-    projeto_nome: string | null;
-    valor: string;
-    data: string;
-    descricao: string;
-    periodicidade: Periodicidade;
-  }>(
-    `select g.id, g.projeto_id, p.nome as projeto_nome, g.valor,
-            to_char(g.data, 'YYYY-MM-DD') as data, g.descricao, g.periodicidade
+/**
+ * Para onde foi o dinheiro no período, repartido por descrição.
+ *
+ * **A versão anterior devolvia uma linha por gasto e deixava o componente
+ * juntá-las.** Duas coisas estavam mal com isso. A primeira é a regra da casa:
+ * as somas de euros fazem-se em SQL (docs/07). A segunda era um erro a sério —
+ * dois gastos com a mesma descrição no mesmo mês viravam duas fatias iguais no
+ * mesmo círculo, e o `GraficoCircular` usa o rótulo como chave de React, por
+ * isso eram também duas chaves repetidas. Com o `group by`, o total não muda e
+ * as fatias passam a ser uma por descrição.
+ */
+export async function saidasDoPeriodo(
+  periodo: Periodo,
+): Promise<Reparticao[]> {
+  const linhas = await consulta<{ rotulo: string; valor: string }>(
+    `select g.descricao as rotulo, sum(g.valor) as valor
        from gastos g
-       left join projetos p on p.id = g.projeto_id
-      where to_char(g.data, 'YYYY-MM') = ${MES_ATUAL_SQL}
-      order by g.valor desc`,
+      where ${ONDE_PERIODO[periodo]("g.data")}
+      group by g.descricao
+      order by valor desc, rotulo asc`,
   );
 
-  return linhas.map((l) => ({
-    id: Number(l.id),
-    projetoId: l.projeto_id === null ? null : Number(l.projeto_id),
-    projetoNome: l.projeto_nome,
-    valor: Number(l.valor),
-    data: l.data,
-    descricao: l.descricao,
-    periodicidade: l.periodicidade,
-  }));
+  return linhas.map((l) => ({ rotulo: l.rotulo, valor: Number(l.valor) }));
+}
+
+/**
+ * De onde veio o dinheiro, repartido **por projeto**.
+ *
+ * O espelho do `gastosDoPeriodo()`, mas com uma diferença que vale a pena
+ * explicar: as saídas vêm linha a linha e as entradas vêm **somadas em SQL**.
+ * Uma despesa é uma coisa que aconteceu uma vez e cujo nome interessa ("Vercel
+ * Pro", "360imprimir — ementas"); uma entrada interessa por *de quem veio*, e um
+ * projeto pago em três prestações são três linhas que ninguém quer ver
+ * separadas. Somar aqui, e não no componente, é também a regra da casa — ver
+ * docs/07, "As somas fazem-se todas em SQL".
+ *
+ * As duas tabelas contam, porque as duas são dinheiro que entrou: os
+ * `pagamentos` abatem ao valor combinado de um projeto, os `recebimentos` saldam
+ * um vencimento de alojamento ou de domínio. Um gráfico que ignorasse os
+ * segundos ignorava aquilo de que o estúdio vai viver.
+ *
+ * A soma é `numeric` até ao fim e só depois vira `Number()`, uma vez por linha
+ * já somada — como em todo o resto deste ficheiro.
+ */
+export async function entradasDoPeriodo(
+  periodo: Periodo,
+): Promise<Reparticao[]> {
+  const linhas = await consulta<{ rotulo: string; valor: string }>(
+    `select coalesce(p.nome, 'Sem projeto') as rotulo,
+            sum(e.valor) as valor
+       from (
+              select projeto_id, valor
+                from pagamentos
+               where ${ONDE_PERIODO[periodo]("data")}
+              union all
+              select r.projeto_id, rc.valor
+                from recebimentos rc
+                join receitas r on r.id = rc.receita_id
+               where ${ONDE_PERIODO[periodo]("rc.data")}
+            ) e
+       left join projetos p on p.id = e.projeto_id
+      group by 1
+      order by 2 desc`,
+  );
+
+  return linhas.map((l) => ({ rotulo: l.rotulo, valor: Number(l.valor) }));
+}
+
+/**
+ * Quantas tarefas é que uma pessoa tem por fazer.
+ *
+ * **A única consulta do Estúdio filtrada por quem está autenticado.** Todas as
+ * outras mostram o mesmo a toda a gente, de propósito — somos três e o trabalho
+ * é partilhado. Esta é a exceção porque responde a "o que é que *eu* tenho para
+ * fazer", e um número que é de toda a gente não responde a isso.
+ *
+ * As que não têm dono vêm à parte e não somadas: são trabalho por atribuir, não
+ * trabalho de ninguém. Escondê-las fazia com que uma tarefa sem dono fosse uma
+ * tarefa que ninguém via — e a maior parte delas está assim.
+ */
+export async function tarefasPendentesDe(
+  utilizadorId: number,
+): Promise<{ minhas: number; semDono: number }> {
+  const linha = await consultaUma<{ minhas: number; sem_dono: number }>(
+    `select count(*) filter (where utilizador_id = $1)::int   as minhas,
+            count(*) filter (where utilizador_id is null)::int as sem_dono
+       from tarefas
+      where feita = false`,
+    [utilizadorId],
+  );
+
+  return {
+    minhas: linha?.minhas ?? 0,
+    semDono: linha?.sem_dono ?? 0,
+  };
 }
 
 export type Recorrente = {

@@ -88,9 +88,19 @@ function arco(de: number, ate: number, raio: number, interior: number): string {
 export function GraficoCircular({
   fatias,
   vazio,
+  nota,
+  descreve,
 }: {
   fatias: Fatia[];
   vazio: string;
+  /** O período, escrito por extenso, para o centro da roda: `este mês`,
+   *  `este ano`, `desde sempre`. Chega por prop e não está aqui escrito porque
+   *  o mesmo componente desenha agora as entradas e as saídas, e nenhum dos
+   *  dois manda no período do outro. */
+  nota: string;
+  /** O que isto é, para quem ouve a página em vez de a ver — "Despesas",
+   *  "Entradas". Entra no `aria-label` junto com o total e a `nota`. */
+  descreve: string;
 }) {
   const agrupadas = agrupar(fatias);
   const total = agrupadas.reduce((soma, f) => soma + f.valor, 0);
@@ -107,7 +117,10 @@ export function GraficoCircular({
           {formatarEuros(total)}
         </p>
         <p className="mt-1 text-sm text-muted">
-          tudo em {agrupadas[0].rotulo.toLowerCase()}
+          {/* Sem `toLowerCase()`: os rótulos deixaram de ser só descrições de
+              gastos e passaram a ser também nomes de projetos. "tudo em
+              império auto concept" lê-se a um nome próprio estropiado. */}
+          tudo em {agrupadas[0].rotulo}
         </p>
       </div>
     );
@@ -145,7 +158,7 @@ export function GraficoCircular({
         viewBox="0 0 200 200"
         className="h-40 w-40 shrink-0"
         role="img"
-        aria-label={`Despesas do mês, ${formatarEuros(total)} no total`}
+        aria-label={`${descreve} ${nota}, ${formatarEuros(total)} no total`}
       >
         {desenhadas.map((f) => (
           <path
@@ -174,7 +187,7 @@ export function GraficoCircular({
           className="fill-muted"
           style={{ fontSize: 11 }}
         >
-          este mês
+          {nota}
         </text>
       </svg>
 

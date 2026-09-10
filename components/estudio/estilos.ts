@@ -1,5 +1,6 @@
 /** docs: docs/07-estudio.md */
 import type { Estado } from "@/lib/estudio/tipos";
+import { cn } from "@/lib/utils";
 
 /**
  * As classes que se repetem no Estúdio. Estão aqui para o painel inteiro mudar
@@ -19,6 +20,24 @@ export const CARTAO =
   "rounded-2xl border border-border bg-surface p-6 transition-colors duration-300";
 
 export const PASTILHA = "rounded-full border px-2.5 py-1 text-xs";
+
+/**
+ * Uma pastilha que também é um filtro — a que está escolhida e as outras.
+ *
+ * Vive aqui porque é usada em dois sítios que não se conhecem: os estados em
+ * `/estudio/projetos` e os períodos dos gráficos do resumo. Estava escrita à
+ * mão dentro da página dos projetos, e a segunda cópia teria divergido da
+ * primeira ao segundo mês — que é exatamente o que este ficheiro existe para
+ * evitar.
+ */
+export const pastilhaFiltro = (ativa: boolean) =>
+  cn(
+    PASTILHA,
+    "transition-colors",
+    ativa
+      ? "border-primary/50 bg-primary/10 text-primary"
+      : "border-border text-muted hover:border-ink/30 hover:text-ink",
+  );
 
 export const SOBRETITULO = "text-xs uppercase tracking-[0.18em] text-muted";
 

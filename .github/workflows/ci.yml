@@ -106,6 +106,15 @@ jobs:
           # Ver docs/07-estudio.md.
           verificar /estudio                         307
           verificar /estudio/entrar                  200
+
+          # O mesmo com os filtros dos gráficos. O `await searchParams` do
+          # resumo tem de continuar **depois** do `requerSessao()`: se alguém o
+          # puser à frente, esta linha passa de 307 a 500. O segundo endereço é
+          # lixo de propósito — um período que não existe é o período por
+          # omissão, nunca um erro, e nada dali chega ao SQL (ver `lerPeriodo()`
+          # em lib/estudio/tipos.ts). Aspas por causa do `&`.
+          verificar "/estudio?entradas=ano&saidas=sempre"  307
+          verificar "/estudio?saidas=nao-existe"           307
           verificar /estudio/projetos                307
           verificar /estudio/clientes                307
           verificar /estudio/gastos                  307

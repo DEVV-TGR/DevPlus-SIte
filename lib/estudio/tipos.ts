@@ -335,6 +335,83 @@ export function agruparPorMes<T extends { data: string }>(
   return blocos;
 }
 
+/**
+ * Parte uma lista de projetos **já ordenada** em blocos de estado.
+ *
+ * Irmão do `agruparPorMes()`, e com a mesma regra: **não ordena nada**. Quem
+ * ordena é o `order by` de `listarProjetos()`, que já põe os estados na ordem de
+ * atenção (em curso, falta ir lá, à espera, proposta). Ordenar aqui outra vez
+ * criava uma segunda fonte para a mesma decisão, e um dia as duas discordavam.
+ */
+export function agruparPorEstado<T extends { estado: Estado }>(
+  itens: T[],
+): { estado: Estado; itens: T[] }[] {
+  const blocos: { estado: Estado; itens: T[] }[] = [];
+
+  for (const item of itens) {
+    const ultimo = blocos[blocos.length - 1];
+
+    if (ultimo && ultimo.estado === item.estado) ultimo.itens.push(item);
+    else blocos.push({ estado: item.estado, itens: [item] });
+  }
+
+  return blocos;
+}
+
+/* ------------------------------------------------------------------------
+   Períodos
+
+   A janela de tempo por que se olha para o dinheiro nos gráficos do resumo.
+   Vive aqui, e não em `dados.ts`, porque quem a lê primeiro é a página — o
+   valor vem do endereço, e tem de ser validado antes de chegar perto do SQL.
+   ------------------------------------------------------------------------ */
+
+export const PERIODOS = ["mes", "ano", "sempre"] as const;
+
+export type Periodo = (typeof PERIODOS)[number];
+
+/** O que se lê na pastilha do filtro. Curto: são três a competir por uma linha
+ *  ao lado de um título. */
+export const ROTULO_PERIODO: Record<Periodo, string> = {
+  mes: "Mês",
+  ano: "Ano",
+  sempre: "Desde sempre",
+};
+
+/** O mesmo, em texto corrido, para o centro da roda e para os avisos de vazio.
+ *  "Mês" debaixo de um total não diz nada; "este mês" diz. */
+export const PERIODO_ESCRITO: Record<Periodo, string> = {
+  mes: "este mês",
+  ano: "este ano",
+  sempre: "desde sempre",
+};
+
+/**
+ * Lê um período vindo do endereço.
+ *
+ * **Isto é uma fronteira de segurança, não uma conveniência.** O valor chega
+ * pelo `?entradas=` e o `dados.ts` escolhe com ele um pedaço de SQL. Se um valor
+ * qualquer passasse daqui, passava para dentro da consulta — e o `dados.ts` já
+ * constrói SQL por interpolação de texto noutros sítios, por isso o engano
+ * estaria a um copiar-colar de distância. Só saem daqui os três valores da
+ * lista; tudo o resto — vazio, lixo, ou uma tentativa de injeção — cai em `mes`
+ * sem erro nenhum, porque um endereço estranho não é motivo para partir a
+ * página de alguém.
+ */
+export function lerPeriodo(valor: string | undefined): Periodo {
+  return PERIODOS.includes(valor as Periodo) ? (valor as Periodo) : "mes";
+}
+
+/**
+ * Uma fatia de dinheiro **já somada pela base**, pronta para o circular.
+ *
+ * Vive aqui e não em `GraficoCircular.tsx` para o `dados.ts` não ter de importar
+ * tipos de um componente — a seta aponta sempre no mesmo sentido. É
+ * estruturalmente igual ao `Fatia` do componente, e por isso passa-lhe direto
+ * sem `.map()` pelo meio.
+ */
+export type Reparticao = { rotulo: string; valor: number };
+
 /** Um mês na história do dinheiro. Vive aqui, e não em `dados.ts`, para os
  *  gráficos não terem de importar tipos do módulo que fala com a base. */
 export type MesDeContas = { mes: string; entradas: number; saidas: number };

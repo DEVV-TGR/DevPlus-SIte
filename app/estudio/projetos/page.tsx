@@ -2,7 +2,11 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { CartaoProjeto } from "@/components/estudio/CartaoProjeto";
-import { CARTAO, PASTILHA, SOBRETITULO } from "@/components/estudio/estilos";
+import {
+  CARTAO,
+  pastilhaFiltro,
+  SOBRETITULO,
+} from "@/components/estudio/estilos";
 import { listarProjetos, listarUtilizadores } from "@/lib/estudio/dados";
 import { requerSessao } from "@/lib/estudio/sessao";
 import {
@@ -68,15 +72,6 @@ export default async function Projetos({
   const emCurso = projetos.filter((p) => p.estado === "em-curso").length;
   const aEspera = projetos.filter((p) => p.estado === "a-espera").length;
   const porVisitar = projetos.filter((p) => p.estado === "visita").length;
-
-  const pastilha = (ativa: boolean) =>
-    cn(
-      PASTILHA,
-      "transition-colors",
-      ativa
-        ? "border-primary/50 bg-primary/10 text-primary"
-        : "border-border text-muted hover:border-ink/30 hover:text-ink",
-    );
 
   return (
     <>
@@ -152,7 +147,7 @@ export default async function Projetos({
               <span className="sr-only">Filtrar por estado</span>
               <Link
                 href={href({ estado, quem }, { estado: "" })}
-                className={pastilha(!estado)}
+                className={pastilhaFiltro(!estado)}
               >
                 Todos
               </Link>
@@ -160,7 +155,7 @@ export default async function Projetos({
                 <Link
                   key={e}
                   href={href({ estado, quem }, { estado: estado === e ? "" : e })}
-                  className={pastilha(estado === e)}
+                  className={pastilhaFiltro(estado === e)}
                 >
                   {ROTULO_ESTADO[e]}
                 </Link>
@@ -177,7 +172,7 @@ export default async function Projetos({
                       { estado, quem },
                       { quem: quem === String(p.id) ? "" : String(p.id) },
                     )}
-                    className={pastilha(quem === String(p.id))}
+                    className={pastilhaFiltro(quem === String(p.id))}
                   >
                     {p.nome}
                   </Link>
