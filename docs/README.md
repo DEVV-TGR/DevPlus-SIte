@@ -14,6 +14,7 @@ Se um doc e o código discordarem, é um bug, não uma questão de gosto.
 | botões, cards, secções, animações              | [04-componentes-e-padroes.md](04-componentes-e-padroes.md) |
 | a lista de serviços                            | [05-servicos.md](05-servicos.md)                           |
 | o portfólio, um cliente novo, capas            | [06-projetos.md](06-projetos.md)                           |
+| o Estúdio interno em /estudio, projetos, login | [07-estudio.md](07-estudio.md)                             |
 
 ## Mapa inverso — de um ficheiro para o seu doc
 
@@ -31,6 +32,8 @@ Se um doc e o código discordarem, é um bug, não uma questão de gosto.
 | `components/ContactForm.tsx`, `lib/contacto.ts`, `app/api/contacto/route.ts`                              | 04                       |
 | `lib/services.ts`                                                                                         | 05                       |
 | `lib/projects.ts`, `components/ui/ProjectCard.tsx`, `components/ProjectsMarquee.tsx`, `public/capas/`     | 06                       |
+| `app/estudio/`, `app/api/estudio/`, `lib/estudio/`, `components/estudio/`, `components/CascaDoSite.tsx` | 07                       |
+| `scripts/estudio-migrar.mjs`                                                                              | 07                       |
 
 ## Como isto se mantém vivo
 

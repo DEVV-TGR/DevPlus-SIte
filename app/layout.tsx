@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
-import { Nav } from "@/components/Nav";
+import { CascaDoSite } from "@/components/CascaDoSite";
 import { Footer } from "@/components/Footer";
 import { OrganizationJsonLd } from "@/components/JsonLd";
 import { site } from "@/lib/site";
@@ -112,11 +112,11 @@ export default function RootLayout({
         </a>
         <OrganizationJsonLd />
         <Providers>
-          <Nav />
-          <main id="main" className="flex-1">
-            {children}
-          </main>
-          <Footer />
+          {/* A `Nav` e o `Footer` só existem no site público — o Estúdio
+              (`/estudio`) tem casca própria. Quem decide é a `CascaDoSite`,
+              que precisa do caminho e por isso é de cliente; o `Footer` vai
+              como prop para continuar a ser de servidor. Ver docs/07. */}
+          <CascaDoSite rodape={<Footer />}>{children}</CascaDoSite>
         </Providers>
         <div className="grain-overlay" aria-hidden />
       </body>

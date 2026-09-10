@@ -26,6 +26,17 @@ const emDesenvolvimento = process.env.NODE_ENV === "development";
  * não dá para lado nenhum. Se um dia entrar conteúdo vindo de fora — um CMS,
  * comentários, uma newsletter — esta conta muda e volta-se a fazê-la.
  *
+ * **O Estúdio (`/estudio`) não é esse dia, e vale a pena dizer porquê.** Tem
+ * base de dados, tem utilizadores e tem input — mas nada disso chega ao browser
+ * por fora: as leituras e as escritas correm no servidor (Server Actions e
+ * `lib/estudio/*`), o OAuth do GitHub é servidor contra servidor, e o que se
+ * renderiza foi escrito por uma das três pessoas que entram lá. Por isso o
+ * `connect-src 'self'` fica como está — o browser não fala com a Neon nem com a
+ * API do GitHub — e o `img-src 'self'` também, que é a razão por que as fotos
+ * do GitHub não aparecem no Estúdio (ver `components/estudio/Responsaveis.tsx`).
+ * O dia de refazer esta conta é aquele em que texto de alguém de fora do
+ * estúdio chegar a uma destas páginas. Ver docs/07-estudio.md.
+ *
  * `'unsafe-eval'` **só em desenvolvimento**: o React usa `eval` para
  * reconstruir as stacks de erro do servidor no browser. Em produção nem o React
  * nem o Next o usam, e por isso não entra.
