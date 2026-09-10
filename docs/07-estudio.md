@@ -587,12 +587,29 @@ Três decisões que valem a leitura:
    pooling se a tiveres — em serverless, uma ligação direta por invocação esgota
    o limite da base.
 2. **Tabelas:** `node --env-file=.env.local scripts/estudio-migrar.mjs`.
-3. **OAuth App** em <https://github.com/settings/developers>. O callback tem de
-   bater certo letra a letra: `https://devplus.pt/api/estudio/auth/callback`.
-   Para trabalhar em local faz uma segunda App com
-   `http://localhost:3000/api/estudio/auth/callback` — o GitHub só aceita um
-   callback por App, e por isso **os deploys de pré-visualização da Vercel não
-   conseguem entrar no Estúdio**.
+3. **OAuth App** em <https://github.com/settings/developers>, separador
+   **OAuth Apps** (não **GitHub Apps**, que são outra coisa). Os endereços de
+   retorno registam-se na secção **Redirect URIs**, e o GitHub aceita até dez por
+   App — os dois cabem na mesma:
+
+   ```
+   https://devplus.pt/api/estudio/auth/callback
+   http://localhost:3000/api/estudio/auth/callback
+   ```
+
+   Têm de bater certo letra a letra: `https` em produção, sem barra no fim, sem
+   `www`. Deixa **Allow wildcard matching** desmarcado — ligá-lo mandaria os
+   tokens para qualquer subdomínio e qualquer caminho a partir do endereço, e o
+   que está por trás são dados de clientes.
+
+   **Os deploys de pré-visualização da Vercel continuam a não entrar no
+   Estúdio**: cada um tem um domínio gerado na hora, e esses não há como
+   registar.
+
+   Quando não entrar, os dois erros do GitHub dizem coisas diferentes: um
+   **"Be careful!"** é um `redirect_uri` que não está na lista da App; uma página
+   **404** é um `GITHUB_CLIENT_ID` que não corresponde a App nenhuma — uma gralha
+   ou um espaço a mais no valor que está na Vercel.
 4. **`ESTUDIO_LOGINS`** com os logins do GitHub de quem entra, separados por
    vírgulas.
 5. **Webhook** (só depois de estar em produção): gera um segredo com
