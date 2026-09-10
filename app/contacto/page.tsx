@@ -17,6 +17,7 @@ export default function ContactoPage() {
   return (
     <>
       <PageHero
+        vista="contacto"
         eyebrow="Contacto"
         title="Vamos falar sobre o teu projeto."
         intro="Conta-nos o que tens em mente. Pode ser um projeto pronto a arrancar ou só uma ideia ainda por arrumar — respondemos na mesma."

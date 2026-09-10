@@ -39,7 +39,7 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `ui/Section`      | espaçamento vertical entre blocos; `top`/`bottom` desligam cada metade      | pôr padding vertical à mão, ou tentar anulá-lo com `pt-0` — ver abaixo                     |
 | `ui/Button`       | 3 variantes: `primary`, `outline`, `ghost`                                 | usar `<a>` cru com classes de botão; links externos já são detetados pelo `http` no `href` |
 | `ui/ProjectCard`  | um projeto na grelha (capa, etiquetas, serviços)                           | duplicar o card noutra página                                                              |
-| `Reveal`          | aparecer no scroll (fade + 16px)                                           | envolver cada elemento; envolve o bloco                                                    |
+| `Reveal`          | aparecer no scroll (fade + 20px + desfoque de entrada)                     | envolver cada elemento; envolve o bloco                                                    |
 | `Marquee`         | faixa horizontal infinita, decorativa                                      | pôr lá conteúdo que importe — é `aria-hidden`                                              |
 | `ProjectsMarquee` | a faixa de projetos da página inicial: conteúdo real, focável e arrastável | usá-lo para decoração — para isso é o `Marquee`; e pôr `gap` no track, que parte o ciclo   |
 | `PageHero`        | cabeçalho das páginas internas (eyebrow + h1 + intro)                      | escrever um h1 solto numa página interna                                                   |
@@ -174,6 +174,108 @@ texto de rascunho — quem o lê não tem como distinguir.
   um bug a sério e tem de aparecer.
 - Hover em cards: `-translate-y-1` no grupo. Botões: `active:scale-[0.97]`.
 
+### O hero tem profundidade, e ela mede-se
+
+Setembro de 2026: o hero da homepage deixou de ser texto sobre fundo liso e
+passou a ter **quatro planos** — `components/HeroPlanes.tsx`.
+
+- **O hero ocupa um ecrã** (`min-h-[88svh]`), não vários. Ganha profundidade mas
+  não se prende: quem vem ver o portfólio chega lá à primeira rolada. Nada de
+  pinning cinematográfico na homepage.
+- **`svh`, nunca `vh`.** No telemóvel a barra do browser faz o `vh` mentir e o
+  hero saía mais alto do que o ecrã que existe.
+- **As taxas de viagem têm de ser visivelmente diferentes**, e estão na
+  constante `VIAGEM`: fundo 6%, meio 20%, o "+" 32%, frente 46%. Taxas próximas
+  não dão profundidade, dão uma fotografia a deslizar. Medido aos 70% de scroll,
+  os planos ficam em 39, 131, 139 e 301 px — se um dia isso convergir, a
+  profundidade morreu e o número denuncia-o.
+- **`y` e `translateY` são a mesma propriedade no Motion.** Passar as duas no
+  mesmo `style` faz a segunda anular a primeira, e o parallax desaparece **em
+  silêncio**. Por isso cada plano são dois `div` aninhados: o de fora leva o
+  scroll, o de dentro o ponteiro.
+- **`MotionConfig reducedMotion="user"` não chega aqui.** Ele desarma animações
+  declarativas, mas um `useTransform` ligado ao scroll não é uma animação, é um
+  valor derivado — continuava a mexer para quem pediu menos movimento. O
+  componente lê `useReducedMotion()` e zera as taxas à mão.
+- **O ponteiro é um extra**, nunca a única forma de ver o hero, e só responde a
+  `(pointer: fine)`. O hero tem de ficar completo sem rato nenhum.
+- **O "+" continua a ser SVG de código**, nunca imagem gerada. A geometria vive
+  em `lib/brand.ts` e manda o `docs/03`; um modelo generativo devolve-o torto.
+
+### As imagens do hero passam por `scripts/otimizar-hero.mjs`
+
+O gerador devolve PNG de ~5 MB, e três desses seriam 16 MB antes de a página
+pintar. O script leva-os a **0,48 MB no total** (96,9% menos), e faz duas coisas
+que o `next/image` não faz sozinho:
+
+- **Corta para telemóvel, não encolhe.** O recorte é 3:4 ao centro, que é onde
+  os planos têm o assunto. Um 16:9 reduzido deixava a estrutura do tamanho de
+  uma unha.
+- **Qualidade por plano.** O da frente vive desfocado e aguenta q68; o do meio
+  tem arestas de betão e leva q84.
+
+Daí o `<picture>` com `<source media>` no `HeroPlanes`, em vez de duas
+`next/image` com `hidden`: são enquadramentos diferentes, não tamanhos
+diferentes, e duas imagens escondidas por CSS descarregam as duas em vários
+browsers — seria pagar o hero a dobrar.
+
+## Transições entre páginas
+
+Setembro de 2026. Antes, cada navegação era um corte: um conjunto de elementos
+desaparecia, outro aparecia, e nada ligava os dois. O `template.tsx` fazia um
+fade de 10px, igual nos dois sentidos.
+
+Agora usam-se as **View Transitions** do React, que o Next 16 traz sem
+configuração nenhuma. Duas coisas acontecem:
+
+**A capa de um projeto morfa.** O card na grelha e a capa no topo da página do
+projeto partilham `view-transition-name` — `capa-<slug>` — e o browser anima uma
+na outra. Quem clica vê **um objeto a mudar de tamanho**, não dois a trocar de
+lugar. É continuidade com significado; diz "é a mesma coisa".
+
+**A página tem direção.** Descer na hierarquia (`/portfolio` →
+`/portfolio/<slug>`) desliza para a frente; voltar atrás desliza para trás. O
+CSS não sabe sozinho o que é descer, por isso o `template.tsx` escreve
+`data-sentido` no `<html>`.
+
+### O que já custou caro aprender
+
+- **`view-transition-name` repetido parte o morph inteiro.** Não degrada: acaba.
+  O `ProjectsMarquee` mostra 15 cards de 5 projetos, e por isso só a primeira
+  ronda leva nome — é a prop `shared` do `ProjectCard`. Se um dia outro sítio
+  repetir cards, tem de passar `shared={false}`.
+- **`share="morph"` e `default="none"` andam aos pares.** Sem o `default`, cada
+  capa nomeada animava em **qualquer** navegação do site. Com `default="none"`
+  mas sem `share` explícito, o par deixa de morfar **em silêncio**.
+- **A capa da página do projeto não leva `Reveal`.** O `Reveal` começa a
+  `opacity: 0` e sobe 16px, que é o contrário do que um morph faz — a capa
+  piscava antes de assentar.
+- **Uma gramática de movimento, não duas.** O `template.tsx` deixou de animar
+  com Motion: um fade da página inteira ao mesmo tempo que a capa morfa via-se a
+  competir. A animação de página vive agora em `globals.css`, nas mesmas 0,45 s
+  e na mesma curva `[0.22, 1, 0.36, 1]` de tudo o resto.
+- **O StrictMode corre o efeito duas vezes.** O `template.tsx` guardava só a
+  profundidade da rota, e a segunda passagem lia o valor que a primeira acabara
+  de escrever: `/` → `/portfolio` dava "lado" onde devia dar "avanca". Guarda-se
+  o **caminho** junto com a profundidade, e a segunda passagem reconhece-se.
+- **O Lenis não interfere**, mas confirma-se: medido, o `scrollY` fica a 0 depois
+  de navegar.
+- **Sem suporte no browser, o site funciona na mesma** e não anima. Não há
+  fallback a escrever.
+
+Como se confirma que o morph acontece de facto: **não por screenshot** — as view
+transitions correm no compositor e não aparecem em capturas. Espia-se o
+`document.startViewTransition` e leem-se as animações vivas com
+`getAnimations({ subtree: true })`: aparecem `::view-transition-group(capa-<slug>)`
+e o respetivo `image-pair` se o par se formou.
+
+**Lê por polling, não uma vez só.** A primeira versão desta verificação lia no
+`transition.ready` e dava falso negativo conforme o momento — chegou a apontar
+para uma avaria que não existia, e a suspeita seguinte (que um `filter: blur(0px)`
+parado no `Reveal` impedia a elevação para a camada da transição) foi testada e
+**não se confirmou**: o par forma-se com ou sem esse filtro. Sondar de 16 em 16 ms
+enquanto a transição corre dá sempre o mesmo resultado.
+
 ## Acessibilidade
 
 Isto não é opcional e já está em vigor:
@@ -301,6 +403,10 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | a ordem das secções da homepage   | `app/page.tsx` **e** a tabela em "A homepage conta uma história" — a ordem sem a razão dura uma sessão   |
 | recolheres um testemunho          | `lib/testimonials.ts`; a secção aparece sozinha assim que o array deixar de estar vazio                  |
 | a duração ou o easing             | `components/Reveal.tsx`, `components/Hero.tsx` e os `transition-*` dos cards — muda em todos ou em nenhum |
+| as taxas de parallax do hero      | a constante `VIAGEM` em `components/HeroPlanes.tsx` **e** os números da secção "O hero tem profundidade" |
+| os planos do hero                 | volta a correr `node scripts/otimizar-hero.mjs <pasta>`; os PNG por otimizar não entram em `public/`       |
+| onde os cards de projeto aparecem | passa `shared={false}` se repetires cards no mesmo documento — nomes repetidos matam o morph              |
+| a duração ou a curva das páginas  | `app/globals.css` (blocos `::view-transition-*`) — as mesmas 0,45 s e curva do resto do site               |
 | o espaçamento vertical            | `components/ui/Section.tsx`, não as páginas                                                               |
 | a largura máxima                  | `components/ui/Container.tsx`, não as páginas                                                             |
 | as regras do formulário           | `lib/contacto.ts` — os dois lados importam de lá; não acrescentes uma segunda cópia                       |

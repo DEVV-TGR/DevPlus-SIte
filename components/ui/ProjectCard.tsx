@@ -1,4 +1,5 @@
 /** docs: docs/04-componentes-e-padroes.md · docs/06-projetos.md (capas e estado) */
+import { ViewTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -35,15 +36,17 @@ function Cover({
   project,
   sizes,
   blur,
+  shared,
 }: {
   project: Project;
   sizes: string;
   blur: boolean;
+  shared: boolean;
 }) {
   const shape = project.accent === "accent" ? "bg-accent/15" : "bg-primary/15";
   const fundo = blur ? SOBRE_CAPA.desfocada : SOBRE_CAPA.opaca;
 
-  return (
+  const capa = (
     <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-border bg-surface-2">
       {project.image ? (
         <>
@@ -106,6 +109,29 @@ function Cover({
       </span>
     </div>
   );
+
+  /*
+    O morph para a página do projeto: a capa daqui e a capa de lá partilham
+    nome, e o browser anima uma na outra. O visitante vê UM objeto a mudar de
+    tamanho, não dois a trocar de lugar.
+
+    `shared` é obrigatoriamente `false` nas repetições do `ProjectsMarquee`. A
+    faixa mostra 15 cards de 5 projetos, e um `view-transition-name` repetido no
+    mesmo documento **parte a transição inteira** — não é um pormenor de
+    polimento, é a diferença entre haver morph e não haver nenhum.
+
+    `share="morph"` com `default="none"`: sem o `default`, cada capa nomeada
+    animava em qualquer navegação do site, mesmo entre páginas que nada têm que
+    ver com ela. E o `share` explícito é preciso — com `default="none"` sozinho,
+    o par deixa de morfar em silêncio.
+  */
+  if (!shared) return capa;
+
+  return (
+    <ViewTransition name={`capa-${project.slug}`} share="morph" default="none">
+      {capa}
+    </ViewTransition>
+  );
 }
 
 export function ProjectCard({
@@ -115,6 +141,7 @@ export function ProjectCard({
   sizes = DEFAULT_SIZES,
   blur = true,
   focusable = true,
+  shared = true,
 }: {
   project: Project;
   index?: number;
@@ -131,6 +158,9 @@ export function ProjectCard({
   /** `false` nas repetições da faixa: o card continua clicável, mas sai da
    *  ordem de tabulação — senão o teclado percorria 15 cards onde há 5. */
   focusable?: boolean;
+  /** `false` nas repetições da faixa: nomes de view-transition repetidos no
+   *  mesmo documento partem o morph. Ver o comentário em `Cover`. */
+  shared?: boolean;
 }) {
   const card = (
     <Link
@@ -143,7 +173,7 @@ export function ProjectCard({
           etiquetas, mas na grelha do portfólio cabe. */}
       <article className="group @container flex flex-col gap-4">
         <div className="transition-transform duration-500 ease-out group-hover:-translate-y-1">
-          <Cover project={project} sizes={sizes} blur={blur} />
+          <Cover project={project} sizes={sizes} blur={blur} shared={shared} />
         </div>
         <div className="flex flex-col gap-2 px-1 @md:flex-row @md:items-start @md:justify-between @md:gap-4">
           <div>
