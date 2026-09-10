@@ -29,10 +29,11 @@ const AUTORIZAR = "https://github.com/login/oauth/authorize";
 const TOKEN = "https://github.com/login/oauth/access_token";
 const UTILIZADOR = "https://api.github.com/user";
 
-/** O endereço de retorno tem de bater certo, letra a letra, com o que está
- *  registado na OAuth App do GitHub. São dois: o de produção e o de local. Os
- *  deploys de pré-visualização da Vercel não entram — cada um tem um domínio
- *  diferente e não há como os registar todos. Ver docs/07. */
+/** O endereço de retorno tem de bater certo, letra a letra, com um dos que estão
+ *  registados na OAuth App do GitHub. São dois — o de produção e o de local — e
+ *  cabem os dois na mesma App, que o GitHub aceita até dez. Os deploys de
+ *  pré-visualização da Vercel não entram na mesma: cada um tem um domínio
+ *  gerado na hora e esses não há como registar. Ver docs/07. */
 export function urlDeRetorno(): string {
   const base =
     process.env.NODE_ENV === "production" ? site.url : "http://localhost:3000";
