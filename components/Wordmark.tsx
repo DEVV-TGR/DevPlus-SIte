@@ -15,7 +15,10 @@ export function Wordmark({ className }: { className?: string }) {
     <Link
       href="/"
       aria-label={`${site.name} — página inicial`}
-      className={cn("group inline-flex items-center", className)}
+      /* `py-2.5` e o `-my-2.5` que o compensa: a área tocável passa a 44px de
+         alto sem o logótipo mudar de sítio nem de tamanho. O desenho fica
+         onde estava; o dedo é que passa a acertar-lhe. */
+      className={cn("group -mx-2 -my-2.5 inline-flex items-center px-2 py-2.5", className)}
     >
       <Lockup animated className="h-6 w-auto shrink-0" />
     </Link>
