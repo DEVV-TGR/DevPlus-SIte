@@ -160,6 +160,28 @@ um custo fixo errado por doze vezes. O `POR_MES` em `lib/estudio/tipos.ts` põe-
 na mesma escala — e a semanal conta `52 / 12`, não `4`, porque um ano tem 52
 semanas e arredondar para quatro escondia quase um mês de despesa por ano.
 
+**O custo fixo do estúdio conta só o que se repete e não é de um projeto.** Um
+domínio que pagamos por um cliente repete-se todos os anos, mas não é despesa
+nossa: sai e volta a entrar pela receita `dominio` do projeto, ao cêntimo e
+normalmente no mesmo dia. Contá-lo fazia o estúdio parecer mais caro do que é —
+o mesmo erro que a regra de cima evita, só ao contrário. Esses aparecem na
+página, listados à parte e com o seu subtotal, porque não os mostrar era pior:
+saem da conta bancária na mesma, e quem olha tem de os ver algures.
+
+**O cartão do custo fixo diz de onde vem o número.** Um total sozinho não se
+consegue verificar nem contestar, e um número que ninguém consegue contestar
+deixa de ser olhado. Cada despesa aparece com a periodicidade, o valor a que é
+paga **e** o equivalente por mês — os dois, porque um domínio de 39,50 € por ano
+não é uma despesa de 3,29 €: são 39,50 € que caem todos de uma vez num mês.
+
+**A lista de gastos agrupa-se por mês.** A ordem vem do `order by g.data desc`
+da consulta e não se decide no componente. O agrupamento é só para a ordem se
+**ver**: numa linha, o valor é o que salta primeiro e a data é a coisa mais
+pequena e mais apagada, o que fazia a lista parecer baralhada quando nunca
+esteve. Quem parte a lista é o `agruparPorMes()` de `tipos.ts`, que preserva a
+ordem que recebe de propósito — se um dia a consulta vier baralhada, quer-se que
+isso apareça, não que seja escondido a caminho do ecrã.
+
 ### As somas fazem-se todas em SQL
 
 O `pg` devolve `numeric` como texto, e o `number` do JavaScript não é exato.
@@ -489,6 +511,8 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | a decisão de não haver `proxy.ts`      | relê o comentário da CSP em `next.config.ts` antes — a conta muda                                |
 | a `CascaDoSite`                        | confirma que a homepage continua estática (`○`) no output do `npm run build`                    |
 | a periodicidade dos gastos             | `PERIODICIDADES` e `POR_MES` em `tipos.ts`, o `check` do esquema, e o seletor do formulário      |
+| o que conta como custo fixo do estúdio | `app/estudio/gastos/page.tsx` — e confirma que o que sai da conta continua visível algures       |
+| a ordem dos gastos                     | é no `order by` de `listarGastos()`, nunca no componente; o `agruparPorMes()` só parte a lista   |
 | o que um cliente paga por mês          | é na ficha do **projeto** — a do cliente só mostra a soma                                        |
 | o cálculo do "ainda este mês"          | `proximaOcorrencia()` em `tipos.ts`; testa os meses de 30 e 31 dias e fevereiro                  |
 | o número de fatias do circular         | `MAX_FATIAS` e `tom()` em `GraficoCircular.tsx` — os tons espalham-se pelo total, não são fixos  |

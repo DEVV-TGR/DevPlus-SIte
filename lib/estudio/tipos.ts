@@ -299,6 +299,42 @@ export function formatarMes(mes: string): string {
   return `${nome} ${String(ano).slice(2)}`;
 }
 
+/** `2026-09` -> `setembro de 2026`. Para os cabeçalhos que separam os meses numa
+ *  lista, onde `set 26` ficaria a dizer menos do que o espaço permite. */
+export function formatarMesLongo(mes: string): string {
+  const [ano, m] = mes.split("-").map(Number);
+  const nome = new Intl.DateTimeFormat("pt-PT", {
+    month: "long",
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(ano, m - 1, 1)));
+  return `${nome} de ${ano}`;
+}
+
+/**
+ * Parte uma lista já ordenada em blocos de mês, sem lhe mexer na ordem.
+ *
+ * Recebe a lista pela ordem em que vai ser mostrada e devolve-a agrupada por
+ * `YYYY-MM`. **Não ordena nada**: quem ordena é o `order by` da consulta, e se
+ * esta função também ordenasse passavam a existir duas fontes para a mesma
+ * decisão. Se a lista vier baralhada, sai baralhada em blocos — e é isso que se
+ * quer, porque o bug fica à vista em vez de ser escondido aqui.
+ */
+export function agruparPorMes<T extends { data: string }>(
+  itens: T[],
+): { mes: string; itens: T[] }[] {
+  const blocos: { mes: string; itens: T[] }[] = [];
+
+  for (const item of itens) {
+    const mes = item.data.slice(0, 7);
+    const ultimo = blocos[blocos.length - 1];
+
+    if (ultimo && ultimo.mes === mes) ultimo.itens.push(item);
+    else blocos.push({ mes, itens: [item] });
+  }
+
+  return blocos;
+}
+
 /** Um mês na história do dinheiro. Vive aqui, e não em `dados.ts`, para os
  *  gráficos não terem de importar tipos do módulo que fala com a base. */
 export type MesDeContas = { mes: string; entradas: number; saidas: number };
