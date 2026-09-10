@@ -17,7 +17,15 @@ copia, para não haver duas listas a divergir. Vai lá ver quais são.
 
 São **6**. Aparecem em dois sítios, ambos a ler do mesmo array:
 
-- `app/servicos/page.tsx` — lista completa, em `divide-y` (aguenta qualquer número);
+- `app/servicos/page.tsx` — os seis, no **acordeão de colunas** do
+  `components/paginas/ServicosAcordeao.tsx` (aguenta qualquer número: as colunas
+  repartem a largura entre si). **No telemóvel o acordeão deita-se e perde o
+  pin** — seis linhas abertas que se lêem de uma vez; com pin, cobrava 3,4 ecrãs
+  de scroll para mostrar o que já estava no ecrã. Há ilustração para quatro; o **Branding** e o
+  **Motion & Interação** ficam com o "+" em marca-d'água em vez de uma figura
+  emprestada de outro serviço — se forem geradas, é com o preâmbulo do
+  `scrollcraft/builds/devplus/PLANO-V3.md`, que é o que mantém as nove atuais no
+  mesmo estilo;
 - `app/page.tsx` — teaser, numa grelha `sm:grid-cols-2`, **depois** do trabalho
   selecionado. A oferta vem a seguir à prova, não antes — ver `docs/04`,
   "A homepage conta uma história".
@@ -98,12 +106,28 @@ em vez de ficar diluído numa frase do serviço de Desenvolvimento.
 5. Se houver um projeto que o demonstre, usa o mesmo nome nas `services` desse
    projeto em `lib/projects.ts` — os nomes devem bater certo entre as duas listas.
 
+## Os pacotes vivem em `lib/packages.ts`
+
+Estiveram escritos à mão dentro de `app/servicos/page.tsx` até a página inicial
+passar a mostrá-los também. Saíram de lá nessa altura: duas cópias da mesma
+lista divergem ao segundo mês, e a que fica desatualizada é sempre a que o
+cliente lê primeiro.
+
+**Não levam preços, e isso é deliberado.** O valor sai de uma proposta, depois
+de se perceber o âmbito — é um compromisso comercial e não copy, pela mesma
+razão que as respostas do FAQ não se reescrevem sem confirmação.
+
+Só um pacote pode ter `featured`.
+
 ## Ao alterar este documento
 
 | Se mudares…                         | Faz também                                                     |
 | ----------------------------------- | -------------------------------------------------------------- |
 | a lista de serviços                 | `lib/services.ts`; segue a checklist acima toda                |
 | uma resposta da FAQ sobre dinheiro  | confirma com o Gonçalo **antes** — ver "A FAQ não é copy"      |
-| o número de serviços                | verifica a grelha `sm:grid-cols-2` em `app/page.tsx`           |
+| o número de serviços                | verifica a grelha `sm:grid-cols-2` em `app/page.tsx` **e** o acordeão da `/servicos`: acima de sete colunas, as fechadas deixam de se ler |
+| acrescentares um serviço com figura | põe-na em `public/ilustra/` e acrescenta-a a `FIGURAS`, em `components/paginas/ServicosAcordeao.tsx` — a ordem é a de `lib/services.ts` |
 | um `title`                          | procura esse nome nas `services` de `lib/projects.ts` e alinha |
 | as regras de escrita (blurb, items) | revê os 6 serviços existentes de uma vez                       |
+
+| acrescentares ou mudares um pacote | `lib/packages.ts` — a página inicial e a `/servicos` leem ambas de lá        |
