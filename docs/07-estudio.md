@@ -190,6 +190,26 @@ Somar cinquenta valores em vírgula flutuante acumula cêntimos que ninguém
 consegue explicar três meses depois. Em `lib/estudio/dados.ts` o `Number()`
 aparece só a converter um total que já vem somado pelo Postgres.
 
+### Um fragmento de SQL partilhado qualifica-se sempre
+
+As listas de colunas que se reutilizam entre consultas — os `CAMPOS_*` de
+`lib/estudio/dados.ts` — escrevem-se com o alias da tabela à frente de cada
+coluna, e a consulta que as usa é obrigada a dar esse alias.
+
+Isto custou uma página. O `CAMPOS_RECEITA` nasceu sem qualificação, porque a
+primeira consulta que o usou tinha uma tabela só e não precisava. Quando o
+mesmo fragmento entrou na consulta das receitas de um cliente, que faz
+`join projetos`, o `id`, o `valor` e as `notas` passaram a existir nas duas
+tabelas e o Postgres recusou a consulta com `column reference "id" is
+ambiguous`. Recusou-a **no planeamento**: não era um erro que aparecesse quando
+havia receitas, era a ficha de todos os clientes a rebentar sempre, e ninguém
+deu por isso porque o teste de fumo do CI responde `307` a `/estudio/clientes`
+sem nunca correr uma consulta.
+
+Um fragmento qualificado obriga o alias no sítio onde é usado. O próximo `join`
+que o reutilize mal parte na consulta nova, à vista, em vez de partir uma
+página que ninguém está a olhar.
+
 ### A escrever, aceitam-se vírgulas
 
 `1.500,50` é como se escreve cá, e `Number("1.500,50")` é `NaN`. Quem trata
@@ -429,6 +449,12 @@ faz `npm run build` mais um teste de fumo. Se o Estúdio precisasse da
 causa de uma página que nem é pública. É por isso que o CI verifica
 `/estudio → 307` e `/estudio/entrar → 200`: **se um dia derem 500, alguém pôs
 uma consulta antes da verificação do cookie.**
+
+**Quem sai aterra no site, não no ecrã de entrada.** O `/api/estudio/auth/sair`
+manda para `/`. Devolver alguém a `/estudio/entrar` é oferecer-lhe a porta por
+onde acabou de passar; quem sai do Estúdio saiu da ferramenta e o que quer ver a
+seguir é o site. Continua a ser um `POST` — isso é sobre não se poder disparar
+de fora, e não tem nada a ver com o destino.
 
 **A CSP não mudou.** O comentário em `next.config.ts` justificava-se com "não há
 base de dados, não há utilizadores, não há input" — e agora há os três. A conta
@@ -724,6 +750,8 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | as métricas dos objetivos              | `METRICAS` em `tipos.ts`, o `check` do esquema **e** o `case` de `listarObjetivos()` em `dados.ts` |
 | a estrutura de uma página              | abre-a no browser e olha — a ordem das secções e a altura das caixas não se veem num diff        |
 | como se guarda dinheiro                | `lib/estudio/schema.sql` (`numeric`, nunca `float`) e as somas continuam em SQL                  |
+| um fragmento `CAMPOS_*` de `dados.ts`  | qualifica-o com o alias e dá esse alias à tabela — o primeiro `join` que o use sem isso rebenta  |
+| para onde vai quem sai                 | `app/api/estudio/auth/sair/route.ts` — é `/`, o site, e o `303` mantém-se                        |
 | o cálculo dos vencimentos              | `vencimentosAte()` em `tipos.ts`; testa fevereiro, um mês de 30 e um `desde` a dia 31           |
 | o que conta como dinheiro que entrou   | `resumoDoMes()`, o `case 'recebido'` de `listarObjetivos()` **e** `entradasDoPeriodo()` — os três somam as duas tabelas |
 | as cores do gráfico                    | corre o validador da skill `dataviz` antes — a escolha óbvia falhou o teste de daltonismo       |
