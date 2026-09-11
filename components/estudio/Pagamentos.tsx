@@ -4,7 +4,11 @@
 import { useActionState, useEffect, useRef } from "react";
 import { BotaoGuardar } from "@/components/estudio/BotaoGuardar";
 import { CAMPO, ETIQUETA } from "@/components/estudio/estilos";
-import { apagarPagamento, type EstadoDinheiro } from "@/lib/estudio/acoes";
+import {
+  apagarPagamento,
+  type EstadoDinheiro,
+  type EstadoValorCombinado,
+} from "@/lib/estudio/acoes";
 import {
   formatarData,
   formatarEuros,
@@ -14,27 +18,47 @@ import {
 } from "@/lib/estudio/tipos";
 
 /**
- * O dinheiro de um projeto: o que já entrou, e um campo para registar mais.
+ * O dinheiro de um projeto, todo no mesmo sítio: o que se combinou, o que já
+ * entrou, e um campo para registar mais.
  *
- * O valor combinado é um campo do formulário do projeto; isto é o outro lado —
- * o que entrou mesmo. A diferença entre os dois é o "por cobrar", e é o único
- * número aqui que faz alguém pegar no telefone.
+ * O valor combinado era um campo do formulário do projeto, lá em cima, ao lado
+ * do progresso e do prazo. Não é aí que se pensa nele — pensa-se nele quando se
+ * está a olhar para o que já entrou e para o que falta cobrar, que é aqui.
+ *
+ * O campo é ao mesmo tempo o que mostra e o que edita: não há um número
+ * "Combinado" em cima e um campo repetido em baixo a dizer o mesmo. Por isso a
+ * grelha ao lado só tem os dois números que *derivam* dele. A diferença entre
+ * os dois é o "por cobrar", e é o único número aqui que faz alguém pegar no
+ * telefone.
+ *
+ * Dois `useActionState` e não um: um erro a escrever o valor combinado não tem
+ * que apagar o "Guardado" do pagamento que se registou ao lado. Mesmo motivo
+ * que no `Receitas.tsx`.
  *
  * Vários pagamentos por projeto de propósito: um sinal, um faseado, um resto.
  * Um campo só "já pagou / não pagou" perdia metade dos casos reais.
  */
 export function Pagamentos({
   acao,
+  acaoValor,
   projetoId,
   contas,
   pagamentos,
 }: {
   acao: (anterior: EstadoDinheiro, form: FormData) => Promise<EstadoDinheiro>;
+  acaoValor: (
+    anterior: EstadoValorCombinado,
+    form: FormData,
+  ) => Promise<EstadoValorCombinado>;
   projetoId: number;
   contas: ContasProjeto;
   pagamentos: Pagamento[];
 }) {
   const [estado, submeter] = useActionState<EstadoDinheiro, FormData>(acao, {});
+  const [estadoValor, submeterValor] = useActionState<
+    EstadoValorCombinado,
+    FormData
+  >(acaoValor, {});
   const form = useRef<HTMLFormElement>(null);
 
   /* Limpa depois de gravar: quem regista um pagamento costuma registar o
@@ -54,13 +78,64 @@ export function Pagamentos({
         Dinheiro
       </h2>
 
-      <dl className="mt-4 grid grid-cols-3 gap-3 text-center">
-        <div>
-          <dt className="text-xs text-muted">Combinado</dt>
-          <dd className="mt-0.5 text-sm font-medium tabular-nums">
-            {contas.valor === null ? "—" : formatarEuros(contas.valor)}
-          </dd>
+      {/* Irmão do formulário de registar pagamento, nunca aninhado nele: dois
+          `<form>` não se metem um dentro do outro. */}
+      <form action={submeterValor} className="mt-4" noValidate>
+        <input type="hidden" name="projetoId" value={projetoId} />
+        <label htmlFor="valor-combinado" className={ETIQUETA}>
+          Combinado <span className="text-muted">(sem IVA)</span>
+        </label>
+        <div className="flex flex-wrap items-start gap-3">
+          {/* A largura vai no invólucro e não no `<input>`: o `CAMPO` já traz
+              `w-full`, e pôr um `w-40` ao lado deixava duas larguras a competir
+              no mesmo elemento — quem ganha depende da ordem no CSS gerado, não
+              da ordem em que se escrevem. */}
+          <div className="w-40">
+            {/* Texto e não `type="number"`: escreve-se `1.500,50` cá, e um
+                campo numérico do browser recusa a vírgula em metade das
+                configurações. Quem trata disto é o `lerValor()` de
+                `lib/estudio/validacao.ts`, o mesmo que a ação corre. */}
+            <input
+              id="valor-combinado"
+              name="valor"
+              inputMode="decimal"
+              placeholder="1500,50"
+              /* Devolvido com vírgula, que é como se pede. Um campo que
+                 aceita `1.234,56` e responde `1234.56` põe quem o usa a
+                 duvidar se ficou bem gravado. Sem `formatarEuros()`: isto é um
+                 campo de escrita, não um número para ler — o `€` e o separador
+                 de milhares vinham só para serem apagados à mão. */
+              defaultValue={
+                contas.valor === null
+                  ? ""
+                  : String(contas.valor).replace(".", ",")
+              }
+              className={`${CAMPO} tabular-nums`}
+              aria-invalid={estadoValor.erro ? true : undefined}
+              aria-describedby={estadoValor.erro ? "erro-combinado" : undefined}
+            />
+          </div>
+          <BotaoGuardar aGuardar="A guardar…">Guardar</BotaoGuardar>
+          {estadoValor.ok ? (
+            <p role="status" className="self-center text-sm text-accent">
+              Guardado
+            </p>
+          ) : null}
         </div>
+        {estadoValor.erro ? (
+          <p
+            id="erro-combinado"
+            role="alert"
+            className="mt-1.5 text-sm text-danger"
+          >
+            {estadoValor.erro}
+          </p>
+        ) : null}
+      </form>
+
+      {/* Só os dois números que derivam do campo acima — repetir o "Combinado"
+          aqui era dizer duas vezes a mesma coisa no mesmo ecrã. */}
+      <dl className="mt-5 grid grid-cols-2 gap-3 text-center">
         <div>
           <dt className="text-xs text-muted">Recebido</dt>
           <dd className="mt-0.5 text-sm font-medium tabular-nums text-accent">
@@ -74,16 +149,15 @@ export function Pagamentos({
               contas.porCobrar > 0 ? "text-primary" : "text-muted"
             }`}
           >
-            {formatarEuros(contas.porCobrar)}
+            {contas.valor === null ? "—" : formatarEuros(contas.porCobrar)}
           </dd>
         </div>
       </dl>
 
       {contas.valor === null ? (
         <p className="mt-3 text-xs text-muted">
-          Sem valor combinado ainda. Escreve-o no campo &ldquo;Valor
-          combinado&rdquo; do formulário, e o &ldquo;por cobrar&rdquo; passa a
-          fazer contas.
+          Sem valor combinado ainda — escreve-o aqui em cima e o &ldquo;por
+          cobrar&rdquo; passa a fazer contas.
         </p>
       ) : null}
 

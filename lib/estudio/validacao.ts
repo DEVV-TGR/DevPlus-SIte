@@ -34,7 +34,6 @@ export type ErrosProjeto = Partial<
     | "nome"
     | "estado"
     | "progresso"
-    | "valor"
     | "inicio"
     | "prazo"
     | "repoUrl"
@@ -53,7 +52,6 @@ export const CAMPOS_PROJETO = [
   "nome",
   "estado",
   "progresso",
-  "valor",
   "inicio",
   "prazo",
   "repoUrl",
@@ -96,7 +94,6 @@ export type DadosProjeto = {
   clienteId: string;
   estado: string;
   progresso: string;
-  valor: string;
   inicio: string;
   prazo: string;
   repoUrl: string;
@@ -117,10 +114,10 @@ export function validarProjeto(dados: DadosProjeto): ErrosProjeto {
   if (!Number.isInteger(progresso) || progresso < 0 || progresso > 100)
     erros.progresso = "O progresso é um número de 0 a 100.";
 
-  /* Vazio vale: um projeto pode existir muito antes de haver preço combinado,
-     e `null` na base quer dizer isso mesmo — não é zero. */
-  const valor = validarValor(dados.valor, { vazioVale: true });
-  if (valor) erros.valor = valor;
+  /* O valor combinado não se valida aqui. Não vem neste formulário — escreve-se
+     na secção Dinheiro da ficha, e quem o valida é o `validarValorCombinado()`
+     mais abaixo. Um projeto pode existir muito antes de haver preço, e `null`
+     na base quer dizer isso mesmo: não é zero. */
 
   if (dados.inicio && !DATA.test(dados.inicio))
     erros.inicio = "Escolhe uma data de início no calendário.";
@@ -270,6 +267,19 @@ export function validarValor(
   if (valor > VALOR_MAXIMO) return "Esse valor parece ter um zero a mais.";
 
   return undefined;
+}
+
+/**
+ * A regra do valor combinado de um projeto, num sítio só.
+ *
+ * Vazio é uma resposta legítima e não um erro: um projeto existe muito antes de
+ * haver preço, e `null` na base quer dizer "ainda não se combinou" — que não é
+ * zero. Existe como função com nome próprio, e não como `validarValor(…, {
+ * vazioVale: true })` escrito à mão em cada sítio, porque o formulário da
+ * secção Dinheiro e a ação que grava têm de correr exatamente a mesma regra.
+ */
+export function validarValorCombinado(texto: string): string | undefined {
+  return validarValor(texto, { vazioVale: true });
 }
 
 export function ePeriodicidade(valor: string): valor is Periodicidade {

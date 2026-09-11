@@ -102,6 +102,19 @@ página valer alguma coisa. O `projetos.valor` é o que ficou combinado; a tabel
 número aqui que faz alguém pegar no telefone. Um painel que somasse só valores
 acordados mostrava dinheiro que ainda não existe.
 
+**E o combinado escreve-se na secção Dinheiro da ficha do projeto**, ao lado do
+que já entrou. Esteve no formulário do projeto, lá em cima, entre o progresso e
+o prazo — e não é aí que se pensa nele. Pensa-se nele a olhar para o que falta
+cobrar. O campo é ao mesmo tempo o que mostra e o que edita, por isso a grelha
+ao lado só tem os dois números que *derivam* dele: ter o "Combinado" em número
+**e** em campo era dizer duas vezes a mesma coisa no mesmo ecrã.
+
+Consequência deliberada: **o `guardarValorCombinado` é o único sítio que escreve
+`projetos.valor`.** Um projeto nasce sem preço e escreve-se logo a seguir, na
+ficha. Com dois escritores, o `update` do formulário do projeto levava
+`valor = lerValor("")` — ou seja `null` — e uma gravação do nome apagava o preço
+combinado sem ninguém pedir.
+
 **A página de receitas responde a duas perguntas, e são mesmo duas.** "O que
 está contratado" é a tabela `receitas` — que não é dinheiro, é a promessa de que
 ele vem. "Tudo o que já entrou" é `pagamentos` **mais** `recebimentos`, e é esse
@@ -220,6 +233,26 @@ O `pg` devolve `numeric` como texto, e o `number` do JavaScript não é exato.
 Somar cinquenta valores em vírgula flutuante acumula cêntimos que ninguém
 consegue explicar três meses depois. Em `lib/estudio/dados.ts` o `Number()`
 aparece só a converter um total que já vem somado pelo Postgres.
+
+### Um fragmento de SQL partilhado qualifica-se sempre
+
+As listas de colunas que se reutilizam entre consultas — os `CAMPOS_*` de
+`lib/estudio/dados.ts` — escrevem-se com o alias da tabela à frente de cada
+coluna, e a consulta que as usa é obrigada a dar esse alias.
+
+Isto custou uma página. O `CAMPOS_RECEITA` nasceu sem qualificação, porque a
+primeira consulta que o usou tinha uma tabela só e não precisava. Quando o
+mesmo fragmento entrou na consulta das receitas de um cliente, que faz
+`join projetos`, o `id`, o `valor` e as `notas` passaram a existir nas duas
+tabelas e o Postgres recusou a consulta com `column reference "id" is
+ambiguous`. Recusou-a **no planeamento**: não era um erro que aparecesse quando
+havia receitas, era a ficha de todos os clientes a rebentar sempre, e ninguém
+deu por isso porque o teste de fumo do CI responde `307` a `/estudio/clientes`
+sem nunca correr uma consulta.
+
+Um fragmento qualificado obriga o alias no sítio onde é usado. O próximo `join`
+que o reutilize mal parte na consulta nova, à vista, em vez de partir uma
+página que ninguém está a olhar.
 
 ### A escrever, aceitam-se vírgulas
 
@@ -461,6 +494,12 @@ causa de uma página que nem é pública. É por isso que o CI verifica
 `/estudio → 307` e `/estudio/entrar → 200`: **se um dia derem 500, alguém pôs
 uma consulta antes da verificação do cookie.**
 
+**Quem sai aterra no site, não no ecrã de entrada.** O `/api/estudio/auth/sair`
+manda para `/`. Devolver alguém a `/estudio/entrar` é oferecer-lhe a porta por
+onde acabou de passar; quem sai do Estúdio saiu da ferramenta e o que quer ver a
+seguir é o site. Continua a ser um `POST` — isso é sobre não se poder disparar
+de fora, e não tem nada a ver com o destino.
+
 **A CSP não mudou.** O comentário em `next.config.ts` justificava-se com "não há
 base de dados, não há utilizadores, não há input" — e agora há os três. A conta
 continua a bater certo porque nada disso chega ao browser: as leituras e as
@@ -517,6 +556,21 @@ tarefas. São pares de coisas curtas que se leem melhor juntas do que empilhadas
 com meia página de largura por usar. **Todas levam `items-start`**: sem isso a
 grelha estica os dois cartões à altura do mais alto e o mais curto fica com meio
 ecrã de vazio.
+
+**Os clientes são cartões, e não uma lista de linhas.** Não foi por gosto: em
+lista, a ficha do cliente abria-se desde sempre com um clique na linha inteira e
+**ninguém percebia que aquilo se clicava**. A linha só mudava de fundo ao passar
+o rato, e não se passa o rato por cima de texto à espera de descobrir que é um
+botão. Um cartão com contorno próprio diz parado o que a linha só dizia ao ser
+tocada. É a mesma grelha dos projetos, e as duas listas de fichas passam a
+ler-se da mesma maneira.
+
+Dentro do cartão vão os **nomes** dos trabalhos e não a contagem: a pergunta que
+se faz a uma lista de clientes é "qual deles é o do restaurante?", e um "3
+projetos" obriga a entrar para a responder. Com uma exceção que só se vê com os
+dados à frente — aqui a maioria dos projetos chama-se exatamente como o cliente,
+e "A Barraquinha Nova" com "A Barraquinha Nova" por baixo é o título do cartão
+outra vez, em cinzento. Esses saltam; se não sobrar nenhum, diz-se quantos são.
 
 **"Em cima da mesa" chamava-se "Precisa de ti"**, e mostrava seis projetos
 filtrados por bloqueio ou atraso. O nome deixou de ser verdade no momento em que
@@ -749,12 +803,15 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | o que conta como custo fixo do estúdio | `app/estudio/gastos/page.tsx` — e confirma que o que sai da conta continua visível algures       |
 | a ordem dos gastos                     | é no `order by` de `listarGastos()`, nunca no componente; o `agruparPorMes()` só parte a lista   |
 | o que um cliente paga por mês          | é na ficha do **projeto** — a do cliente só mostra a soma                                        |
+| onde se escreve o valor combinado      | só o `guardarValorCombinado` — um segundo escritor apaga a coluna com um `set valor = null`       |
 | o cálculo do "ainda este mês"          | `proximaOcorrencia()` em `tipos.ts`; testa os meses de 30 e 31 dias e fevereiro                  |
 | o número de fatias do circular         | `MAX_FATIAS` e `tom()` em `GraficoCircular.tsx` — os tons espalham-se pelo total, não são fixos  |
 | a edição de tarefas                    | é só em `components/estudio/Tarefas.tsx` — o resumo mostra-as, não lhes mexe                     |
 | as métricas dos objetivos              | `METRICAS` em `tipos.ts`, o `check` do esquema **e** o `case` de `listarObjetivos()` em `dados.ts` |
 | a estrutura de uma página              | abre-a no browser e olha — a ordem das secções e a altura das caixas não se veem num diff        |
 | como se guarda dinheiro                | `lib/estudio/schema.sql` (`numeric`, nunca `float`) e as somas continuam em SQL                  |
+| um fragmento `CAMPOS_*` de `dados.ts`  | qualifica-o com o alias e dá esse alias à tabela — o primeiro `join` que o use sem isso rebenta  |
+| para onde vai quem sai                 | `app/api/estudio/auth/sair/route.ts` — é `/`, o site, e o `303` mantém-se                        |
 | o cálculo dos vencimentos              | `vencimentosAte()` em `tipos.ts`; testa fevereiro, um mês de 30 e um `desde` a dia 31           |
 | o que conta como dinheiro que entrou   | `resumoDoMes()`, o `case 'recebido'` de `listarObjetivos()`, `entradasDoPeriodo()` **e** `listarEntradas()` — todos somam as duas tabelas |
 | uma rota dentro de `/estudio/financas` | a `SubNavegacao`, o `revalidatePath` das ações do dinheiro **e** o teste de fumo do CI |
@@ -769,6 +826,7 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | um filtro por `searchParams` numa página | acrescenta um endereço **com o filtro** ao teste de fumo em `.github/workflows/ci.yml`         |
 | uma consulta filtrada pela pessoa       | guarda o retorno de `requerSessao()` — o resumo deitava-o fora até `tarefasPendentesDe()`       |
 | o que aparece em "Em cima da mesa"     | o filtro está em `app/estudio/page.tsx`; a ordem dos grupos vem do `ORDEM` de `dados.ts`        |
+| a lista de clientes                    | `components/estudio/CartaoCliente.tsx` — cartões, e o nome do trabalho só aparece se diferir do do cliente |
 | quantos objetivos se mostram            | `components/estudio/Objetivos.tsx` — a linha é inteira e o título não se corta                  |
 | o `max` do pool em `lib/estudio/db.ts`  | mede antes e mede depois — o `1` original serializava os `Promise.all`; ver "Porque é que isto esteve lento" |
 | a região da base de dados              | `regions` no `vercel.json` vai atrás dela; função e base longe uma da outra pagam o dobro em cada consulta   |
