@@ -475,11 +475,18 @@ type LinhaReceita = {
   notas: string | null;
 };
 
+/* Qualificado com `r.`, e a tabela tem de se chamar `r` onde isto for usado.
+   Não é preciosismo: este fragmento entra numa consulta com `join projetos`, e
+   `receitas` e `projetos` partilham `id`, `valor` e `notas`. Sem o alias o
+   Postgres recusa por ambiguidade — e recusa no *planeamento*, antes de olhar
+   para uma linha, por isso não é um erro que só apareça quando há dados: era a
+   ficha de qualquer cliente a rebentar sempre. Qualificar aqui é o que faz o
+   próximo `join` que reutilize isto falhar alto, em vez de em silêncio. */
 const CAMPOS_RECEITA = `
-  id, projeto_id, tipo, valor, periodicidade,
-  to_char(desde, 'YYYY-MM-DD') as desde,
-  to_char(ate,   'YYYY-MM-DD') as ate,
-  notas`;
+  r.id, r.projeto_id, r.tipo, r.valor, r.periodicidade,
+  to_char(r.desde, 'YYYY-MM-DD') as desde,
+  to_char(r.ate,   'YYYY-MM-DD') as ate,
+  r.notas`;
 
 function paraReceita(l: LinhaReceita): Receita {
   return {
@@ -496,9 +503,9 @@ function paraReceita(l: LinhaReceita): Receita {
 
 export async function receitasDoProjeto(projetoId: number): Promise<Receita[]> {
   const linhas = await consulta<LinhaReceita>(
-    `select ${CAMPOS_RECEITA} from receitas
-      where projeto_id = $1
-      order by tipo asc, desde desc`,
+    `select ${CAMPOS_RECEITA} from receitas r
+      where r.projeto_id = $1
+      order by r.tipo asc, r.desde desc`,
     [projetoId],
   );
   return linhas.map(paraReceita);
