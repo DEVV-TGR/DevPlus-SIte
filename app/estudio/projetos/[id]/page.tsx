@@ -11,6 +11,7 @@ import {
   apagarProjeto,
   guardarProjeto,
   guardarReceita,
+  guardarValorCombinado,
   registarPagamento,
   registarRecebimento,
 } from "@/lib/estudio/acoes";
@@ -156,6 +157,7 @@ export default async function Projeto({
           <section className={CARTAO}>
             <Pagamentos
               acao={registarPagamento}
+              acaoValor={guardarValorCombinado}
               projetoId={projeto.id}
               contas={contas}
               pagamentos={pagamentos}

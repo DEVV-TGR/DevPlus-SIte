@@ -85,6 +85,19 @@ página valer alguma coisa. O `projetos.valor` é o que ficou combinado; a tabel
 número aqui que faz alguém pegar no telefone. Um painel que somasse só valores
 acordados mostrava dinheiro que ainda não existe.
 
+**E o combinado escreve-se na secção Dinheiro da ficha do projeto**, ao lado do
+que já entrou. Esteve no formulário do projeto, lá em cima, entre o progresso e
+o prazo — e não é aí que se pensa nele. Pensa-se nele a olhar para o que falta
+cobrar. O campo é ao mesmo tempo o que mostra e o que edita, por isso a grelha
+ao lado só tem os dois números que *derivam* dele: ter o "Combinado" em número
+**e** em campo era dizer duas vezes a mesma coisa no mesmo ecrã.
+
+Consequência deliberada: **o `guardarValorCombinado` é o único sítio que escreve
+`projetos.valor`.** Um projeto nasce sem preço e escreve-se logo a seguir, na
+ficha. Com dois escritores, o `update` do formulário do projeto levava
+`valor = lerValor("")` — ou seja `null` — e uma gravação do nome apagava o preço
+combinado sem ninguém pedir.
+
 **Vários pagamentos por projeto**, porque é assim que se paga: um sinal, um
 faseado, um resto. Quem paga a mais não fica a dever ao contrário — o `por
 cobrar` nunca desce abaixo de zero, senão um pagamento a mais abatia dívidas
@@ -744,6 +757,7 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | o que conta como custo fixo do estúdio | `app/estudio/gastos/page.tsx` — e confirma que o que sai da conta continua visível algures       |
 | a ordem dos gastos                     | é no `order by` de `listarGastos()`, nunca no componente; o `agruparPorMes()` só parte a lista   |
 | o que um cliente paga por mês          | é na ficha do **projeto** — a do cliente só mostra a soma                                        |
+| onde se escreve o valor combinado      | só o `guardarValorCombinado` — um segundo escritor apaga a coluna com um `set valor = null`       |
 | o cálculo do "ainda este mês"          | `proximaOcorrencia()` em `tipos.ts`; testa os meses de 30 e 31 dias e fevereiro                  |
 | o número de fatias do circular         | `MAX_FATIAS` e `tom()` em `GraficoCircular.tsx` — os tons espalham-se pelo total, não são fixos  |
 | a edição de tarefas                    | é só em `components/estudio/Tarefas.tsx` — o resumo mostra-as, não lhes mexe                     |

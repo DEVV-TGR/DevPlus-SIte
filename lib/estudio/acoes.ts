@@ -15,6 +15,7 @@ import {
   validarPagamento,
   validarObjetivo,
   validarReceita,
+  validarValorCombinado,
 } from "@/lib/estudio/validacao";
 import {
   campo,
@@ -62,7 +63,6 @@ function lerProjeto(form: FormData) {
     clienteId: campo(form.get("clienteId"), 20),
     estado: campo(form.get("estado"), 20),
     progresso: campo(form.get("progresso"), 5),
-    valor: campo(form.get("valor"), 20),
     inicio: campo(form.get("inicio"), 10),
     prazo: campo(form.get("prazo"), 10),
     repoUrl: campo(form.get("repoUrl"), LIMITES.url),
@@ -128,17 +128,19 @@ export async function criarProjeto(
 
   try {
     const linha = await consultaUma<{ id: string }>(
+      /* Sem `valor`: um projeto nasce sem preço combinado e escreve-se logo a
+         seguir, na secção Dinheiro da ficha. É o que faz esta coluna ter um
+         escritor só — ver `guardarValorCombinado`. */
       `insert into projetos
-         (nome, cliente_id, estado, progresso, valor, inicio, prazo,
+         (nome, cliente_id, estado, progresso, inicio, prazo,
           repo_url, deploy_url, notas)
-       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        returning id`,
       [
         dados.nome.trim(),
         paraId(dados.clienteId),
         dados.estado,
         Number(dados.progresso),
-        lerValor(dados.valor),
         ouNulo(dados.inicio),
         ouNulo(dados.prazo),
         ouNulo(dados.repoUrl),
@@ -179,10 +181,14 @@ export async function guardarProjeto(
 
   try {
     await consulta(
+      /* O `valor` **não** entra aqui de propósito. Este formulário já não o
+         traz, e um `set valor = lerValor("")` punha `null` na coluna a cada
+         gravação do nome ou do prazo — apagava o preço combinado sem ninguém
+         pedir. Quem escreve esta coluna é só o `guardarValorCombinado`. */
       `update projetos
           set nome = $2, cliente_id = $3, estado = $4, progresso = $5,
-              valor = $6, inicio = $7, prazo = $8, repo_url = $9,
-              deploy_url = $10, notas = $11, atualizado_em = now()
+              inicio = $6, prazo = $7, repo_url = $8,
+              deploy_url = $9, notas = $10, atualizado_em = now()
         where id = $1`,
       [
         id,
@@ -190,7 +196,6 @@ export async function guardarProjeto(
         paraId(dados.clienteId),
         dados.estado,
         Number(dados.progresso),
-        lerValor(dados.valor),
         ouNulo(dados.inicio),
         ouNulo(dados.prazo),
         ouNulo(dados.repoUrl),
@@ -620,6 +625,48 @@ export type EstadoDinheiro = {
   erro?: string;
   ok?: boolean;
 };
+
+/**
+ * O valor combinado de um projeto.
+ *
+ * Estado próprio, e não o `EstadoDinheiro` partilhado: este formulário vive ao
+ * lado do de registar um pagamento, e um erro a escrever o valor não tem que
+ * apagar o "Guardado" do pagamento do lado. É a mesma razão pela qual o
+ * `Receitas.tsx` usa dois `useActionState` em vez de um.
+ *
+ * **É o único sítio que escreve `projetos.valor`.** O formulário do projeto
+ * deixou de trazer o campo precisamente para isto: com dois escritores, uma
+ * gravação do nome apagava o preço.
+ */
+export type EstadoValorCombinado = { erro?: string; ok?: boolean };
+
+export async function guardarValorCombinado(
+  _anterior: EstadoValorCombinado,
+  form: FormData,
+): Promise<EstadoValorCombinado> {
+  await requerSessao();
+
+  const id = paraId(campo(form.get("projetoId"), 20));
+  if (!id) return { erro: "Projeto não encontrado." };
+
+  const texto = campo(form.get("valor"), 20);
+  const invalido = validarValorCombinado(texto);
+  if (invalido) return { erro: invalido };
+
+  try {
+    await consulta(
+      `update projetos set valor = $2, atualizado_em = now() where id = $1`,
+      [id, lerValor(texto)],
+    );
+  } catch (erro) {
+    console.error("[estudio] falhou guardar o valor combinado:", erro);
+    return { erro: "Não foi possível guardar. Tenta outra vez." };
+  }
+
+  revalidatePath("/estudio");
+  revalidatePath(`/estudio/projetos/${id}`);
+  return { ok: true };
+}
 
 export async function registarPagamento(
   _anterior: EstadoDinheiro,
