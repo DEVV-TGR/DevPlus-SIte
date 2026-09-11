@@ -68,11 +68,11 @@ funciona**, não como a marca soa:
 | Tratam do alojamento e do domínio?      | Sim, e o alojamento entra nessa mensalidade                                                                 |
 | Dão apoio depois do lançamento?         | Sim, é o que a mensalidade cobre                                                                            |
 
-**Não se alteram sem confirmação do Gonçalo.** Uma frase mais bonita que
-prometa "orçamento fixo" ou "sem mensalidades" deixa de ser copy e passa a ser
-uma promessa que a DevPlus não cumpre — foi exatamente o que aconteceu até
-agosto de 2026, com o site a dizer "sem dependências nem mensalidades
-obrigatórias" enquanto o modelo assentava no contrário.
+**Não se alteram por iniciativa tua — pergunta primeiro.** Uma frase mais
+bonita que prometa "orçamento fixo" ou "sem mensalidades" deixa de ser copy e
+passa a ser uma promessa que a DevPlus não cumpre — foi exatamente o que
+aconteceu até agosto de 2026, com o site a dizer "sem dependências nem
+mensalidades obrigatórias" enquanto o modelo assentava no contrário.
 
 A mensalidade escreve-se como o que é: alguém do outro lado, site sempre no ar e
 atualizado. Não se esconde nem se pede desculpa por ela.
@@ -103,7 +103,7 @@ em vez de ficar diluído numa frase do serviço de Desenvolvimento.
 | Se mudares…                         | Faz também                                                     |
 | ----------------------------------- | -------------------------------------------------------------- |
 | a lista de serviços                 | `lib/services.ts`; segue a checklist acima toda                |
-| uma resposta da FAQ sobre dinheiro  | confirma com o Gonçalo **antes** — ver "A FAQ não é copy"      |
+| uma resposta da FAQ sobre dinheiro  | pergunta **antes** de mexer — ver "A FAQ não é copy"           |
 | o número de serviços                | verifica a grelha `sm:grid-cols-2` em `app/page.tsx`           |
 | um `title`                          | procura esse nome nas `services` de `lib/projects.ts` e alinha |
 | as regras de escrita (blurb, items) | revê os 6 serviços existentes de uma vez                       |
