@@ -526,6 +526,21 @@ com meia página de largura por usar. **Todas levam `items-start`**: sem isso a
 grelha estica os dois cartões à altura do mais alto e o mais curto fica com meio
 ecrã de vazio.
 
+**Os clientes são cartões, e não uma lista de linhas.** Não foi por gosto: em
+lista, a ficha do cliente abria-se desde sempre com um clique na linha inteira e
+**ninguém percebia que aquilo se clicava**. A linha só mudava de fundo ao passar
+o rato, e não se passa o rato por cima de texto à espera de descobrir que é um
+botão. Um cartão com contorno próprio diz parado o que a linha só dizia ao ser
+tocada. É a mesma grelha dos projetos, e as duas listas de fichas passam a
+ler-se da mesma maneira.
+
+Dentro do cartão vão os **nomes** dos trabalhos e não a contagem: a pergunta que
+se faz a uma lista de clientes é "qual deles é o do restaurante?", e um "3
+projetos" obriga a entrar para a responder. Com uma exceção que só se vê com os
+dados à frente — aqui a maioria dos projetos chama-se exatamente como o cliente,
+e "A Barraquinha Nova" com "A Barraquinha Nova" por baixo é o título do cartão
+outra vez, em cinzento. Esses saltam; se não sobrar nenhum, diz-se quantos são.
+
 **"Em cima da mesa" chamava-se "Precisa de ti"**, e mostrava seis projetos
 filtrados por bloqueio ou atraso. O nome deixou de ser verdade no momento em que
 passou a mostrar tudo o que está aberto — uma proposta, que este doc descreve
@@ -778,6 +793,7 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | um filtro por `searchParams` numa página | acrescenta um endereço **com o filtro** ao teste de fumo em `.github/workflows/ci.yml`         |
 | uma consulta filtrada pela pessoa       | guarda o retorno de `requerSessao()` — o resumo deitava-o fora até `tarefasPendentesDe()`       |
 | o que aparece em "Em cima da mesa"     | o filtro está em `app/estudio/page.tsx`; a ordem dos grupos vem do `ORDEM` de `dados.ts`        |
+| a lista de clientes                    | `components/estudio/CartaoCliente.tsx` — cartões, e o nome do trabalho só aparece se diferir do do cliente |
 | quantos objetivos se mostram            | `components/estudio/Objetivos.tsx` — a linha é inteira e o título não se corta                  |
 | o `max` do pool em `lib/estudio/db.ts`  | mede antes e mede depois — o `1` original serializava os `Promise.all`; ver "Porque é que isto esteve lento" |
 | a região da base de dados              | `regions` no `vercel.json` vai atrás dela; função e base longe uma da outra pagam o dobro em cada consulta   |
