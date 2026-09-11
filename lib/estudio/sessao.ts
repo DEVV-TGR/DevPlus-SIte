@@ -1,5 +1,6 @@
 /** docs: docs/07-estudio.md */
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { consulta, consultaUma } from "@/lib/estudio/db";
@@ -82,11 +83,23 @@ export async function fecharSessao(): Promise<void> {
 /**
  * Quem está autenticado, ou `null`.
  *
+ * **Envolvida em `cache()` do React, e não é um pormenor.** Cada navegação no
+ * Estúdio chamava isto duas vezes: uma no `app/estudio/layout.tsx`, que precisa
+ * do nome para o cabeçalho, e outra no `requerSessao()` da página por baixo. São
+ * a mesma pergunta, com o mesmo cookie, no mesmo render — e eram duas idas à
+ * base. O `cache()` dá-lhes a mesma resposta.
+ *
+ * O âmbito é **um render**, não um pedido de utilizador nem uma sessão: acaba o
+ * render, acaba a cache. Quem fizer `logout` numa aba não fica com a sessão
+ * antiga viva noutra, e uma Server Action que corra a seguir volta a perguntar.
+ * É por isso que isto é seguro num sítio onde guardar uma sessão em cache
+ * normalmente não seria.
+ *
  * **Sem cookie, devolve `null` sem tocar na base.** É isso que deixa o site
  * compilar e arrancar no CI, onde não há `DATABASE_URL` nenhuma — ver o
  * comentário do topo de `lib/estudio/db.ts`.
  */
-export async function sessaoAtual(): Promise<Utilizador | null> {
+export const sessaoAtual = cache(async function sessaoAtual(): Promise<Utilizador | null> {
   const caixa = await cookies();
   const token = caixa.get(COOKIE)?.value;
   if (!token) return null;
@@ -113,7 +126,7 @@ export async function sessaoAtual(): Promise<Utilizador | null> {
     nome: linha.nome,
     avatarUrl: linha.avatar_url,
   };
-}
+});
 
 /**
  * O guarda de todas as páginas e de todas as ações do Estúdio. Ou devolve quem

@@ -3,6 +3,7 @@
 
 import { usePathname } from "next/navigation";
 import { Nav } from "@/components/Nav";
+import { noEstudio } from "@/lib/estudio/rotas";
 
 /**
  * Decide se a página que está a ser vista leva a casca do site público.
@@ -11,6 +12,10 @@ import { Nav } from "@/components/Nav";
  * dizer "Falar connosco" por cima da lista de trabalho não faz sentido nenhum.
  * O rodapé chega por `rodape` em vez de ser importado aqui porque o `Footer` é
  * um componente de servidor — passá-lo como prop deixa-o continuar a sê-lo.
+ *
+ * O grão veio do `app/layout.tsx` pela mesma razão que a `Nav`: é textura do
+ * site público. Numa ferramenta de trabalho era uma camada `fixed` a cobrir o
+ * ecrã inteiro para não acrescentar nada a uma tabela de números.
  *
  * Isto vive num componente próprio, e não dentro do `Nav` ou do `Footer`, para
  * não tocar em ficheiros que os PR #54 e #65 estão a reescrever. Quando esses
@@ -25,15 +30,16 @@ export function CascaDoSite({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const noEstudio = pathname.startsWith("/estudio");
+  const noEstudioAgora = noEstudio(pathname);
 
   return (
     <>
-      {noEstudio ? null : <Nav />}
+      {noEstudioAgora ? null : <Nav />}
       <main id="main" className="flex-1">
         {children}
       </main>
-      {noEstudio ? null : rodape}
+      {noEstudioAgora ? null : rodape}
+      {noEstudioAgora ? null : <div className="grain-overlay" aria-hidden />}
     </>
   );
 }
