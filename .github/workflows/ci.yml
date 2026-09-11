@@ -117,8 +117,17 @@ jobs:
           verificar "/estudio?saidas=nao-existe"           307
           verificar /estudio/projetos                307
           verificar /estudio/clientes                307
-          verificar /estudio/gastos                  307
+          verificar /estudio/financas/receitas       307
+          verificar /estudio/financas/gastos         307
           verificar /estudio/importar                307
+
+          # Os dois endereços que só redirecionam. Dão 307 a toda a gente, com
+          # cookie ou sem ele, porque nem chegam a perguntar — por isso estas
+          # duas linhas provam que a rota existe e **não** provam que alguém foi
+          # despachado por falta de sessão. Estão cá para o dia em que alguém
+          # apagar o `/estudio/gastos` a achar que já ninguém lá vai.
+          verificar /estudio/gastos                  307
+          verificar /estudio/financas                307
 
       # Os cabeçalhos de segurança são configuração, e configuração parte-se sem
       # ninguém dar por isso. Aqui, parte-se com o CI vermelho.

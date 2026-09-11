@@ -32,7 +32,7 @@ const links = [
   { href: "/estudio", label: "Resumo" },
   { href: "/estudio/projetos", label: "Projetos" },
   { href: "/estudio/clientes", label: "Clientes" },
-  { href: "/estudio/gastos", label: "Gastos" },
+  { href: "/estudio/financas/receitas", label: "Finanças" },
 ];
 
 export default async function EstudioLayout({

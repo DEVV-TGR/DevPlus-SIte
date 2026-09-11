@@ -68,7 +68,24 @@ mexe num projeto não é, na maior parte das vezes, quem o está a fazer.
 
 ## O dinheiro
 
-`/estudio` é o resumo; a lista de projetos vive em `/estudio/projetos`.
+`/estudio` é o resumo; a lista de projetos vive em `/estudio/projetos`; e o
+dinheiro tem casa própria em **`/estudio/financas`**, com duas sub-páginas:
+
+| Endereço                     | O quê                                              |
+| ---------------------------- | -------------------------------------------------- |
+| `/estudio/financas`          | redireciona para as receitas                        |
+| `/estudio/financas/receitas` | o que está contratado, e tudo o que já entrou       |
+| `/estudio/financas/gastos`   | o custo fixo do estúdio, e tudo o que já saiu       |
+| `/estudio/gastos`            | redireciona — era aqui que os gastos viviam         |
+
+Os gastos estiveram em `/estudio/gastos` e o endereço ficou a redirecionar, não
+a dar 404: era um sítio onde se ia todos os dias, e está em marcadores.
+
+A sub-navegação entre as duas é o `components/estudio/SubNavegacao.tsx`, que
+**recebe o separador ativo por prop**. Descobri-lo com o `usePathname` obrigava
+a `"use client"` numa barra de dois links que o servidor já sabe desenhar — é o
+mesmo arranjo do `SeletorDePeriodo`, e as pastilhas são as do `pastilhaFiltro()`
+e não umas novas.
 
 **Não se chama "lucro" a nada, e a palavra não aparece na interface.** Receitas
 menos gastos, sem ordenados e sem impostos, é **margem**. Chamar-lhe lucro dava
@@ -84,6 +101,20 @@ página valer alguma coisa. O `projetos.valor` é o que ficou combinado; a tabel
 `pagamentos` é o que entrou mesmo. A diferença é o **por cobrar** — o único
 número aqui que faz alguém pegar no telefone. Um painel que somasse só valores
 acordados mostrava dinheiro que ainda não existe.
+
+**A página de receitas responde a duas perguntas, e são mesmo duas.** "O que
+está contratado" é a tabela `receitas` — que não é dinheiro, é a promessa de que
+ele vem. "Tudo o que já entrou" é `pagamentos` **mais** `recebimentos`, e é esse
+o espelho exato da lista de gastos: um gasto tem data, um contrato não. Pôr as
+duas na mesma lista era deixar um alojamento de 10 €/mês a contar como uma
+entrada de 10 € num mês em que ninguém pagou nada.
+
+**E não há lá um total "por mês".** A página de gastos pode ter um, porque uma
+subscrição mensal sai mesmo todos os meses. Um domínio anual dividido por doze é
+um número de planeamento e não de tesouraria — a mesma razão pela qual o resumo
+também não tem um "a entrar por mês" médio. O que a página diz no fim é quantos
+alojamentos e quantos domínios estão a correr, que é uma contagem e não uma
+média.
 
 **Vários pagamentos por projeto**, porque é assim que se paga: um sinal, um
 faseado, um resto. Quem paga a mais não fica a dever ao contrário — o `por
@@ -725,7 +756,9 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | a estrutura de uma página              | abre-a no browser e olha — a ordem das secções e a altura das caixas não se veem num diff        |
 | como se guarda dinheiro                | `lib/estudio/schema.sql` (`numeric`, nunca `float`) e as somas continuam em SQL                  |
 | o cálculo dos vencimentos              | `vencimentosAte()` em `tipos.ts`; testa fevereiro, um mês de 30 e um `desde` a dia 31           |
-| o que conta como dinheiro que entrou   | `resumoDoMes()`, o `case 'recebido'` de `listarObjetivos()` **e** `entradasDoPeriodo()` — os três somam as duas tabelas |
+| o que conta como dinheiro que entrou   | `resumoDoMes()`, o `case 'recebido'` de `listarObjetivos()`, `entradasDoPeriodo()` **e** `listarEntradas()` — todos somam as duas tabelas |
+| uma rota dentro de `/estudio/financas` | a `SubNavegacao`, o `revalidatePath` das ações do dinheiro **e** o teste de fumo do CI |
+| onde vivem os gastos                   | o `/estudio/gastos` fica a redirecionar — está em marcadores de quem lá ia todos os dias |
 | as cores do gráfico                    | corre o validador da skill `dataviz` antes — a escolha óbvia falhou o teste de daltonismo       |
 | acrescentares uma rota em `/estudio`   | acrescenta-a ao teste de fumo em `.github/workflows/ci.yml`                                      |
 | a organização do GitHub                | `ORGANIZACAO` em `lib/estudio/github.ts` — e o webhook na organização nova                       |

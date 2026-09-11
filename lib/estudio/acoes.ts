@@ -652,6 +652,7 @@ export async function registarPagamento(
 
   revalidatePath("/estudio");
   revalidatePath(`/estudio/projetos/${projetoId}`);
+  revalidatePath("/estudio/financas/receitas");
   return { ok: true };
 }
 
@@ -671,6 +672,7 @@ export async function apagarPagamento(form: FormData): Promise<void> {
 
   revalidatePath("/estudio");
   revalidatePath(`/estudio/projetos/${projetoId}`);
+  revalidatePath("/estudio/financas/receitas");
 }
 
 /**
@@ -739,6 +741,7 @@ export async function guardarReceita(
 
   revalidatePath("/estudio");
   revalidatePath(`/estudio/projetos/${projetoId}`);
+  revalidatePath("/estudio/financas/receitas");
   return { ok: true };
 }
 
@@ -756,6 +759,7 @@ export async function apagarReceita(form: FormData): Promise<void> {
 
   revalidatePath("/estudio");
   revalidatePath(`/estudio/projetos/${projetoId}`);
+  revalidatePath("/estudio/financas/receitas");
 }
 
 /* --------------------------------------------------------------------------
@@ -811,6 +815,7 @@ export async function marcarRecebida(form: FormData): Promise<void> {
 
   revalidatePath("/estudio");
   revalidatePath(`/estudio/projetos/${receita.projetoId}`);
+  revalidatePath("/estudio/financas/receitas");
 }
 
 /**
@@ -864,6 +869,7 @@ export async function registarRecebimento(
 
   revalidatePath("/estudio");
   revalidatePath(`/estudio/projetos/${receita.projetoId}`);
+  revalidatePath("/estudio/financas/receitas");
   return { ok: true };
 }
 
@@ -887,6 +893,7 @@ export async function apagarRecebimento(form: FormData): Promise<void> {
 
   revalidatePath("/estudio");
   revalidatePath(`/estudio/projetos/${projetoId}`);
+  revalidatePath("/estudio/financas/receitas");
 }
 
 export async function criarGasto(
@@ -925,7 +932,7 @@ export async function criarGasto(
   }
 
   revalidatePath("/estudio");
-  revalidatePath("/estudio/gastos");
+  revalidatePath("/estudio/financas/gastos");
   return { ok: true };
 }
 
@@ -938,7 +945,7 @@ export async function apagarGasto(form: FormData): Promise<void> {
   await consulta("delete from gastos where id = $1", [id]);
 
   revalidatePath("/estudio");
-  revalidatePath("/estudio/gastos");
+  revalidatePath("/estudio/financas/gastos");
 }
 
 /* --------------------------------------------------------------------------
