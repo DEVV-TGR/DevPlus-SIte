@@ -47,7 +47,7 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `Testimonials`    | o que os clientes dizem, na homepage a seguir aos serviços                 | inventar a frase de um cliente para encher a secção — ver abaixo                           |
 | `Wordmark`        | o logótipo com link para "/"                                               | ver `docs/03`                                                                              |
 | `Lockup` / `Logo` | o logótipo "D+" e o "+" isolado                                            | desenhar o logótipo à mão em SVG — ver `docs/03`                                           |
-| `Providers`       | Lenis + `MotionConfig`                                                     | acrescentar providers sem necessidade                                                      |
+| `Providers`       | Lenis (só no site público) + `MotionConfig`                                | acrescentar providers sem necessidade; ligar o Lenis no Estúdio — ver abaixo                |
 
 Secções encadeadas levam **`top={false}`** na segunda em diante, para o
 espaçamento não duplicar. É o padrão em toda a homepage. Há também
@@ -112,6 +112,18 @@ texto de rascunho — quem o lê não tem como distinguir.
   desliga o avanço automático (lê a mesma preferência em JS, porque o movimento é
   scroll e não animação CSS) e `globals.css` acrescenta-lhe snap: continua a
   arrastar-se, só não anda sozinho.
+- **O scroll suave é do site público, e só dele.** O `Providers` não monta o
+  `ReactLenis` em `/estudio` (o predicado é o `noEstudio()` de
+  `lib/estudio/rotas.ts`, para o prefixo não andar copiado por ficheiros).
+  A razão é que o mesmo efeito muda de nome consoante quem está do outro lado:
+  numa página de marketing, onde se chega para ler, chama-se deslizar; numa
+  ferramenta que se abre todos os dias para procurar uma linha numa tabela,
+  chama-se lag — larga-se a roda e a lista continua a andar até parar onde já
+  devia estar. Some-se-lhe o cabeçalho `sticky` do Estúdio: o Lenis translada o
+  conteúdo a cada frame, e por baixo de um `backdrop-blur-md` isso obriga o
+  browser a refazer o desfoque contra fundo novo em todos os frames.
+  **Desliga-se tirando o componente da árvore, não com `smoothWheel: false`** —
+  assim o Lenis nem chega a arrancar o `rAF`. Ver docs/07.
 - **A faixa de projetos move-se por `scrollLeft`, não por `translateX`.** É o que a
   torna agarrável: quem quer voltar a um projeto que passou arrasta-o de volta em
   vez de esperar pela volta. Vem de borla o dedo, o trackpad, a roda com shift e as
@@ -307,3 +319,5 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | o serviço de envio ou o remetente | `app/api/contacto/route.ts`, `site.emailFrom` em `lib/site.ts`, a tabela do `docs/01` e os registos DNS   |
 | um dos limites do endpoint        | a tabela de "As defesas do endpoint" — o número no doc e o do `route.ts` têm de dizer o mesmo             |
 | o plano do Resend                 | o `TETO_DIARIO` em `app/api/contacto/route.ts`, que existe para ficar abaixo da quota desse plano         |
+| o que o `Providers` monta         | confirma o que acontece em `/estudio` — o Lenis está lá desligado de propósito, e não por esquecimento |
+| onde vive o `.grain-overlay`      | é textura do site público e mora na `CascaDoSite`; a regra CSS continua em `app/globals.css` (docs/02) |

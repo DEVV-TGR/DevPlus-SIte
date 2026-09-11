@@ -7,6 +7,7 @@ controla:
   - lib/estudio/
   - components/estudio/
   - components/CascaDoSite.tsx
+  - vercel.json
   - scripts/estudio-migrar.mjs
   - app/robots.ts#estudio
   - app/privacidade/page.tsx#registo-interno
@@ -532,6 +533,65 @@ serializa-o mesmo quando não o renderiza. São uns quilobytes de conteúdo púb
 numa ferramenta interna — custo conhecido, e o preço de não tocar em ficheiros
 que os PR #54 e #65 estão a reescrever.
 
+## Porque é que isto esteve lento
+
+Houve uma altura em que o Resumo demorava mais de um segundo a aparecer, e a
+sensação era de que o Estúdio tinha ficado pesado com as funcionalidades. Não
+tinha: eram três erros de infraestrutura que se somavam, e nenhum deles estava
+no SQL nem no desenho das páginas. Fica escrito porque a forma de os descobrir
+não é óbvia, e porque qualquer um deles se reintroduz sem dar nas vistas.
+
+**O pool tinha `max: 1`, e isso serializava os `Promise.all`.** É o erro mais
+caro dos três e o mais fácil de não ver, porque o código estava certo: o Resumo
+pede treze consultas de uma vez, como deve. Mas com uma única ligação no pool,
+o `pg` dá-as à vez a quem espera — o `Promise.all` estava escrito como paralelo
+e corria como um `for`. Medido contra a base real, as treze consultas:
+
+|         | a frio  | ligação quente |
+| ------- | ------- | -------------- |
+| max: 1  | 1612 ms | 682 ms         |
+| max: 10 | 454 ms  | 105 ms         |
+
+O raciocínio que lá tinha posto o `1` — em serverless um pool grande
+multiplica-se pelo número de instâncias e esgota o limite da base — trazia a
+sua própria refutação na frase a seguir: quem faz o pooling a sério é o
+`-pooler` da string de ligação. É o pgbouncer da Neon que protege o limite, e
+protege-o melhor do que nós, porque vê todas as instâncias e nós só vemos a
+nossa. **Se alguém voltar a baixar este número, mede antes.**
+
+**A função corria do outro lado do Atlântico.** O `x-vercel-id` de qualquer
+resposta do Estúdio dizia `cdg1::iad1::` — o pedido entrava em Paris e a função
+corria em Washington — enquanto a base está em `eu-central-1`, Frankfurt. Cada
+uma daquelas idas à base atravessava o oceano duas vezes. Não havia
+`vercel.json`, e sem ele a Vercel põe as funções em `iad1` por omissão. Agora há,
+e fixa `fra1` — Frankfurt, ao lado da base:
+
+```json
+{ "regions": ["fra1"] }
+```
+
+Isto vale para **todas** as funções do projeto, e é o que se quer: a única outra
+é a `/api/contacto`, e quem a usa está em Portugal. As páginas públicas não
+mexem — são estáticas e continuam a ser servidas do CDN em todo o lado, o que o
+`○` do `npm run build` confirma.
+
+**A sessão era consultada duas vezes por navegação.** O `app/estudio/layout.tsx`
+chama `sessaoAtual()` para o nome no cabeçalho, e a página por baixo chama
+`requerSessao()`, que chama `sessaoAtual()` outra vez. Mesmo cookie, mesmo
+render, duas idas à base. Resolve-se com o `cache()` do React à volta da função
+— o âmbito é um render, não uma sessão, por isso ninguém fica com uma sessão
+velha viva depois de sair.
+
+**O que não era o problema, e vale a pena dizer:** o `lib/estudio/dados.ts` está
+limpo, uma consulta por função e nenhum N+1, e não há `motion` nenhum dentro do
+Estúdio. Quando isto voltar a parecer lento, começa por medir a rede — o
+`x-vercel-id`, a região da base e o tamanho do pool — antes de mexer no SQL.
+
+**A parte que se sente e não se mede** é outra, e está em docs/04: o Lenis
+deixou de suavizar o scroll aqui. O tempo até a página aparecer é o que as
+tabelas acima contam; o scroll a continuar a andar depois de se largar a roda
+não aparece em medição nenhuma e era metade da sensação de peso.
+
 ## Trazer do GitHub
 
 Duas coisas diferentes, e vale a pena não as confundir:
@@ -583,9 +643,12 @@ Três decisões que valem a leitura:
 ## Pôr isto a andar
 
 1. **Base de dados.** Cria um Postgres (na Vercel, o mesmo projeto) e põe a
-   string de ligação em `DATABASE_URL` no `.env.local`. Usa a ligação com
-   pooling se a tiveres — em serverless, uma ligação direta por invocação esgota
-   o limite da base.
+   string de ligação em `DATABASE_URL` no `.env.local`. **Usa a ligação com
+   pooling** — a que tem `-pooler` no host. Não é uma preferência: em serverless
+   uma ligação direta por invocação esgota o limite da base, e é o pooler que
+   deixa o `max: 10` de `lib/estudio/db.ts` ser seguro. Cria-a na região mais
+   perto do `regions` do `vercel.json` — hoje as duas são Frankfurt, e a secção
+   "Porque é que isto esteve lento" explica o que custa separá-las.
 2. **Tabelas:** `node --env-file=.env.local scripts/estudio-migrar.mjs`.
 3. **OAuth App** em <https://github.com/settings/developers>, separador
    **OAuth Apps** (não **GitHub Apps**, que são outra coisa). Os endereços de
@@ -629,8 +692,11 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
       estar em produção — o GitHub não chama `localhost`.
 - [ ] **Raiz própria.** Quando os PR #54 e #65 fundirem, ver se o Estúdio não
       fica melhor com `app/(site)` e `app/(estudio)` em vez da `CascaDoSite` —
-      resolvia o rodapé no payload e o Lenis, que hoje continua a suavizar o
-      scroll também aqui.
+      resolvia o rodapé no payload, e arrumava de vez as três verificações de
+      `noEstudio()` que hoje andam espalhadas pela `CascaDoSite` e pelo
+      `Providers`. **O Lenis já não faz parte desta lacuna**: está desligado no
+      Estúdio desde o PR da latência, e a raiz própria só tornaria a decisão
+      estrutural em vez de uma condição.
 - [ ] **Confirmar quem aloja a base** antes de fundir. `app/privacidade/page.tsx`
       diz que é a Vercel. Se a base acabar noutro sítio, essa frase muda e a data
       de "Última atualização" sobe outra vez.
@@ -671,3 +737,8 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | uma consulta filtrada pela pessoa       | guarda o retorno de `requerSessao()` — o resumo deitava-o fora até `tarefasPendentesDe()`       |
 | o que aparece em "Em cima da mesa"     | o filtro está em `app/estudio/page.tsx`; a ordem dos grupos vem do `ORDEM` de `dados.ts`        |
 | quantos objetivos se mostram            | `components/estudio/Objetivos.tsx` — a linha é inteira e o título não se corta                  |
+| o `max` do pool em `lib/estudio/db.ts`  | mede antes e mede depois — o `1` original serializava os `Promise.all`; ver "Porque é que isto esteve lento" |
+| a região da base de dados              | `regions` no `vercel.json` vai atrás dela; função e base longe uma da outra pagam o dobro em cada consulta   |
+| o prefixo `/estudio`                   | é só em `lib/estudio/rotas.ts`; a `CascaDoSite` e o `Providers` importam de lá, nunca escrevem a string      |
+| o que a `CascaDoSite` esconde          | confirma no browser que o Estúdio não ganhou `Nav`, rodapé nem grão — e que o site público não os perdeu    |
+| onde o `sessaoAtual()` é chamado        | continua envolvido em `cache()`; o layout e a página fazem a mesma pergunta no mesmo render                  |

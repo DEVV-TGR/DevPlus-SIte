@@ -34,6 +34,7 @@ Se um doc e o código discordarem, é um bug, não uma questão de gosto.
 | `lib/projects.ts`, `components/ui/ProjectCard.tsx`, `components/ProjectsMarquee.tsx`, `public/capas/`     | 06                       |
 | `app/estudio/`, `app/api/estudio/`, `lib/estudio/`, `components/estudio/`, `components/CascaDoSite.tsx` | 07                       |
 | `scripts/estudio-migrar.mjs`                                                                              | 07                       |
+| `vercel.json`                                                                                             | 07                       |
 
 ## Como isto se mantém vivo
 

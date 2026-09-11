@@ -112,13 +112,19 @@ export default function RootLayout({
         </a>
         <OrganizationJsonLd />
         <Providers>
-          {/* A `Nav` e o `Footer` só existem no site público — o Estúdio
+          {/* A `Nav`, o `Footer` e o grão só existem no site público — o Estúdio
               (`/estudio`) tem casca própria. Quem decide é a `CascaDoSite`,
               que precisa do caminho e por isso é de cliente; o `Footer` vai
-              como prop para continuar a ser de servidor. Ver docs/07. */}
+              como prop para continuar a ser de servidor. Ver docs/07.
+
+              O `.grain-overlay` estava aqui fora e passou para lá dentro: era a
+              única maneira de o tirar do Estúdio, onde uma textura de marketing
+              por cima de uma tabela de dinheiro não faz falta nenhuma. Continua
+              a ser o último elemento do `body` em todas as páginas onde existe,
+              e continua sem transform por cima — com `root`, o `ReactLenis` não
+              envolve os filhos em `div` nenhum. Ver docs/02 para a textura. */}
           <CascaDoSite rodape={<Footer />}>{children}</CascaDoSite>
         </Providers>
-        <div className="grain-overlay" aria-hidden />
       </body>
     </html>
   );

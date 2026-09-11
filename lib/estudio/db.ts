@@ -42,11 +42,35 @@ function pool(): Pool {
   if (!global.poolEstudio) {
     global.poolEstudio = new Pool({
       connectionString: stringDeLigacao(),
-      /* Uma ligação por instância. Em serverless cada invocação é o seu próprio
-         processo: um pool grande aqui multiplica-se pelo número de instâncias e
-         esgota o limite da base sem ninguém perceber porquê. Quem faz o
-         verdadeiro pooling é o `-pooler` da string de ligação. */
-      max: 1,
+      /* **Isto esteve em `1`, e era o que tornava o Estúdio lento.**
+
+         O raciocínio original — uma ligação por instância, porque em serverless
+         um pool grande multiplica-se pelo número de instâncias e esgota o
+         limite da base — tinha a sua própria refutação na frase seguinte: quem
+         faz o verdadeiro pooling é o `-pooler` da string de ligação. É o
+         pgbouncer da Neon que protege o limite, e protege-o melhor do que nós,
+         porque vê todas as instâncias e nós só vemos a nossa.
+
+         O que o `1` fazia era pôr o `pg` a **serializar** tudo. Um
+         `Promise.all` de treze consultas — que é o que o Resumo faz — tem uma
+         única ligação para repartir, por isso as treze esperam à vez. O
+         `Promise.all` estava escrito como paralelo e corria como um `for`.
+
+         Medido contra a base real, as treze consultas do Resumo:
+
+                       a frio     ligação quente
+             max: 1     1612 ms        682 ms
+             max: 10     454 ms        105 ms
+
+         Dez e não treze: é um teto, não um alvo. As treze resolvem-se em duas
+         idas em vez de treze — é de lá que vêm os 105 ms em vez dos 56 ms que
+         um pool de treze daria — e em troca nenhuma instância abre mais do que
+         dez ligações no dia em que alguém acrescentar consultas sem olhar.
+
+         Os números são de Lisboa. Até este PR a função corria em `iad1` e a
+         base em `eu-central-1`, com o Atlântico no meio a multiplicar cada uma
+         destas idas por dois; quem resolve essa metade é o `vercel.json`. */
+      max: 10,
       idleTimeoutMillis: 10_000,
       connectionTimeoutMillis: 10_000,
     });
