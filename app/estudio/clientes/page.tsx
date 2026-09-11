@@ -1,5 +1,5 @@
 /** docs: docs/07-estudio.md */
-import Link from "next/link";
+import { CartaoCliente } from "@/components/estudio/CartaoCliente";
 import { FormularioCliente } from "@/components/estudio/FormularioCliente";
 import { SeletorDeRepos } from "@/components/estudio/SeletorDeRepos";
 import { CARTAO, SOBRETITULO } from "@/components/estudio/estilos";
@@ -7,6 +7,7 @@ import { criarCliente } from "@/lib/estudio/acoes";
 import { listarClientes, listarProjetosLeves } from "@/lib/estudio/dados";
 import { listarRepos } from "@/lib/estudio/repos";
 import { requerSessao } from "@/lib/estudio/sessao";
+import type { ProjetoLeve } from "@/lib/estudio/tipos";
 
 /**
  * Os clientes, e o formulário de acrescentar um.
@@ -25,12 +26,16 @@ export default async function Clientes() {
     listarRepos(),
   ]);
 
-  /* Quantos projetos tem cada cliente. Uma passagem pela lista chega — são
-     dezenas de projetos, não milhares, e poupa uma consulta à base. */
-  const quantos = new Map<number, number>();
+  /* Os projetos de cada cliente. Uma passagem pela lista chega — são dezenas de
+     projetos, não milhares, e poupa uma consulta à base. Agrupar nomes em vez
+     de os contar não muda essa conta, e nenhum euro é somado aqui: a regra de
+     somar em SQL continua de pé porque não há nada para somar. */
+  const trabalhos = new Map<number, ProjetoLeve[]>();
   for (const p of projetos) {
     if (p.clienteId === null) continue;
-    quantos.set(p.clienteId, (quantos.get(p.clienteId) ?? 0) + 1);
+    const lista = trabalhos.get(p.clienteId);
+    if (lista) lista.push(p);
+    else trabalhos.set(p.clienteId, [p]);
   }
 
   const semDono = projetos.filter((p) => p.clienteId === null);
@@ -78,28 +83,20 @@ export default async function Clientes() {
             </p>
           </div>
         ) : (
-          <ul className="divide-y divide-border border-y border-border">
-            {clientes.map((c) => {
-              const total = quantos.get(c.id) ?? 0;
-              return (
-                <li key={c.id}>
-                  <Link
-                    href={`/estudio/clientes/${c.id}`}
-                    className="flex items-center justify-between gap-4 py-4 transition-colors hover:bg-surface"
-                  >
-                    <div className="min-w-0">
-                      <p className="truncate font-medium">{c.nome}</p>
-                      <p className="mt-0.5 truncate text-sm text-muted">
-                        {c.email ?? c.telefone ?? "Sem contacto"}
-                      </p>
-                    </div>
-                    <span className="shrink-0 text-xs tabular-nums text-muted">
-                      {total} {total === 1 ? "projeto" : "projetos"}
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
+          /* Duas colunas e não três, ao contrário da lista de projetos: esta
+             página está presa a `max-w-4xl` por causa do formulário lá de cima,
+             e a três os cartões ficavam com ~285px — o suficiente para cortar
+             ao meio exatamente os nomes de projeto que vieram cá fazer falta.
+             É a mesma grelha que a ficha do cliente já usa para os projetos
+             dele. */
+          <ul className="grid gap-4 sm:grid-cols-2">
+            {clientes.map((c) => (
+              <CartaoCliente
+                key={c.id}
+                cliente={c}
+                projetos={trabalhos.get(c.id) ?? []}
+              />
+            ))}
           </ul>
         )}
       </div>
