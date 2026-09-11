@@ -530,6 +530,131 @@ export async function receitasDoCliente(
 }
 
 /* --------------------------------------------------------------------------
+   A vista global do dinheiro que entra
+
+   Tudo o que lê receitas, pagamentos e recebimentos até aqui lê-os **de um
+   projeto** ou **de um cliente**. A página de Finanças precisa de os ver todos,
+   e são duas perguntas diferentes que não se respondem com a mesma consulta:
+
+   - o que está **contratado** — a tabela `receitas`, que não é dinheiro nenhum;
+   - o que **entrou mesmo** — `pagamentos` (o preço do site) mais `recebimentos`
+     (os vencimentos de alojamento e domínio já saldados).
+
+   O espelho de `listarGastos()` é o segundo, não o primeiro: um gasto tem data
+   e uma receita não tem. Confundi-los era pôr um contrato de 10 €/mês a contar
+   como uma entrada de 10 € num mês em que ninguém pagou nada.
+
+   O `listarReceitas()` usa o `CAMPOS_RECEITA`, que é qualificado com o alias
+   `r.` — e tem de o ser, porque esta consulta traz um `join projetos` e as duas
+   tabelas partilham `id`, `valor` e `notas`.
+   -------------------------------------------------------------------------- */
+
+export type ReceitaEmVigor = Receita & {
+  projetoNome: string;
+  clienteNome: string | null;
+};
+
+/** Tudo o que está contratado, do cliente para o projeto. Inclui o que já
+ *  terminou — quem filtra as ativas é a página, com o `hoje` na mão. */
+export async function listarReceitas(): Promise<ReceitaEmVigor[]> {
+  const linhas = await consulta<
+    LinhaReceita & { projeto_nome: string; cliente_nome: string | null }
+  >(
+    `select ${CAMPOS_RECEITA},
+            p.nome as projeto_nome,
+            c.nome as cliente_nome
+       from receitas r
+       join projetos p on p.id = r.projeto_id
+       left join clientes c on c.id = p.cliente_id
+      order by c.nome asc nulls last, p.nome asc, r.tipo asc`,
+  );
+
+  return linhas.map((l) => ({
+    ...paraReceita(l),
+    projetoNome: l.projeto_nome,
+    clienteNome: l.cliente_nome,
+  }));
+}
+
+export type Entrada = {
+  /** `pagamento-12`, `recebimento-12`. Os `id` repetem-se entre as duas
+   *  tabelas, e uma lista misturada precisa de uma chave que não colida. */
+  chave: string;
+  origem: "pagamento" | "recebimento";
+  valor: number;
+  data: string;
+  nota: string | null;
+  /** Só nos recebimentos: alojamento ou domínio. `null` num pagamento. */
+  tipo: TipoReceita | null;
+  projetoId: number;
+  projetoNome: string;
+  clienteNome: string | null;
+};
+
+type LinhaEntrada = {
+  origem: "pagamento" | "recebimento";
+  id: string;
+  valor: string;
+  data: string;
+  nota: string | null;
+  tipo: TipoReceita | null;
+  projeto_id: string;
+  projeto_nome: string;
+  cliente_nome: string | null;
+};
+
+/**
+ * O dinheiro que entrou, das duas tabelas, do mais recente para trás.
+ *
+ * A ordem é a da consulta e não do componente, como nos gastos: o
+ * `agruparPorMes()` parte a lista em meses e **não ordena nada**.
+ */
+export async function listarEntradas(): Promise<Entrada[]> {
+  const linhas = await consulta<LinhaEntrada>(
+    `select 'pagamento' as origem,
+            pg.id,
+            pg.valor,
+            to_char(pg.data, 'YYYY-MM-DD') as data,
+            pg.descricao as nota,
+            null::text as tipo,
+            p.id as projeto_id,
+            p.nome as projeto_nome,
+            c.nome as cliente_nome
+       from pagamentos pg
+       join projetos p on p.id = pg.projeto_id
+       left join clientes c on c.id = p.cliente_id
+     union all
+     select 'recebimento',
+            rc.id,
+            rc.valor,
+            to_char(rc.data, 'YYYY-MM-DD'),
+            rc.notas,
+            r.tipo,
+            p.id,
+            p.nome,
+            c.nome
+       from recebimentos rc
+       join receitas r on r.id = rc.receita_id
+       join projetos p on p.id = r.projeto_id
+       left join clientes c on c.id = p.cliente_id
+      order by data desc, origem asc, id desc`,
+  );
+
+  return linhas.map((l) => ({
+    chave: `${l.origem}-${l.id}`,
+    origem: l.origem,
+    /* Um valor de cada vez, já vindo da base — não é uma soma feita cá. */
+    valor: Number(l.valor),
+    data: l.data,
+    nota: l.nota,
+    tipo: l.tipo,
+    projetoId: Number(l.projeto_id),
+    projetoNome: l.projeto_nome,
+    clienteNome: l.cliente_nome,
+  }));
+}
+
+/* --------------------------------------------------------------------------
    Cobranças — os vencimentos que já chegaram e ainda não foram pagos
 
    A `receitas` diz o que está contratado; a `recebimentos` diz o que já entrou.
