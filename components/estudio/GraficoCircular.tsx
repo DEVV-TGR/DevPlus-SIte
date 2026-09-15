@@ -12,7 +12,10 @@ import { formatarEuros } from "@/lib/estudio/tipos";
  *    nenhum, e está certo assim.
  * 2. **Seis fatias no máximo.** As cinco maiores e um "outros" com o resto.
  *    Passadas as seis, as fatias pequenas ficam indistinguíveis umas das
- *    outras e o círculo passa a decoração.
+ *    outras e o círculo passa a decoração. **O "outros" abre-se na legenda** —
+ *    um `<details>`, sem JavaScript de cliente — e mostra o que lá está. O
+ *    círculo é que não ganha fatias: abrir a legenda responde a "o que é o
+ *    resto" sem desfazer a razão por que o resto existe.
  * 3. **Uma cor só, em tons.** A DevPlus tem duas cores de marca; arranjar seis
  *    matizes distinguíveis dali — e que sobrevivessem a daltonismo — não dava.
  *    Um `part-to-whole` ordenado por tamanho pede um degradê de uma cor, da
@@ -43,23 +46,28 @@ function tom(i: number, quantas: number): number {
   return 1 - (i / (quantas - 1)) * 0.7;
 }
 
-function agrupar(fatias: Fatia[]): Fatia[] {
+/** As fatias a desenhar e, à parte, as que ficaram dentro do "outros" — para a
+ *  legenda as poder mostrar quando alguém o abre. */
+function agrupar(fatias: Fatia[]): { agrupadas: Fatia[]; resto: Fatia[] } {
   const ordenadas = [...fatias]
     .filter((f) => f.valor > 0)
     .sort((a, b) => b.valor - a.valor);
 
-  if (ordenadas.length <= MAX_FATIAS) return ordenadas;
+  if (ordenadas.length <= MAX_FATIAS) return { agrupadas: ordenadas, resto: [] };
 
   const principais = ordenadas.slice(0, MAX_FATIAS - 1);
   const resto = ordenadas.slice(MAX_FATIAS - 1);
 
-  return [
-    ...principais,
-    {
-      rotulo: `Outros (${resto.length})`,
-      valor: resto.reduce((soma, f) => soma + f.valor, 0),
-    },
-  ];
+  return {
+    agrupadas: [
+      ...principais,
+      {
+        rotulo: `Outros (${resto.length})`,
+        valor: resto.reduce((soma, f) => soma + f.valor, 0),
+      },
+    ],
+    resto,
+  };
 }
 
 /** O caminho de um anel entre dois ângulos, em graus, a começar no topo. */
@@ -102,7 +110,7 @@ export function GraficoCircular({
    *  "Entradas". Entra no `aria-label` junto com o total e a `nota`. */
   descreve: string;
 }) {
-  const agrupadas = agrupar(fatias);
+  const { agrupadas, resto } = agrupar(fatias);
   const total = agrupadas.reduce((soma, f) => soma + f.valor, 0);
 
   if (agrupadas.length === 0 || total <= 0) {
@@ -133,7 +141,12 @@ export function GraficoCircular({
   /* Um ciclo e não um `map`: o ângulo acumula de fatia para fatia, e o
      compilador do React não deixa (bem) mexer numa variável de fora dentro do
      callback de um `map` durante o render. */
-  const desenhadas: (Fatia & { de: number; ate: number; tom: number })[] = [];
+  const desenhadas: (Fatia & {
+    de: number;
+    ate: number;
+    tom: number;
+    outros: boolean;
+  })[] = [];
   let angulo = 0;
 
   for (const [i, f] of agrupadas.entries()) {
@@ -149,6 +162,8 @@ export function GraficoCircular({
          legenda. */
       ate: Math.max(ate, de + 0.5),
       tom: tom(i, agrupadas.length),
+      /* O "outros" é sempre o último, e só existe se sobrou resto. */
+      outros: resto.length > 0 && i === agrupadas.length - 1,
     });
   }
 
@@ -167,7 +182,11 @@ export function GraficoCircular({
             className="fill-primary"
             style={{ opacity: f.tom }}
           >
-            <title>{`${f.rotulo} · ${formatarEuros(f.valor)}`}</title>
+            <title>
+              {f.outros
+                ? `${f.rotulo} · ${formatarEuros(f.valor)}: ${resto.map((r) => r.rotulo).join(", ")}`
+                : `${f.rotulo} · ${formatarEuros(f.valor)}`}
+            </title>
           </path>
         ))}
 
@@ -192,19 +211,63 @@ export function GraficoCircular({
       </svg>
 
       <ul className="min-w-0 flex-1 space-y-2">
-        {desenhadas.map((f) => (
-          <li key={f.rotulo} className="flex items-baseline gap-2.5 text-sm">
-            <span
-              aria-hidden
-              className="mt-1.5 inline-block h-2.5 w-2.5 shrink-0 rounded-sm bg-primary"
-              style={{ opacity: f.tom }}
-            />
-            <span className="min-w-0 flex-1 truncate">{f.rotulo}</span>
-            <span className="shrink-0 tabular-nums text-muted">
-              {formatarEuros(f.valor)}
-            </span>
-          </li>
-        ))}
+        {desenhadas.map((f) =>
+          f.outros ? (
+            <li key={f.rotulo} className="text-sm">
+              {/* Um `details` nativo e não um botão com estado: abre e fecha sem
+                  JavaScript de cliente, como o resto do Estúdio. A seta roda
+                  com o `group-open`, e é ela que diz que isto se abre. */}
+              <details className="group">
+                <summary className="flex cursor-pointer list-none items-baseline gap-2.5 [&::-webkit-details-marker]:hidden">
+                  <span
+                    aria-hidden
+                    className="mt-1.5 inline-block h-2.5 w-2.5 shrink-0 rounded-sm bg-primary"
+                    style={{ opacity: f.tom }}
+                  />
+                  <span className="min-w-0 flex-1 truncate underline-offset-4 group-hover:underline">
+                    {f.rotulo}
+                    <span
+                      aria-hidden
+                      className="ml-1.5 inline-block text-muted transition-transform group-open:rotate-90"
+                    >
+                      ›
+                    </span>
+                  </span>
+                  <span className="shrink-0 tabular-nums text-muted">
+                    {formatarEuros(f.valor)}
+                  </span>
+                </summary>
+                {/* Sem quadrado de cor: nenhuma destas tem fatia própria no
+                    círculo, e um quadrado a dizer o contrário mentia. */}
+                <ul className="mt-2 ml-1 space-y-1.5 border-l border-border pl-4">
+                  {resto.map((r) => (
+                    <li
+                      key={r.rotulo}
+                      className="flex items-baseline gap-2.5 text-xs text-muted"
+                    >
+                      <span className="min-w-0 flex-1 truncate">{r.rotulo}</span>
+                      <span className="shrink-0 tabular-nums">
+                        {formatarEuros(r.valor)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            </li>
+          ) : (
+            <li key={f.rotulo} className="flex items-baseline gap-2.5 text-sm">
+              <span
+                aria-hidden
+                className="mt-1.5 inline-block h-2.5 w-2.5 shrink-0 rounded-sm bg-primary"
+                style={{ opacity: f.tom }}
+              />
+              <span className="min-w-0 flex-1 truncate">{f.rotulo}</span>
+              <span className="shrink-0 tabular-nums text-muted">
+                {formatarEuros(f.valor)}
+              </span>
+            </li>
+          ),
+        )}
       </ul>
     </div>
   );
