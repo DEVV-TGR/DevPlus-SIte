@@ -995,6 +995,45 @@ export async function apagarGasto(form: FormData): Promise<void> {
   revalidatePath("/estudio/financas/gastos");
 }
 
+/**
+ * Dá como pago, num clique, um mês de uma despesa que se repete.
+ *
+ * É o botão "Pago" do "ainda este mês" no resumo. Não mexe no gasto que se
+ * repete — esse continua a ser o molde, e o primeiro pagamento. Cria uma linha
+ * `unica` nova com a data de hoje, e é essa que conta no "saiu" do mês, na
+ * fatia do circular e na lista de gastos. O `origem_id` e o `vencimento` dizem
+ * que mês é que ela salda, e é por eles que a linha sai do "ainda este mês".
+ *
+ * `unica` e não uma cópia recorrente: se se repetisse, entrava no custo fixo a
+ * dobrar e voltava a gerar vencimentos. Desfazer é apagar essa linha em
+ * Finanças › Gastos.
+ *
+ * `on conflict do nothing`, como no `marcarRecebida`: dois cliques seguidos não
+ * tiram o dinheiro duas vezes.
+ */
+export async function marcarGastoPago(form: FormData): Promise<void> {
+  await requerSessao();
+
+  const gastoId = paraId(campo(form.get("gastoId"), 20));
+  const vencimento = campo(form.get("vencimento"), 10);
+  if (!gastoId || !eData(vencimento)) return;
+
+  /* O `select` verifica e copia de uma vez: um id que não existe, ou que é de
+     um gasto que não se repete, não insere nada. */
+  await consulta(
+    `insert into gastos
+            (projeto_id, valor, data, descricao, periodicidade, origem_id, vencimento)
+     select g.projeto_id, g.valor, $3::date, g.descricao, 'unica', g.id, $2::date
+       from gastos g
+      where g.id = $1::bigint and g.periodicidade <> 'unica'
+     on conflict on constraint gastos_ocorrencia_unica do nothing`,
+    [gastoId, vencimento, hojeEmLisboa()],
+  );
+
+  revalidatePath("/estudio");
+  revalidatePath("/estudio/financas/gastos");
+}
+
 /* --------------------------------------------------------------------------
    Objetivos
 

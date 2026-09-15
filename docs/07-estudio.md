@@ -384,12 +384,45 @@ JavaScript e não em SQL — a conta envolve meses de 28 a 31 dias e dias da
 semana, e em SQL ficava ilegível para poupar uma passagem por dez linhas. Um
 pagamento de dia 31 num mês de 30 cai no último dia, não desaparece.
 
+**E cada linha marca-se.** Uma linha que entra tem o botão "Recebido", que é o
+mesmo `marcarRecebida` do "por cobrar", com o vencimento que a lista mostra.
+Marcar antes do dia chega para a cobrança nunca aparecer, porque o
+`proximaOcorrencia()` e o `vencimentosAte()` dão a mesma data ao mesmo mês. Uma
+linha que sai tem o botão "Pago".
+
+**Uma despesa paga é uma linha de `gastos`, e não uma tabela nova.** O
+`marcarGastoPago` copia a despesa que se repete para uma linha `unica` com a
+data de hoje, e guarda de onde veio (`origem_id`) e que mês salda
+(`vencimento`). É isso que faz o dinheiro contar sem mais nada: entra no "saiu"
+do `resumoDoMes()`, na fatia com a mesma descrição do circular e na lista de
+gastos, que já somavam todos `gastos`. Os recebimentos precisaram de tabela
+própria porque um alojamento não é um pagamento de projeto; aqui um mês pago é
+mesmo um gasto. É `unica` para não entrar no custo fixo a dobrar nem voltar a
+gerar vencimentos, e o `unique (origem_id, vencimento)` faz o que o
+`recebimentos_unicos` faz: dois cliques não tiram o dinheiro duas vezes.
+Desfazer é apagar essa linha em Finanças › Gastos.
+
+**A linha original é o primeiro pagamento.** Um gasto mensal registado a 5 de
+agosto *é* o de agosto, e o "ainda este mês" de agosto não o volta a pedir.
+
+**As despesas que já passaram ficam; as receitas não.** Uma despesa deste mês
+cujo dia já passou continua na lista, com a data a vermelho, até alguém a dar
+como paga. Dantes saía sozinha no dia seguinte, e o dinheiro nunca chegava ao
+saldo. Quem as calcula é o `vencimentosDoMes()` de `tipos.ts`, que dá os
+vencimentos do mês todo (um semanal dá vários). Uma receita atrasada, pelo
+contrário, sai daqui: já está no "por cobrar", com o seu botão, e aparecer nos
+dois sítios era a mesma cobrança duas vezes.
+
 ### O circular, e três regras que mudaram o que lá está
 
 1. **Nunca um circular de duas fatias.** Com menos de duas despesas mostra-se o
    número, porque o número é o gráfico.
 2. **Seis fatias no máximo** — as cinco maiores e um "outros". Passadas as seis,
-   as pequenas ficam indistinguíveis e o círculo passa a decoração.
+   as pequenas ficam indistinguíveis e o círculo passa a decoração. **O "outros"
+   abre-se na legenda**: é um `<details>`, sem JavaScript de cliente, e mostra
+   cada uma das escondidas com o seu valor. O círculo é que não ganha fatias —
+   abrir a legenda responde a "o que é o resto" sem desfazer a razão por que o
+   resto existe.
 3. **Uma cor só, em tons.** A DevPlus tem duas cores de marca; seis matizes
    distinguíveis (e que sobrevivessem a daltonismo) não saíam dali. Um
    `part-to-whole` ordenado por tamanho pede um degradê de uma cor. Os tons
@@ -804,7 +837,9 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | a ordem dos gastos                     | é no `order by` de `listarGastos()`, nunca no componente; o `agruparPorMes()` só parte a lista   |
 | o que um cliente paga por mês          | é na ficha do **projeto** — a do cliente só mostra a soma                                        |
 | onde se escreve o valor combinado      | só o `guardarValorCombinado` — um segundo escritor apaga a coluna com um `set valor = null`       |
-| o cálculo do "ainda este mês"          | `proximaOcorrencia()` em `tipos.ts`; testa os meses de 30 e 31 dias e fevereiro                  |
+| o cálculo do "ainda este mês"          | `proximaOcorrencia()` (entra) e `vencimentosDoMes()` (sai) em `tipos.ts`; testa os meses de 30 e 31 dias e fevereiro |
+| o que marca uma despesa como paga      | `marcarGastoPago` em `acoes.ts`, o `gastos_ocorrencia_unica` do esquema **e** o `pagos` de `recorrentes()` — a linha nova é `unica`, nunca recorrente |
+| o "outros" do circular                 | `GraficoCircular.tsx` — abre na legenda, num `<details>`; o círculo continua com `MAX_FATIAS`       |
 | o número de fatias do circular         | `MAX_FATIAS` e `tom()` em `GraficoCircular.tsx` — os tons espalham-se pelo total, não são fixos  |
 | a edição de tarefas                    | é só em `components/estudio/Tarefas.tsx` — o resumo mostra-as, não lhes mexe                     |
 | as métricas dos objetivos              | `METRICAS` em `tipos.ts`, o `check` do esquema **e** o `case` de `listarObjetivos()` em `dados.ts` |

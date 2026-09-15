@@ -573,6 +573,36 @@ export function vencimentosAte(
   return datas;
 }
 
+/**
+ * Os vencimentos de uma **despesa** que se repete dentro deste mês — os que já
+ * passaram e os que ainda vêm.
+ *
+ * É o que o "ainda este mês" usa do lado que sai, e não o `proximaOcorrencia()`:
+ * uma despesa cujo dia já passou tem de continuar na lista até alguém a dar
+ * como paga, senão o dinheiro saía da conta e nunca chegava ao saldo. E um
+ * semanal tem vários vencimentos no mês, não só o próximo.
+ *
+ * Tira a própria data base: a linha do gasto que se repete **é** o pagamento
+ * desse dia, e pedi-lo outra vez era contá-lo a dobrar.
+ *
+ * As receitas não passam por aqui. Uma receita atrasada já está no "por cobrar",
+ * e aparecer também no "ainda este mês" era a mesma cobrança duas vezes.
+ */
+export function vencimentosDoMes(
+  base: string,
+  periodicidade: Periodicidade,
+  hoje: string,
+): string[] {
+  const mes = hoje.slice(0, 7);
+  const [ano, m] = hoje.split("-").map(Number);
+  /* O dia 0 do mês seguinte é o último deste, como nas duas funções de cima. */
+  const ultimo = new Date(Date.UTC(ano, m, 0)).getUTCDate();
+
+  return vencimentosAte(base, periodicidade, null, `${mes}-${ultimo}`).filter(
+    (v) => v.slice(0, 7) === mes && v !== base,
+  );
+}
+
 /* ------------------------------------------------------------------------
    Objetivos
 

@@ -164,7 +164,13 @@ create table if not exists gastos (
   periodicidade text not null default 'unica'
                 constraint gastos_periodicidade_check
                 check (periodicidade in ('unica', 'semanal', 'mensal', 'anual')),
-  criado_em   timestamptz not null default now()
+  -- Quando esta linha é um mês pago de uma despesa que se repete: de que
+  -- despesa veio e que vencimento salda. Ver o ajuste de 2026-09-15.
+  origem_id   bigint constraint gastos_origem_fk
+                references gastos(id) on delete set null,
+  vencimento  date,
+  criado_em   timestamptz not null default now(),
+  constraint gastos_ocorrencia_unica unique (origem_id, vencimento)
 );
 
 create index if not exists gastos_data_idx on gastos (data);
@@ -329,3 +335,32 @@ create table if not exists recebimentos (
 
 create index if not exists recebimentos_receita_idx on recebimentos (receita_id);
 create index if not exists recebimentos_data_idx on recebimentos (data);
+
+-- 2026-09-15 · dar como pago um mês de uma despesa que se repete.
+--
+-- O "ainda este mês" do resumo ganhou um botão "Pago". Carregar nele cria uma
+-- linha `unica` nova em `gastos`, com a data de hoje, e é essa que conta no
+-- "saiu" — o gasto que se repete continua a ser o molde (e o primeiro
+-- pagamento). Uma linha de `gastos` e não uma tabela à parte, como os
+-- `recebimentos`: aqui um mês pago é mesmo um gasto, e assim as somas que já
+-- existem apanham-no sem se mexer nelas.
+--
+-- `origem_id` diz de que despesa veio, `vencimento` que mês salda. `on delete
+-- set null`: apagar a despesa que se repete não apaga o dinheiro que já saiu.
+-- O `unique` é o `recebimentos_unicos` deste lado — dois cliques no botão não
+-- tiram o dinheiro duas vezes. As duas colunas a `null` (um gasto normal) não
+-- chocam entre si, porque em Postgres dois `null` nunca são iguais.
+alter table gastos add column if not exists origem_id bigint;
+alter table gastos add column if not exists vencimento date;
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'gastos_origem_fk') then
+    alter table gastos add constraint gastos_origem_fk
+      foreign key (origem_id) references gastos(id) on delete set null;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'gastos_ocorrencia_unica') then
+    alter table gastos add constraint gastos_ocorrencia_unica
+      unique (origem_id, vencimento);
+  end if;
+end $$;

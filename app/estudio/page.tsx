@@ -7,7 +7,11 @@ import { GraficoCircular } from "@/components/estudio/GraficoCircular";
 import { Objetivos } from "@/components/estudio/Objetivos";
 import { SeletorDePeriodo } from "@/components/estudio/SeletorDePeriodo";
 import { CARTAO, SOBRETITULO } from "@/components/estudio/estilos";
-import { criarObjetivo, marcarRecebida } from "@/lib/estudio/acoes";
+import {
+  criarObjetivo,
+  marcarGastoPago,
+  marcarRecebida,
+} from "@/lib/estudio/acoes";
 import {
   cobrancasPorReceber,
   entradasDoPeriodo,
@@ -33,6 +37,7 @@ import {
   proximaOcorrencia,
   ROTULO_ESTADO,
   ROTULO_RECEITA,
+  vencimentosDoMes,
 } from "@/lib/estudio/tipos";
 import { cn } from "@/lib/utils";
 
@@ -95,15 +100,31 @@ export default async function Resumo({
     listarObjetivos(),
   ]);
 
-  /* O que ainda vem antes de o mês acabar, dos dois lados na mesma lista: o que
-     há para pagar e o que há para receber. Quem sabe converter uma
-     periodicidade numa data é o `proximaOcorrencia()`. */
+  /* O que falta marcar antes de o mês acabar, dos dois lados na mesma lista: o
+     que há para pagar e o que há para receber. Os lados contam de maneira
+     diferente, e de propósito:
+
+     - uma **despesa** fica enquanto ninguém a der como paga, mesmo que o dia já
+       tenha passado — o `vencimentosDoMes()` dá o mês todo;
+     - uma **receita** só aparece enquanto não chegou o dia, com o
+       `proximaOcorrencia()`. Depois disso já está no "por cobrar", e aparecer
+       nos dois sítios era a mesma cobrança duas vezes.
+
+     O que já foi marcado (os `pagos` de `recorrentes()`) sai. */
   const aindaEsteMes = repetem
-    .map((r) => ({
-      ...r,
-      quando: proximaOcorrencia(r.base, r.periodicidade, hoje),
-    }))
-    .filter((r): r is typeof r & { quando: string } => r.quando !== null)
+    .flatMap((r) => {
+      const pagos = new Set(r.pagos);
+      const datas =
+        r.lado === "sai"
+          ? vencimentosDoMes(r.base, r.periodicidade, hoje)
+          : [proximaOcorrencia(r.base, r.periodicidade, hoje)].filter(
+              (d): d is string => d !== null,
+            );
+
+      return datas
+        .filter((quando) => !pagos.has(quando))
+        .map((quando) => ({ ...r, quando, chave: `${r.chave}-${quando}` }));
+    })
     .sort((a, b) => a.quando.localeCompare(b.quando));
 
   /* Sem `.slice()`: cortar aos seis escondia metade do que está aberto, e a
@@ -384,23 +405,34 @@ export default async function Resumo({
             Ainda este mês
           </h2>
           <p className="mt-1 text-sm text-muted">
-            O que se repete e ainda não aconteceu, de um lado e do outro.
+            O que se repete e ainda não foi marcado, de um lado e do outro.
           </p>
 
           {aindaEsteMes.length === 0 ? (
             <p className="mt-4 text-sm text-muted">
-              Nada agendado até ao fim do mês. As despesas que se repetem e os
+              Nada por marcar até ao fim do mês. As despesas que se repetem e os
               alojamentos dos clientes aparecem aqui com o dia.
             </p>
           ) : (
             <ul className="mt-5 divide-y divide-border border-y border-border">
               {aindaEsteMes.map((r) => (
-                <li key={r.chave} className="flex items-center gap-3 py-3">
+                <li
+                  key={r.chave}
+                  className="flex flex-wrap items-center gap-x-3 gap-y-2 py-3"
+                >
                   {/* Só dia e mês: a lista é toda deste mês, e o ano repetido em
                       cada linha é ruído. Corta-se da própria cadeia `YYYY-MM-DD`,
                       que é exata — o `formatarData` devolve `20/09/2026` e não
-                      havia sufixo de ano para tirar com segurança. */}
-                  <span className="w-12 shrink-0 text-xs tabular-nums text-muted">
+                      havia sufixo de ano para tirar com segurança.
+
+                      A vermelho quando o dia já passou: só acontece a despesas,
+                      e quer dizer que o dinheiro saiu e ainda não foi contado. */}
+                  <span
+                    className={cn(
+                      "w-12 shrink-0 text-xs tabular-nums",
+                      r.quando < hoje ? "text-danger" : "text-muted",
+                    )}
+                  >
                     {`${r.quando.slice(8, 10)}/${r.quando.slice(5, 7)}`}
                   </span>
                   <span className="min-w-0 flex-1">
@@ -420,6 +452,31 @@ export default async function Resumo({
                     {r.lado === "entra" ? "+" : "−"}
                     {formatarEuros(r.valor)}
                   </span>
+                  {/* O mesmo botão do "por cobrar", com as mesmas classes. Do
+                      lado que entra é mesmo a mesma ação; do que sai, o
+                      `marcarGastoPago` cria o gasto do mês. Uma receita a zero
+                      não tem botão: não há nada para receber. */}
+                  {r.valor > 0 ? (
+                    <form
+                      action={
+                        r.lado === "entra" ? marcarRecebida : marcarGastoPago
+                      }
+                    >
+                      <input
+                        type="hidden"
+                        name={r.lado === "entra" ? "receitaId" : "gastoId"}
+                        value={r.id}
+                      />
+                      <input type="hidden" name="vencimento" value={r.quando} />
+                      <button
+                        type="submit"
+                        aria-label={`${r.lado === "entra" ? "Marcar como recebido" : "Marcar como pago"}: ${r.descricao}, ${formatarData(r.quando)}`}
+                        className="rounded-full border border-border-strong px-3 py-1 text-xs transition-colors hover:border-accent hover:text-accent"
+                      >
+                        {r.lado === "entra" ? "Recebido" : "Pago"}
+                      </button>
+                    </form>
+                  ) : null}
                 </li>
               ))}
             </ul>

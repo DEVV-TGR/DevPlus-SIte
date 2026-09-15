@@ -967,6 +967,8 @@ export async function tarefasPendentesDe(
 
 export type Recorrente = {
   chave: string;
+  /** O id da receita ou do gasto — o que o botão de marcar manda à ação. */
+  id: number;
   lado: "entra" | "sai";
   descricao: string;
   contexto: string | null;
@@ -974,15 +976,21 @@ export type Recorrente = {
   /** A data de referência: o dia em que se pagou, ou o dia em que começou. */
   base: string;
   periodicidade: Periodicidade;
+  /** Os vencimentos que já se deram como pagos: os `recebimentos` de uma
+   *  receita, ou os gastos com `origem_id` de uma despesa. */
+  pagos: string[];
 };
 
 /**
- * Tudo o que se repete, dos dois lados, em bruto.
+ * Tudo o que se repete, dos dois lados, em bruto — com o que já foi marcado.
  *
- * Quem decide o que ainda vem este mês é o `proximaOcorrencia()` de
- * `lib/estudio/tipos.ts`, em JavaScript — a conta envolve meses de 28 a 31 dias
- * e dias da semana, e em SQL ficava ilegível para poupar uma passagem por uma
- * lista de dez linhas.
+ * Quem decide o que ainda vem este mês é o `proximaOcorrencia()` e o
+ * `vencimentosDoMes()` de `lib/estudio/tipos.ts`, em JavaScript — a conta
+ * envolve meses de 28 a 31 dias e dias da semana, e em SQL ficava ilegível para
+ * poupar uma passagem por uma lista de dez linhas.
+ *
+ * Os `pagos` vêm na mesma consulta, num `array_agg`, como no `DE_COBRANCAS`:
+ * continua a ser uma ida à base por lado.
  */
 export async function recorrentes(): Promise<Recorrente[]> {
   const [saidas, entradas] = await Promise.all([
@@ -993,9 +1001,13 @@ export async function recorrentes(): Promise<Recorrente[]> {
       valor: string;
       data: string;
       periodicidade: Periodicidade;
+      pagos: string[];
     }>(
       `select g.id, g.descricao, p.nome as projeto_nome, g.valor,
-              to_char(g.data, 'YYYY-MM-DD') as data, g.periodicidade
+              to_char(g.data, 'YYYY-MM-DD') as data, g.periodicidade,
+              coalesce((select array_agg(to_char(o.vencimento, 'YYYY-MM-DD'))
+                          from gastos o where o.origem_id = g.id),
+                       '{}') as pagos
          from gastos g
          left join projetos p on p.id = g.projeto_id
         where g.periodicidade <> 'unica'`,
@@ -1008,9 +1020,13 @@ export async function recorrentes(): Promise<Recorrente[]> {
       valor: string;
       desde: string;
       periodicidade: Periodicidade;
+      pagos: string[];
     }>(
       `select r.id, r.tipo, p.nome as projeto_nome, c.nome as cliente_nome,
-              r.valor, to_char(r.desde, 'YYYY-MM-DD') as desde, r.periodicidade
+              r.valor, to_char(r.desde, 'YYYY-MM-DD') as desde, r.periodicidade,
+              coalesce((select array_agg(to_char(x.vencimento, 'YYYY-MM-DD'))
+                          from recebimentos x where x.receita_id = r.id),
+                       '{}') as pagos
          from receitas r
          join projetos p on p.id = r.projeto_id
          left join clientes c on c.id = p.cliente_id
@@ -1022,15 +1038,18 @@ export async function recorrentes(): Promise<Recorrente[]> {
   return [
     ...saidas.map((l) => ({
       chave: `gasto-${l.id}`,
+      id: Number(l.id),
       lado: "sai" as const,
       descricao: l.descricao,
       contexto: l.projeto_nome,
       valor: Number(l.valor),
       base: l.data,
       periodicidade: l.periodicidade,
+      pagos: l.pagos,
     })),
     ...entradas.map((l) => ({
       chave: `receita-${l.id}`,
+      id: Number(l.id),
       lado: "entra" as const,
       descricao:
         l.tipo === "dominio" ? "Domínio" : "Alojamento e apoio",
@@ -1040,6 +1059,7 @@ export async function recorrentes(): Promise<Recorrente[]> {
       valor: Number(l.valor),
       base: l.desde,
       periodicidade: l.periodicidade,
+      pagos: l.pagos,
     })),
   ];
 }
