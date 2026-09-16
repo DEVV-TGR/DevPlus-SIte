@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-type Variant = "primary" | "outline" | "ghost";
+type Variant = "primary" | "outline" | "ghost" | "contraste";
 
 type Props = {
   href?: string;
@@ -22,6 +22,12 @@ const variants: Record<Variant, string> = {
   outline:
     "border border-border-strong text-ink hover:border-ink/40 hover:bg-surface",
   ghost: "text-muted hover:bg-surface hover:text-ink",
+  /* O CTA **sobre o ground laranja**, onde o `primary` desapareceria: laranja
+     sobre laranja não é um botão. Escuro e opaco (7.26:1 medido, ver docs/02),
+     e no hover inverte para creme — é o único sítio do site onde um botão
+     troca de ground, e é de propósito: é o botão do fim do percurso. */
+  contraste:
+    "bg-primary-ink text-ink hover:bg-ink hover:text-primary-ink",
 };
 
 export function Button({
