@@ -19,6 +19,8 @@ import { site } from "@/lib/site";
  * mudou". Ver docs/01.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
+  /* O Estúdio (`/estudio`) não entra aqui, e não é por esquecimento: é interno,
+     está atrás de login e o `app/robots.ts` proíbe-o. Ver docs/07. */
   const pages = [
     "",
     "/servicos",

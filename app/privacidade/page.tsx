@@ -41,7 +41,11 @@ const sections: [string, React.ReactNode][] = [
   ],
   [
     "Partilha com terceiros",
-    "Não vendemos os teus dados. Recorremos a dois fornecedores para operar o site, ambos sujeitos a deveres de confidencialidade: a Vercel, que o aloja, e a Resend, que entrega na nossa caixa as mensagens enviadas pelo formulário de contacto. Se recorrermos a mais algum, passará a constar aqui pelo nome.",
+    "Não vendemos os teus dados. Recorremos a dois fornecedores para operar o site, ambos sujeitos a deveres de confidencialidade: a Vercel, que aloja o site e a base de dados onde guardamos os registos de trabalho descritos abaixo, e a Resend, que entrega na nossa caixa as mensagens enviadas pelo formulário de contacto. Se recorrermos a mais algum, passará a constar aqui pelo nome.",
+  ],
+  [
+    "Se fores nosso cliente",
+    "Para gerir os trabalhos que temos em mãos, mantemos um registo interno com o nome do cliente, os contactos que nos deste e notas sobre o que ficou combinado. É acessível apenas a nós, protegido por autenticação, e existe só enquanto durar a relação de trabalho e as obrigações legais associadas. Não é usado para marketing nem partilhado com ninguém.",
   ],
   [
     "Conservação",
@@ -90,7 +94,7 @@ export default function PrivacidadePage() {
               </div>
             ))}
             <p className="border-t border-border pt-6 text-sm text-muted">
-              Última atualização: 10 de agosto de 2026.
+              Última atualização: 8 de setembro de 2026.
             </p>
           </div>
         </Container>
