@@ -117,7 +117,11 @@ cliente lê primeiro.
 de se perceber o âmbito — é um compromisso comercial e não copy, pela mesma
 razão que as respostas do FAQ não se reescrevem sem confirmação.
 
-Só um pacote pode ter `featured`.
+Só um pacote pode ter `featured` — e o que ele faz é **pintar o card inteiro de
+laranja** na página inicial, não só pôr-lhe a etiqueta "Mais escolhido". Marcar
+dois destrói o sinal: dois recomendados não recomendam nada. As regras de cor e
+de contraste desse card estão no `docs/04`, em "O pacote destacado é um ground,
+não uma etiqueta".
 
 ## Ao alterar este documento
 
