@@ -56,3 +56,14 @@ next-env.d.ts
 # fica de fora.
 /.claude/settings.local.json
 /.claude/worktrees/
+
+# Protótipos da skill scroll-craft. O build entra (é a especificação visual do
+# que se vai portar para o Next.js); os PNG de 7MB por otimizar, as capturas de
+# verificação e o node_modules do harness ficam de fora.
+scrollcraft/builds/*/out/
+scrollcraft/builds/*/lab/
+scrollcraft/builds/*/node_modules/
+scrollcraft/builds/*/package*.json
+
+# capturas do verificador de scroll (scripts/verificar-scroll.mjs)
+/lab/

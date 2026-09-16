@@ -17,7 +17,9 @@ export function Footer() {
     <footer className="mt-24 border-t border-border">
       <Container className="py-16">
         <div className="flex flex-col gap-8 border-b border-border pb-12 sm:flex-row sm:items-end sm:justify-between">
-          <h2 className="max-w-xl font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+          {/* O rodapé não é um capítulo: o `t-seccao` a 62px punha-o com 1,4 ecrãs
+              de altura num telemóvel, quase o tamanho de uma secção a sério. */}
+          <h2 className="max-w-xl font-display text-[clamp(1.8rem,9vw,2.6rem)] font-extrabold leading-[1] tracking-[-0.04em]">
             Vamos somar ao teu próximo projeto.
           </h2>
           <Button href="/contacto" variant="primary">
@@ -36,12 +38,15 @@ export function Footer() {
 
           <nav aria-label="Rodapé">
             <h3 className="text-sm font-medium text-ink">Navegação</h3>
-            <ul className="mt-4 flex flex-col gap-2.5">
+            {/* `gap-0` com `py-2.5` em cada link, em vez de `gap-2.5`: o
+                espaço entre linhas é o mesmo, mas passa a ser área tocável em
+                vez de vão morto. Os links do rodapé mediam 61×18. */}
+            <ul className="mt-2 flex flex-col">
               {nav.map((l) => (
                 <li key={l.href}>
                   <Link
                     href={l.href}
-                    className="text-sm text-muted transition-colors hover:text-ink"
+                    className="flex min-h-11 items-center text-sm text-muted transition-colors hover:text-ink"
                   >
                     {l.label}
                   </Link>
@@ -52,11 +57,14 @@ export function Footer() {
 
           <div>
             <h3 className="text-sm font-medium text-ink">Contacto</h3>
-            <ul className="mt-4 flex flex-col gap-2.5">
+            {/* `gap-0` com `py-2.5` em cada link, em vez de `gap-2.5`: o
+                espaço entre linhas é o mesmo, mas passa a ser área tocável em
+                vez de vão morto. Os links do rodapé mediam 61×18. */}
+            <ul className="mt-2 flex flex-col">
               <li>
                 <a
                   href={`mailto:${site.email}`}
-                  className="text-sm text-muted transition-colors hover:text-ink"
+                  className="flex min-h-11 items-center text-sm text-muted transition-colors hover:text-ink"
                 >
                   {site.email}
                 </a>
@@ -72,7 +80,7 @@ export function Footer() {
                       href={s.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-muted transition-colors hover:text-ink"
+                      className="flex min-h-11 items-center text-sm text-muted transition-colors hover:text-ink"
                     >
                       {s.label}
                     </a>
@@ -93,11 +101,11 @@ export function Footer() {
               obrigatório para prestadores de serviços e tem de estar visível
               sem ser preciso procurar — daí o rodapé, e não uma página só
               dele. Ver docs/01, "O Livro de Reclamações". */}
-          <ul className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <ul className="-my-3 flex flex-wrap items-center gap-x-3">
             <li>
               <Link
                 href="/privacidade"
-                className="transition-colors hover:text-ink"
+                className="inline-flex min-h-11 items-center px-2 transition-colors hover:text-ink"
               >
                 Política de Privacidade
               </Link>
@@ -108,7 +116,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Livro de Reclamações Eletrónico"
-                className="transition-colors hover:text-ink"
+                className="inline-flex min-h-11 items-center px-2 transition-colors hover:text-ink"
               >
                 Livro de Reclamações
               </a>

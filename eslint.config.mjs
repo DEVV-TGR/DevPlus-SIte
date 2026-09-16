@@ -16,6 +16,9 @@ const eslintConfig = defineConfig([
     // corrigir. Sem isto o lint devolve 135 avisos que não são do site e que
     // escondem os que são — e o CI passava a correr sobre eles a cada push.
     ".claude/**",
+    // Protótipos da skill scroll-craft: o motor é de terceiros e o build é
+    // uma especificação visual, não código do site. Mesma razão do `.claude`.
+    "scrollcraft/**",
   ]),
 ]);
 
