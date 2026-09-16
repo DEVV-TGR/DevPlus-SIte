@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DevPlus &middot; Serviços</title>
+<meta name="description" content="Web design, desenvolvimento, menus e ecrãs digitais, painel de gestão, branding e motion. Do primeiro esboço ao dia em que o site fica no ar.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231a1613'/><path d='M34.5 0H65.5V34.5H100V65.5H65.5V100H34.5V65.5H0V34.5H34.5Z' fill='%23F2762B'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="scrollcraft.css">
+<link rel="stylesheet" href="estilo.css">
+<link rel="stylesheet" href="paginas.css">
+</head>
+<body>
+
+<span data-sc-progress></span>
+<div class="sc-grain" aria-hidden="true"></div>
+
+<a class="marca" href="index.html">DevPlus</a>
+<nav class="nav" aria-label="Navegação principal">
+  <a href="index.html" class="nav__voltar">Início</a>
+  <a href="servicos.html" aria-current="page">Serviços</a>
+  <a href="portfolio.html">Portfólio</a>
+  <a href="sobre.html">Sobre</a>
+  <a href="contacto.html">Contacto</a>
+</nav>
+
+<div class="folio" aria-hidden="true">
+  <span class="folio__n" id="folio-n">00</span>
+  <span class="folio__t" id="folio-t">Capa</span>
+</div>
+
+<div class="cruz" aria-hidden="true">
+  <svg viewBox="0 0 100 100"><path d="M34.5 0H65.5V34.5H100V65.5H65.5V100H34.5V65.5H0V34.5H34.5Z"/></svg>
+</div>
+
+<main>
+
+  <script>
+    /* Os postos seguem duas regras que a homepage não precisou de ter, porque
+       lá o "+" vive quase sempre sobre imagem ou sobre vazio:
+
+       1. **Grande só onde não há texto corrido** — nos extremos, que é onde a
+          página tem título ou fecho. A meio, onde se lê, nunca passa de 0,6.
+       2. **Nunca 45°.** Um "+" rodado a meio caminho é um X, e um X grande e
+          cinzento por cima do trabalho lê-se como um botão de fechar. */
+    window.CRUZ_POSTOS = [
+      { p: 0.00, s: 2.4, x: 34, y: -16, r: 0, c: '#F2762B' },
+      { p: 0.40, s: 0.9, x: 42, y: 20, r: 8, c: '#F2762B' },
+      { p: 0.74, s: 0.45, x: -38, y: -24, r: 12, c: '#8a7b6d' },
+      { p: 1.00, s: 1.25, x: -40, y: 30, r: 0, c: '#F2762B' }
+    ];
+  </script>
+
+  <!-- ══ 0 · CAPA ══════════════════════════════════════════════════════ -->
+  <section class="cap" data-sc-act="pin" data-sc-span="1.0" data-cap="0" data-cap-nome="Serviços">
+    <div class="cap__ground" style="background:#1a1613"></div>
+    <div data-sc-stage>
+      <div class="capa">
+        <div data-sc-cue="0 0.9 0">
+          <p class="capa__et">Serviços</p>
+          <h1>Design, código e as chaves na tua mão.</h1>
+          <p class="capa__nota">Fazemos tudo o que o teu site precisa, da primeira ideia ao dia em que fica no ar. E deixamos-te o painel para seres tu a mandar nele a partir daí.</p>
+          <div class="capa__conta">
+            <span><b>06</b> serviços</span>
+            <span><b>04</b> passos</span>
+            <span><b>03</b> pontos de partida</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 1 · O ACORDEÃO ════════════════════════════════════════════════
+       Seis colunas, uma aberta de cada vez. O scroll abre-as em sequência; o
+       clique salta para uma. -->
+  <section class="cap" data-sc-act="pin" data-sc-span="3.4" data-cap="1" data-cap-nome="O que fazemos">
+    <div class="cap__ground" style="background:#100e0c"></div>
+    <div data-sc-stage>
+      <div class="acord" id="acord" role="group" aria-label="Os seis serviços">
+        <button class="acord__col" type="button" aria-expanded="false">
+          <div class="acord__fig" aria-hidden="true"><img src="assets/s1-web-design.png" alt="" width="800" height="800" loading="lazy"></div>
+          <span class="acord__n">01</span>
+          <h3 class="acord__nome">Web Design</h3>
+          <div class="acord__corpo">
+            <p>Desenhamos cada ecrã à medida da tua marca e mostramos-te tudo antes de escrever uma linha de código. O cliente encontra o que procura sem ter de pensar — é isso que separa quem visita de quem compra.</p>
+            <ul class="acord__tags"><li>UI/UX</li><li>Design systems</li><li>Protótipos</li></ul>
+          </div>
+        </button>
+        <button class="acord__col" type="button" aria-expanded="false">
+          <div class="acord__fig" aria-hidden="true"><img src="assets/s2-desenvolvimento.png" alt="" width="800" height="800" loading="lazy"></div>
+          <span class="acord__n">02</span>
+          <h3 class="acord__nome">Desenvolvimento</h3>
+          <div class="acord__corpo">
+            <p>Construímos o site com tecnologia que o faz abrir num instante, em qualquer telemóvel. Um site lento perde o cliente antes sequer de lhe mostrar o que vendes.</p>
+            <ul class="acord__tags"><li>Next.js</li><li>Performance</li><li>Headless CMS</li></ul>
+          </div>
+        </button>
+        <button class="acord__col" type="button" aria-expanded="false">
+          <div class="acord__fig" aria-hidden="true"><img src="assets/s3-menus.png" alt="" width="800" height="800" loading="lazy"></div>
+          <span class="acord__n">03</span>
+          <h3 class="acord__nome">Menus &amp; Ecrãs Digitais</h3>
+          <div class="acord__corpo">
+            <p>Levamos a tua ementa para onde os clientes olham: no telemóvel por QR code e num ecrã dentro do espaço, em loop. Mudas o preço num sítio e muda em todo o lado.</p>
+            <ul class="acord__tags"><li>Menu digital</li><li>QR code</li><li>Ecrã em loop</li></ul>
+          </div>
+        </button>
+        <button class="acord__col" type="button" aria-expanded="false">
+          <div class="acord__fig" aria-hidden="true"><img src="assets/s4-painel.png" alt="" width="800" height="800" loading="lazy"></div>
+          <span class="acord__n">04</span>
+          <h3 class="acord__nome">Painel de Gestão</h3>
+          <div class="acord__corpo">
+            <p>Um painel só teu, feito à medida do que precisas de mudar no dia a dia. Publicas, editas, apagas e deixas coisas agendadas — sem código e sem esperar por nós.</p>
+            <ul class="acord__tags"><li>Backoffice</li><li>Base de dados</li><li>Agendamento</li></ul>
+          </div>
+        </button>
+        <button class="acord__col" type="button" aria-expanded="false">
+          <div class="acord__mais" aria-hidden="true"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M34.5 0H65.5V34.5H100V65.5H65.5V100H34.5V65.5H0V34.5H34.5Z"/></svg></div>
+          <span class="acord__n">05</span>
+          <h3 class="acord__nome">Branding</h3>
+          <div class="acord__corpo">
+            <p>Tratamos da cara da tua marca, do logótipo às cores e às regras de uso. Ficas com uma imagem que se reconhece à distância — no site, na montra ou na farda.</p>
+            <ul class="acord__tags"><li>Identidade</li><li>Logótipo</li><li>Guidelines</li></ul>
+          </div>
+        </button>
+        <button class="acord__col" type="button" aria-expanded="false">
+          <div class="acord__mais" aria-hidden="true"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M34.5 0H65.5V34.5H100V65.5H65.5V100H34.5V65.5H0V34.5H34.5Z"/></svg></div>
+          <span class="acord__n">06</span>
+          <h3 class="acord__nome">Motion &amp; Interação</h3>
+          <div class="acord__corpo">
+            <p>Pequenos movimentos que dão vida ao site sem nunca atrapalhar quem o está a usar. Guiam o olho para onde interessa e fazem o site parecer bem feito — porque é.</p>
+            <ul class="acord__tags"><li>Animação</li><li>Micro-interações</li><li>Scroll</li></ul>
+          </div>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <svg class="curva" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,120 L0,52 C260,-16 560,104 820,58 C1050,18 1280,4 1440,34 L1440,120 Z" fill="#1a1613"/>
+  </svg>
+
+  <!-- ══ 2 · O PROCESSO, EM LINHA ══════════════════════════════════════
+       Os mesmos quatro passos da homepage, noutra forma: ali acumulam-se em
+       cards, aqui correm numa linha. -->
+  <section class="cap sc-section" data-sc-act="flow" data-cap="2" data-cap-nome="Como corre">
+    <div class="cap__ground" style="background:#1a1613"></div>
+    <div class="sc-wrap sc-stack" data-sc-in style="margin-bottom:clamp(2rem,5vw,3rem)">
+      <h2 class="sc-display sc-display--lg" style="letter-spacing:-.04em;max-width:18ch">Como um projeto corre.</h2>
+      <p class="sc-body">Quatro passos, sempre os mesmos. Sabes onde estás em cada momento.</p>
+    </div>
+    <div class="sc-wrap">
+      <div class="linha" data-sc-stagger="70">
+          <div class="linha__p" data-sc-in>
+            <span class="linha__n">01</span>
+            <h3 class="linha__t">Conversa</h3>
+            <p class="linha__d">Sentamo-nos contigo a perceber o negócio, quem são os teus clientes e o que queres ganhar com isto. Sem isso, o resto é decoração.</p>
+          </div>
+          <div class="linha__p" data-sc-in>
+            <span class="linha__n">02</span>
+            <h3 class="linha__t">Design</h3>
+            <p class="linha__d">Mostramos-te o site desenhado antes de ele existir. Vês, dizes o que mudarias, e só depois se escreve código.</p>
+          </div>
+          <div class="linha__p" data-sc-in>
+            <span class="linha__n">03</span>
+            <h3 class="linha__t">Construção</h3>
+            <p class="linha__d">Abre depressa, funciona bem no telemóvel e aparece nas pesquisas. Não são extras que se pedem — é como fazemos.</p>
+          </div>
+          <div class="linha__p" data-sc-in>
+            <span class="linha__n">04</span>
+            <h3 class="linha__t">No ar</h3>
+            <p class="linha__d">Pomos o site online, acompanhamos os primeiros dias e afinamos o que for preciso. E ficamos cá para o que vier a seguir.</p>
+          </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 3 · POR ONDE COMEÇAR ══════════════════════════════════════════ -->
+  <section class="cap sc-section" data-sc-act="flow" data-cap="3" data-cap-nome="Por onde começar">
+    <div class="cap__ground" style="background:#1a1613"></div>
+    <div class="sc-wrap sc-stack" data-sc-in style="margin-bottom:clamp(1.75rem,4vw,2.75rem)">
+      <h2 class="sc-display sc-display--lg" style="letter-spacing:-.04em;max-width:16ch">Por onde podemos começar.</h2>
+      <p class="sc-body">Cada projeto é diferente, mas costuma partir de um destes pontos. O valor sai depois, numa proposta, quando se souber o âmbito.</p>
+    </div>
+    <div class="sc-wrap">
+      <div class="pacotes" data-sc-in data-sc-stagger="70">
+        <div class="pacote">
+          <div class="pacote__caixa">
+            <h3 class="pacote__t">Landing page</h3>
+            <p class="pacote__d">Uma página só, com o que interessa: quem és, o que fazes e como te contactam. Rápida de pôr no ar.</p>
+            <ul class="pacote__l"><li>Página única</li><li>Copy + design</li><li>Formulário de contacto</li><li>Otimizada para SEO</li></ul>
+          </div>
+          <a class="btn btn--cheio btn--largo" href="contacto.html">Pedir proposta</a>
+        </div>
+        <div class="pacote">
+          <div class="pacote__caixa"><span class="pacote__et">Mais escolhido</span>
+            <h3 class="pacote__t">Website</h3>
+            <p class="pacote__d">O site completo da tua marca, com várias páginas e a mesma linguagem visual em todas.</p>
+            <ul class="pacote__l"><li>Várias páginas</li><li>Design system próprio</li><li>CMS opcional</li><li>Performance + SEO</li></ul>
+          </div>
+          <a class="btn btn--cheio btn--largo" href="contacto.html">Pedir proposta</a>
+        </div>
+        <div class="pacote">
+          <div class="pacote__caixa">
+            <h3 class="pacote__t">Loja online</h3>
+            <p class="pacote__d">Uma loja feita para vender: o cliente compra em poucos toques e tu geres os produtos sem ajuda.</p>
+            <ul class="pacote__l"><li>Catálogo + checkout</li><li>Pagamentos</li><li>Gestão de produtos</li><li>Analytics</li></ul>
+          </div>
+          <a class="btn btn--cheio btn--largo" href="contacto.html">Pedir proposta</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 4 · DÚVIDAS ═══════════════════════════════════════════════════ -->
+  <section class="cap sc-section" data-sc-act="flow" data-cap="4" data-cap-nome="Dúvidas">
+    <div class="cap__ground" style="background:#100e0c"></div>
+    <div class="sc-wrap sc-stack" data-sc-in style="margin-bottom:clamp(1.75rem,4vw,2.75rem)">
+      <h2 class="sc-display sc-display--lg" style="letter-spacing:-.04em;max-width:14ch">O que costumam perguntar.</h2>
+    </div>
+    <div class="sc-wrap">
+      <div class="duvidas" data-sc-in>
+        <details class="duvida">
+          <summary>Quanto custa um site?</summary>
+          <p>Depende do que precisas: número de páginas, funcionalidades e conteúdo. Falamos contigo, percebemos o âmbito e enviamos uma proposta com o valor e tudo o que está incluído. Se a meio quiseres acrescentar alguma coisa, falamos antes de fazer — nunca depois.</p>
+        </details>
+        <details class="duvida">
+          <summary>Quanto tempo demora?</summary>
+          <p>Uma landing page costuma estar pronta em 1 a 2 semanas. Um site completo leva normalmente 3 a 6 semanas — e o que mais pesa nessa conta é a rapidez com que nos chega o conteúdo.</p>
+        </details>
+        <details class="duvida">
+          <summary>Trabalham com clientes fora de Portugal?</summary>
+          <p>Sim. Trabalhamos à distância todos os dias, em português ou em inglês. Nunca foi problema.</p>
+        </details>
+        <details class="duvida">
+          <summary>O site vai ser mesmo meu?</summary>
+          <p>É teu, e o conteúdo também. O alojamento e o suporte ficam connosco, por uma mensalidade — é isso que garante que o site está sempre no ar, atualizado e com alguém do outro lado quando precisas. Fica tudo escrito na proposta, sem letras pequenas.</p>
+        </details>
+        <details class="duvida">
+          <summary>Tratam do alojamento e do domínio?</summary>
+          <p>Tratamos. O alojamento entra na mensalidade e a parte técnica é toda connosco: pôr no ar, manter atualizado e resolver o que aparecer. Do domínio também tratamos, e dizemos-te sempre o que estás a pagar e a quem.</p>
+        </details>
+        <details class="duvida">
+          <summary>Dão apoio depois do lançamento?</summary>
+          <p>Damos, e é isso que a mensalidade cobre. Precisas de mudar uma coisa, acrescentar uma página ou resolver um problema? É só dizeres.</p>
+        </details>
+      </div>
+      <div class="botoes">
+        <a class="btn btn--cheio" href="contacto.html">Falar connosco <span class="btn__seta" aria-hidden="true">&rarr;</span></a>
+        <a class="btn btn--linha" href="portfolio.html">Ver o trabalho</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- O rodapé é uma secção sua: dentro de um palco pinado ficava absoluto e
+       não gerava altura, e numa secção flow sobrepunha-se ao que lá estava. -->
+  <section class="cap" data-cap="5" data-cap-nome="Rodapé">
+    <div class="cap__ground" style="background:#100e0c"></div>
+    <div class="sc-wrap">
+      <footer class="foot foot--escuro">
+        <span>DevPlus &middot; devplus.pt</span>
+        <nav aria-label="Navegação do site">
+          <a href="index.html">Início</a><a href="servicos.html">Serviços</a><a href="portfolio.html">Portfólio</a><a href="sobre.html">Sobre</a><a href="contacto.html">Contacto</a>
+        </nav>
+      </footer>
+    </div>
+  </section>
+
+</main>
+
+<script src="scrollcraft.js"></script>
+<script src="paginas.js"></script>
+</body>
+</html>
