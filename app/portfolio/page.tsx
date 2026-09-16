@@ -19,6 +19,7 @@ export default function PortfolioPage() {
   return (
     <>
       <PageHero
+        vista="portfolio"
         eyebrow="Portfólio"
         title="Trabalho selecionado."
         intro="Alguns dos projetos mais recentes. Todos começaram da mesma maneira: uma folha em branco e uma conversa."

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ViewTransition } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -103,7 +104,18 @@ export default async function CaseStudyPage({
       </section>
 
       <Container className="pt-10">
-        <Reveal>
+        {/*
+          O outro lado do morph. Esta capa e a do card no portfólio partilham
+          `capa-<slug>`, e o browser anima uma na outra: quem clica vê a capa
+          crescer e tornar-se o topo desta página, em vez de uma imagem
+          desaparecer e outra aparecer.
+
+          Sem `Reveal` à volta: o `Reveal` começa a `opacity: 0` e sobe 16px, o
+          que é exatamente o oposto do que um morph faz — a capa piscava antes
+          de assentar. Quem chega de fora, sem par para morfar, continua a ver a
+          capa aparecer pela transição de página do `template.tsx`.
+        */}
+        <ViewTransition name={`capa-${project.slug}`} share="morph" default="none">
           <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-border bg-surface-2">
             {project.image ? (
               <>
@@ -139,7 +151,7 @@ export default async function CaseStudyPage({
               {project.name}
             </span>
           </div>
-        </Reveal>
+        </ViewTransition>
       </Container>
 
       <Section>

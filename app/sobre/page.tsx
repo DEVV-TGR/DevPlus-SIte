@@ -59,6 +59,7 @@ export default function SobrePage() {
   return (
     <>
       <PageHero
+        vista="sobre"
         eyebrow="Sobre"
         title="Estúdio pequeno, projetos poucos, atenção toda."
         intro={`A ${site.name} nasceu de uma ideia simples: a maior parte dos sites podia ser bem melhor. Existimos para acrescentar o que lhes falta.`}

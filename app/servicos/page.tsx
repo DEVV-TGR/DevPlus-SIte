@@ -116,6 +116,7 @@ export default function ServicosPage() {
     <>
       <FaqJsonLd faqs={faqs} />
       <PageHero
+        vista="servicos"
         eyebrow="Serviços"
         title="Design, código e as chaves na tua mão."
         intro="Fazemos tudo o que o teu site precisa, da primeira ideia ao dia em que fica no ar. E deixamos-te o painel para seres tu a mandar nele a partir daí."

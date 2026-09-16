@@ -279,6 +279,10 @@ export function ProjectsMarquee({
                   focusable={original}
                   blur={false}
                   sizes={CARD_SIZES}
+                  // Só a primeira ronda leva `view-transition-name`. Um nome
+                  // repetido no mesmo documento parte o morph inteiro, e a
+                  // faixa mostra três rondas dos mesmos projetos.
+                  shared={original}
                 />
               </li>
             );
