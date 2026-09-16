@@ -2,6 +2,10 @@
 doc: componentes-e-padroes
 fonte-de-verdade: codigo
 controla:
+  - lib/motion.ts
+  - components/home/ComoTrabalhamos.tsx
+  - components/home/ProvaCarrossel.tsx
+  - components/home/ServicosMostra.tsx
   - components/ui/Button.tsx
   - components/ui/Container.tsx
   - components/ui/Section.tsx
@@ -23,6 +27,8 @@ controla:
   - app/page.tsx#ordem-das-seccoes
   - components/home/Curva.tsx
   - components/home/ServicosMostra.tsx
+  - components/home/ComoTrabalhamos.tsx
+  - lib/motion.ts
 relacionado:
   - docs/02-cores-e-tipografia.md
 ---
@@ -57,13 +63,13 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `home/ComoTrabalhamos` | os quatro passos: cards que se acumulam em computador, fila horizontal no telemóvel | transformá-los numa grelha — a acumulação é o ponto; e dar-lhes a pilha no telemóvel, onde não cabe |
 | `home/ProvaCarrossel`  | o trabalho feito, em fila horizontal com a página presa                | usá-lo para hierarquia; lateral lê-se como alcance, não como ordem                          |
 | `home/ServicosMostra`  | os serviços um de cada vez, com a meia-roda à direita a escolher qual | catalogar aqui os seis — a página inicial apresenta, a `/servicos` cataloga; e trocar o hover pelo clique, em vez de o acrescentar |
-| `home/Pacotes`    | por onde um projeto começa                                                 | escrever preços; saem de proposta, ver `docs/05`                                            |
+| `home/Pacotes`    | por onde um projeto começa                                                 | escrever preços; saem de proposta, ver `docs/05`. E distinguir o destacado só com a etiqueta |
 | `home/Fecho`      | o convite, no fim                                                          | deixá-lo esbater-se para o rodapé                                                          |
 | `Hero` *(sem uso)* | era a capa antiga                                                         | —                                                                                          |
 | `Testimonials`    | o que os clientes dizem, na homepage a seguir aos serviços                 | inventar a frase de um cliente para encher a secção — ver abaixo                           |
 | `Wordmark`        | o logótipo com link para "/"                                               | ver `docs/03`                                                                              |
 | `Lockup` / `Logo` | o logótipo "D+" e o "+" isolado                                            | desenhar o logótipo à mão em SVG — ver `docs/03`                                           |
-| `Providers`       | Lenis, e a ligação dele ao ScrollTrigger                                   | acrescentar providers sem necessidade; separar os relógios do Lenis e do GSAP; ir buscar a instância por `ref` em vez do `useLenis` |
+| `Providers`       | Lenis (só no site público), e a ligação dele ao ScrollTrigger              | acrescentar providers sem necessidade; ligar o Lenis no Estúdio — ver abaixo; separar os relógios do Lenis e do GSAP; ir buscar a instância por `ref` em vez do `useLenis` |
 
 Secções encadeadas levam **`top={false}`** na segunda em diante, para o
 espaçamento não duplicar. É o padrão em toda a homepage. Há também
@@ -246,7 +252,7 @@ O que mudou, e o que fica como regra:
 | **Tipografia** | A escala vive em `globals.css` e o `vw` domina no telemóvel — ver `docs/02`. Nada de texto abaixo de 14px |
 | **Comprimento** | A homepage passou de 15,6 para 13,3 ecrãs. O `verificar-scroll.mjs --mobile` tem um teto por rota — é um **travão de regressão**, não uma meta: quem acrescentar uma secção sabe logo |
 | **Uma forma pode ter duas** | A `ComoTrabalhamos` é uma pilha de cards em computador e uma **fila horizontal** no telemóvel. Quatro cards sobrepostos num ecrã de 390px saíam pelas margens, e a pilha custava 2,8 ecrãs. É a mesma secção com a mesma informação e duas composições — e é o que a referência faz nesta mesma secção |
-| **Pin, mas curto** | O pin fica onde a referência o tem. O que encurta é o percurso: a folga no fim do `ProvaCarrossel` era um ecrã inteiro parado, e passa a 15% no telemóvel. O acordeão da `/servicos` **perde o pin**: lá está deitado, cabe num ecrã e meio, e o pin cobrava 3,4 ecrãs para mostrar o que já se via |
+| **Pin, mas curto** | O pin fica onde a referência o tem. O que encurta é o percurso: a folga de um ecrã inteiro no fim do `ProvaCarrossel` acabou — virou a **pausa** de toda a gente, que no telemóvel é um décimo de ecrã (ver "Cada secção pinada abre e fecha com uma pausa"). O acordeão da `/servicos` **perde o pin**: lá está deitado, cabe num ecrã e meio, e o pin cobrava 3,4 ecrãs para mostrar o que já se via |
 | **Toque** | 44px de área tocável. Consegue-se com `min-h-11` e `px`, sem mexer no desenho — e com `-mx`/`-my` a compensar, o elemento nem muda de sítio. A exceção é o link **dentro de uma frase**, que não se aumenta: abria buracos entre as linhas (WCAG 2.5.8) |
 | **Ordem de leitura** | O que é margem em computador cai no fluxo no telemóvel, **pela ordem do JSX**. No `/sobre` isso punha as cinco notas antes da primeira frase do texto. Notas de margem escrevem-se **intercaladas** e só depois vão para a margem com `lg:absolute` |
 | **O menu é um lugar** | Ecrã inteiro, links à escala dos títulos. E o header não pode ter `backdrop-blur` com ele aberto: um `backdrop-filter` cria bloco contentor para os `fixed` descendentes, e o painel ficava preso aos 64px do header |
@@ -287,6 +293,28 @@ E o array só se preenche com frases que um cliente disse mesmo e autorizou. Um
 testemunho inventado atribuído a um cliente real é uma avaliação falsa, não é
 texto de rascunho — quem o lê não tem como distinguir.
 
+### O pacote destacado é um ground, não uma etiqueta
+
+Os quatro cards de "Por onde podemos começar" eram todos `bg-paper`, e o mais
+escolhido distinguia-se por um rótulo no canto superior direito. Numa fila de
+quatro colunas isso não faz o olho parar em lado nenhum: o rótulo lê-se depois
+de já se ter lido os quatro títulos, e nessa altura já não recomenda nada.
+
+Agora o card destacado é **`bg-primary` inteiro**, com `text-primary-ink` —
+7,26:1, o par já medido no `docs/02` e o mesmo que o `Fecho` usa. O texto de
+apoio vai a `/85` (5,86:1) para manter a hierarquia sem cair abaixo dos 4,5:1, e
+o "+" da lista troca o laranja pela tinta do ground: sobre o creme ele tem
+2,30:1 e é decorativo, sobre laranja desaparecia de vez.
+
+**A etiqueta fica.** Se o destaque passasse a ser só a cor, quem não a distingue
+deixava de saber qual é o pacote recomendado — 1.4.1 da WCAG. É ela que o diz
+por escrito; a cor é que o diz à distância.
+
+A coluna inteira acaba em laranja, porque o botão por baixo é `primary` como o
+dos outros três. Não é acidente: o que separa o botão do card é o `gap-3` com o
+ground escuro a passar no meio, e essa é a regra que não se desfaz — o botão
+vive **por fora** da caixa.
+
 ## Movimento
 
 **A biblioteca é o GSAP.** Setembro de 2026: o Motion saiu do projeto e o
@@ -306,8 +334,10 @@ uma medição a 120 fps sobre um site de referência, registada em
 | Entrada da página (hero) | **0,95 s** | 0,6 s |
 | Transição entre páginas | 0,45 s | 0,45 s |
 | Curva | **`power2.out`** | `[0.22, 1, 0.36, 1]` |
+| Curva de quem assenta (`easeCarta`) | **`back.out(1.4)`** | não existia |
 | Stagger entre irmãos | **0,15 s** | 0,06–0,08 s |
 | Deslocamento de entrada | **44 px** | 16 px |
+| Pausa de uma secção pinada | **0,35 ecrãs** (0,1 no telemóvel) | não havia |
 
 - **A opacidade e a posição têm durações diferentes de propósito.** O bloco acaba
   de aparecer aos 290 ms e continua a assentar até aos 475 ms. Com uma duração
@@ -315,6 +345,12 @@ uma medição a 120 fps sobre um site de referência, registada em
   tem peso.
 - **A curva é mais suave do que a anterior.** A `[0.22, 1, 0.36, 1]` ia em 96% do
   percurso a meio do tempo; a `power2.out` vai em 84%. A antiga dispara e trava.
+- **Há uma segunda curva, e só para gestos com percurso.** O `easeCarta`
+  (`back.out(1.4)`) passa do destino e volta — medido, ~7% da distância — e é o
+  que faz um card dos passos ler-se como uma carta a assentar em vez de uma
+  caixa a travar a direito. Aplica-se a **posição e rotação**; numa opacidade ou
+  numa cor, ultrapassar o destino é um `flash`. O `1.4` é deliberadamente mais
+  curto do que o `1.7` que o GSAP traz: acima dos 10% aquilo vira brinquedo.
 - `Reveal` dispara uma vez (`once: true`) — nada re-anima ao subir.
 - **Nada de `setState` a partir de um callback do GSAP.** Vale para o
   `onComplete` de uma animação e vale para o `onUpdate` de um ScrollTrigger. O
@@ -335,6 +371,18 @@ uma medição a 120 fps sobre um site de referência, registada em
   desliga o avanço automático (lê a mesma preferência em JS, porque o movimento é
   scroll e não animação CSS) e `globals.css` acrescenta-lhe snap: continua a
   arrastar-se, só não anda sozinho.
+- **O scroll suave é do site público, e só dele.** O `Providers` não monta o
+  `ReactLenis` em `/estudio` (o predicado é o `noEstudio()` de
+  `lib/estudio/rotas.ts`, para o prefixo não andar copiado por ficheiros).
+  A razão é que o mesmo efeito muda de nome consoante quem está do outro lado:
+  numa página de marketing, onde se chega para ler, chama-se deslizar; numa
+  ferramenta que se abre todos os dias para procurar uma linha numa tabela,
+  chama-se lag — larga-se a roda e a lista continua a andar até parar onde já
+  devia estar. Some-se-lhe o cabeçalho `sticky` do Estúdio: o Lenis translada o
+  conteúdo a cada frame, e por baixo de um `backdrop-blur-md` isso obriga o
+  browser a refazer o desfoque contra fundo novo em todos os frames.
+  **Desliga-se tirando o componente da árvore, não com `smoothWheel: false`** —
+  assim o Lenis nem chega a arrancar o `rAF`. Ver docs/07.
 - **A faixa de projetos move-se por `scrollLeft`, não por `translateX`.** É o que a
   torna agarrável: quem quer voltar a um projeto que passou arrasta-o de volta em
   vez de esperar pela volta. Vem de borla o dedo, o trackpad, a roda com shift e as
@@ -395,7 +443,70 @@ uma medição a 120 fps sobre um site de referência, registada em
   **só nesse elemento e só nos atributos dele**; a árvore por baixo continua
   verificada. **Não o alastres ao `<body>` nem a componentes:** aí um aviso destes é
   um bug a sério e tem de aparecer.
-- Hover em cards: `-translate-y-1` no grupo. Botões: `active:scale-[0.97]`.
+- **Hover em cards: o contorno acende, e o card sobe — mas são duas coisas.** O
+  anel está sempre lá, `ring-2 ring-transparent`, para que o hover não mexa no
+  tamanho da caixa; o que muda é a cor — e acende **com a cor que o card não
+  tem**: `ring-primary` sobre creme e sobre `surface`, `ring-ink` sobre o card
+  laranja dos pacotes. Ali `ring-primary-ink` parece a escolha óbvia e não é: o
+  anel desenha-se por fora da caixa, sobre o ground escuro, e `primary-ink`
+  contra `bg` são 0,02 de luminosidade — não se via, e em movimento reduzido
+  esse card ficava sem resposta nenhuma. O deslocamento é `-translate-y-1` e vive **sozinho atrás
+  de `motion-safe:`** — a regra global de `globals.css` corta a *duração* da
+  transição, não o deslocamento, portanto sem essa variante quem pede movimento
+  reduzido continua a ver o card saltar, só que instantaneamente. Com ela sobra a
+  mudança de cor, que é o que se quer. `duration-200`, a mesma dos botões: é
+  resposta a um gesto, não uma entrada — e por isso é um dos poucos números que
+  não vem do `MOVIMENTO`, que é a gramática do scroll. Botões:
+  `active:scale-[0.97]`.
+
+### Cada secção pinada abre e fecha com uma pausa
+
+As secções pinadas encadeavam-se sem respiro: cada uma começava a animar no
+instante em que a anterior acabava, e acabava no instante em que a seguinte
+começava. O primeiro card de uma secção já entrava enquanto a anterior ainda
+saía, e **não havia um momento em que se visse um capítulo parado e inteiro**.
+
+A pausa é um **tramo de scroll morto** nos dois extremos do pin: a página está
+presa, a animação não anda. Antes de arrancar mostra o capítulo por começar —
+o título sozinho, a primeira capa, o serviço 01 — e depois de acabar mostra-o
+inteiro, quieto, antes de a página deslizar para o seguinte.
+
+Três coisas que a definem:
+
+- **É espaço, não tempo.** Numa secção com `scrub` o relógio é a roda do rato.
+  O token conta-se em **ecrãs de scroll**, não em segundos.
+- **É igual em todas.** `ComoTrabalhamos`, `ProvaCarrossel`, `ServicosMostra` e
+  o `ServicosAcordeao` da `/servicos` usam o mesmo número. É gramática do site,
+  não afinação de uma secção — quem escrever a próxima chama `comPausa` e tem-na.
+- **Vem de `lib/motion.ts`.** O valor é `MOVIMENTO.pausa` e a aritmética é a
+  função `comPausa(animacao)`, que recebe o comprimento da animação em px e
+  devolve o `end` do trigger já com as duas pausas somadas, mais a conversão do
+  progresso de volta ao tramo do meio. **Não se escreve a pausa à mão** — havia
+  duas assim antes desta regra, uma em cada carrossel, e eram diferentes uma da
+  outra.
+
+Duas notas de quem a montou:
+
+- **Numa timeline a pausa da saída tem de ter um tramo que a ocupe.** O GSAP
+  encurta a timeline ao último tween, e o `scrub` volta a esticá-la até ao fim
+  do pin — a pausa desaparecia sozinha. O `ComoTrabalhamos` fecha com um
+  `tl.to({}, { duration: fracao })` só para isso.
+- **`comPausa` chama-se dentro do `end: () => …` e do `onUpdate`**, nunca uma
+  vez na montagem: a pausa é uma fração da altura do ecrã, e o ecrã muda de
+  tamanho e de breakpoint sem o componente voltar a montar.
+
+**O que isto custa em altura**, medido a 9 de setembro de 2026: a homepage passa
+de 13,4 para 14,5 ecrãs em computador, e de 13,3 para 13,5 no telemóvel — onde o
+travão do verificador está em 14. É por isso que a pausa do telemóvel é um
+décimo de ecrã e não 0,35: a 0,15 a página ia a 13,8, o que gastava a margem
+toda e deixava o travão a disparar ao primeiro que lhe tocasse. Em troca, a
+folga de um ecrã inteiro que o `ProvaCarrossel` tinha no fim desapareceu — era
+esta pausa, escrita à mão e só de um lado.
+
+E os postos do `Cruz` **não mexeram**: as fronteiras entre capítulos deslocaram-se
+menos de 0,04 do percurso, e nenhum posto mudou de capítulo — o de
+`--paper-muted` continua a cair a meio do creme do `ProvaCarrossel`. Foi medido,
+não presumido; ver a linha da tabela no fim deste doc.
 
 ### O que o GSAP custou a aprender
 
@@ -485,6 +596,20 @@ do Club**: se um dia o projeto tiver licença, é aqui que se usa. Para um risco
   de ecrã sem tirar do ecrã.
 - **Os cards do processo acumulam-se, e por isso não levam `stagger`.** Cada um
   tem a sua fatia do percurso e **fica**; um stagger fá-los-ia suceder-se.
+- **E são atirados para a mesa, não acesos no sítio.** Cada card entra de fora
+  do palco — os das pontas pelo lado, os do meio de baixo — rodado a mais do que
+  a inclinação em que acaba, e assenta nela com o `easeCarta`. O
+  `overflow-hidden` do palco corta-os à entrada, e é isso que se quer ver: uma
+  carta a aparecer pela borda da mesa. Um `fade` com escala, que era o que havia,
+  materializava o card exatamente onde ele já estava.
+- **As poses do leque são dados, não classes.** Vivem no array `PASSOS` de
+  `components/home/ComoTrabalhamos.tsx` (`pousa` e `atira`, em `vw`/`svh`/graus),
+  porque o GSAP tem de animar de uma para a outra e o `transform` inline dele
+  ganha sempre a uma classe. Chegam ao CSS por custom properties no `style` do
+  card, que um `md:[transform:…]` lê — é o que põe o leque de pé antes da
+  hidratação, sem JavaScript e com `prefers-reduced-motion`. Por isso o ramo de
+  movimento reduzido **acende os cards e mais nada**: um `scale: 1` inline
+  bastava para o GSAP tomar conta do `transform` e apagar o leque.
 
 ### A meia-roda dos serviços
 
@@ -673,8 +798,13 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | acrescentares uma secção a uma página com `Cruz` | dá-lhe `relative` — sem isso o "+" é pintado por cima dela |
 | qualquer coisa que se veja no telemóvel | corre o verificador em `--mobile`: ele mede ecrãs de scroll, alvos de toque, texto miúdo e o "+" por cima de texto, e nenhuma dessas quatro coisas era apanhada antes |
 | os postos do `Cruz`              | são **dois** conjuntos: `POSTOS_PAGINA` e `POSTOS_MOBILE`. Em `vw`, o mesmo número é margem num ecrã de 1440 e centro num de 390 |
+| o ground de um card, ou o pacote destacado | confirma o contraste do título, do texto de apoio **e** do "+" da lista: são três, e o que se esquece é sempre o terceiro |
+| um hover que desloca               | mete o deslocamento atrás de `motion-safe:` — a regra global corta a duração, não o `translate`, e sem a variante ele continua a acontecer |
 | recolheres um testemunho          | `lib/testimonials.ts`; a secção aparece sozinha assim que o array deixar de estar vazio                  |
 | a duração ou o easing             | **`lib/motion.ts`** e a tabela de valores acima — os componentes leem de lá, não têm números próprios      |
+| a pausa de uma secção pinada      | `MOVIMENTO.pausa` / `pausaMovel` em **`lib/motion.ts`**, e nada nos componentes: eles chamam `comPausa`. Depois corre o verificador em `--mobile` — a pausa conta duas vezes por secção e a homepage tem teto |
+| acrescentares uma secção pinada nova | dá-lhe a pausa com `comPausa`, como as outras quatro. Uma secção que arranca no primeiro pixel do pin volta a colar-se à anterior |
+| o percurso de uma secção pinada   | volta a medir onde caem as fronteiras dos capítulos e confirma que os postos do `Cruz` não mudaram de capítulo — sobretudo o de `--paper-muted`, que só se lê sobre o creme |
 | introduzires um componente que anima | verifica `prefers-reduced-motion` dentro dele: o GSAP não o faz por ti                                   |
 | o espaçamento vertical            | `components/ui/Section.tsx`, não as páginas                                                               |
 | a largura máxima                  | `components/ui/Container.tsx`, não as páginas                                                             |
@@ -682,3 +812,5 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | o serviço de envio ou o remetente | `app/api/contacto/route.ts`, `site.emailFrom` em `lib/site.ts`, a tabela do `docs/01` e os registos DNS   |
 | um dos limites do endpoint        | a tabela de "As defesas do endpoint" — o número no doc e o do `route.ts` têm de dizer o mesmo             |
 | o plano do Resend                 | o `TETO_DIARIO` em `app/api/contacto/route.ts`, que existe para ficar abaixo da quota desse plano         |
+| o que o `Providers` monta         | confirma o que acontece em `/estudio` — o Lenis está lá desligado de propósito, e não por esquecimento |
+| onde vive o `.grain-overlay`      | é textura do site público e mora na `CascaDoSite`; a regra CSS continua em `app/globals.css` (docs/02) |

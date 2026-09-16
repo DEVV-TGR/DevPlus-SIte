@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 import { useRef, type CSSProperties } from "react";
-import { MOVIMENTO, ScrollTrigger, gsap, useGSAP } from "@/lib/motion";
+import { MOVIMENTO, ScrollTrigger, gsap, useGSAP, comPausa } from "@/lib/motion";
 import { Button } from "@/components/ui/Button";
 import { services } from "@/lib/services";
 
@@ -240,20 +240,30 @@ export function ServicosMostra() {
         onEnter: () => chegada.play(),
       });
 
+      /* 260% dá um ecrã por serviço em desktop, onde há sítio para o número
+         gigante e a figura ao lado. Num telemóvel isso são 3,6 ecrãs de scroll
+         para quatro cartões que se lêem num relance — 110% chega, e é o que
+         mantém a página inteira dentro do teto do verificador.
+
+         A isto somam-se as duas pausas do `comPausa`: o serviço 01 fica parado
+         antes de a troca começar, e o 04 fica parado depois de ela acabar. Sem
+         elas, o quarto serviço aparecia no último pixel do pin e a secção
+         seguinte já estava a entrar. */
+      const animacao = () =>
+        window.innerHeight *
+        (window.matchMedia("(max-width: 767px)").matches ? 1.1 : 2.6);
+
       const st = ScrollTrigger.create({
         trigger: raiz,
         start: "top top",
-        /* 260% dá um ecrã por serviço em desktop, onde há sítio para o
-           número gigante e a figura ao lado. Num telemóvel isso são 3,6 ecrãs
-           de scroll para quatro cartões que se lêem num relance — 110% chega,
-           e é o que mantém a página inteira abaixo dos dez ecrãs. */
-        end: window.matchMedia("(max-width: 767px)").matches ? "+=110%" : "+=260%",
+        end: () => `+=${comPausa(animacao()).total}`,
         pin: palco,
         scrub: 0.5,
         onUpdate: (self) => {
           if (sobreRoda.current) return;
           if (performance.now() - manual.current < TREGUA) return;
-          const i = Math.min(cenas.length - 1, Math.floor(self.progress * cenas.length));
+          const p = comPausa(animacao()).progresso(self.progress);
+          const i = Math.min(cenas.length - 1, Math.floor(p * cenas.length));
           trocar(i);
         },
       });
