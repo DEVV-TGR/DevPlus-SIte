@@ -35,7 +35,9 @@ O isolamento faz-se com **branches normais**, no clone principal:
    `chore/`. Por exemplo `feat/portfolio-capas`, `fix/og-image`.
 3. Commits nesse branch e `git push -u origin <branch>`.
 4. `gh pr create` contra `DEVV-TGR/DevPlus-SIte`, base `master`.
-5. O merge do PR é do Gonçalo. Não mergeies sem ele pedir nessa mensagem.
+5. O merge é de quem te está a pedir o trabalho, não teu. Não mergeies por
+   iniciativa própria — só quando te pedirem explicitamente nessa mensagem.
+   Não há aqui nenhum nome de propósito: quem fala contigo é que decide.
 
 **Nunca commits nem push diretos para `master`.** Tudo entra por PR.
 

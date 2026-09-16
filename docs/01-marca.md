@@ -328,6 +328,8 @@ da Política de Privacidade. Três regras:
 | a forma de escrever o nome                       | `docs/03` (o lockup) e o `aria-label` em `components/Wordmark.tsx`                                                                                   |
 | o tom de voz                                     | revê `components/Hero.tsx`, `app/sobre/page.tsx` e os `blurb` em `lib/services.ts`                                                                   |
 | a morada, o telefone ou qualquer dado da empresa | `lib/site.ts` **e** `components/JsonLd.tsx` — os dados estruturados dizem ao Google quem é a DevPlus, e uma divergência ali é pior do que a ausência |
+| criares uma zona interna, fechada por login      | mantém-na fora de `app/sitemap.ts` e põe-na no `disallow` de `app/robots.ts` — não é conteúdo, e o que lá está atrás do login são dados de clientes. Ver `docs/07` |
+| o que guardamos sobre clientes no Estúdio        | `app/privacidade/page.tsx` ("Se fores nosso cliente" e "Partilha com terceiros") e sobe a data de "Última atualização" no mesmo PR. Ver `docs/07` |
 
 ## Dados estruturados
 
