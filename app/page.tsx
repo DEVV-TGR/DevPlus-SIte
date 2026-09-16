@@ -45,7 +45,9 @@ export default function Home() {
       <Curva forma="b" de="var(--bg-deep)" cor="var(--paper)" />
 
       <ProvaCarrossel />
-      <Curva forma="c" de="var(--paper)" cor="var(--bg)" />
+      {/* A única passagem do site com um ground claro por trás: o acento e as
+          opacidades ajustam-se, senão a divisória fica a boiar. Ver `Curva`. */}
+      <Curva forma="c" de="var(--paper)" cor="var(--bg)" ground="claro" />
 
       <ServicosMostra />
       <Pacotes />
