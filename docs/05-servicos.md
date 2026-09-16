@@ -76,11 +76,11 @@ funciona**, não como a marca soa:
 | Tratam do alojamento e do domínio?      | Sim, e o alojamento entra nessa mensalidade                                                                 |
 | Dão apoio depois do lançamento?         | Sim, é o que a mensalidade cobre                                                                            |
 
-**Não se alteram sem confirmação do Gonçalo.** Uma frase mais bonita que
-prometa "orçamento fixo" ou "sem mensalidades" deixa de ser copy e passa a ser
-uma promessa que a DevPlus não cumpre — foi exatamente o que aconteceu até
-agosto de 2026, com o site a dizer "sem dependências nem mensalidades
-obrigatórias" enquanto o modelo assentava no contrário.
+**Não se alteram por iniciativa tua — pergunta primeiro.** Uma frase mais
+bonita que prometa "orçamento fixo" ou "sem mensalidades" deixa de ser copy e
+passa a ser uma promessa que a DevPlus não cumpre — foi exatamente o que
+aconteceu até agosto de 2026, com o site a dizer "sem dependências nem
+mensalidades obrigatórias" enquanto o modelo assentava no contrário.
 
 A mensalidade escreve-se como o que é: alguém do outro lado, site sempre no ar e
 atualizado. Não se esconde nem se pede desculpa por ela.
@@ -117,14 +117,18 @@ cliente lê primeiro.
 de se perceber o âmbito — é um compromisso comercial e não copy, pela mesma
 razão que as respostas do FAQ não se reescrevem sem confirmação.
 
-Só um pacote pode ter `featured`.
+Só um pacote pode ter `featured` — e o que ele faz é **pintar o card inteiro de
+laranja** na página inicial, não só pôr-lhe a etiqueta "Mais escolhido". Marcar
+dois destrói o sinal: dois recomendados não recomendam nada. As regras de cor e
+de contraste desse card estão no `docs/04`, em "O pacote destacado é um ground,
+não uma etiqueta".
 
 ## Ao alterar este documento
 
 | Se mudares…                         | Faz também                                                     |
 | ----------------------------------- | -------------------------------------------------------------- |
 | a lista de serviços                 | `lib/services.ts`; segue a checklist acima toda                |
-| uma resposta da FAQ sobre dinheiro  | confirma com o Gonçalo **antes** — ver "A FAQ não é copy"      |
+| uma resposta da FAQ sobre dinheiro  | pergunta **antes** de mexer — ver "A FAQ não é copy"           |
 | o número de serviços                | verifica a grelha `sm:grid-cols-2` em `app/page.tsx` **e** o acordeão da `/servicos`: acima de sete colunas, as fechadas deixam de se ler |
 | acrescentares um serviço com figura | põe-na em `public/ilustra/` e acrescenta-a a `FIGURAS`, em `components/paginas/ServicosAcordeao.tsx` — a ordem é a de `lib/services.ts` |
 | um `title`                          | procura esse nome nas `services` de `lib/projects.ts` e alinha |
