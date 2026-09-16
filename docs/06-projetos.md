@@ -4,6 +4,7 @@ fonte-de-verdade: codigo
 controla:
   - lib/projects.ts
   - components/ui/ProjectCard.tsx
+  - components/paginas/PortfolioIndice.tsx
   - components/ProjectsMarquee.tsx
   - app/portfolio/page.tsx
   - app/portfolio/[slug]/page.tsx
@@ -172,6 +173,29 @@ Home Repair e da Taskuinha do Pirata.
 > apanhar a cortina, sobe o orçamento de tempo virtual antes de inventar outra
 > coisa.
 
+### A `/portfolio` é um índice, não uma grelha
+
+Setembro de 2026. A grelha de `ProjectCard` saiu da `/portfolio` — **e o
+componente fica**: é o mesmo que serve os projetos relacionados e qualquer
+grelha futura. O que saiu foi a decisão de composição, não o código.
+
+A razão é a regra das formas: a página inicial já mostra o trabalho a passar de
+lado, e uma grelha de capas dizia a mesma coisa outra vez. Agora os nomes vêm em
+coluna, grandes, e a capa do que se está a ler aparece numa moldura que não se
+mexe — `components/paginas/PortfolioIndice.tsx`.
+
+Duas consequências para quem acrescenta um projeto:
+
+- **o nome carrega a página.** Numa grelha, um nome fraco escondia-se atrás da
+  capa; num índice o nome é o que se lê primeiro e a capa é a confirmação;
+- **um projeto sem capa não fica com um buraco nem com a capa de outro** — fica
+  com o nome sobre um ground da marca. É o caso d'`A Barraquinha Nova`, e é por
+  isso que a lacuna está registada aqui e não disfarçada no código.
+
+O caso de estudo mudou pela mesma razão: a capa passou a sangrar num ecrã só (o
+nome aparecia duas vezes, no cabeçalho e por cima da imagem, com um scroll de
+intervalo) e a ficha técnica fica presa ao lado do texto.
+
 ## Ao alterar este documento
 
 | Se mudares…              | Faz também                                                                                  |
@@ -181,5 +205,6 @@ Home Repair e da Taskuinha do Pirata.
 | o `status` de um projeto | vira também o tempo verbal do `overview` e do `contribution`                                |
 | o texto de um projeto já publicado | põe `updatedAt` com a data da reescrita — é o que faz o `app/sitemap.ts` emitir `lastmod` para essa página |
 | o shape do `Project`     | `lib/projects.ts` (tipo) e `components/ui/ProjectCard.tsx`                                  |
-| como as capas funcionam  | `components/ui/ProjectCard.tsx` e `app/portfolio/[slug]/page.tsx` — os dois renderizam capa |
+| como as capas funcionam  | `components/ui/ProjectCard.tsx`, `app/portfolio/[slug]/page.tsx` **e** `components/paginas/PortfolioIndice.tsx` — os três renderizam capa |
+| a forma da `/portfolio`  | lê "A `/portfolio` é um índice, não uma grelha" antes: a decisão tem uma razão e não é de gosto |
 | resolveres uma lacuna    | apaga a linha da lista acima                                                                |

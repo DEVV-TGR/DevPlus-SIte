@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DevPlus &middot; Contacto</title>
+<meta name="description" content="Vamos falar sobre o teu projeto. Conta-nos a tua ideia e respondemos em 24 a 48 horas úteis.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231a1613'/><path d='M34.5 0H65.5V34.5H100V65.5H65.5V100H34.5V65.5H0V34.5H34.5Z' fill='%23F2762B'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="scrollcraft.css">
+<link rel="stylesheet" href="estilo.css">
+<link rel="stylesheet" href="paginas.css">
+</head>
+<body>
+
+<span data-sc-progress></span>
+<div class="sc-grain" aria-hidden="true"></div>
+
+<a class="marca" href="index.html">DevPlus</a>
+<nav class="nav" aria-label="Navegação principal">
+  <a href="index.html" class="nav__voltar">Início</a>
+  <a href="servicos.html">Serviços</a>
+  <a href="portfolio.html">Portfólio</a>
+  <a href="sobre.html">Sobre</a>
+  <a href="contacto.html" aria-current="page">Contacto</a>
+</nav>
+
+<div class="folio" aria-hidden="true">
+  <span class="folio__n" id="folio-n">00</span>
+  <span class="folio__t" id="folio-t">Capa</span>
+</div>
+
+<div class="cruz" aria-hidden="true">
+  <svg viewBox="0 0 100 100"><path d="M34.5 0H65.5V34.5H100V65.5H65.5V100H34.5V65.5H0V34.5H34.5Z"/></svg>
+</div>
+
+<main>
+
+  <script>
+    /* Uma página de ação não tem percurso, e o "+" tem de sair da frente do
+       que se lê: fica em baixo à direita, meio escondido pelo painel opaco do
+       formulário. Estava à esquerda e atravessava o parágrafo de lado a lado. */
+    window.CRUZ_POSTOS = [
+      { p: 0.00, s: 1.7, x:  36, y:  20, r:   0, c: '#F2762B' },
+      { p: 1.00, s: 1.1, x:  42, y:  30, r:  12, c: '#F2762B' }
+    ];
+  </script>
+
+  <!-- ══ 0 · FALAR ═════════════════════════════════════════════════════
+       Duas colunas assimétricas e nada mais. É aqui que se faz uma coisa, e
+       um formulário que obriga a rolar para se ver inteiro perde gente a
+       meio. -->
+  <section class="cap" data-sc-act="pin" data-sc-span="1.0" data-cap="0" data-cap-nome="Contacto">
+    <div class="cap__ground" style="background:#1a1613"></div>
+    <div data-sc-stage>
+      <div class="falar">
+        <div>
+          <p class="capa__et">Contacto</p>
+          <h1>Vamos falar sobre o teu projeto.</h1>
+          <p class="falar__nota">Conta-nos o que tens em mente. Pode ser um projeto pronto a arrancar ou só uma ideia ainda por arrumar — respondemos na mesma.</p>
+          <dl class="vias">
+            <div>
+              <dt>Email</dt>
+              <dd><a href="mailto:support@devplus.pt">support@devplus.pt</a></dd>
+            </div>
+            <div>
+              <dt>Telefone</dt>
+              <dd><ul style="list-style:none;padding:0;margin:0;display:grid;gap:.4rem">
+            <li><a href="tel:+351916416063">916 416 063</a><span class="vias__quem">Rodrigo Almeida</span></li>
+            <li><a href="tel:+351911728913">911 728 913</a><span class="vias__quem">Gonçalo Silva</span></li>
+            <li><a href="tel:+351916064815">916 064 815</a><span class="vias__quem">Tomás Sobral</span></li>
+              </ul></dd>
+            </div>
+            <div>
+              <dt>Resposta</dt>
+              <dd><span style="font-size:var(--sc-t-base);color:var(--sc-ink-soft)">24 a 48 horas úteis</span></dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- O painel é o único objeto claro da página: é o que se pode tocar,
+             e a cor separa-o de tudo o resto. O `action` é o do site real; o
+             protótipo não envia nada. -->
+        <!-- **Sem `data-sc-cue`.** O cue abre com o progresso do act, e numa
+             página que cabe num ecrã o progresso nunca sai de zero: o
+             formulário ficava a `opacity: 0` e a coluna direita aparecia
+             vazia. O que não rola tem de estar visível à chegada. -->
+        <form class="form" onsubmit="return false">
+          <p class="form__t">Conta-nos a ideia</p>
+          <div class="campo">
+            <label for="nome">Nome</label>
+            <input id="nome" name="nome" type="text" autocomplete="name" required>
+          </div>
+          <div class="campo">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" autocomplete="email" required>
+          </div>
+          <div class="campo">
+            <label for="msg">Mensagem</label>
+            <textarea id="msg" name="mensagem" required></textarea>
+          </div>
+          <button class="btn btn--cheio btn--largo" type="submit">Enviar <span class="btn__seta" aria-hidden="true">&rarr;</span></button>
+          <p class="form__rgpd">Ao enviar, aceitas a nossa <a href="#">política de privacidade</a>. Não usamos os teus dados para mais nada.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- O rodapé sai do palco: preso lá dentro, roubava altura à cena e a
+       página ficava sem um único pixel de scroll. -->
+  <section class="cap" data-cap="1" data-cap-nome="Rodapé">
+    <div class="cap__ground" style="background:#1a1613"></div>
+    <div class="sc-wrap">
+      <footer class="foot foot--escuro">
+        <span>DevPlus &middot; devplus.pt</span>
+        <nav aria-label="Navegação do site">
+          <a href="index.html">Início</a><a href="servicos.html">Serviços</a><a href="portfolio.html">Portfólio</a><a href="sobre.html">Sobre</a><a href="contacto.html">Contacto</a>
+        </nav>
+      </footer>
+    </div>
+  </section>
+
+</main>
+
+<script src="scrollcraft.js"></script>
+<script src="paginas.js"></script>
+</body>
+</html>
