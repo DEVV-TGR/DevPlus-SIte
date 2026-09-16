@@ -53,6 +53,18 @@ export const MOVIMENTO = {
    */
   ease: "power2.out",
 
+  /**
+   * A carta que assenta. `back.out` passa do destino e volta — é o encaixe que
+   * distingue uma carta atirada para a mesa de uma caixa que trava a direito no
+   * sítio. Não sai da medição: sai de uma carta a pousar, e o `1.4` (contra o
+   * `1.7` que o GSAP traz de origem) mantém o ressalto abaixo dos 10%, que é o
+   * limite a partir do qual isto começa a parecer um brinquedo.
+   *
+   * **Só para gestos com percurso** — posição e rotação. Numa opacidade ou numa
+   * cor, ultrapassar o destino é um `flash`, não é um gesto.
+   */
+  easeCarta: "back.out(1.4)",
+
   /** Entre irmãos. Medido: 150 ms — o dobro dos 60–80 ms de antes. */
   stagger: 0.15,
 

@@ -17,8 +17,20 @@ import { gsap, ScrollTrigger, useGSAP, MOVIMENTO } from "@/lib/motion";
  * aqui. Não se inventa um processo diferente por página.
  */
 /**
- * As poses do leque, **só de `md` para cima**. Em telemóvel os cards estão numa
- * fila horizontal, e um `translate` em vw atirava-os para fora dela — foi assim
+ * Cada passo tem duas poses, **só de `md` para cima**: `pousa`, onde assenta no
+ * leque, e `atira`, de onde é lançado — fora do palco e rodado a mais.
+ *
+ * São dados e não classes Tailwind porque o GSAP tem de animar de uma para a
+ * outra, e uma classe e um `transform` inline a disputar o mesmo elemento dão
+ * sempre empate a favor do inline: as poses em classe ficavam a decorar o
+ * markup sem mandar em nada. As finais chegam ao CSS na mesma, por custom
+ * properties no `style` de cada card (ver o `md:[transform:…]` lá em baixo),
+ * para que sem JavaScript — ou com `prefers-reduced-motion` — o leque exista.
+ * Uma fonte, dois leitores.
+ *
+ * `x` é em `vw`, `y` em `svh`, ambos medidos do centro do palco, e `r` em
+ * graus. Em telemóvel a secção é uma fila horizontal e **nada disto se
+ * aplica**: um `translate` em vw atirava os cards para fora dela — foi assim
  * que o passo 01 ficou com metade do texto cortada pela margem esquerda.
  */
 const PASSOS = [
@@ -28,7 +40,8 @@ const PASSOS = [
     d: "Sentamo-nos contigo a perceber o negócio, quem são os teus clientes e o que queres ganhar com isto. Sem isso, o resto é decoração.",
     img: "/ilustra/t1-conversa.webp",
     alt: "Duas pessoas frente a frente com balões de fala e um caderno.",
-    pose: "md:translate-x-[-31vw] md:translate-y-[8svh] md:-rotate-[5deg]",
+    pousa: { x: -31, y: 8, r: -5 },
+    atira: { x: -78, y: 34, r: -30 },
   },
   {
     n: "02",
@@ -36,7 +49,8 @@ const PASSOS = [
     d: "Mostramos-te o site desenhado antes de ele existir. Vês, dizes o que mudarias, e só depois se escreve código.",
     img: "/ilustra/t2-design.webp",
     alt: "Uma pessoa a desenhar um layout numa prancha, com régua e esquadro.",
-    pose: "md:translate-x-[-10.5vw] md:translate-y-[13svh] md:rotate-[4deg]",
+    pousa: { x: -10.5, y: 13, r: 4 },
+    atira: { x: -21, y: 95, r: 22 },
   },
   {
     n: "03",
@@ -44,7 +58,8 @@ const PASSOS = [
     d: "Abre depressa, funciona bem no telemóvel e aparece nas pesquisas. Não são extras que se pedem, é como fazemos.",
     img: "/ilustra/t3-construcao.webp",
     alt: "Blocos geométricos empilhados a formar uma janela de browser.",
-    pose: "md:translate-x-[10.5vw] md:translate-y-[8svh] md:-rotate-[3deg]",
+    pousa: { x: 10.5, y: 8, r: -3 },
+    atira: { x: 21, y: 95, r: -20 },
   },
   {
     n: "04",
@@ -52,7 +67,8 @@ const PASSOS = [
     d: "Pomos o site online, acompanhamos os primeiros dias e afinamos o que for preciso. E ficamos cá para o que vier a seguir.",
     img: "/ilustra/t4-no-ar.webp",
     alt: "Uma janela de browser a subir com um foguete e linhas de velocidade.",
-    pose: "md:translate-x-[31vw] md:translate-y-[13svh] md:rotate-[5deg]",
+    pousa: { x: 31, y: 13, r: 5 },
+    atira: { x: 78, y: 34, r: 30 },
   },
 ];
 
@@ -67,8 +83,12 @@ export function ComoTrabalhamos() {
       const cards = raiz.querySelectorAll<HTMLElement>("[data-passo]");
       if (!palco) return;
 
+      /* As poses finais estão no CSS (o `md:[transform:…]` do card), por isso
+         aqui não se escreve `transform` nenhum: basta acender os cards e sai-se
+         da frente. Um `scale: 1` inline bastava para o GSAP passar a mandar no
+         `transform` e apagar o leque. */
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        gsap.set(cards, { opacity: 1, scale: 1 });
+        gsap.set(cards, { opacity: 1 });
         return;
       }
 
@@ -83,7 +103,7 @@ export function ComoTrabalhamos() {
       if (window.matchMedia("(max-width: 767px)").matches) {
         const fila = raiz.querySelector<HTMLElement>("[data-fila]");
         if (!fila) return;
-        gsap.set(cards, { opacity: 1, scale: 1 });
+        gsap.set(cards, { opacity: 1 });
 
         const percurso = () => Math.max(0, fila.scrollWidth - window.innerWidth);
         const st = ScrollTrigger.create({
@@ -99,7 +119,13 @@ export function ComoTrabalhamos() {
         return () => st.kill();
       }
 
-      gsap.set(cards, { opacity: 0, scale: 0.92 });
+      gsap.set(cards, { opacity: 0 });
+
+      /* As poses vêm em `vw`/`svh` e o GSAP escreve px. São funções para o
+         `invalidateOnRefresh` as remedir a cada `refresh` — de outro modo o
+         leque ficava com as medidas da janela que existia ao carregar. */
+      const vw = (n: number) => (window.innerWidth * n) / 100;
+      const svh = (n: number) => (palco.clientHeight * n) / 100;
 
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -108,15 +134,50 @@ export function ComoTrabalhamos() {
           end: "+=180%",
           pin: palco,
           scrub: 0.6,
+          invalidateOnRefresh: true,
         },
       });
 
       /* Cada card ocupa uma fatia do percurso e **fica** — o `stagger` não
-         serve aqui, porque queremos que se acumulem, não que se sucedam. */
+         serve aqui, porque queremos que se acumulem, não que se sucedam.
+
+         E cada um **chega de fora**: os das pontas entram pelo lado, os do
+         meio sobem de baixo do palco, todos rodados a mais do que a inclinação
+         em que acabam. O `overflow-hidden` do palco corta-os à entrada, que é
+         precisamente o que se quer ver — uma carta a aparecer pela borda da
+         mesa, não a materializar-se no sítio.
+
+         São dois tweens e não um: a posição leva o `easeCarta`, que passa do
+         destino e volta — é o encaixe que faz a leitura de carta a assentar —
+         e a opacidade leva a curva normal, porque uma opacidade com overshoot
+         passa de 1 e volta, o que é um `flash` e não um gesto. A escala
+         assenta antes da posição, como em todo o site. */
       cards.forEach((c, i) => {
-        tl.to(
+        const { pousa, atira } = PASSOS[i];
+        tl.fromTo(
           c,
-          { opacity: 1, scale: 1, duration: 0.6, ease: MOVIMENTO.ease },
+          { opacity: 0, scale: MOVIMENTO.escalaDe },
+          {
+            opacity: 1,
+            scale: 1,
+            duration: 0.36,
+            ease: MOVIMENTO.ease,
+          },
+          i * 0.7,
+        ).fromTo(
+          c,
+          {
+            x: () => vw(atira.x),
+            y: () => svh(atira.y),
+            rotation: atira.r,
+          },
+          {
+            x: () => vw(pousa.x),
+            y: () => svh(pousa.y),
+            rotation: pousa.r,
+            duration: 0.6,
+            ease: MOVIMENTO.easeCarta,
+          },
           i * 0.7,
         );
       });
@@ -175,7 +236,20 @@ export function ComoTrabalhamos() {
                invisíveis. O verificador trata os dois casos de maneira
                diferente; ver `scripts/verificar-scroll.mjs`. */
             data-scroll-item
-            className={`grid w-[78vw] shrink-0 gap-2 rounded-2xl border border-border bg-surface p-5 shadow-[0_30px_60px_-30px_rgb(0_0_0/0.7)] md:absolute md:w-[min(20rem,74vw)] ${p.pose}`}
+            /* A pose final entra por custom properties e o `transform` lê-as:
+               é a mesma fonte que o GSAP usa, sem duplicar números no markup.
+               Enquanto o GSAP não escreve o seu `transform` inline — antes da
+               hidratação, sem JavaScript, ou com `prefers-reduced-motion` — é
+               esta regra que põe o leque de pé. Assim que ele escreve, o inline
+               ganha e esta fica em segundo plano, que é a ordem certa. */
+            style={
+              {
+                "--pousa-x": `${p.pousa.x}vw`,
+                "--pousa-y": `${p.pousa.y}svh`,
+                "--pousa-r": `${p.pousa.r}deg`,
+              } as React.CSSProperties
+            }
+            className="grid w-[78vw] shrink-0 gap-2 rounded-2xl border border-border bg-surface p-5 shadow-[0_30px_60px_-30px_rgb(0_0_0/0.7)] md:absolute md:w-[min(20rem,74vw)] md:[transform:translate(var(--pousa-x),var(--pousa-y))_rotate(var(--pousa-r))]"
           >
             <span className="justify-self-start rounded-full bg-primary px-3 py-0.5 text-xs font-semibold uppercase tracking-[0.18em] text-primary-ink">
               Processo

@@ -22,6 +22,8 @@ controla:
   - lib/testimonials.ts
   - app/page.tsx#ordem-das-seccoes
   - components/home/Curva.tsx
+  - components/home/ComoTrabalhamos.tsx
+  - lib/motion.ts
 relacionado:
   - docs/02-cores-e-tipografia.md
 ---
@@ -62,7 +64,7 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `Testimonials`    | o que os clientes dizem, na homepage a seguir aos serviços                 | inventar a frase de um cliente para encher a secção — ver abaixo                           |
 | `Wordmark`        | o logótipo com link para "/"                                               | ver `docs/03`                                                                              |
 | `Lockup` / `Logo` | o logótipo "D+" e o "+" isolado                                            | desenhar o logótipo à mão em SVG — ver `docs/03`                                           |
-| `Providers`       | Lenis, e a ligação dele ao ScrollTrigger                                   | acrescentar providers sem necessidade; separar os relógios do Lenis e do GSAP; ir buscar a instância por `ref` em vez do `useLenis` |
+| `Providers`       | Lenis (só no site público), e a ligação dele ao ScrollTrigger              | acrescentar providers sem necessidade; ligar o Lenis no Estúdio — ver abaixo; separar os relógios do Lenis e do GSAP; ir buscar a instância por `ref` em vez do `useLenis` |
 
 Secções encadeadas levam **`top={false}`** na segunda em diante, para o
 espaçamento não duplicar. É o padrão em toda a homepage. Há também
@@ -327,6 +329,7 @@ uma medição a 120 fps sobre um site de referência, registada em
 | Entrada da página (hero) | **0,95 s** | 0,6 s |
 | Transição entre páginas | 0,45 s | 0,45 s |
 | Curva | **`power2.out`** | `[0.22, 1, 0.36, 1]` |
+| Curva de quem assenta (`easeCarta`) | **`back.out(1.4)`** | não existia |
 | Stagger entre irmãos | **0,15 s** | 0,06–0,08 s |
 | Deslocamento de entrada | **44 px** | 16 px |
 
@@ -336,6 +339,12 @@ uma medição a 120 fps sobre um site de referência, registada em
   tem peso.
 - **A curva é mais suave do que a anterior.** A `[0.22, 1, 0.36, 1]` ia em 96% do
   percurso a meio do tempo; a `power2.out` vai em 84%. A antiga dispara e trava.
+- **Há uma segunda curva, e só para gestos com percurso.** O `easeCarta`
+  (`back.out(1.4)`) passa do destino e volta — medido, ~7% da distância — e é o
+  que faz um card dos passos ler-se como uma carta a assentar em vez de uma
+  caixa a travar a direito. Aplica-se a **posição e rotação**; numa opacidade ou
+  numa cor, ultrapassar o destino é um `flash`. O `1.4` é deliberadamente mais
+  curto do que o `1.7` que o GSAP traz: acima dos 10% aquilo vira brinquedo.
 - `Reveal` dispara uma vez (`once: true`) — nada re-anima ao subir.
 - **Nada de `setState` a partir de um callback do GSAP.** Vale para o
   `onComplete` de uma animação e vale para o `onUpdate` de um ScrollTrigger. O
@@ -356,6 +365,18 @@ uma medição a 120 fps sobre um site de referência, registada em
   desliga o avanço automático (lê a mesma preferência em JS, porque o movimento é
   scroll e não animação CSS) e `globals.css` acrescenta-lhe snap: continua a
   arrastar-se, só não anda sozinho.
+- **O scroll suave é do site público, e só dele.** O `Providers` não monta o
+  `ReactLenis` em `/estudio` (o predicado é o `noEstudio()` de
+  `lib/estudio/rotas.ts`, para o prefixo não andar copiado por ficheiros).
+  A razão é que o mesmo efeito muda de nome consoante quem está do outro lado:
+  numa página de marketing, onde se chega para ler, chama-se deslizar; numa
+  ferramenta que se abre todos os dias para procurar uma linha numa tabela,
+  chama-se lag — larga-se a roda e a lista continua a andar até parar onde já
+  devia estar. Some-se-lhe o cabeçalho `sticky` do Estúdio: o Lenis translada o
+  conteúdo a cada frame, e por baixo de um `backdrop-blur-md` isso obriga o
+  browser a refazer o desfoque contra fundo novo em todos os frames.
+  **Desliga-se tirando o componente da árvore, não com `smoothWheel: false`** —
+  assim o Lenis nem chega a arrancar o `rAF`. Ver docs/07.
 - **A faixa de projetos move-se por `scrollLeft`, não por `translateX`.** É o que a
   torna agarrável: quem quer voltar a um projeto que passou arrasta-o de volta em
   vez de esperar pela volta. Vem de borla o dedo, o trackpad, a roda com shift e as
@@ -518,6 +539,20 @@ do Club**: se um dia o projeto tiver licença, é aqui que se usa. Para um risco
   não faz nada.
 - **Os cards do processo acumulam-se, e por isso não levam `stagger`.** Cada um
   tem a sua fatia do percurso e **fica**; um stagger fá-los-ia suceder-se.
+- **E são atirados para a mesa, não acesos no sítio.** Cada card entra de fora
+  do palco — os das pontas pelo lado, os do meio de baixo — rodado a mais do que
+  a inclinação em que acaba, e assenta nela com o `easeCarta`. O
+  `overflow-hidden` do palco corta-os à entrada, e é isso que se quer ver: uma
+  carta a aparecer pela borda da mesa. Um `fade` com escala, que era o que havia,
+  materializava o card exatamente onde ele já estava.
+- **As poses do leque são dados, não classes.** Vivem no array `PASSOS` de
+  `components/home/ComoTrabalhamos.tsx` (`pousa` e `atira`, em `vw`/`svh`/graus),
+  porque o GSAP tem de animar de uma para a outra e o `transform` inline dele
+  ganha sempre a uma classe. Chegam ao CSS por custom properties no `style` do
+  card, que um `md:[transform:…]` lê — é o que põe o leque de pé antes da
+  hidratação, sem JavaScript e com `prefers-reduced-motion`. Por isso o ramo de
+  movimento reduzido **acende os cards e mais nada**: um `scale: 1` inline
+  bastava para o GSAP tomar conta do `transform` e apagar o leque.
 
 ## Acessibilidade
 
@@ -669,3 +704,5 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | o serviço de envio ou o remetente | `app/api/contacto/route.ts`, `site.emailFrom` em `lib/site.ts`, a tabela do `docs/01` e os registos DNS   |
 | um dos limites do endpoint        | a tabela de "As defesas do endpoint" — o número no doc e o do `route.ts` têm de dizer o mesmo             |
 | o plano do Resend                 | o `TETO_DIARIO` em `app/api/contacto/route.ts`, que existe para ficar abaixo da quota desse plano         |
+| o que o `Providers` monta         | confirma o que acontece em `/estudio` — o Lenis está lá desligado de propósito, e não por esquecimento |
+| onde vive o `.grain-overlay`      | é textura do site público e mora na `CascaDoSite`; a regra CSS continua em `app/globals.css` (docs/02) |
