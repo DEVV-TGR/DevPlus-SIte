@@ -38,6 +38,18 @@
   --accent-strong: oklch(0.71 0.152 156);
   --accent-ink: oklch(0.17 0.03 156);
 
+  /* Grounds dos capítulos da página inicial.
+     A homepage deixou de ter um fundo só e passou a ter um por capítulo, com
+     cortes duros entre eles — ver docs/04. Estes dois são os grounds que o
+     `--bg` não cobre: um mais fundo que ele, e um de papel.
+
+     `--paper` obriga a par: sobre creme, o `--ink` desaparece. Por isso vêm
+     com a tinta que lhes pertence, e quem usa um usa os dois. */
+  --bg-deep: oklch(0.115 0.009 56);
+  --paper: oklch(0.952 0.008 80);
+  --paper-ink: oklch(0.25 0.012 60);
+  --paper-muted: oklch(0.44 0.018 60);
+
   /* Signature gradient — surfaces/rules only, never text */
   --grad: linear-gradient(100deg, var(--primary) 0%, var(--accent) 100%);
 
@@ -59,6 +71,10 @@
   --color-accent-strong: var(--accent-strong);
   --color-accent-ink: var(--accent-ink);
   --color-danger: var(--danger);
+  --color-bg-deep: var(--bg-deep);
+  --color-paper: var(--paper);
+  --color-paper-ink: var(--paper-ink);
+  --color-paper-muted: var(--paper-muted);
 
   /* A mesma família nos dois papéis — ver docs/02. `font-display` e
      `font-sans` continuam a existir porque marcam a intenção no markup, e
@@ -69,6 +85,57 @@
   --radius-lg: var(--radius);
   --radius-xl: 1.25rem;
   --radius-2xl: 1.75rem;
+}
+
+/* ── A escala dos títulos ───────────────────────────────────────────────
+   Setembro de 2026. Os `clamp()` estavam escritos um a um nos componentes,
+   com mínimos pensados em desktop: `clamp(2.2rem, 5.6vw, 4.6rem)` dá **35px
+   num iPhone**. Medido lado a lado com o site de referência no mesmo ecrã de
+   390px, os títulos dele iam de 79 a 113px — os nossos eram um terço, e a
+   página lia-se como a versão de computador encolhida.
+
+   O que muda é qual dos três termos manda: o **vw domina no telemóvel** e o
+   teto serve o desktop. E vivem aqui, num sítio, pela mesma razão que o
+   espaçamento vive no `Section` — doze `clamp()` espalhados divergem ao
+   segundo mês. Ver `docs/02`. */
+@utility t-capa {
+  /* O título de uma capa: 74px a 390px, 90px a 1440px. */
+  font-size: clamp(3rem, 19vw, 5.6rem);
+  line-height: 0.92;
+  letter-spacing: -0.05em;
+}
+
+@utility t-seccao {
+  /* O título de uma secção: 62px a 390px, 74px a 1440px. */
+  font-size: clamp(2.4rem, 16vw, 4.6rem);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+}
+
+@utility t-obra {
+  /* O nome de um projeto no índice: 51px a 390px, 64px a 1440px. */
+  font-size: clamp(2.2rem, 13vw, 4rem);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+}
+
+/* ── E o corpo, no telemóvel ────────────────────────────────────────────
+   O site tinha texto a 12px num ecrã de 390px — o de referência não desce dos
+   15px no corpo. Em vez de trocar as dezenas de `text-xs` e `text-sm` um a um,
+   sobe-se a escala inteira **abaixo dos 768px**: as utilidades do Tailwind v4
+   lêem estas variáveis, portanto muda tudo de uma vez e o desktop fica onde
+   estava. 14px é o chão: nada abaixo disso se lê de pé, na rua, ao sol. */
+@media (max-width: 767px) {
+  :root {
+    --text-xs: 0.875rem; /* 12 → 14px */
+    --text-xs--line-height: 1.35;
+    --text-sm: 0.9375rem; /* 14 → 15px */
+    --text-sm--line-height: 1.5;
+    --text-base: 1.0625rem; /* 16 → 17px */
+    --text-base--line-height: 1.55;
+    --text-lg: 1.1875rem; /* 18 → 19px */
+    --text-lg--line-height: 1.5;
+  }
 }
 
 /* Default border color to our token (Tailwind v4 defaults to currentColor) */
@@ -150,6 +217,22 @@ html:not(.js) [data-reveal],
 html:not(.js) [data-reveal-item] {
   opacity: 1 !important;
   transform: none !important;
+}
+
+/* O reverso, e é preciso desde que o movimento passou a GSAP.
+   O Motion escrevia o estado inicial no HTML servido, portanto o elemento já
+   chegava invisível. O GSAP só toca no elemento depois de hidratar, o que
+   deixava um frame — às vezes vários, numa ligação lenta — com tudo visível e
+   no sítio final, seguido de um salto para trás para a animação começar.
+   Esconder aqui elimina esse frame.
+
+   O par com a regra de cima é o que mantém isto seguro: sem JavaScript não há
+   classe `js`, e nada disto se aplica. Com JavaScript, quem mostra é o GSAP —
+   e o `Reveal` tem um temporizador de 1,2 s para o caso de o ScrollTrigger
+   nunca disparar. */
+html.js [data-reveal],
+html.js [data-reveal-item] {
+  opacity: 0;
 }
 
 /* O carrossel de projetos faz scroll a sério (é o que o torna arrastável), mas
