@@ -9,6 +9,10 @@ controla:
   - app/portfolio/[slug]/page.tsx
   - app/page.tsx#projetos
   - public/capas/
+  - public/telemovel/
+  - components/TelemovelVideo.tsx
+  - scripts/gravar-telemovel.mjs
+  - next.config.ts#redirects
 relacionado:
   - docs/05-servicos.md
 ---
@@ -81,7 +85,7 @@ fundo. **Ao chegar a 7, volta a conferir `app/portfolio/page.tsx`** — a linha
 ## Capas
 
 O campo `image` aponta para um ficheiro em `public/capas/`
-(ex.: `/capas/mira-mar.jpg`). Sem `image`, o card cai na forma sólida gerada em
+(ex.: `/capas/jsk.jpg`). Sem `image`, o card cai na forma sólida gerada em
 CSS, tingida pelo `accent` — que continua a ser um fallback legítimo, não um erro.
 
 A pasta chama-se `capas/` e não `portfolio/` só por clareza — `public/` tem
@@ -130,6 +134,58 @@ enquadra de forma a que o conteúdo do ecrã se leia, e evita contraluz. O card
 recorta a 16/10 e o topo do caso de estudo a 16/9 — o que importa deve ficar ao
 centro.
 
+## Vídeo no telemóvel
+
+O caso de estudo mostra, a seguir ao texto, o site a fazer scroll dentro de um
+iPhone. A capa mostra o desktop; isto mostra o mesmo site no ecrã pequeno. Só
+aparece quando o projeto tem `mobile` em `lib/projects.ts`.
+
+**Só com site no ar.** É uma gravação do site verdadeiro. Um projeto
+`"em-curso"` sem domínio fica sem vídeo — gravar o servidor de
+desenvolvimento era mostrar como acabado o que ainda não está.
+
+```bash
+node scripts/gravar-telemovel.mjs <slug> <url>
+# opções: --ecras 5 (quantos ecrãs desce) · --esconder "<css>" (o que tapar)
+#         --tempo-real (sites com motor de scroll próprio — ver abaixo)
+```
+
+Sai `public/telemovel/<slug>.mp4` e `<slug>.jpg` (o poster, que é o primeiro
+frame). O script:
+
+- grava a 390×844 — o tamanho de um iPhone em pontos — e a 2x. **A proporção
+  tem de bater com o ecrã do `components/ui/IPhone.tsx`**, ou o vídeo fica
+  cortado;
+- aceita os cookies e fecha pop-ups (newsletter, avisos) antes de gravar — se
+  um escapar, usa `--esconder`;
+- percorre a página uma vez antes de gravar, para as imagens preguiçosas
+  carregarem;
+- desce, pára e volta ao topo, para o loop fechar sem salto;
+- tira um print por frame em vez de usar o `recordVideo` do Playwright, que
+  sai borrado. Demora cerca de um minuto por site.
+
+**Sites com motor de scroll próprio — `--tempo-real`.** Um carril que anda de
+lado ou um scroll com inércia animam com o relógio, e o modo frame a frame
+apanha-os a meio da transição: no Café Preguiça os cocktails saíam cortados e
+havia ecrãs inteiros em branco. Com `--tempo-real` a página desce sozinha e o
+Chrome manda o que pinta (`Page.startScreencast`); o fim funde-se com o
+primeiro frame em vez de voltar ao topo, que atravessava o carril num borrão.
+O texto fica ligeiramente menos nítido (os frames chegam em JPEG) — por isso
+não é o modo por omissão. Hoje só o Preguiça precisa dele, e grava a página
+toda: `--tempo-real --ecras 99 --descida 22` (~25 s, 2,7 MB).
+
+**Peso: até ~2,5 MB por vídeo.** Sai a 600px de largura, H.264, CRF 28 e sem
+áudio. Um site com muita textura (a Taskuinha) passa disso; volta a encodar
+com `-crf 31`. O `TelemovelVideo` usa `preload="none"`, por isso só se
+descarrega quando o iPhone entra no ecrã — mas o peso conta à mesma para
+quem lá chega com dados móveis.
+
+**Movimento reduzido:** com `prefers-reduced-motion` o vídeo não arranca e
+fica o poster. Fora do ecrã, pausa.
+
+**O `alt`** descreve o que o vídeo mostra (o site de quem, de onde para onde
+desce), não o que é ("vídeo de um site").
+
 ## Checklist — adicionar um caso de estudo
 
 1. Objeto novo em `lib/projects.ts`, na posição certa (o 1.º abre a faixa).
@@ -138,11 +194,13 @@ centro.
 4. `services` com nomes que existam em `lib/services.ts`.
 5. `url` só se estiver no ar.
 6. Capa em `public/capas/` + `image` e `imageAlt` — ou nenhum dos dois.
-7. **Sem `updatedAt`.** Um caso de estudo novo não é uma reescrita; o campo só
+7. `mobile` (o vídeo no iPhone) **só se o site estiver no ar** — ver "Vídeo no
+   telemóvel".
+8. **Sem `updatedAt`.** Um caso de estudo novo não é uma reescrita; o campo só
    entra da segunda vez que o texto mudar.
-8. Confere as grelhas (tabela acima).
-9. Nada mais: o `sitemap`, o `generateStaticParams` e a navegação "próximo
-   projeto" leem todos do array e atualizam-se sozinhos.
+9. Confere as grelhas (tabela acima).
+10. Nada mais: o `sitemap`, o `generateStaticParams` e a navegação "próximo
+    projeto" leem todos do array e atualizam-se sozinhos.
 
 ## Lacunas por preencher
 
@@ -151,20 +209,23 @@ Isto é trabalho conhecido em falta. Apaga a linha quando estiver feita.
 - [ ] **Painel de gestão da Taskuinha** — o card já anuncia o serviço e o
       `contribution` diz que está em desenvolvimento. Quando estiver entregue,
       tira a última frase do `contribution`.
-- [ ] **A Barraquinha Nova** — sem capa. Falta a **foto da televisão no espaço a
-      passar a ementa** — é o que torna este projeto legível num relance, porque
-      metade da entrega é física. Instagram: `@a_barraquinha_nova`. Morada:
-      Esplanada Fernando Ermida, 5, Praia da Granja, São Félix da Marinha.
 - [ ] **Painel de gestão do Império** — o site já está no ar e o projeto passou a
       `"concluido"`, mas o painel ainda não foi entregue. O `contribution` diz
       isso na última frase; quando estiver entregue, tira-a.
-- [ ] **URLs** do Mira Mar e da Barraquinha — nenhum está no ar. Acrescentar
-      `url` quando estiverem.
-- [ ] **Estado** desses dois — passar a `"concluido"` e virar o texto para o
-      passado quando forem entregues.
+- [ ] **Confeitaria Damira** — está `"em-curso"` e sem `url`: o site ainda
+      não tem domínio. Quando estiver no ar: `url`, o vídeo do telemóvel
+      (`mobile`), `"concluido"` e o texto no passado — tudo no mesmo PR. A capa
+      atual saiu do servidor de desenvolvimento (`npm run dev` no repositório
+      `DEVV-TGR/Damira`) e vale a pena refazê-la do site publicado.
 
-Já resolvido: as capas do Império Auto Concept, do Mira Mar, da JSK, da António
-Home Repair e da Taskuinha do Pirata.
+Já resolvido: as capas do Império Auto Concept, da JSK, da António Home Repair,
+da Taskuinha do Pirata, do Café Preguiça e da Confeitaria Damira; os vídeos de
+telemóvel de todos os que estão no ar.
+
+**Saíram do portfólio** (outubro de 2026): o Mira Mar e A Barraquinha Nova. Os
+casos de estudo redirecionam para a `/portfolio` (`redirects()` em
+`next.config.ts`), porque estiveram indexados. Se um voltar, tira o slug de lá
+antes — um redirect ganha à página.
 
 > A capa da Taskuinha saiu da receita headless acima sem truque nenhum. O site
 > abre com uma cortina (`Chegada.tsx`) que tapa a página, mas o
@@ -180,6 +241,8 @@ Home Repair e da Taskuinha do Pirata.
 | a ordem                  | é a ordem por que os projetos entram na faixa da homepage                                   |
 | o `status` de um projeto | vira também o tempo verbal do `overview` e do `contribution`                                |
 | o texto de um projeto já publicado | põe `updatedAt` com a data da reescrita — é o que faz o `app/sitemap.ts` emitir `lastmod` para essa página |
-| o shape do `Project`     | `lib/projects.ts` (tipo) e `components/ui/ProjectCard.tsx`                                  |
+| o shape do `Project`     | `lib/projects.ts` (tipo), `components/ui/ProjectCard.tsx` e `app/portfolio/[slug]/page.tsx` |
+| tirares um projeto       | acrescenta o slug aos `redirects()` de `next.config.ts` e apaga a capa e o vídeo           |
+| o viewport da gravação   | `scripts/gravar-telemovel.mjs` **e** a proporção do ecrã em `components/ui/IPhone.tsx`; regrava todos |
 | como as capas funcionam  | `components/ui/ProjectCard.tsx` e `app/portfolio/[slug]/page.tsx` — os dois renderizam capa |
 | resolveres uma lacuna    | apaga a linha da lista acima                                                                |

@@ -120,6 +120,17 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  /** Casos de estudo que saíram do portfólio. Estiveram indexados, e um link
+   *  antigo ou um resultado de pesquisa caem na lista em vez de num 404.
+   *  Ver docs/06-projetos.md. */
+  async redirects() {
+    return ["mira-mar", "a-barraquinha-nova"].map((slug) => ({
+      source: `/portfolio/${slug}`,
+      destination: "/portfolio",
+      permanent: true,
+    }));
+  },
 };
 
 export default nextConfig;

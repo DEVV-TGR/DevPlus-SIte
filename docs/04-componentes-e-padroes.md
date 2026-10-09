@@ -6,6 +6,7 @@ controla:
   - components/ui/Container.tsx
   - components/ui/Section.tsx
   - components/ui/ProjectCard.tsx
+  - components/ui/IPhone.tsx
   - components/Reveal.tsx
   - components/Marquee.tsx
   - components/ProjectsMarquee.tsx
@@ -39,6 +40,7 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `ui/Section`      | espaçamento vertical entre blocos; `top`/`bottom` desligam cada metade      | pôr padding vertical à mão, ou tentar anulá-lo com `pt-0` — ver abaixo                     |
 | `ui/Button`       | 3 variantes: `primary`, `outline`, `ghost`                                 | usar `<a>` cru com classes de botão; links externos já são detetados pelo `http` no `href` |
 | `ui/ProjectCard`  | um projeto na grelha (capa, etiquetas, serviços)                           | duplicar o card noutra página                                                              |
+| `ui/IPhone`       | moldura de iPhone em CSS, para o vídeo do caso de estudo (`docs/06`)       | trocar por uma fotografia de telemóvel — traz cores de fora dos tokens; mudar a proporção 390/844 sem regravar os vídeos |
 | `Reveal`          | aparecer no scroll (fade + 16px)                                           | envolver cada elemento; envolve o bloco                                                    |
 | `Marquee`         | faixa horizontal infinita, decorativa                                      | pôr lá conteúdo que importe — é `aria-hidden`                                              |
 | `ProjectsMarquee` | a faixa de projetos da página inicial: conteúdo real, focável e arrastável | usá-lo para decoração — para isso é o `Marquee`; e pôr `gap` no track, que parte o ciclo   |

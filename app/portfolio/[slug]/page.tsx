@@ -6,6 +6,8 @@ import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/Reveal";
+import { IPhone } from "@/components/ui/IPhone";
+import { TelemovelVideo } from "@/components/TelemovelVideo";
 import { CaseStudyJsonLd } from "@/components/JsonLd";
 import { projects, getProject } from "@/lib/projects";
 import { pageMetadata } from "@/lib/seo";
@@ -189,6 +191,39 @@ export default async function CaseStudyPage({
           </div>
         </Container>
       </Section>
+
+      {/* NO TELEMÓVEL
+          Só com site no ar: é o site verdadeiro a fazer scroll, gravado com
+          scripts/gravar-telemovel.mjs. A capa mostra o desktop; isto mostra o
+          mesmo site no ecrã pequeno. Sem botão: o "Visitar site" da ficha é o
+          único do caso de estudo (docs/06). Ver docs/06, "Vídeo no telemóvel". */}
+      {project.mobile ? (
+        <Section top={false}>
+          <Container>
+            <div className="grid items-center gap-12 rounded-2xl border border-border bg-surface px-6 py-12 sm:px-12 lg:grid-cols-12">
+              <Reveal className="lg:col-span-6">
+                <p className="text-sm text-primary">No telemóvel</p>
+                <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+                  Pensado primeiro para o ecrã pequeno.
+                </h2>
+                <p className="mt-3 max-w-md text-muted">
+                  É o site de {project.name} como está no ar, num telemóvel, sem
+                  retoques — o mesmo que vês se o abrires agora no teu.
+                </p>
+              </Reveal>
+              <Reveal className="lg:col-span-6" delay={0.08}>
+                <IPhone>
+                  <TelemovelVideo
+                    video={project.mobile.video}
+                    poster={project.mobile.poster}
+                    alt={project.mobile.alt}
+                  />
+                </IPhone>
+              </Reveal>
+            </div>
+          </Container>
+        </Section>
+      ) : null}
 
       {next.slug !== slug ? (
         <Section top={false}>
