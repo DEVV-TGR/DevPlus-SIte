@@ -147,6 +147,7 @@ desenvolvimento era mostrar como acabado o que ainda não está.
 ```bash
 node scripts/gravar-telemovel.mjs <slug> <url>
 # opções: --ecras 5 (quantos ecrãs desce) · --esconder "<css>" (o que tapar)
+#         --tempo-real (sites com motor de scroll próprio — ver abaixo)
 ```
 
 Sai `public/telemovel/<slug>.mp4` e `<slug>.jpg` (o poster, que é o primeiro
@@ -162,6 +163,15 @@ frame). O script:
 - desce, pára e volta ao topo, para o loop fechar sem salto;
 - tira um print por frame em vez de usar o `recordVideo` do Playwright, que
   sai borrado. Demora cerca de um minuto por site.
+
+**Sites com motor de scroll próprio — `--tempo-real`.** Um carril que anda de
+lado ou um scroll com inércia animam com o relógio, e o modo frame a frame
+apanha-os a meio da transição: no Café Preguiça os cocktails saíam cortados e
+havia ecrãs inteiros em branco. Com `--tempo-real` a página desce sozinha e o
+Chrome manda o que pinta (`Page.startScreencast`); o fim funde-se com o
+primeiro frame em vez de voltar ao topo, que atravessava o carril num borrão.
+O texto fica ligeiramente menos nítido (os frames chegam em JPEG) — por isso
+não é o modo por omissão. Hoje só o Preguiça precisa dele.
 
 **Peso: até ~2,5 MB por vídeo.** Sai a 600px de largura, H.264, CRF 28 e sem
 áudio. Um site com muita textura (a Taskuinha) passa disso; volta a encodar
