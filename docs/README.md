@@ -32,6 +32,7 @@ Se um doc e o código discordarem, é um bug, não uma questão de gosto.
 | `components/ContactForm.tsx`, `lib/contacto.ts`, `app/api/contacto/route.ts`                              | 04                       |
 | `lib/services.ts`                                                                                         | 05                       |
 | `lib/projects.ts`, `components/ui/ProjectCard.tsx`, `components/ProjectsMarquee.tsx`, `public/capas/`     | 06                       |
+| `public/telemovel/`, `components/TelemovelVideo.tsx`, `scripts/gravar-telemovel.mjs`                      | 06                       |
 | `app/estudio/`, `app/api/estudio/`, `lib/estudio/`, `components/estudio/`, `components/CascaDoSite.tsx` | 07                       |
 | `scripts/estudio-migrar.mjs`                                                                              | 07                       |
 | `vercel.json`                                                                                             | 07                       |
