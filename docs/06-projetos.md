@@ -171,7 +171,8 @@ havia ecrãs inteiros em branco. Com `--tempo-real` a página desce sozinha e o
 Chrome manda o que pinta (`Page.startScreencast`); o fim funde-se com o
 primeiro frame em vez de voltar ao topo, que atravessava o carril num borrão.
 O texto fica ligeiramente menos nítido (os frames chegam em JPEG) — por isso
-não é o modo por omissão. Hoje só o Preguiça precisa dele.
+não é o modo por omissão. Hoje só o Preguiça precisa dele, e grava a página
+toda: `--tempo-real --ecras 99 --descida 22` (~25 s, 2,7 MB).
 
 **Peso: até ~2,5 MB por vídeo.** Sai a 600px de largura, H.264, CRF 28 e sem
 áudio. Um site com muita textura (a Taskuinha) passa disso; volta a encodar

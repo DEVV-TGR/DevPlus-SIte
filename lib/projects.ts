@@ -51,7 +51,7 @@ export const projects: Project[] = [
     mobile: {
       video: "/telemovel/cafe-preguica.mp4",
       poster: "/telemovel/cafe-preguica.jpg",
-      alt: "O site do Café Preguiça num telemóvel, a descer da página inicial, com a preguiça pendurada num fio, até à secção sobre a casa.",
+      alt: "O site do Café Preguiça num telemóvel, a descer a página inicial toda: a fachada, a casa, o carril de cocktails a passar de lado, as avaliações do Google, o mapa e o horário.",
     },
     summary:
       "Um site com a preguiça da casa pendurada na página, e uma carta em português e inglês que abre do QR da mesa e que a equipa muda sozinha.",

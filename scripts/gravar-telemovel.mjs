@@ -5,6 +5,7 @@
  * estudo.
  *
  *   node scripts/gravar-telemovel.mjs <slug> <url> [--ecras 5] [--esconder "<css>"] [--tempo-real]
+ *     [--descida <s>]
  *
  * Sai `public/telemovel/<slug>.mp4` e `public/telemovel/<slug>.jpg` (o poster).
  *
@@ -39,7 +40,7 @@ import { join, resolve } from "node:path";
 const [slug, url, ...resto] = process.argv.slice(2);
 if (!slug || !url) {
   console.error(
-    'Uso: node scripts/gravar-telemovel.mjs <slug> <url> [--ecras 5] [--esconder "<css>"]',
+    'Uso: node scripts/gravar-telemovel.mjs <slug> <url> [--ecras 5] [--esconder "<css>"] [--tempo-real] [--descida <s>]',
   );
   process.exit(1);
 }
@@ -53,6 +54,9 @@ function opcao(nome, defeito) {
 const ECRAS = Number(opcao("ecras", "5"));
 /** CSS a esconder durante a gravação (faixas de teste, pop-ups). */
 const ESCONDER = opcao("esconder", "");
+/** Segundos da descida. Por omissão sai da altura (5 a 10 s); para um vídeo
+ *  mais longo, sobe-se isto e o `--ecras` (99 = a página toda). */
+const DESCIDA = Number(opcao("descida", "0"));
 /** Grava em tempo real em vez de frame a frame — ver o topo. */
 const TEMPO_REAL = resto.includes("--tempo-real");
 
@@ -183,7 +187,8 @@ try {
   // Há pop-ups que só aparecem a meio da página ou ao fim de uns segundos.
   await limpar(page);
 
-  const descida = Math.min(10, Math.max(5, destino / VELOCIDADE));
+  const descida =
+    DESCIDA || Math.min(10, Math.max(5, destino / VELOCIDADE));
 
   if (TEMPO_REAL) {
     await gravarTempoReal(page, destino, descida);
