@@ -1,7 +1,9 @@
 /** docs: docs/07-estudio.md */
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/Button";
-import { CARTAO, SOBRETITULO } from "@/components/estudio/estilos";
+import { Lockup } from "@/components/Lockup";
+import { CARTAO } from "@/components/estudio/estilos";
+import { cn } from "@/lib/utils";
 import { clientId } from "@/lib/estudio/github";
 import { sessaoAtual } from "@/lib/estudio/sessao";
 
@@ -44,15 +46,23 @@ export default async function Entrar({
   const configurado = Boolean(clientId());
 
   return (
-    <div className="mx-auto max-w-md px-4 py-12 sm:py-20">
-      <div className={CARTAO}>
-        <p className={SOBRETITULO}>Estúdio</p>
-        <h1 className="mt-3 font-display text-2xl font-semibold tracking-tight">
+    /* Ao centro do ecrã, sozinho, como a entrada do painel do Café Preguiça:
+       é a porta, e não há mais nada para ver antes dela. */
+    <div className="grid min-h-dvh place-items-center px-4 py-12">
+      <div className={cn(CARTAO, "w-full max-w-md")}>
+        <div className="flex items-center gap-3">
+          <Lockup className="h-8 w-auto" />
+          <span className="font-display text-xl font-semibold tracking-tight">
+            Estúdio
+          </span>
+        </div>
+        <h1 className="mt-8 font-display text-2xl font-semibold tracking-tight">
           Onde organizamos o nosso trabalho.
         </h1>
         <p className="mt-2 text-sm text-muted">
-          Entra com a tua conta do GitHub. Só entram as contas que estão na
-          lista do estúdio.
+          Os projetos, os clientes e o dinheiro do estúdio, num sítio só. Entra
+          com a tua conta do GitHub — só entram as contas que estão na lista do
+          estúdio.
         </p>
 
         {mensagem ? (

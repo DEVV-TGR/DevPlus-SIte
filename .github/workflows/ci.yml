@@ -120,6 +120,18 @@ jobs:
           verificar /estudio/financas/receitas       307
           verificar /estudio/financas/gastos         307
           verificar /estudio/importar                307
+          verificar /estudio/sessoes                 307
+          verificar /estudio/projetos/novo           307
+
+          # As abas e os filtros das páginas, pela mesma razão dos períodos lá
+          # em cima: o `await searchParams` tem de continuar depois do
+          # `requerSessao()`. Uma aba que não existe é a primeira, nunca um erro.
+          verificar "/estudio/projetos?estado=em-curso&quem=1"  307
+          verificar "/estudio/projetos/1?aba=dinheiro"          307
+          verificar "/estudio/projetos/1?aba=nao-existe"        307
+          verificar "/estudio/clientes?novo=1"                  307
+          verificar "/estudio/clientes/1?aba=dados"             307
+          verificar "/estudio/financas/gastos?novo=1"           307
 
           # Os dois endereços que só redirecionam. Dão 307 a toda a gente, com
           # cookie ou sem ele — sem cookie é o layout de `(dentro)` que manda

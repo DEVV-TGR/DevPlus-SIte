@@ -52,12 +52,39 @@ Em texto corrido escreve-se **Estúdio**, com maiúscula, quando é este sítio.
 | `lib/estudio/github.ts`       | o OAuth                                         |
 | `components/estudio/`         | os componentes, sobre as primitivas de `ui/`    |
 | `app/estudio/(dentro)/`       | todas as páginas menos a entrada, sob o topo     |
+| `components/estudio/Bloco.tsx` | o cartão, a cabeça dele, o número, o selo, o vazio |
+| `components/estudio/Abas.tsx` | as abas das fichas (`?aba=`)                     |
+| `lib/estudio/entradas.ts`     | anota quem entra, sai e é recusado (aba Sessões) |
+| `lib/estudio/aparelho.ts`     | o `User-Agent` em duas palavras                  |
 
 ## A casca: o topo, as secções e a transição
 
 O acabamento vem do painel do Café Preguiça (`DEVV-TGR`, `docs/PAINEL.md` desse
 repositório), que o Tomás pôs como modelo em 2026-10-14 — **a forma, não o
 conteúdo nem as cores**: lá é ouro e Fraunces, aqui são os tokens de docs/02.
+
+**E a razão não é estética: o Estúdio passou a ser usado por quem não o fez,
+e nem todos programam.** Daí as três regras que atravessam todas as páginas:
+
+1. **Cada página diz para que serve**, na frase do `TituloDaPagina`, e **cada
+   cartão diz o que é** — ícone, título, uma frase, e a seta ↗ quando leva a
+   algum lado (`TopoDoBloco`).
+2. **Cada vazio diz o passo seguinte** (`Vazio`). "Sem dados" sozinho deixa quem
+   chegou agora sem saber se partiu alguma coisa.
+3. **Linguagem simples no ecrã.** "Código no GitHub" e não "Repositório",
+   "Endereço do site" e não "Deploy", "Trazer do GitHub" e não "Importar
+   repositórios". Os nomes no código não mudaram (`repoUrl`, `deployUrl`,
+   `importarRepos`) — só o que se lê.
+
+**As fichas têm abas** (`Abas`, com `?aba=` no endereço e uma `lerAba()` em cada
+página a estreitar o valor). A do projeto: Visão geral, Tarefas, Dinheiro e
+Dados; a do cliente: Projetos e Dados. Antes era tudo numa coluna, e para chegar
+às tarefas passava-se por cima de vinte campos. **O apagar vive na última aba,
+Dados**, atrás de um `details` — longe do resto.
+
+**Os cartões têm 14 px de canto** (`rounded-lg`), e não os 28 px do
+`rounded-2xl` que tinham: este projeto redefine o `2xl`, e docs/02 manda os
+cartões ficarem em 16 px ou menos.
 
 - **O grupo `app/estudio/(dentro)/`** tem todas as páginas menos a `entrar`. Não
   entra no endereço. O layout dele desenha o `Cabecalho`, e como um layout não
@@ -105,6 +132,30 @@ a gente — transformava uma variável esquecida num Estúdio aberto ao mundo.
 **Os responsáveis de um projeto escolhem-se sempre à mão**, de uma lista de
 quem já entrou. Nunca se atribui automaticamente a quem está a gravar: quem
 mexe num projeto não é, na maior parte das vezes, quem o está a fazer.
+
+### As Sessões
+
+`/estudio/sessoes`, igual à do painel do Café Preguiça: **os aparelhos com
+sessão aberta**, cada um com Terminar sessão; **a última entrada de cada um**; e
+**tudo o que aconteceu**, por dia, na hora de Lisboa. Pedida em 2026-10-14.
+
+- **O histórico é a tabela `entradas`**, escrita por `lib/estudio/entradas.ts`
+  ao entrar, ao sair, ao terminar uma sessão e quando um login que não está em
+  `ESTUDIO_LOGINS` tenta entrar. Lê-se no `dados.ts` (`listarHistoricoDaPorta`,
+  `sessoesAbertas`).
+- **Anotar nunca impede ninguém de entrar.** O `anotar()` não atira: se a
+  escrita falhar, entra-se na mesma e o erro fica no registo da Vercel.
+- **O aparelho é o `User-Agent` em duas palavras** ("iPhone · Safari",
+  `lib/estudio/aparelho.ts`, trazido do Preguiça). **O IP não se guarda.** As
+  linhas com mais de um ano apagam-se a cada escrita. A política de privacidade
+  diz isto, na secção da ferramenta interna.
+- **Terminar uma sessão apaga-a pelo `id`**, uma coluna que nasceu para isso:
+  o `token_hash` continua a ser a chave, mas não se põe um hash num formulário.
+  Qualquer pessoa do Estúdio termina a de qualquer outra — um telemóvel perdido
+  corta-se de qualquer lado. Se for a deste browser, sai-se.
+- **A confirmação é na própria linha**, sem `confirm()`, como no Preguiça.
+- **O cartão "Sessões recentes" do Resumo falha sozinho**: se a tabela não
+  existir ou a leitura falhar, diz que não deu e o resto do resumo aparece.
 
 ## O dinheiro
 
@@ -365,21 +416,30 @@ e um fundo que se distingue do cartão. Em ecrã largo vão a duas colunas dentr
 da linha, para a altura não crescer com a largura — uma barra de 900 px para
 dizer "6 de 10" é espaço gasto sem nada em troca.
 
-### Três cartões, e o terceiro é teu
+### O resumo é um quadro, e o cartão das tarefas é teu
 
-O saldo do mês diz como está a correr agora; o de sempre diz se o estúdio ganha
-dinheiro. São perguntas diferentes e por isso são dois números lado a lado.
+Desde 2026-10-14 o resumo é um **quadro de cartões**, como o do painel do Café
+Preguiça: as boas-vindas ("Boas, Tomás", a data, "Registar gasto" e "Projeto
+novo") e uma grelha que vai de uma coluna no telemóvel a três no computador. A
+disposição está toda no `grid-template-areas` da página.
 
-**O terceiro é o número de tarefas por fazer de quem está a ver a página**, e é
+**O mês é o cartão-destaque** — o "cartão de crédito" do modelo —, com o
+gradiente da marca escurecido sobre o `bg` (superfície, nunca texto) e o "+" em
+contorno. O texto por cima é `ink`, e o fundo mais claro anda por L 0.37: passa
+os 4.5:1 com folga. O saldo do mês diz como está a correr agora; o de sempre,
+no rodapé do cartão, diz se o estúdio ganha dinheiro. São perguntas diferentes,
+e por isso são dois números.
+
+**O cartão das tarefas mostra quantas são de quem está a ver a página**, e é
 a única coisa do Estúdio que muda consoante quem entra. Todo o resto mostra o
 mesmo a toda a gente, de propósito: somos três e o trabalho é partilhado. Mas
 "o que é que *eu* tenho para fazer" não se responde com um número de toda a
 gente.
 
-**Só o número, e sem cor.** A lista das tarefas está no fundo da mesma página, e
-duas listas iguais no mesmo ecrã não são informação, são ruído. Sem cor
-semântica porque duas tarefas por fazer não são boas nem más — pintar o zero de
-verde era inventar um juízo que não é nosso.
+**O número sem cor**, e por baixo a lista das que estão por fazer em todo o lado
+— no mesmo cartão, e não noutro ao fundo da página. Sem cor semântica porque
+duas tarefas por fazer não são boas nem más — pintar o zero de verde era
+inventar um juízo que não é nosso.
 
 **As tarefas sem dono aparecem à parte e não somadas.** São trabalho por
 atribuir, não trabalho de ninguém, e hoje são a maioria. Somá-las ao número de
@@ -389,8 +449,8 @@ tarefas que ninguém vê.
 **Esta é a primeira consulta do resumo filtrada por quem está autenticado.** Até
 aqui a página chamava `requerSessao()` e deitava fora o que ele devolve.
 
-Os dois cartões de saldo levam `justify-center` porque a grelha estica os três à
-altura do mais alto.
+**"Em cima da mesa" ocupa duas linhas ao meio**, porque é a lista mais comprida.
+Cada estado leva à lista de projetos já filtrada (`?estado=`).
 
 ### O resumo é do mês, e a primeira versão não era
 
@@ -403,9 +463,9 @@ Agora responde por ordem: *quanto sobrou este mês e o que tenho para fazer*,
 *onde queremos chegar*, *a quem tenho de cobrar e o que ainda falta acontecer*,
 *de onde veio e para onde foi o dinheiro*, e *o que temos em mãos*.
 
-**E nem tudo é do mês, desde que os circulares ganharam filtro.** O `h1`
-continua a dizer "Este mês" porque é o que a página assume por omissão, e porque
-os saldos, o "por cobrar" e o "ainda este mês" continuam todos a sê-lo. Os dois
+**E nem tudo é do mês, desde que os circulares ganharam filtro.** O cartão-
+destaque diz "Sobrou este mês" porque é o que a página assume por omissão, e
+porque o "por cobrar" e o "ainda este mês" continuam a sê-lo. Os dois
 circulares é que passaram a dizer, no centro da roda, o período que estão a
 mostrar — e foi por isso que o texto do centro deixou de estar escrito dentro do
 componente.
@@ -808,7 +868,11 @@ Três decisões que valem a leitura:
    deixa o `max: 10` de `lib/estudio/db.ts` ser seguro. Cria-a na região mais
    perto do `regions` do `vercel.json` — hoje as duas são Frankfurt, e a secção
    "Porque é que isto esteve lento" explica o que custa separá-las.
-2. **Tabelas:** `node --env-file=.env.local scripts/estudio-migrar.mjs`.
+2. **Tabelas:** `node --env-file=.env.local scripts/estudio-migrar.mjs`. Corre-se
+   outra vez **sempre que a secção "Ajustes" do `schema.sql` mudar, antes do
+   deploy** — o código novo conta com as colunas novas. O de 2026-10-14 (as
+   Sessões) é o caso: sem ele, o `abrirSessao` tenta gravar o `aparelho` numa
+   coluna que não existe e **ninguém entra**.
 3. **OAuth App** em <https://github.com/settings/developers>, separador
    **OAuth Apps** (não **GitHub Apps**, que são outra coisa). Os endereços de
    retorno registam-se na secção **Redirect URIs**, e o GitHub aceita até dez por
@@ -872,6 +936,11 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | uma secção do Estúdio                  | `SECCOES` em `components/estudio/Separadores.tsx`, um ícone em `Icone.tsx` se precisar, e o teste de fumo |
 | o `requerSessao()` do layout de `(dentro)` | não o tires enquanto houver `loading.tsx` — o `/estudio` sem cookie passa de 307 a 200 e o CI falha |
 | a transição do Estúdio                 | os `estudio-*` de `app/globals.css`; mantém `backwards`, nunca `both`, e confirma com movimento reduzido |
+| uma aba de uma ficha                   | o `ABAS` e a `lerAba()` da página; acrescenta ao teste de fumo um endereço com `?aba=`           |
+| o que se anota nas Sessões             | `ComoEntrou` em `tipos.ts`, o `check` de `entradas` no `schema.sql`, a frase em `FRASE_DA_ENTRADA` — **e a política de privacidade** |
+| o tempo que o histórico das Sessões dura | o `delete` do `anotar()` em `lib/estudio/entradas.ts` **e** a frase da privacidade que diz "um ano" |
+| um texto que se lê no Estúdio          | linguagem simples — nem toda a gente que lá entra programa; ver "A casca" lá em cima              |
+| o cartão-destaque do resumo            | mede o contraste do `ink` sobre o gradiente outra vez (≥ 4.5:1)                                   |
 | o que a base guarda sobre pessoas      | `app/privacidade/page.tsx` e sobe a "Última atualização" **no mesmo PR**                        |
 | quem aloja a base                      | nomeia-o em `app/privacidade/page.tsx`, na secção "Partilha com terceiros"                      |
 | a decisão de não haver `proxy.ts`      | relê o comentário da CSP em `next.config.ts` antes — a conta muda                                |
