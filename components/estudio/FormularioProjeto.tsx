@@ -199,8 +199,10 @@ export function FormularioProjeto({
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
+          {/* "Código no GitHub" e não "Repositório": nem toda a gente no
+              Estúdio programa, e a palavra técnica não ajudava ninguém. */}
           <label htmlFor="repoUrl" className={ETIQUETA}>
-            Repositório
+            Código no GitHub
           </label>
           <input
             id="repoUrl"
@@ -217,7 +219,7 @@ export function FormularioProjeto({
 
         <div>
           <label htmlFor="deployUrl" className={ETIQUETA}>
-            Site no ar
+            Endereço do site
           </label>
           <input
             id="deployUrl"

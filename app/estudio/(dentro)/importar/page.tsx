@@ -26,14 +26,15 @@ export default async function Importar() {
   return (
     <div className="mx-auto max-w-3xl">
       <TituloDaPagina
-        sobretitulo="Importar"
-        titulo="Do GitHub para aqui"
+        sobretitulo="Trazer do GitHub"
+        titulo="Projetos que já estão no GitHub"
         voltarPara={{ href: "/estudio/projetos", rotulo: "Projetos" }}
         frase={
           <p>
-            Os repositórios da organização {ORGANIZACAO}. Escolhe quais viram
-            projeto — vem o nome, o link e a descrição; o resto pões tu. Os que
-            criarem a partir de agora aparecem sozinhos.
+            Tudo o que está guardado no GitHub da {ORGANIZACAO}. Escolhe o que
+            passa a ser projeto aqui — vem o nome, o link e a descrição; o
+            resto pões tu. Os que se criarem no GitHub a partir de agora
+            aparecem sozinhos.
           </p>
         }
       />
@@ -58,7 +59,7 @@ export default async function Importar() {
         ) : repos.length === 0 ? (
           <div className={CARTAO}>
             <p className="text-sm text-muted">
-              A organização {ORGANIZACAO} não tem repositórios visíveis. Se os
+              O GitHub da {ORGANIZACAO} não tem projetos visíveis. Se os
               que procuras forem privados, é preciso um{" "}
               <code>GITHUB_TOKEN</code> — ver <code>docs/07-estudio.md</code>.
             </p>

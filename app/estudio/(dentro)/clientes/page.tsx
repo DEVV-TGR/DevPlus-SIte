@@ -75,9 +75,9 @@ export default async function Clientes() {
               Ainda não há clientes.
             </h2>
             <p className="mt-2 text-sm text-muted">
-              Abre o &ldquo;Cliente novo&rdquo; aqui em cima. Podes marcar logo
-              os repositórios que são dele — os que já estão no Estúdio e os que
-              ainda não foram importados.
+              Carrega em &ldquo;Cliente novo&rdquo;, aqui em cima. Podes marcar
+              logo os projetos que são dele — os que já estão no Estúdio e os
+              que ainda só estão no GitHub.
             </p>
           </div>
         ) : (
