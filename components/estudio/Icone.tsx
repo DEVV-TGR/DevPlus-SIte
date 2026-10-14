@@ -63,6 +63,41 @@ const CAMINHOS = {
       <circle cx="12" cy="12" r="0.6" />
     </>
   ),
+  sessoes: (
+    <>
+      <rect x="2.5" y="4.5" width="14" height="10" rx="1.5" />
+      <path d="M6.5 18.5h6M9.5 14.5v4" />
+      <rect x="16.5" y="9" width="5" height="10" rx="1.2" />
+    </>
+  ),
+  grafico: (
+    <>
+      <path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5H12z" />
+      <path d="M15 3.9A8.5 8.5 0 0 1 20.1 9H15z" />
+    </>
+  ),
+  camadas: (
+    <>
+      <path d="M12 4l8.5 4.5L12 13 3.5 8.5z" />
+      <path d="M3.5 12.5L12 17l8.5-4.5M3.5 16.5L12 21l8.5-4.5" />
+    </>
+  ),
+  relogio: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5V12l3 2" />
+    </>
+  ),
+  telefone: (
+    <path d="M6.5 3.5h3l1.5 4-2 1.3a10 10 0 0 0 5.2 5.2l1.3-2 4 1.5v3a2 2 0 0 1-2.2 2A16 16 0 0 1 4.5 5.7a2 2 0 0 1 2-2.2z" />
+  ),
+  email: (
+    <>
+      <rect x="3" y="5.5" width="18" height="13" rx="2" />
+      <path d="M3.5 7l8.5 6 8.5-6" />
+    </>
+  ),
+  externo: <path d="M14 4.5h5.5V10M19.5 4.5L11 13M17.5 14v4a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 18V8A1.5 1.5 0 0 1 6 6.5h4" />,
   entra: <path d="M12 4.5v15M6 13.5l6 6 6-6" />,
   sai: <path d="M12 19.5v-15M6 10.5l6-6 6 6" />,
 } as const;

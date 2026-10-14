@@ -28,6 +28,7 @@ const SECCOES: { href: string; base: string; nome: string; icone: NomeDoIcone }[
   { href: `${PREFIXO_ESTUDIO}/projetos`, base: `${PREFIXO_ESTUDIO}/projetos`, nome: "Projetos", icone: "projetos" },
   { href: `${PREFIXO_ESTUDIO}/clientes`, base: `${PREFIXO_ESTUDIO}/clientes`, nome: "Clientes", icone: "clientes" },
   { href: `${PREFIXO_ESTUDIO}/financas/receitas`, base: `${PREFIXO_ESTUDIO}/financas`, nome: "Finanças", icone: "financas" },
+  { href: `${PREFIXO_ESTUDIO}/sessoes`, base: `${PREFIXO_ESTUDIO}/sessoes`, nome: "Sessões", icone: "sessoes" },
 ];
 
 /* O Resumo só acende quando é mesmo o Resumo — senão, sendo o prefixo de todas,
