@@ -1,9 +1,10 @@
 /** docs: docs/07-estudio.md */
 import Link from "next/link";
 import { FormularioGasto } from "@/components/estudio/FormularioGasto";
-import { SubNavegacao } from "@/components/estudio/SubNavegacao";
-import { CARTAO } from "@/components/estudio/estilos";
-import { TituloDaPagina } from "@/components/estudio/TituloDaPagina";
+import { Bloco, Numero, TopoDoBloco, Vazio } from "@/components/estudio/Bloco";
+import { CabecaDasFinancas } from "@/components/estudio/CabecaDasFinancas";
+import { Icone } from "@/components/estudio/Icone";
+import { CARTAO, TITULO_CARTAO } from "@/components/estudio/estilos";
 import { apagarGasto, criarGasto } from "@/lib/estudio/acoes";
 import {
   listarClientes,
@@ -19,6 +20,7 @@ import {
   POR_MES,
   ROTULO_CURTO,
 } from "@/lib/estudio/tipos";
+import { cn } from "@/lib/utils";
 
 /**
  * O que sai.
@@ -32,8 +34,16 @@ import {
  * fica por baixo com o ecrã todo. Espremer as duas coisas lado a lado deixava a
  * descrição de um gasto sem sítio para se ler.
  */
-export default async function Gastos() {
+export default async function Gastos({
+  searchParams,
+}: {
+  searchParams: Promise<{ novo?: string }>;
+}) {
   await requerSessao();
+
+  /* O "Registar gasto" do título e do Resumo traz `?novo=1`, e o formulário
+     abre já aberto. */
+  const novo = (await searchParams).novo === "1";
 
   const [gastos, projetos, clientes] = await Promise.all([
     listarGastos(),
@@ -78,32 +88,68 @@ export default async function Gastos() {
   const meses = agruparPorMes(gastos);
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <TituloDaPagina titulo="Finanças" frase="Todos os valores sem IVA." />
+    <div className="mx-auto max-w-6xl">
+      <CabecaDasFinancas atual="gastos" />
 
-      <SubNavegacao atual="gastos" />
-
-      {repetem.length > 0 ? (
-        <div className={`${CARTAO} mt-8`}>
-          <p className="text-xs text-muted">Custo fixo do estúdio</p>
-          <p className="mt-1.5 font-display text-2xl font-semibold tabular-nums tracking-tight">
-            {formatarEuros(fixoPorMes)}
-            <span className="ml-1.5 text-base font-normal text-muted">
-              por mês
+      {/* Abre sozinho quando ainda não há gastos, ou quando se chega pelo
+          "Registar gasto" (`?novo=1`). */}
+      <details
+        id="registar"
+        open={novo || gastos.length === 0}
+        className={cn(CARTAO, "group mt-6 scroll-mt-6")}
+      >
+        <summary className="flex cursor-pointer list-none items-center gap-3 [&::-webkit-details-marker]:hidden">
+          <span
+            aria-hidden
+            className="grid size-9 flex-none place-items-center rounded-lg bg-primary/10 text-primary"
+          >
+            <Icone nome="mais" tamanho={18} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className={cn(TITULO_CARTAO, "block")}>Registar um gasto</span>
+            <span className="block text-sm text-muted">
+              Uma compra, uma subscrição, um domínio. Se se repete, diz-se
+              aqui uma vez e o Estúdio lembra-se nos meses seguintes.
             </span>
-          </p>
-          <p className="mt-1.5 text-xs text-muted">
-            {fixosDoEstudio.length === 0
-              ? "Nada que se repita é do estúdio."
-              : `${fixosDoEstudio.length} ${
-                  fixosDoEstudio.length === 1
-                    ? "despesa que corre"
-                    : "despesas que correm"
-                } mesmo com o mês vazio.`}
-          </p>
+          </span>
+          <span className="text-sm text-muted group-open:hidden">Abrir</span>
+          <span className="hidden text-sm text-muted group-open:inline">Fechar</span>
+        </summary>
+        <div className="mt-6">
+          <FormularioGasto
+            acao={criarGasto}
+            projetos={projetos}
+            clientes={clientes}
+          />
+        </div>
+      </details>
+
+      <div className="mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+      {repetem.length > 0 ? (
+        <Bloco aria-labelledby="custo-fixo">
+          <TopoDoBloco
+            id="custo-fixo"
+            icone="calendario"
+            titulo="Custo fixo do estúdio"
+            sub="O que se paga todos os meses, haja ou não trabalho"
+          />
+          <Numero
+            rotulo="Por mês"
+            valor={formatarEuros(fixoPorMes)}
+            grande
+            nota={
+              fixosDoEstudio.length === 0
+                ? "Nada que se repita é do estúdio."
+                : `${fixosDoEstudio.length} ${
+                    fixosDoEstudio.length === 1
+                      ? "despesa que corre"
+                      : "despesas que correm"
+                  } mesmo com o mês vazio.`
+            }
+          />
 
           {fixosDoEstudio.length > 0 ? (
-            <ul className="mt-5 divide-y divide-border border-t border-border">
+            <ul className="divide-y divide-border border-y border-border">
               {fixosDoEstudio.map((g) => (
                 <li
                   key={g.id}
@@ -132,7 +178,7 @@ export default async function Gastos() {
           ) : null}
 
           {repetemPorProjeto.length > 0 ? (
-            <div className="mt-5 border-t border-border pt-4">
+            <div>
               <p className="text-xs text-muted">
                 Repetem-se, mas são de clientes e voltam a entrar pela receita do
                 projeto. Não entram na conta de cima.
@@ -175,39 +221,29 @@ export default async function Gastos() {
               </p>
             </div>
           ) : null}
-        </div>
+        </Bloco>
       ) : null}
 
-      <details className={`${CARTAO} mt-8`} open={gastos.length === 0}>
-        <summary className="cursor-pointer font-display text-lg font-semibold tracking-tight">
-          Gasto novo
-        </summary>
-        <div className="mt-6">
-          <FormularioGasto
-            acao={criarGasto}
-            projetos={projetos}
-            clientes={clientes}
-          />
-        </div>
-      </details>
-
-      <section aria-labelledby="lista-gastos" className="mt-12">
-        <h2
+      <Bloco
+        aria-labelledby="lista-gastos"
+        className={cn(repetem.length === 0 && "lg:col-span-2")}
+      >
+        <TopoDoBloco
           id="lista-gastos"
-          className="font-display text-lg font-semibold tracking-tight"
-        >
-          Tudo o que já saiu
-        </h2>
+          icone="sai"
+          titulo="Tudo o que já saiu"
+          sub="Mês a mês, do mais recente para o mais antigo"
+        />
 
         {gastos.length === 0 ? (
-          <p className="mt-3 max-w-lg text-sm text-muted">
+          <Vazio>
             Ainda não há gastos registados. Começa pelos que se repetem — o
             alojamento, os domínios, as ferramentas. São os que se esquecem e os
             que mais pesam ao fim do ano.
-          </p>
+          </Vazio>
         ) : (
           <>
-            <div className="mt-5 space-y-8">
+            <div className="space-y-6">
               {meses.map(({ mes, itens }) => (
                 <div key={mes}>
                   {/* Um `h3` e não um `<p>`: são secções de uma lista, e
@@ -219,7 +255,7 @@ export default async function Gastos() {
                     {itens.map((g) => (
                       <li
                         key={g.id}
-                        className="flex flex-wrap items-center gap-x-4 gap-y-1.5 py-4"
+                        className="flex flex-wrap items-center gap-x-4 gap-y-1.5 py-3"
                       >
                         <span className="w-24 shrink-0 text-sm font-medium tabular-nums">
                           {formatarEuros(g.valor)}
@@ -268,7 +304,7 @@ export default async function Gastos() {
             </div>
 
             {doEstudio.length > 0 ? (
-              <p className="mt-4 text-xs text-muted">
+              <p className="text-xs text-muted">
                 {doEstudio.length}{" "}
                 {doEstudio.length === 1 ? "gasto é" : "gastos são"} do estúdio e
                 não {doEstudio.length === 1 ? "entra" : "entram"} na margem de
@@ -277,7 +313,8 @@ export default async function Gastos() {
             ) : null}
           </>
         )}
-      </section>
+      </Bloco>
+      </div>
     </div>
   );
 }
