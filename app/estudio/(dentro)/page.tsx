@@ -1,13 +1,21 @@
 /** docs: docs/07-estudio.md */
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/Button";
+import {
+  Bloco,
+  LigacaoQueCobre,
+  Numero,
+  TopoDoBloco,
+  Vazio,
+} from "@/components/estudio/Bloco";
 import { EtiquetaEstado } from "@/components/estudio/EtiquetaEstado";
 import { FormularioObjetivo } from "@/components/estudio/FormularioObjetivo";
 import { GraficoCircular } from "@/components/estudio/GraficoCircular";
+import { Icone } from "@/components/estudio/Icone";
 import { Objetivos } from "@/components/estudio/Objetivos";
 import { SeletorDePeriodo } from "@/components/estudio/SeletorDePeriodo";
-import { TituloDaPagina } from "@/components/estudio/TituloDaPagina";
-import { CARTAO, SOBRETITULO } from "@/components/estudio/estilos";
+import { SOBRETITULO } from "@/components/estudio/estilos";
 import {
   criarObjetivo,
   marcarGastoPago,
@@ -16,8 +24,10 @@ import {
 import {
   cobrancasPorReceber,
   entradasDoPeriodo,
+  listarHistoricoDaPorta,
   listarObjetivos,
   listarProjetos,
+  listarUtilizadores,
   porCobrarPorProjeto,
   recorrentes,
   resumoDoMes,
@@ -30,13 +40,18 @@ import {
   agruparPorEstado,
   emAtraso,
   formatarData,
+  formatarDiaCurto,
   formatarEuros,
+  formatarHora,
   hojeEmLisboa,
+  hojePorExtenso,
   iniciais,
   lerPeriodo,
+  nomeDoDia,
   PERIODO_ESCRITO,
+  primeiroNome,
   proximaOcorrencia,
-  ROTULO_ESTADO,
+  ROTULO_DA_ENTRADA,
   ROTULO_RECEITA,
   vencimentosDoMes,
 } from "@/lib/estudio/tipos";
@@ -53,6 +68,14 @@ import { cn } from "@/lib/utils";
  * Agora responde, por ordem: *quanto sobrou este mês*, *a quem tenho de
  * cobrar*, *para onde foi o dinheiro*, e *o que ainda falta acontecer antes de
  * o mês fechar*.
+ *
+ * ## É um quadro de cartões, como o do painel do Café Preguiça
+ *
+ * Desde 2026-10-14. Cada cartão diz o que é, para que serve e para onde leva (a
+ * seta), porque o Estúdio passou a ser usado por quem não o construiu. O mês é
+ * o cartão-destaque — o "cartão de crédito" do modelo —, e as sessões e quem
+ * tem acesso vieram de lá também. A disposição está no `grid-template-areas`
+ * da grelha: uma coluna no telemóvel, duas no tablet, três no computador.
  */
 
 export default async function Resumo({
@@ -88,6 +111,8 @@ export default async function Resumo({
     tarefasMinhas,
     projetos,
     objetivos,
+    pessoas,
+    porta,
   ] = await Promise.all([
     resumoDoMes(),
     porCobrarPorProjeto(),
@@ -99,7 +124,16 @@ export default async function Resumo({
     tarefasPendentesDe(utilizador.id),
     listarProjetos(),
     listarObjetivos(),
+    listarUtilizadores(),
+    /* O único cartão que pode falhar sozinho: as sessões vivem numa tabela que
+       nasceu a 2026-10-14, e uma base sem esse ajuste não pode deitar abaixo o
+       resumo inteiro. `null` quer dizer "não deu", e o cartão di-lo. */
+    listarHistoricoDaPorta(6).catch((erro: unknown) => {
+      console.error("[estudio] não deu para ler o histórico da porta:", erro);
+      return null;
+    }),
   ]);
+  const agora = agoraMesmo();
 
   /* O que falta marcar antes de o mês acabar, dos dois lados na mesma lista: o
      que há para pagar e o que há para receber. Os lados contam de maneira
@@ -150,6 +184,9 @@ export default async function Resumo({
   /* Uma cobrança de um mês que já fechou está atrasada, e diz-se. */
   const mesAtual = hoje.slice(0, 7);
 
+  /* Os estados que aparecem em "Em cima da mesa", pela ordem do `ORDEM`. */
+  const grupos = agruparPorEstado(emCimaDaMesa);
+
   if (projetos.length === 0) {
     return (
       <div className="mx-auto max-w-2xl py-16 text-center">
@@ -158,14 +195,14 @@ export default async function Resumo({
           Ainda não há nada para resumir.
         </h1>
         <p className="mx-auto mt-3 max-w-md text-sm text-muted">
-          Traz os repositórios do GitHub ou cria um projeto à mão. Assim que
+          Traz os projetos que já estão no GitHub ou cria um à mão. Assim que
           houver trabalho e valores, é aqui que se vê o que entra, o que sai e a
           quem é preciso ligar.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Button href="/estudio/importar">Importar do GitHub</Button>
+          <Button href="/estudio/importar">Trazer projetos do GitHub</Button>
           <Button href="/estudio/projetos/novo" variant="outline">
-            Projeto novo
+            Criar um projeto
           </Button>
         </div>
       </div>
@@ -173,145 +210,123 @@ export default async function Resumo({
   }
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <TituloDaPagina titulo="Este mês" />
-
-      {/* Os três números da primeira linha. Chamam-se saldos e não lucros de
-          propósito: não levam ordenados nem impostos, e a palavra errada faria
-          um número confortável passar por outro. Ver docs/07. */}
-      <div className="mt-8 grid gap-4 sm:grid-cols-3">
-        {/* `justify-center` nos dois cartões de saldo: a grelha estica-os todos
-            à altura do mais alto, e com três objetivos na coluna da direita os
-            números ficavam encostados ao topo com um palmo de vazio por baixo.
-            Centrados, o espaço lê-se como respiro em vez de esquecimento. */}
-        <div className={cn(CARTAO, "flex flex-col justify-center")}>
-          <p className="text-xs text-muted">Saldo deste mês</p>
-          <p
-            className={cn(
-              "mt-1.5 font-display text-3xl font-semibold tabular-nums tracking-tight",
-              mes.saldo > 0 && "text-accent",
-              mes.saldo < 0 && "text-danger",
-            )}
+    <div>
+      {/* As boas-vindas, como no painel do Café Preguiça: quem és, que dia é,
+          e as duas coisas que mais se fazem ao chegar. */}
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className={SOBRETITULO}>Resumo</p>
+          <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+            <span className="text-muted">Boas,</span>{" "}
+            {primeiroNome(utilizador.nome)}
+          </h1>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex min-h-10 items-center gap-2 rounded-full border border-border bg-surface px-4 text-sm">
+            <Icone nome="calendario" tamanho={16} className="text-muted" />
+            {hojePorExtenso(agora)}
+          </span>
+          <Link
+            href="/estudio/financas/gastos?novo=1#registar"
+            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-border bg-surface px-4 text-sm transition-colors hover:border-ink/30"
           >
+            <Icone nome="sai" tamanho={16} className="text-muted" />
+            Registar gasto
+          </Link>
+          <Link
+            href="/estudio/projetos/novo"
+            className="inline-flex min-h-10 items-center gap-2 rounded-full bg-primary px-4 text-sm font-medium text-primary-ink transition-colors hover:bg-primary-strong"
+          >
+            <Icone nome="mais" tamanho={16} />
+            Projeto novo
+          </Link>
+        </div>
+      </header>
+
+      {/* A grelha. Uma coluna no telemóvel, com o dinheiro e o que é teu
+          primeiro; duas no tablet; três no computador, com o "Em cima da mesa"
+          ao meio a ocupar duas linhas, porque é a lista mais comprida. */}
+      <div
+        className={cn(
+          "mt-8 grid gap-4",
+          "grid-cols-1 [grid-template-areas:'mes'_'cobrar'_'tarefas'_'ainda'_'mesa'_'objetivos'_'deonde'_'paraonde'_'sessoes'_'acesso']",
+          "md:grid-cols-2 md:[grid-template-areas:'mes_cobrar'_'tarefas_ainda'_'mesa_mesa'_'objetivos_objetivos'_'deonde_paraonde'_'sessoes_sessoes'_'acesso_acesso']",
+          "xl:grid-cols-[minmax(0,1fr)_minmax(0,1.45fr)_minmax(0,1fr)] xl:[grid-template-areas:'mes_mesa_cobrar'_'tarefas_mesa_ainda'_'objetivos_objetivos_objetivos'_'deonde_paraonde_paraonde'_'sessoes_sessoes_acesso']",
+        )}
+      >
+        {/* ------------------------------------------------ ESTE MÊS
+            O cartão de crédito do modelo, com o mês lá dentro. Chamam-se saldos
+            e não lucros de propósito: não levam ordenados nem impostos, e a
+            palavra errada faria um número confortável passar por outro. */}
+        <section
+          aria-labelledby="este-mes"
+          className="relative isolate flex min-h-52 flex-col overflow-hidden rounded-lg border border-border p-5 [grid-area:mes] sm:p-6"
+          style={{
+            /* O gradiente da marca, escurecido sobre o `bg` — é superfície, não
+               texto (docs/02). O texto por cima é `ink`: o fundo mais claro
+               fica por volta de L 0.37, e `ink` (L 0.97) sobre isso passa
+               largamente os 4.5:1. */
+            background:
+              "linear-gradient(140deg, color-mix(in oklab, var(--primary) 38%, var(--bg)) 0%, color-mix(in oklab, var(--accent) 20%, var(--bg)) 100%)",
+          }}
+        >
+          <Logo
+            outline
+            className="pointer-events-none absolute -right-8 -bottom-10 -z-10 size-44 text-ink/15"
+          />
+          <div className="flex items-center justify-between gap-3 text-xs text-ink/80">
+            <span className="font-medium tracking-wide">DevPlus · Estúdio</span>
+            <span className="capitalize">{nomeDoMes(hoje)}</span>
+          </div>
+          <h2 id="este-mes" className="mt-auto pt-6 text-sm text-ink/85">
+            <LigacaoQueCobre href="/estudio/financas/receitas">
+              Sobrou este mês
+            </LigacaoQueCobre>
+          </h2>
+          <p className="mt-1 font-display text-4xl font-semibold tabular-nums tracking-tight">
             {formatarEuros(mes.saldo)}
           </p>
-          <p className="mt-1.5 text-xs text-muted">
-            entrou {formatarEuros(mes.entrou)} · saiu {formatarEuros(mes.saiu)}
+          <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink/85">
+            <span>Entrou {formatarEuros(mes.entrou)}</span>
+            <span>Saiu {formatarEuros(mes.saiu)}</span>
+            {/* O do mês diz como está a correr agora; este diz se o estúdio
+                ganha dinheiro. Perguntas diferentes, por isso dois números. */}
+            <span>Desde sempre {formatarEuros(mes.saldoSempre)}</span>
           </p>
-        </div>
+        </section>
 
-        {/* O do mês diz como está a correr agora; este diz se o estúdio ganha
-            dinheiro. São perguntas diferentes, e por isso são dois números. */}
-        <div className={cn(CARTAO, "flex flex-col justify-center")}>
-          <p className="text-xs text-muted">Saldo desde sempre</p>
-          <p
-            className={cn(
-              "mt-1.5 font-display text-3xl font-semibold tabular-nums tracking-tight",
-              mes.saldoSempre > 0 && "text-accent",
-              mes.saldoSempre < 0 && "text-danger",
-            )}
-          >
-            {formatarEuros(mes.saldoSempre)}
-          </p>
-          <p className="mt-1.5 text-xs text-muted">
-            entrou {formatarEuros(mes.entrouSempre)} · saiu{" "}
-            {formatarEuros(mes.saiuSempre)}
-          </p>
-        </div>
+        {/* ------------------------------------------------ POR COBRAR */}
+        <Bloco aria-labelledby="por-cobrar" className="[grid-area:cobrar]">
+          <TopoDoBloco
+            id="por-cobrar"
+            icone="financas"
+            titulo="Por cobrar"
+            sub="Quem nos deve, e quanto"
+            href="/estudio/financas/receitas"
+            rotuloDaSeta="Abrir as receitas"
+          />
+          {totalPorCobrar > 0 ? (
+            <Numero
+              rotulo="Falta receber"
+              valor={formatarEuros(totalPorCobrar)}
+              tom="atencao"
+              grande
+            />
+          ) : null}
 
-        {/* O terceiro número é teu, e é o único do Estúdio que muda consoante
-            quem entra. Somos três e o trabalho é partilhado — mas "o que é que
-            eu tenho para fazer" não se responde com um número de toda a gente.
-            Só o número: a lista está no fundo da página, e duas listas iguais
-            no mesmo ecrã não são informação, são ruído. */}
-        <div className={cn(CARTAO, "flex flex-col justify-center")}>
-          <p className="text-xs text-muted">As tuas tarefas</p>
-          {/* Sem cor: duas tarefas por fazer não são boas nem más, e pintar o
-              zero de verde era inventar um juízo que não é nosso. */}
-          <p className="mt-1.5 font-display text-3xl font-semibold tabular-nums tracking-tight">
-            {tarefasMinhas.minhas}
-          </p>
-          <p className="mt-1.5 text-xs text-muted">
-            {tarefasMinhas.minhas === 0
-              ? "Nada atribuído a ti."
-              : "por fazer, atribuídas a ti"}
-            {/* As que não têm dono aparecem à parte e não somadas: são trabalho
-                por atribuir, não trabalho teu. Hoje são a maioria — escondê-las
-                fazia delas tarefas que ninguém vê. */}
-            {tarefasMinhas.semDono > 0 ? (
-              <>
-                {" · "}
-                <Link
-                  href="#tarefas-pendentes"
-                  className="underline-offset-4 hover:text-ink hover:underline"
-                >
-                  {tarefasMinhas.semDono} sem dono
-                </Link>
-              </>
-            ) : null}
-          </p>
-        </div>
-      </div>
-
-      {/* Os objetivos passaram a ter a linha toda, e o cabeçalho passou a ser um
-          `h2` como o das outras secções. Num terço de linha os títulos vinham
-          cortados pelo `truncate` e o cartão dizia menos do que estava escrito
-          nele — ver o comentário no `Objetivos.tsx`. */}
-      <section aria-labelledby="objetivos" className={cn(CARTAO, "mt-8")}>
-        <h2
-          id="objetivos"
-          className="font-display text-lg font-semibold tracking-tight"
-        >
-          Objetivos
-        </h2>
-        <div className="mt-5">
-          <Objetivos objetivos={objetivos} />
-        </div>
-      </section>
-
-      <details className={cn(CARTAO, "mt-4")}>
-        <summary className="cursor-pointer text-sm text-muted transition-colors hover:text-ink">
-          Pôr ou tirar objetivos
-        </summary>
-        <div className="mt-6">
-          <FormularioObjetivo acao={criarObjetivo} objetivos={objetivos} />
-        </div>
-      </details>
-
-      {/* "Por cobrar" e "Ainda este mês" lado a lado: são as duas
-          perguntas do fim do mês — quem me deve, e o que ainda falta
-          acontecer — e em `max-w-4xl` sobrava largura para as duas. */}
-      <div className="mt-12 grid items-start gap-8 lg:grid-cols-2">
-        <section aria-labelledby="por-cobrar" className={CARTAO}>
-          <div className="flex flex-wrap items-baseline justify-between gap-3">
-            <h2
-              id="por-cobrar"
-              className="font-display text-lg font-semibold tracking-tight"
-            >
-              Por cobrar, e a quem
-            </h2>
-            {totalPorCobrar > 0 ? (
-              <p className="text-lg font-semibold tabular-nums text-primary">
-                {formatarEuros(totalPorCobrar)}
-              </p>
-            ) : null}
-          </div>
-
-          {/* Primeiro os alojamentos e domínios que se venceram, e não os
-              projetos: um site por pagar está lá há semanas e não muda hoje; uma
+          {/* Primeiro os alojamentos e domínios que se venceram: uma
               mensalidade que venceu ontem é a única coisa nesta página que se
-              resolve com uma mensagem. Cada uma tem o botão de lhe dar baixa
-              aqui — obrigar a abrir a ficha do projeto para carregar num sítio
-              era garantir que ficavam por marcar. */}
+              resolve com uma mensagem, e o botão de lhe dar baixa está aqui
+              para não ficar por marcar. */}
           {cobrancas.length > 0 ? (
-            <ul className="mt-5 divide-y divide-border border-y border-border">
+            <ul className="divide-y divide-border border-y border-border">
               {cobrancas.map((c) => (
                 <li
                   key={`${c.receitaId}-${c.vencimento}`}
                   className="flex flex-wrap items-center gap-x-3 gap-y-2 py-3"
                 >
                   <Link
-                    href={`/estudio/projetos/${c.projetoId}`}
+                    href={`/estudio/projetos/${c.projetoId}?aba=dinheiro`}
                     className="min-w-0 flex-1 rounded-lg p-1.5 transition-colors hover:bg-surface-2"
                   >
                     <span className="block truncate text-sm font-medium">
@@ -337,7 +352,8 @@ export default async function Resumo({
                     <input type="hidden" name="vencimento" value={c.vencimento} />
                     <button
                       type="submit"
-                      className="rounded-full border border-border-strong px-3 py-1 text-xs transition-colors hover:border-accent hover:text-accent"
+                      aria-label={`Marcar como recebido: ${ROTULO_RECEITA[c.tipo]}, ${c.clienteNome ?? c.projetoNome}`}
+                      className="min-h-8 rounded-full border border-border-strong px-3 text-xs transition-colors hover:border-accent hover:text-accent"
                     >
                       Recebido
                     </button>
@@ -349,17 +365,17 @@ export default async function Resumo({
 
           {porCobrar.length === 0 ? (
             cobrancas.length === 0 ? (
-              <p className="mt-3 text-sm text-muted">
+              <Vazio>
                 Não há nada por cobrar. Ou está tudo pago, ou ainda não puseste
-                valores nos projetos.
-              </p>
+                valores nos projetos — faz-se na aba Dinheiro de cada projeto.
+              </Vazio>
             ) : null
           ) : (
-            <ul className="mt-5 space-y-4">
-              {porCobrar.slice(0, 8).map((p) => (
+            <ul className="space-y-3">
+              {porCobrar.slice(0, 5).map((p) => (
                 <li key={p.id}>
                   <Link
-                    href={`/estudio/projetos/${p.id}`}
+                    href={`/estudio/projetos/${p.id}?aba=dinheiro`}
                     className="block rounded-lg p-1.5 transition-colors hover:bg-surface-2"
                   >
                     <div className="flex items-baseline justify-between gap-3">
@@ -391,40 +407,113 @@ export default async function Resumo({
                   </Link>
                 </li>
               ))}
+              {porCobrar.length > 5 ? (
+                <li className="text-xs text-muted">
+                  e mais {porCobrar.length - 5} —{" "}
+                  <Link
+                    href="/estudio/financas/receitas"
+                    className="underline-offset-4 hover:text-ink hover:underline"
+                  >
+                    ver todos
+                  </Link>
+                </li>
+              ) : null}
             </ul>
           )}
-        </section>
+        </Bloco>
 
-        <section aria-labelledby="ainda" className={CARTAO}>
-          <h2
+        {/* ------------------------------------------------ AS TUAS TAREFAS
+            O único cartão que muda consoante quem entra: "o que é que eu tenho
+            para fazer" não se responde com um número de toda a gente. */}
+        <Bloco aria-labelledby="tarefas" className="[grid-area:tarefas]">
+          <TopoDoBloco
+            id="tarefas"
+            icone="tarefas"
+            titulo="Tarefas"
+            sub="O que está por fazer nos projetos"
+          />
+          <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
+            <Numero
+              rotulo="Atribuídas a ti"
+              valor={tarefasMinhas.minhas}
+              nota={tarefasMinhas.minhas === 0 ? "Nada atribuído a ti." : "por fazer"}
+            />
+            {/* As que não têm dono aparecem à parte e não somadas: são trabalho
+                por atribuir, não trabalho teu. */}
+            {tarefasMinhas.semDono > 0 ? (
+              <Numero
+                rotulo="Sem ninguém"
+                valor={tarefasMinhas.semDono}
+                nota="por atribuir"
+              />
+            ) : null}
+          </div>
+
+          {tarefas.length === 0 ? (
+            <Vazio>
+              Sem tarefas por fazer. Cada projeto tem a sua lista, na aba
+              Tarefas.
+            </Vazio>
+          ) : (
+            <ul className="space-y-1">
+              {tarefas.map((t) => (
+                <li key={t.id}>
+                  {/* Aqui as tarefas são de leitura. Marcar e editar é na
+                      ficha do projeto, onde está a lista inteira. */}
+                  <Link
+                    href={`/estudio/projetos/${t.projetoId}?aba=tarefas`}
+                    className="flex items-start gap-2.5 rounded-lg p-1.5 transition-colors hover:bg-surface-2"
+                  >
+                    <span
+                      aria-hidden
+                      className="mt-0.5 size-4 flex-none rounded border border-border-strong"
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm">{t.texto}</span>
+                      <span className="block truncate text-xs text-muted">
+                        {t.projetoNome}
+                      </span>
+                    </span>
+                    {t.utilizadorNome ? (
+                      <span
+                        title={t.utilizadorNome}
+                        className="mt-0.5 grid h-6 min-w-6 shrink-0 place-items-center rounded-full border border-border-strong bg-surface-2 px-1.5 text-[0.625rem] font-medium text-ink"
+                      >
+                        <span aria-hidden>{iniciais(t.utilizadorNome)}</span>
+                        <span className="sr-only">{t.utilizadorNome}</span>
+                      </span>
+                    ) : null}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Bloco>
+
+        {/* ------------------------------------------------ AINDA ESTE MÊS */}
+        <Bloco aria-labelledby="ainda" className="[grid-area:ainda]">
+          <TopoDoBloco
             id="ainda"
-            className="font-display text-lg font-semibold tracking-tight"
-          >
-            Ainda este mês
-          </h2>
-          <p className="mt-1 text-sm text-muted">
-            O que se repete e ainda não foi marcado, de um lado e do outro.
-          </p>
+            icone="calendario"
+            titulo="Ainda este mês"
+            sub="O que se repete e ainda não foi marcado como pago ou recebido"
+          />
 
           {aindaEsteMes.length === 0 ? (
-            <p className="mt-4 text-sm text-muted">
+            <Vazio>
               Nada por marcar até ao fim do mês. As despesas que se repetem e os
               alojamentos dos clientes aparecem aqui com o dia.
-            </p>
+            </Vazio>
           ) : (
-            <ul className="mt-5 divide-y divide-border border-y border-border">
+            <ul className="divide-y divide-border border-y border-border">
               {aindaEsteMes.map((r) => (
                 <li
                   key={r.chave}
                   className="flex flex-wrap items-center gap-x-3 gap-y-2 py-3"
                 >
-                  {/* Só dia e mês: a lista é toda deste mês, e o ano repetido em
-                      cada linha é ruído. Corta-se da própria cadeia `YYYY-MM-DD`,
-                      que é exata — o `formatarData` devolve `20/09/2026` e não
-                      havia sufixo de ano para tirar com segurança.
-
-                      A vermelho quando o dia já passou: só acontece a despesas,
-                      e quer dizer que o dinheiro saiu e ainda não foi contado. */}
+                  {/* Só dia e mês: a lista é toda deste mês. A vermelho quando
+                      o dia já passou — só acontece a despesas, e quer dizer que
+                      o dinheiro saiu e ainda não foi contado. */}
                   <span
                     className={cn(
                       "w-12 shrink-0 text-xs tabular-nums",
@@ -450,10 +539,9 @@ export default async function Resumo({
                     {r.lado === "entra" ? "+" : "−"}
                     {formatarEuros(r.valor)}
                   </span>
-                  {/* O mesmo botão do "por cobrar", com as mesmas classes. Do
-                      lado que entra é mesmo a mesma ação; do que sai, o
-                      `marcarGastoPago` cria o gasto do mês. Uma receita a zero
-                      não tem botão: não há nada para receber. */}
+                  {/* Do lado que entra é o mesmo "Recebido" do "por cobrar";
+                      do que sai, o `marcarGastoPago` cria o gasto do mês. Uma
+                      receita a zero não tem botão: não há nada para receber. */}
                   {r.valor > 0 ? (
                     <form
                       action={
@@ -469,7 +557,7 @@ export default async function Resumo({
                       <button
                         type="submit"
                         aria-label={`${r.lado === "entra" ? "Marcar como recebido" : "Marcar como pago"}: ${r.descricao}, ${formatarData(r.quando)}`}
-                        className="rounded-full border border-border-strong px-3 py-1 text-xs transition-colors hover:border-accent hover:text-accent"
+                        className="min-h-8 rounded-full border border-border-strong px-3 text-xs transition-colors hover:border-accent hover:text-accent"
                       >
                         {r.lado === "entra" ? "Recebido" : "Pago"}
                       </button>
@@ -479,124 +567,73 @@ export default async function Resumo({
               ))}
             </ul>
           )}
-        </section>
-      </div>
+        </Bloco>
 
-      {/* Os dois lados do dinheiro, lado a lado — e **cada um com o seu
-          período**. As perguntas "de onde veio este ano" e "para onde foi este
-          mês" fazem-se ao mesmo tempo, e um filtro partilhado obrigava a
-          escolher uma delas. O período de cada um vai escrito no centro da
-          roda, que é o que impede alguém de comparar coisas diferentes sem dar
-          por isso. */}
-      <div className="mt-12 grid items-start gap-8 lg:grid-cols-2">
-        <section aria-labelledby="de-onde" className={CARTAO}>
-          <h2
-            id="de-onde"
-            className="font-display text-lg font-semibold tracking-tight"
-          >
-            De onde veio o dinheiro
-          </h2>
-          <p className="mt-1 text-sm text-muted">
-            O que entrou, por projeto. Conta o que os clientes pagaram pelo
-            trabalho e o que pagaram de alojamento e domínio.
-          </p>
-          <div className="mt-4">
-            <SeletorDePeriodo
-              parametro="entradas"
-              atual={periodoEntradas}
-              outros={{ saidas: periodoSaidas }}
-              ancora="de-onde"
-              descreve="Período do dinheiro que entrou"
-            />
-          </div>
-          <div className="mt-6">
-            <GraficoCircular
-              fatias={entradas}
-              nota={PERIODO_ESCRITO[periodoEntradas]}
-              descreve="Entradas"
-              vazio={`Não entrou dinheiro ${PERIODO_ESCRITO[periodoEntradas]}.`}
-            />
-          </div>
-        </section>
-
-        <section aria-labelledby="para-onde" className={CARTAO}>
-          <h2
-            id="para-onde"
-            className="font-display text-lg font-semibold tracking-tight"
-          >
-            Para onde foi o dinheiro
-          </h2>
-          <p className="mt-1 text-sm text-muted">
-            O que saiu, por descrição do gasto.
-          </p>
-          <div className="mt-4">
-            <SeletorDePeriodo
-              parametro="saidas"
-              atual={periodoSaidas}
-              outros={{ entradas: periodoEntradas }}
-              ancora="para-onde"
-              descreve="Período das despesas"
-            />
-          </div>
-          <div className="mt-6">
-            <GraficoCircular
-              fatias={saidas}
-              nota={PERIODO_ESCRITO[periodoSaidas]}
-              descreve="Despesas"
-              vazio={`Não houve despesas ${PERIODO_ESCRITO[periodoSaidas]}. Regista-as em Gastos e aparecem aqui repartidas.`}
-            />
-          </div>
-        </section>
-      </div>
-
-      <div className="mt-12 grid items-start gap-8 lg:grid-cols-2">
-        {/* Deixou de se chamar "Precisa de ti" no momento em que passou a
-            incluir propostas — que, por definição, ainda não pedem nada. Agora
-            mostra tudo o que está vivo, e é o agrupamento por estado que diz o
-            que urge. Os entregues ficam de fora porque acabaram; os parados
-            porque não estão em mãos, e pô-los ao lado do que anda fazia a lista
-            deixar de responder a "o que é que temos entre mãos". */}
-        <section aria-labelledby="em-cima-da-mesa" className={CARTAO}>
-          <h2
+        {/* ------------------------------------------------ EM CIMA DA MESA
+            Tudo o que está vivo, agrupado por estado. Os entregues ficam de
+            fora porque acabaram; os parados porque não estão em mãos. Cada
+            estado leva à lista de projetos já filtrada. */}
+        <Bloco aria-labelledby="em-cima-da-mesa" className="[grid-area:mesa]">
+          <TopoDoBloco
             id="em-cima-da-mesa"
-            className="font-display text-lg font-semibold tracking-tight"
-          >
-            Em cima da mesa
-          </h2>
-          <p className="mt-1 text-sm text-muted">
-            Tudo o que não está entregue nem parado.
-          </p>
+            icone="camadas"
+            titulo="Em cima da mesa"
+            sub={`${emCimaDaMesa.length} ${emCimaDaMesa.length === 1 ? "projeto aberto" : "projetos abertos"} — tudo o que não está entregue nem parado`}
+            href="/estudio/projetos"
+            rotuloDaSeta="Abrir os projetos"
+          />
 
           {emCimaDaMesa.length === 0 ? (
-            <p className="mt-3 text-sm text-muted">
+            <Vazio
+              accao={
+                <Button href="/estudio/projetos/novo" variant="outline">
+                  Criar um projeto
+                </Button>
+              }
+            >
               Não há nada aberto. Ou está tudo entregue, ou falta pôr aqui o que
               anda a acontecer.
-            </p>
+            </Vazio>
           ) : (
-            <div className="mt-5 space-y-6">
-              {agruparPorEstado(emCimaDaMesa).map(({ estado, itens }) => (
+            <div className="space-y-5">
+              {grupos.map(({ estado, itens }) => (
                 <div key={estado}>
-                  <h3 className="text-xs uppercase tracking-[0.18em] text-muted">
-                    {ROTULO_ESTADO[estado]} · {itens.length}
-                  </h3>
-                  <ul className="mt-3 space-y-3">
+                  <Link
+                    href={`/estudio/projetos?estado=${estado}`}
+                    className="group flex items-center justify-between gap-3 rounded-lg px-1.5 py-1 transition-colors hover:bg-surface-2"
+                  >
+                    <span className="flex items-center gap-2">
+                      <EtiquetaEstado estado={estado} />
+                      <span className="text-sm tabular-nums text-muted">
+                        {itens.length}
+                      </span>
+                    </span>
+                    <span className="text-xs text-muted transition-colors group-hover:text-ink">
+                      Ver só estes →
+                    </span>
+                  </Link>
+                  <ul className="mt-1.5 space-y-0.5">
                     {itens.map((p) => (
                       <li key={p.id}>
                         <Link
                           href={`/estudio/projetos/${p.id}`}
-                          className="flex items-center justify-between gap-3 rounded-lg p-1.5 transition-colors hover:bg-surface-2"
+                          className="flex items-center justify-between gap-3 rounded-lg px-1.5 py-1.5 transition-colors hover:bg-surface-2"
                         >
                           <span className="min-w-0 truncate text-sm">
                             {p.nome}
-                          </span>
-                          <span className="flex shrink-0 items-center gap-2">
-                            {emAtraso(p, hoje) && p.prazo ? (
-                              <span className="text-xs text-danger">
-                                {formatarData(p.prazo)}
-                              </span>
+                            {p.clienteNome && p.clienteNome !== p.nome ? (
+                              <span className="text-muted"> · {p.clienteNome}</span>
                             ) : null}
-                            <EtiquetaEstado estado={p.estado} />
                           </span>
+                          {emAtraso(p, hoje) && p.prazo ? (
+                            <span className="shrink-0 text-xs text-danger">
+                              atrasado desde {formatarData(p.prazo)}
+                            </span>
+                          ) : (
+                            <span className="shrink-0 text-xs tabular-nums text-muted">
+                              {p.progresso}%
+                            </span>
+                          )}
                         </Link>
                       </li>
                     ))}
@@ -605,53 +642,197 @@ export default async function Resumo({
               ))}
             </div>
           )}
-        </section>
+        </Bloco>
 
-        <section aria-labelledby="tarefas-pendentes" className={CARTAO}>
-          <h2
-            id="tarefas-pendentes"
-            className="font-display text-lg font-semibold tracking-tight"
-          >
-            Tarefas por fazer
-          </h2>
+        {/* ------------------------------------------------ OBJETIVOS
+            A linha toda: num terço de linha os títulos vinham cortados — ver o
+            comentário no `Objetivos.tsx`. */}
+        <Bloco aria-labelledby="objetivos" className="[grid-area:objetivos]">
+          <TopoDoBloco
+            id="objetivos"
+            icone="objetivos"
+            titulo="Objetivos"
+            sub="Onde queremos chegar, e quanto falta"
+          />
+          <Objetivos objetivos={objetivos} />
+          <details className="group">
+            <summary className="inline-flex min-h-9 cursor-pointer list-none items-center gap-1.5 rounded-full border border-border px-3.5 text-sm text-muted transition-colors hover:border-ink/30 hover:text-ink [&::-webkit-details-marker]:hidden">
+              <Icone nome="mais" tamanho={14} />
+              Pôr ou tirar objetivos
+            </summary>
+            <div className="mt-5">
+              <FormularioObjetivo acao={criarObjetivo} objetivos={objetivos} />
+            </div>
+          </details>
+        </Bloco>
 
-          {tarefas.length === 0 ? (
-            <p className="mt-3 text-sm text-muted">
-              Sem tarefas por fazer. Cada projeto tem uma checklist.
-            </p>
+        {/* ------------------------------------------------ OS DOIS CIRCULARES
+            Cada um com o seu período: "de onde veio este ano" e "para onde foi
+            este mês" fazem-se ao mesmo tempo. O período vai escrito no centro
+            da roda, para ninguém comparar coisas diferentes sem dar por isso. */}
+        <Bloco aria-labelledby="de-onde" className="[grid-area:deonde]">
+          <TopoDoBloco
+            id="de-onde"
+            icone="entra"
+            titulo="De onde veio o dinheiro"
+            sub="O que entrou, por projeto — o trabalho e os alojamentos e domínios"
+            href="/estudio/financas/receitas"
+            rotuloDaSeta="Abrir as receitas"
+          />
+          <SeletorDePeriodo
+            parametro="entradas"
+            atual={periodoEntradas}
+            outros={{ saidas: periodoSaidas }}
+            ancora="de-onde"
+            descreve="Período do dinheiro que entrou"
+          />
+          <GraficoCircular
+            fatias={entradas}
+            nota={PERIODO_ESCRITO[periodoEntradas]}
+            descreve="Entradas"
+            vazio={`Não entrou dinheiro ${PERIODO_ESCRITO[periodoEntradas]}.`}
+          />
+        </Bloco>
+
+        <Bloco aria-labelledby="para-onde" className="[grid-area:paraonde]">
+          <TopoDoBloco
+            id="para-onde"
+            icone="sai"
+            titulo="Para onde foi o dinheiro"
+            sub="O que saiu, por descrição do gasto"
+            href="/estudio/financas/gastos"
+            rotuloDaSeta="Abrir os gastos"
+          />
+          <SeletorDePeriodo
+            parametro="saidas"
+            atual={periodoSaidas}
+            outros={{ entradas: periodoEntradas }}
+            ancora="para-onde"
+            descreve="Período das despesas"
+          />
+          <GraficoCircular
+            fatias={saidas}
+            nota={PERIODO_ESCRITO[periodoSaidas]}
+            descreve="Despesas"
+            vazio={`Não houve despesas ${PERIODO_ESCRITO[periodoSaidas]}. Regista-as em Finanças → Gastos e aparecem aqui repartidas.`}
+          />
+        </Bloco>
+
+        {/* ------------------------------------------------ SESSÕES RECENTES
+            O "histórico de pagamentos" do modelo, como no Preguiça. */}
+        <Bloco aria-labelledby="sessoes-recentes" className="[grid-area:sessoes]">
+          <TopoDoBloco
+            id="sessoes-recentes"
+            icone="sessoes"
+            titulo="Sessões recentes"
+            sub="Quem entrou e saiu do Estúdio"
+            href="/estudio/sessoes"
+            rotuloDaSeta="Abrir as sessões"
+          />
+          {porta === null ? (
+            <Vazio>
+              Não deu para ler as sessões. Se acabou de chegar a aba Sessões, falta
+              correr o ajuste da base de dados — ver docs/07.
+            </Vazio>
+          ) : porta.length === 0 ? (
+            <Vazio>Ainda não há entradas anotadas.</Vazio>
           ) : (
-            <ul className="mt-5 space-y-3">
-              {tarefas.map((t) => (
-                <li key={t.id}>
-                  {/* Aqui as tarefas são de leitura. Editar é na ficha do
-                      projeto — esta é a vista do que está por fazer em todo o
-                      lado, e um campo por linha fazia dela um formulário. */}
-                  <Link
-                    href={`/estudio/projetos/${t.projetoId}`}
-                    className="flex items-start gap-2.5 rounded-lg p-1.5 transition-colors hover:bg-surface-2"
-                  >
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm">{t.texto}</span>
-                      <span className="block truncate text-xs text-muted">
-                        {t.projetoNome}
-                      </span>
-                    </span>
-                    {t.utilizadorNome ? (
-                      <span
-                        title={t.utilizadorNome}
-                        className="mt-0.5 grid h-6 min-w-6 shrink-0 place-items-center rounded-full border border-border-strong bg-surface-2 px-1.5 text-[0.625rem] font-medium text-ink"
-                      >
-                        <span aria-hidden>{iniciais(t.utilizadorNome)}</span>
-                        <span className="sr-only">{t.utilizadorNome}</span>
-                      </span>
-                    ) : null}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <div className="-mx-1 overflow-x-auto px-1">
+              <table className="w-full min-w-[32rem] text-left text-sm">
+                <thead className="text-xs text-muted">
+                  <tr className="border-b border-border">
+                    <th scope="col" className="py-2 pr-3 font-normal">Quem</th>
+                    <th scope="col" className="py-2 pr-3 font-normal">Dia</th>
+                    <th scope="col" className="py-2 pr-3 font-normal">Hora</th>
+                    <th scope="col" className="py-2 pr-3 font-normal">O quê</th>
+                    <th scope="col" className="py-2 font-normal">Aparelho</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {porta.map((e) => (
+                    <tr key={e.id}>
+                      <td className="py-2.5 pr-3">
+                        <span className="flex items-center gap-2">
+                          <span
+                            aria-hidden
+                            className="grid size-7 flex-none place-items-center rounded-full border border-border-strong bg-surface-2 text-[0.625rem] font-medium"
+                          >
+                            {iniciais(e.nome ?? e.githubLogin)}
+                          </span>
+                          <span className="truncate">
+                            {e.nome ?? `@${e.githubLogin}`}
+                          </span>
+                        </span>
+                      </td>
+                      <td className="py-2.5 pr-3 text-muted">
+                        {nomeDoDia(e.quando, agora) === "Hoje" ||
+                        nomeDoDia(e.quando, agora) === "Ontem"
+                          ? nomeDoDia(e.quando, agora)
+                          : formatarDiaCurto(e.quando)}
+                      </td>
+                      <td className="py-2.5 pr-3 tabular-nums">{formatarHora(e.quando)}</td>
+                      <td className="py-2.5 pr-3">
+                        <span
+                          className={cn(
+                            "inline-flex rounded-full border px-2.5 py-0.5 text-xs",
+                            e.como === "entrou" && "border-accent/40 text-accent",
+                            e.como === "saiu" && "border-border-strong text-muted",
+                            e.como === "terminada" && "border-primary/50 text-primary",
+                            e.como === "recusada" && "border-danger/40 text-danger",
+                          )}
+                        >
+                          {ROTULO_DA_ENTRADA[e.como]}
+                        </span>
+                      </td>
+                      <td className="py-2.5 text-muted">{e.aparelho ?? "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
-        </section>
+        </Bloco>
+
+        {/* ------------------------------------------------ QUEM TEM ACESSO */}
+        <Bloco aria-labelledby="acesso" className="[grid-area:acesso]">
+          <TopoDoBloco
+            id="acesso"
+            icone="clientes"
+            titulo="Quem tem acesso"
+            sub="Quem já entrou no Estúdio"
+            href="/estudio/sessoes"
+            rotuloDaSeta="Abrir as sessões"
+          />
+          <ul className="flex flex-wrap -space-x-2">
+            {pessoas.map((p) => (
+              <li
+                key={p.id}
+                title={p.nome}
+                className="grid size-11 place-items-center rounded-full border-2 border-surface bg-surface-2 text-sm font-medium ring-1 ring-border-strong"
+              >
+                <span aria-hidden>{iniciais(p.nome)}</span>
+                <span className="sr-only">{p.nome}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="text-sm text-muted">
+            {pessoas.map((p) => primeiroNome(p.nome)).join(", ")}
+          </p>
+        </Bloco>
       </div>
     </div>
+  );
+}
+
+/* O "agora" das Sessões, fora do componente: um componente não lê o relógio. */
+function agoraMesmo(): number {
+  return Date.now();
+}
+
+/** "outubro", do `YYYY-MM-DD` de hoje. */
+function nomeDoMes(dia: string): string {
+  const [ano, mes] = dia.split("-").map(Number);
+  return new Intl.DateTimeFormat("pt-PT", { month: "long", timeZone: "UTC" }).format(
+    new Date(Date.UTC(ano, mes - 1, 1)),
   );
 }
