@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { CartaoProjeto } from "@/components/estudio/CartaoProjeto";
 import { FormularioCliente } from "@/components/estudio/FormularioCliente";
 import { FormularioTrabalhos } from "@/components/estudio/FormularioTrabalhos";
-import { CARTAO, SOBRETITULO } from "@/components/estudio/estilos";
+import { CARTAO } from "@/components/estudio/estilos";
+import { TituloDaPagina } from "@/components/estudio/TituloDaPagina";
 import {
   apagarCliente,
   definirProjetosDoCliente,
@@ -68,17 +69,11 @@ export default async function ClienteFicha({
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Link
-        href="/estudio/clientes"
-        className="text-sm text-muted underline-offset-4 hover:text-ink hover:underline"
-      >
-        ← Clientes
-      </Link>
-
-      <p className={`${SOBRETITULO} mt-6`}>Cliente</p>
-      <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
-        {cliente.nome}
-      </h1>
+      <TituloDaPagina
+        sobretitulo="Cliente"
+        titulo={cliente.nome}
+        voltarPara={{ href: "/estudio/clientes", rotulo: "Clientes" }}
+      />
 
       <div className="mt-12">
         <div>

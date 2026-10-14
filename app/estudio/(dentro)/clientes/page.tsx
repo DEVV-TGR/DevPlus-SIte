@@ -2,7 +2,8 @@
 import { CartaoCliente } from "@/components/estudio/CartaoCliente";
 import { FormularioCliente } from "@/components/estudio/FormularioCliente";
 import { SeletorDeRepos } from "@/components/estudio/SeletorDeRepos";
-import { CARTAO, SOBRETITULO } from "@/components/estudio/estilos";
+import { CARTAO } from "@/components/estudio/estilos";
+import { TituloDaPagina } from "@/components/estudio/TituloDaPagina";
 import { criarCliente } from "@/lib/estudio/acoes";
 import { listarClientes, listarProjetosLeves } from "@/lib/estudio/dados";
 import { listarRepos } from "@/lib/estudio/repos";
@@ -46,10 +47,7 @@ export default async function Clientes() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <p className={SOBRETITULO}>Estúdio</p>
-      <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
-        Clientes
-      </h1>
+      <TituloDaPagina titulo="Clientes" />
 
       <details className={`${CARTAO} mt-8`}>
         <summary className="cursor-pointer font-display text-lg font-semibold tracking-tight">

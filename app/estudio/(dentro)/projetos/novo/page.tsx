@@ -1,7 +1,6 @@
 /** docs: docs/07-estudio.md */
-import Link from "next/link";
 import { FormularioProjeto } from "@/components/estudio/FormularioProjeto";
-import { SOBRETITULO } from "@/components/estudio/estilos";
+import { TituloDaPagina } from "@/components/estudio/TituloDaPagina";
 import { criarProjeto } from "@/lib/estudio/acoes";
 import { listarClientes, listarUtilizadores } from "@/lib/estudio/dados";
 import { requerSessao } from "@/lib/estudio/sessao";
@@ -16,20 +15,12 @@ export default async function ProjetoNovo() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Link
-        href="/estudio"
-        className="text-sm text-muted underline-offset-4 hover:text-ink hover:underline"
-      >
-        ← Projetos
-      </Link>
-
-      <p className={`${SOBRETITULO} mt-6`}>Novo</p>
-      <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
-        Um projeto novo
-      </h1>
-      <p className="mt-1.5 text-sm text-muted">
-        Só o nome é obrigatório. O resto acrescenta-se à medida que se souber.
-      </p>
+      <TituloDaPagina
+        sobretitulo="Novo"
+        titulo="Um projeto novo"
+        voltarPara={{ href: "/estudio/projetos", rotulo: "Projetos" }}
+        frase="Só o nome é obrigatório. O resto acrescenta-se à medida que se souber."
+      />
 
       <div className="mt-8">
         <FormularioProjeto

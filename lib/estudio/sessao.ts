@@ -84,7 +84,7 @@ export async function fecharSessao(): Promise<void> {
  * Quem está autenticado, ou `null`.
  *
  * **Envolvida em `cache()` do React, e não é um pormenor.** Cada navegação no
- * Estúdio chamava isto duas vezes: uma no `app/estudio/layout.tsx`, que precisa
+ * Estúdio chamava isto duas vezes: uma no `app/estudio/(dentro)/layout.tsx`, que precisa
  * do nome para o cabeçalho, e outra no `requerSessao()` da página por baixo. São
  * a mesma pergunta, com o mesmo cookie, no mesmo render — e eram duas idas à
  * base. O `cache()` dá-lhes a mesma resposta.

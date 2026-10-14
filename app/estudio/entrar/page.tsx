@@ -44,7 +44,7 @@ export default async function Entrar({
   const configurado = Boolean(clientId());
 
   return (
-    <div className="mx-auto max-w-md py-12 sm:py-20">
+    <div className="mx-auto max-w-md px-4 py-12 sm:py-20">
       <div className={CARTAO}>
         <p className={SOBRETITULO}>Estúdio</p>
         <h1 className="mt-3 font-display text-2xl font-semibold tracking-tight">

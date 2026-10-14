@@ -51,6 +51,46 @@ Em texto corrido escreve-se **Estúdio**, com maiúscula, quando é este sítio.
 | `components/estudio/GraficoCircular.tsx` | os circulares, em SVG escrito à mão  |
 | `lib/estudio/github.ts`       | o OAuth                                         |
 | `components/estudio/`         | os componentes, sobre as primitivas de `ui/`    |
+| `app/estudio/(dentro)/`       | todas as páginas menos a entrada, sob o topo     |
+
+## A casca: o topo, as secções e a transição
+
+O acabamento vem do painel do Café Preguiça (`DEVV-TGR`, `docs/PAINEL.md` desse
+repositório), que o Tomás pôs como modelo em 2026-10-14 — **a forma, não o
+conteúdo nem as cores**: lá é ouro e Fraunces, aqui são os tokens de docs/02.
+
+- **O grupo `app/estudio/(dentro)/`** tem todas as páginas menos a `entrar`. Não
+  entra no endereço. O layout dele desenha o `Cabecalho`, e como um layout não
+  se desenha outra vez ao navegar, mudar de secção só troca o conteúdo de baixo.
+- **O layout do grupo faz `requerSessao()`, e não é por segurança.** É por causa
+  do `loading.tsx`: com ele, o Next começa a mandar a resposta com 200 antes de a
+  página correr, e um `redirect` só na página chegava a meio do corpo — o
+  `/estudio` sem cookie deixava de dar o 307 que o CI pede. O layout corre antes.
+  **A proteção continua a ser o `requerSessao()` de cada página e de cada
+  ação**: um layout não volta a correr numa navegação do lado do cliente.
+- **Os `Separadores`** (`components/estudio/Separadores.tsx`) são a única peça
+  de cliente da casca — precisam do `usePathname` para saber qual acender, porque
+  o layout não volta a correr. A secção onde se está fica a `primary` cheio com
+  `primary-ink` (o par de 7.26:1 de docs/02). O Resumo só acende em `/estudio`
+  exato; o Importar acende os Projetos. No telemóvel a fila rola de lado e
+  centra a ativa.
+- **O `TituloDaPagina`** é a cabeça de todas as páginas: sobretítulo, título,
+  frase e ações à direita. A seta de voltar só aparece dentro de uma secção (uma
+  ficha volta à lista) — onde os separadores já levam, não há seta.
+- **Os ícones** são os de `components/estudio/Icone.tsx`, escritos à mão no
+  mesmo traço. Nenhum é o "+" da marca, que continua a ser o `Logo`.
+- **A transição** está em `(dentro)/template.tsx` — o `template` monta-se de
+  novo a cada secção, o layout não. O gradiente da marca corre por baixo do topo
+  com o "+" na ponta, e o conteúdo sobe ao aparecer: pouco mais de meio segundo,
+  na curva e nas durações de docs/04.
+  É **CSS** (`estudio-*` em `app/globals.css`) e não Motion, para correr antes da
+  hidratação, e com `backwards` e nunca `both` — um `transform` que ficasse
+  depois do fim tornava o invólucro no contentor de tudo o que fosse `fixed`. O
+  movimento reduzido já está coberto pelo bloco global do `globals.css`.
+- **O `loading.tsx` é o "+" sozinho a rodar**, sem esqueleto de cartões: no
+  Preguiça houve um, e prometia uma forma que não era a que chegava.
+- **As fotografias do GitHub não aparecem no topo** — a CSP (`img-src 'self'`)
+  não as deixa, pela mesma razão do `Responsaveis`. São as iniciais.
 
 ## Quem entra
 
@@ -84,8 +124,9 @@ a dar 404: era um sítio onde se ia todos os dias, e está em marcadores.
 A sub-navegação entre as duas é o `components/estudio/SubNavegacao.tsx`, que
 **recebe o separador ativo por prop**. Descobri-lo com o `usePathname` obrigava
 a `"use client"` numa barra de dois links que o servidor já sabe desenhar — é o
-mesmo arranjo do `SeletorDePeriodo`, e as pastilhas são as do `pastilhaFiltro()`
-e não umas novas.
+mesmo arranjo do `SeletorDePeriodo`. Tem o desenho dos `Separadores` do topo em
+pequeno, mas a escolhida acende a `surface-2` e não a laranja: duas pastilhas
+laranja seguidas diriam "estás aqui" duas vezes.
 
 **Não se chama "lucro" a nada, e a palavra não aparece na interface.** Receitas
 menos gastos, sem ordenados e sem impostos, é **margem**. Chamar-lhe lucro dava
@@ -629,8 +670,8 @@ guardar, é um acidente à espera de acontecer.
 **O Estúdio não usa `Section`.** É uma exceção assumida a docs/04: o `Section`
 codifica o ritmo do site de marketing (`pt-16 sm:pt-24 lg:pt-32`), que numa
 ferramenta de trabalho é meio ecrã de vazio antes de se ver o primeiro projeto.
-O ritmo do Estúdio está definido uma vez, em `app/estudio/layout.tsx`, e as
-páginas por baixo não escrevem padding nenhum. `Container`, `Button`, `Reveal` e
+O ritmo do Estúdio está definido uma vez, no `<main>` de
+`app/estudio/(dentro)/layout.tsx`, e as páginas por baixo não escrevem padding nenhum. `Container`, `Button`, `Reveal` e
 `cn` usam-se como em todo o lado.
 
 **As alterações ao esquema vivem na secção "Ajustes"** do fim de
@@ -693,8 +734,8 @@ Isto vale para **todas** as funções do projeto, e é o que se quer: a única o
 mexem — são estáticas e continuam a ser servidas do CDN em todo o lado, o que o
 `○` do `npm run build` confirma.
 
-**A sessão era consultada duas vezes por navegação.** O `app/estudio/layout.tsx`
-chama `sessaoAtual()` para o nome no cabeçalho, e a página por baixo chama
+**A sessão era consultada duas vezes por navegação.** O layout
+(hoje `app/estudio/(dentro)/layout.tsx`) chama-a para o nome no cabeçalho, e a página por baixo chama
 `requerSessao()`, que chama `sessaoAtual()` outra vez. Mesmo cookie, mesmo
 render, duas idas à base. Resolve-se com o `cache()` do React à volta da função
 — o âmbito é um render, não uma sessão, por isso ninguém fica com uma sessão
@@ -827,13 +868,16 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | os estados                             | `ESTADOS` e `ROTULO_ESTADO` em `tipos.ts`, o `check` do esquema e `COR_ESTADO`/`COR_BARRA`      |
 | quem pode entrar                       | `ESTUDIO_LOGINS` na Vercel e no `.env.local` — nunca a base de dados                            |
 | as regras dos formulários              | só `lib/estudio/validacao.ts`; o formulário e a ação importam-na, nunca copiam                  |
-| uma rota nova em `/estudio`            | acrescenta-a ao teste de fumo em `.github/workflows/ci.yml`                                     |
+| uma rota nova em `/estudio`            | acrescenta-a ao teste de fumo em `.github/workflows/ci.yml`; e dentro de `(dentro)/`, salvo se for de quem ainda não entrou |
+| uma secção do Estúdio                  | `SECCOES` em `components/estudio/Separadores.tsx`, um ícone em `Icone.tsx` se precisar, e o teste de fumo |
+| o `requerSessao()` do layout de `(dentro)` | não o tires enquanto houver `loading.tsx` — o `/estudio` sem cookie passa de 307 a 200 e o CI falha |
+| a transição do Estúdio                 | os `estudio-*` de `app/globals.css`; mantém `backwards`, nunca `both`, e confirma com movimento reduzido |
 | o que a base guarda sobre pessoas      | `app/privacidade/page.tsx` e sobe a "Última atualização" **no mesmo PR**                        |
 | quem aloja a base                      | nomeia-o em `app/privacidade/page.tsx`, na secção "Partilha com terceiros"                      |
 | a decisão de não haver `proxy.ts`      | relê o comentário da CSP em `next.config.ts` antes — a conta muda                                |
 | a `CascaDoSite`                        | confirma que a homepage continua estática (`○`) no output do `npm run build`                    |
 | a periodicidade dos gastos             | `PERIODICIDADES` e `POR_MES` em `tipos.ts`, o `check` do esquema, e o seletor do formulário      |
-| o que conta como custo fixo do estúdio | `app/estudio/gastos/page.tsx` — e confirma que o que sai da conta continua visível algures       |
+| o que conta como custo fixo do estúdio | `app/estudio/(dentro)/financas/gastos/page.tsx` — e confirma que o que sai da conta continua visível algures       |
 | a ordem dos gastos                     | é no `order by` de `listarGastos()`, nunca no componente; o `agruparPorMes()` só parte a lista   |
 | o que um cliente paga por mês          | é na ficha do **projeto** — a do cliente só mostra a soma                                        |
 | onde se escreve o valor combinado      | só o `guardarValorCombinado` — um segundo escritor apaga a coluna com um `set valor = null`       |
@@ -860,7 +904,7 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | o texto do centro de um circular       | é a prop `nota`, nunca escrito lá dentro: os dois gráficos dizem períodos diferentes            |
 | um filtro por `searchParams` numa página | acrescenta um endereço **com o filtro** ao teste de fumo em `.github/workflows/ci.yml`         |
 | uma consulta filtrada pela pessoa       | guarda o retorno de `requerSessao()` — o resumo deitava-o fora até `tarefasPendentesDe()`       |
-| o que aparece em "Em cima da mesa"     | o filtro está em `app/estudio/page.tsx`; a ordem dos grupos vem do `ORDEM` de `dados.ts`        |
+| o que aparece em "Em cima da mesa"     | o filtro está em `app/estudio/(dentro)/page.tsx`; a ordem dos grupos vem do `ORDEM` de `dados.ts`        |
 | a lista de clientes                    | `components/estudio/CartaoCliente.tsx` — cartões, e o nome do trabalho só aparece se diferir do do cliente |
 | quantos objetivos se mostram            | `components/estudio/Objetivos.tsx` — a linha é inteira e o título não se corta                  |
 | o `max` do pool em `lib/estudio/db.ts`  | mede antes e mede depois — o `1` original serializava os `Promise.all`; ver "Porque é que isto esteve lento" |

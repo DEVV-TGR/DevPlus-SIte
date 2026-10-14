@@ -6,6 +6,7 @@ import { FormularioObjetivo } from "@/components/estudio/FormularioObjetivo";
 import { GraficoCircular } from "@/components/estudio/GraficoCircular";
 import { Objetivos } from "@/components/estudio/Objetivos";
 import { SeletorDePeriodo } from "@/components/estudio/SeletorDePeriodo";
+import { TituloDaPagina } from "@/components/estudio/TituloDaPagina";
 import { CARTAO, SOBRETITULO } from "@/components/estudio/estilos";
 import {
   criarObjetivo,
@@ -173,10 +174,7 @@ export default async function Resumo({
 
   return (
     <div className="mx-auto max-w-4xl">
-      <p className={SOBRETITULO}>Estúdio</p>
-      <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
-        Este mês
-      </h1>
+      <TituloDaPagina titulo="Este mês" />
 
       {/* Os três números da primeira linha. Chamam-se saldos e não lucros de
           propósito: não levam ordenados nem impostos, e a palavra errada faria

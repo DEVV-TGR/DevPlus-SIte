@@ -1,7 +1,8 @@
 /** docs: docs/07-estudio.md */
 import Link from "next/link";
 import { SubNavegacao } from "@/components/estudio/SubNavegacao";
-import { CARTAO, SOBRETITULO } from "@/components/estudio/estilos";
+import { CARTAO } from "@/components/estudio/estilos";
+import { TituloDaPagina } from "@/components/estudio/TituloDaPagina";
 import { listarEntradas, listarReceitas } from "@/lib/estudio/dados";
 import { requerSessao } from "@/lib/estudio/sessao";
 import {
@@ -56,11 +57,7 @@ export default async function Receitas() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <p className={SOBRETITULO}>Estúdio</p>
-      <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
-        Finanças
-      </h1>
-      <p className="mt-2 text-sm text-muted">Todos os valores sem IVA.</p>
+      <TituloDaPagina titulo="Finanças" frase="Todos os valores sem IVA." />
 
       <SubNavegacao atual="receitas" />
 

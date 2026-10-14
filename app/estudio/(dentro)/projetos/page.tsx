@@ -2,11 +2,8 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { CartaoProjeto } from "@/components/estudio/CartaoProjeto";
-import {
-  CARTAO,
-  pastilhaFiltro,
-  SOBRETITULO,
-} from "@/components/estudio/estilos";
+import { CARTAO, pastilhaFiltro } from "@/components/estudio/estilos";
+import { TituloDaPagina } from "@/components/estudio/TituloDaPagina";
 import { listarProjetos, listarUtilizadores } from "@/lib/estudio/dados";
 import { requerSessao } from "@/lib/estudio/sessao";
 import {
@@ -75,14 +72,11 @@ export default async function Projetos({
 
   return (
     <>
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className={SOBRETITULO}>Estúdio</p>
-          <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
-            Projetos
-          </h1>
-          {projetos.length > 0 ? (
-            <p className="mt-1.5 text-sm text-muted">
+      <TituloDaPagina
+        titulo="Projetos"
+        frase={
+          projetos.length > 0 ? (
+            <p>
               {projetos.length}{" "}
               {projetos.length === 1 ? "projeto" : "projetos"} · {emCurso} a
               andar
@@ -112,18 +106,19 @@ export default async function Projetos({
                 </>
               ) : null}
             </p>
-          ) : null}
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3">
-          {/* O "Importar" mora aqui, ao lado do "Projeto novo": são as duas
-              formas de um projeto entrar no Estúdio, e é aqui que se procuram. */}
-          <Button href="/estudio/importar" variant="outline">
-            Importar do GitHub
-          </Button>
-          <Button href="/estudio/projetos/novo">Projeto novo</Button>
-        </div>
-      </div>
+          ) : null
+        }
+        accoes={
+          /* O "Importar" mora aqui, ao lado do "Projeto novo": são as duas
+             formas de um projeto entrar no Estúdio, e é aqui que se procuram. */
+          <>
+            <Button href="/estudio/importar" variant="outline">
+              Importar do GitHub
+            </Button>
+            <Button href="/estudio/projetos/novo">Projeto novo</Button>
+          </>
+        }
+      />
 
       {projetos.length === 0 ? (
         /* O vazio diz o que fazer a seguir, não pede desculpa. Ver docs/04,

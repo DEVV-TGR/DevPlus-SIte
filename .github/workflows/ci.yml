@@ -122,7 +122,9 @@ jobs:
           verificar /estudio/importar                307
 
           # Os dois endereços que só redirecionam. Dão 307 a toda a gente, com
-          # cookie ou sem ele, porque nem chegam a perguntar — por isso estas
+          # cookie ou sem ele — sem cookie é o layout de `(dentro)` que manda
+          # para a entrada, com cookie é a própria página que manda para as
+          # Finanças —, por isso estas
           # duas linhas provam que a rota existe e **não** provam que alguém foi
           # despachado por falta de sessão. Estão cá para o dia em que alguém
           # apagar o `/estudio/gastos` a achar que já ninguém lá vai.

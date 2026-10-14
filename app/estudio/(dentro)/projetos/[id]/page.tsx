@@ -7,6 +7,7 @@ import { Pagamentos } from "@/components/estudio/Pagamentos";
 import { Receitas } from "@/components/estudio/Receitas";
 import { Tarefas } from "@/components/estudio/Tarefas";
 import { CARTAO } from "@/components/estudio/estilos";
+import { TituloDaPagina } from "@/components/estudio/TituloDaPagina";
 import {
   apagarProjeto,
   guardarProjeto,
@@ -72,19 +73,12 @@ export default async function Projeto({
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Link
-        href="/estudio/projetos"
-        className="text-sm text-muted underline-offset-4 hover:text-ink hover:underline"
-      >
-        ← Projetos
-      </Link>
-
-      <div className="mt-6 flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0">
-          <h1 className="font-display text-3xl font-semibold tracking-tight">
-            {projeto.nome}
-          </h1>
-          <p className="mt-1.5 text-sm text-muted">
+      <TituloDaPagina
+        sobretitulo="Projeto"
+        titulo={projeto.nome}
+        voltarPara={{ href: "/estudio/projetos", rotulo: "Projetos" }}
+        frase={
+          <p>
             {projeto.clienteId && projeto.clienteNome ? (
               <Link
                 href={`/estudio/clientes/${projeto.clienteId}`}
@@ -97,17 +91,18 @@ export default async function Projeto({
             )}
             {projeto.inicio ? ` · desde ${formatarData(projeto.inicio)}` : null}
           </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <EtiquetaEstado estado={projeto.estado} />
-          {atrasado && projeto.prazo ? (
-            <span className="rounded-full border border-danger/40 px-2.5 py-1 text-xs font-medium text-danger">
-              Atrasado desde {formatarData(projeto.prazo)}
-            </span>
-          ) : null}
-        </div>
-      </div>
+        }
+        accoes={
+          <>
+            <EtiquetaEstado estado={projeto.estado} />
+            {atrasado && projeto.prazo ? (
+              <span className="rounded-full border border-danger/40 px-2.5 py-1 text-xs font-medium text-danger">
+                Atrasado desde {formatarData(projeto.prazo)}
+              </span>
+            ) : null}
+          </>
+        }
+      />
 
       {projeto.repoUrl || projeto.deployUrl ? (
         <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm">

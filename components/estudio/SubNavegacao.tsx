@@ -1,31 +1,37 @@
 /** docs: docs/07-estudio.md */
 import Link from "next/link";
-import { pastilhaFiltro } from "@/components/estudio/estilos";
+import { Icone, type NomeDoIcone } from "@/components/estudio/Icone";
+import { cn } from "@/lib/utils";
 
 /**
  * Os dois lados das Finanças: o que entra e o que sai.
  *
  * **Recebe o separador ativo por prop** em vez de o descobrir com o
  * `usePathname`. Descobri-lo obrigava a `"use client"`, e isto é uma barra de
- * dois links que o servidor já sabe desenhar — o Estúdio funciona sem JS de
- * cliente e não há razão para esta barra ser a primeira exceção. É o mesmo
- * arranjo do `SeletorDePeriodo`, que também recebe o `atual` de quem o usa.
+ * dois links que o servidor já sabe desenhar. Os `Separadores` do topo não
+ * conseguem fazer o mesmo — vivem num layout, que não volta a correr ao navegar
+ * — mas esta barra vive na página, e a página sabe onde está.
  *
- * As pastilhas são as do `pastilhaFiltro()`, e não umas novas: já é a primitiva
- * de "um de vários, escolhido" em duas páginas, e uma terceira cópia divergia
- * no dia em que alguém mudasse a cor num sítio só.
+ * É a mesma pastilha dos `Separadores`, em pequeno e sem o laranja: o laranja
+ * cheio diz "a secção onde estás", e uma segunda pastilha laranja logo por baixo
+ * diria a mesma coisa duas vezes. Aqui a escolhida só acende a `surface-2`.
  */
-const SECCOES = [
-  { chave: "receitas", href: "/estudio/financas/receitas", rotulo: "Receitas" },
-  { chave: "gastos", href: "/estudio/financas/gastos", rotulo: "Gastos" },
-] as const;
+const SECCOES: {
+  chave: string;
+  href: string;
+  rotulo: string;
+  icone: NomeDoIcone;
+}[] = [
+  { chave: "receitas", href: "/estudio/financas/receitas", rotulo: "Receitas", icone: "entra" },
+  { chave: "gastos", href: "/estudio/financas/gastos", rotulo: "Gastos", icone: "sai" },
+];
 
-export type SeccaoFinanceira = (typeof SECCOES)[number]["chave"];
+export type SeccaoFinanceira = "receitas" | "gastos";
 
 export function SubNavegacao({ atual }: { atual: SeccaoFinanceira }) {
   return (
     <nav aria-label="Finanças" className="mt-6">
-      <ul className="flex flex-wrap items-center gap-2">
+      <ul className="inline-flex items-center gap-1 rounded-full border border-border bg-surface p-1">
         {SECCOES.map((s) => {
           const escolhida = s.chave === atual;
           return (
@@ -33,8 +39,14 @@ export function SubNavegacao({ atual }: { atual: SeccaoFinanceira }) {
               <Link
                 href={s.href}
                 aria-current={escolhida ? "page" : undefined}
-                className={pastilhaFiltro(escolhida)}
+                className={cn(
+                  "inline-flex min-h-9 items-center gap-1.5 rounded-full px-3.5 text-sm transition-colors duration-200",
+                  escolhida
+                    ? "bg-surface-2 font-medium text-ink ring-1 ring-border-strong"
+                    : "text-muted hover:text-ink",
+                )}
               >
+                <Icone nome={s.icone} tamanho={15} />
                 {s.rotulo}
               </Link>
             </li>

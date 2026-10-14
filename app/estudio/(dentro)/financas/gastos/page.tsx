@@ -2,7 +2,8 @@
 import Link from "next/link";
 import { FormularioGasto } from "@/components/estudio/FormularioGasto";
 import { SubNavegacao } from "@/components/estudio/SubNavegacao";
-import { CARTAO, SOBRETITULO } from "@/components/estudio/estilos";
+import { CARTAO } from "@/components/estudio/estilos";
+import { TituloDaPagina } from "@/components/estudio/TituloDaPagina";
 import { apagarGasto, criarGasto } from "@/lib/estudio/acoes";
 import {
   listarClientes,
@@ -78,11 +79,7 @@ export default async function Gastos() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <p className={SOBRETITULO}>Estúdio</p>
-      <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
-        Finanças
-      </h1>
-      <p className="mt-2 text-sm text-muted">Todos os valores sem IVA.</p>
+      <TituloDaPagina titulo="Finanças" frase="Todos os valores sem IVA." />
 
       <SubNavegacao atual="gastos" />
 

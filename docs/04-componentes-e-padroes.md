@@ -105,8 +105,8 @@ texto de rascunho — quem o lê não tem como distinguir.
 - **Stagger** 0.06–0.08s entre irmãos (`delay={i * 0.06}`).
 - `Reveal` dispara uma vez (`viewport={{ once: true }}`) — nada re-anima ao subir.
 - **Movimento reduzido está tratado globalmente**: `MotionConfig reducedMotion="user"`
-  em `Providers`, mais uma regra em `app/globals.css` que neutraliza o marquee e o
-  spin. Não escrevas `prefers-reduced-motion` novo sem verificar se já está coberto.
+  em `Providers`, mais uma regra em `app/globals.css` que neutraliza o marquee, o
+  spin e a transição do Estúdio (`estudio-*`, ver docs/07). Não escrevas `prefers-reduced-motion` novo sem verificar se já está coberto.
   **Uma exceção:** o `ProjectsMarquee` transporta conteúdo navegável, e congelá-lo
   deixaria três projetos fora do ecrã sem forma de lá chegar. Aí o componente
   desliga o avanço automático (lê a mesma preferência em JS, porque o movimento é
