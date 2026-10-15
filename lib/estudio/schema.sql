@@ -364,3 +364,43 @@ begin
       unique (origem_id, vencimento);
   end if;
 end $$;
+
+-- 2026-10-14 · a aba Sessões: que aparelhos têm sessão aberta, e quem entrou.
+--
+-- Pedido do Tomás, como a do painel do Café Preguiça: ver quem entrou no
+-- Estúdio, quando e de que aparelho, e poder terminar a sessão de um aparelho
+-- (um telemóvel perdido, um computador emprestado).
+--
+-- `sessoes.id`: a chave continua a ser o `token_hash`, mas um hash não se põe
+-- num formulário para dizer "termina esta". Um número diz o mesmo e não deixa
+-- nada de valor no HTML. Uma coluna `identity` acrescentada a uma tabela que já
+-- tem linhas numera-as todas logo ali.
+--
+-- `sessoes.aparelho`: o `User-Agent` resumido a duas palavras ("iPhone ·
+-- Safari", ver `lib/estudio/aparelho.ts`). **O IP não se guarda** — diria de
+-- onde se entrou, que é mais do que esta página precisa de saber.
+alter table sessoes add column if not exists id bigint generated always as identity;
+create unique index if not exists sessoes_id_idx on sessoes (id);
+alter table sessoes add column if not exists aparelho text;
+
+-- O histórico. Uma linha a cada entrada, saída, sessão terminada e tentativa
+-- recusada. `github_login` e não só o `utilizador_id`: quem foi recusado não
+-- está na tabela `utilizadores`, e o login é o que explica a recusa — é público,
+-- está na página de perfil da pessoa.
+--
+-- `on delete set null` no utilizador: apagar alguém não apaga o que essa
+-- pessoa fez; o login fica a dizer quem foi. As linhas com mais de um ano
+-- apagam-se a cada escrita (`lib/estudio/entradas.ts`), como as sessões
+-- expiradas no `abrirSessao`.
+create table if not exists entradas (
+  id             bigint generated always as identity primary key,
+  quando         timestamptz not null default now(),
+  utilizador_id  bigint references utilizadores(id) on delete set null,
+  github_login   text not null,
+  como           text not null
+                 constraint entradas_como_check
+                 check (como in ('entrou', 'saiu', 'terminada', 'recusada')),
+  aparelho       text
+);
+
+create index if not exists entradas_quando_idx on entradas (quando desc);

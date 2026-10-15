@@ -1,12 +1,10 @@
 /** docs: docs/07-estudio.md */
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { Vazio } from "@/components/estudio/Bloco";
 import { CartaoProjeto } from "@/components/estudio/CartaoProjeto";
-import {
-  CARTAO,
-  pastilhaFiltro,
-  SOBRETITULO,
-} from "@/components/estudio/estilos";
+import { CARTAO, pastilhaFiltro } from "@/components/estudio/estilos";
+import { TituloDaPagina } from "@/components/estudio/TituloDaPagina";
 import { listarProjetos, listarUtilizadores } from "@/lib/estudio/dados";
 import { requerSessao } from "@/lib/estudio/sessao";
 import {
@@ -52,7 +50,7 @@ export default async function Projetos({
 }: {
   searchParams: Promise<Filtros>;
 }) {
-  await requerSessao();
+  const utilizador = await requerSessao();
 
   const [{ estado, quem }, projetos, pessoas] = await Promise.all([
     searchParams,
@@ -75,14 +73,14 @@ export default async function Projetos({
 
   return (
     <>
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className={SOBRETITULO}>Estúdio</p>
-          <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
-            Projetos
-          </h1>
-          {projetos.length > 0 ? (
-            <p className="mt-1.5 text-sm text-muted">
+      <TituloDaPagina
+        titulo="Projetos"
+        frase={
+          projetos.length > 0 ? (
+            <p>
+              Todos os trabalhos do estúdio. Abre um para ver as tarefas, o
+              dinheiro e os dados dele.
+              <br />
               {projetos.length}{" "}
               {projetos.length === 1 ? "projeto" : "projetos"} · {emCurso} a
               andar
@@ -112,18 +110,19 @@ export default async function Projetos({
                 </>
               ) : null}
             </p>
-          ) : null}
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3">
-          {/* O "Importar" mora aqui, ao lado do "Projeto novo": são as duas
-              formas de um projeto entrar no Estúdio, e é aqui que se procuram. */}
-          <Button href="/estudio/importar" variant="outline">
-            Importar do GitHub
-          </Button>
-          <Button href="/estudio/projetos/novo">Projeto novo</Button>
-        </div>
-      </div>
+          ) : null
+        }
+        accoes={
+          /* O "Importar" mora aqui, ao lado do "Projeto novo": são as duas
+             formas de um projeto entrar no Estúdio, e é aqui que se procuram. */
+          <>
+            <Button href="/estudio/importar" variant="outline">
+              Trazer do GitHub
+            </Button>
+            <Button href="/estudio/projetos/novo">Projeto novo</Button>
+          </>
+        }
+      />
 
       {projetos.length === 0 ? (
         /* O vazio diz o que fazer a seguir, não pede desculpa. Ver docs/04,
@@ -142,56 +141,97 @@ export default async function Projetos({
         </div>
       ) : (
         <>
-          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="sr-only">Filtrar por estado</span>
-              <Link
-                href={href({ estado, quem }, { estado: "" })}
-                className={pastilhaFiltro(!estado)}
-              >
-                Todos
-              </Link>
-              {ESTADOS.map((e: Estado) => (
-                <Link
-                  key={e}
-                  href={href({ estado, quem }, { estado: estado === e ? "" : e })}
-                  className={pastilhaFiltro(estado === e)}
-                >
-                  {ROTULO_ESTADO[e]}
-                </Link>
-              ))}
-            </div>
+          {/* Os filtros. Em cima os estados, cada um com quantos tem — é
+              assim que se percebe de relance onde está o trabalho. Em baixo,
+              de quem: "Os meus" primeiro, porque é a pergunta de quem abre a
+              página, e depois cada pessoa. */}
+          <div className="mt-8 space-y-3">
+            <nav
+              aria-label="Filtrar por estado"
+              className="-mx-1 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              <ul className="inline-flex items-center gap-1 rounded-full border border-border bg-surface p-1">
+                {[
+                  { chave: "", rotulo: "Todos", conta: projetos.length },
+                  ...ESTADOS.map((e: Estado) => ({
+                    chave: e as string,
+                    rotulo: ROTULO_ESTADO[e],
+                    conta: projetos.filter((p) => p.estado === e).length,
+                  })),
+                ].map((f) => {
+                  const escolhido = (estado ?? "") === f.chave;
+                  return (
+                    <li key={f.chave || "todos"} className="flex-none">
+                      <Link
+                        href={href({ estado, quem }, { estado: f.chave })}
+                        aria-current={escolhido ? "page" : undefined}
+                        className={cn(
+                          "inline-flex min-h-9 items-center gap-1.5 rounded-full px-3.5 text-sm whitespace-nowrap transition-colors duration-200",
+                          escolhido
+                            ? "bg-surface-2 font-medium text-ink ring-1 ring-border-strong"
+                            : "text-muted hover:text-ink",
+                          f.conta === 0 && !escolhido && "opacity-60",
+                        )}
+                      >
+                        {f.rotulo}
+                        <span className="text-xs tabular-nums text-muted">
+                          {f.conta}
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </nav>
 
             {pessoas.length > 0 ? (
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className="sr-only">Filtrar por pessoa</span>
-                {pessoas.map((p) => (
-                  <Link
-                    key={p.id}
-                    href={href(
-                      { estado, quem },
-                      { quem: quem === String(p.id) ? "" : String(p.id) },
-                    )}
-                    className={pastilhaFiltro(quem === String(p.id))}
-                  >
-                    {p.nome}
-                  </Link>
-                ))}
+                <span className="mr-1 text-xs text-muted">De quem:</span>
+                <Link
+                  href={href({ estado, quem }, { quem: "" })}
+                  className={pastilhaFiltro(!quem)}
+                >
+                  Toda a gente
+                </Link>
+                <Link
+                  href={href(
+                    { estado, quem },
+                    { quem: quem === String(utilizador.id) ? "" : String(utilizador.id) },
+                  )}
+                  className={pastilhaFiltro(quem === String(utilizador.id))}
+                >
+                  Os meus
+                </Link>
+                {pessoas
+                  .filter((p) => p.id !== utilizador.id)
+                  .map((p) => (
+                    <Link
+                      key={p.id}
+                      href={href(
+                        { estado, quem },
+                        { quem: quem === String(p.id) ? "" : String(p.id) },
+                      )}
+                      className={pastilhaFiltro(quem === String(p.id))}
+                    >
+                      {p.nome}
+                    </Link>
+                  ))}
               </div>
             ) : null}
           </div>
 
           {filtrados.length === 0 ? (
-            <p className="mt-8 text-sm text-muted">
-              Nenhum projeto com este filtro.{" "}
-              <Link
-                href="/estudio/projetos"
-                className="underline-offset-4 hover:text-ink hover:underline"
+            <div className="mt-6">
+              <Vazio
+                accao={
+                  <Button href="/estudio/projetos" variant="outline">
+                    Ver todos os projetos
+                  </Button>
+                }
               >
-                Ver todos
-              </Link>
-              .
-            </p>
+                Nenhum projeto com este filtro.
+              </Vazio>
+            </div>
           ) : (
             <ul className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {filtrados.map((p) => (

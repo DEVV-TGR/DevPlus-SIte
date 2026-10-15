@@ -1,7 +1,8 @@
 /** docs: docs/07-estudio.md */
 import Link from "next/link";
 import { FormularioImportar } from "@/components/estudio/FormularioImportar";
-import { CARTAO, SOBRETITULO } from "@/components/estudio/estilos";
+import { CARTAO } from "@/components/estudio/estilos";
+import { TituloDaPagina } from "@/components/estudio/TituloDaPagina";
 import { importarRepos } from "@/lib/estudio/acoes";
 import { reposJaNoEstudio } from "@/lib/estudio/dados";
 import { ORGANIZACAO } from "@/lib/estudio/github";
@@ -24,22 +25,19 @@ export default async function Importar() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Link
-        href="/estudio"
-        className="text-sm text-muted underline-offset-4 hover:text-ink hover:underline"
-      >
-        ← Projetos
-      </Link>
-
-      <p className={`${SOBRETITULO} mt-6`}>Importar</p>
-      <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
-        Do GitHub para aqui
-      </h1>
-      <p className="mt-1.5 text-sm text-muted">
-        Os repositórios da organização {ORGANIZACAO}. Escolhe quais viram
-        projeto — vem o nome, o link e a descrição; o resto pões tu. Os que
-        criarem a partir de agora aparecem sozinhos.
-      </p>
+      <TituloDaPagina
+        sobretitulo="Trazer do GitHub"
+        titulo="Projetos que já estão no GitHub"
+        voltarPara={{ href: "/estudio/projetos", rotulo: "Projetos" }}
+        frase={
+          <p>
+            Tudo o que está guardado no GitHub da {ORGANIZACAO}. Escolhe o que
+            passa a ser projeto aqui — vem o nome, o link e a descrição; o
+            resto pões tu. Os que se criarem no GitHub a partir de agora
+            aparecem sozinhos.
+          </p>
+        }
+      />
 
       <div className="mt-8">
         {erro ? (
@@ -61,7 +59,7 @@ export default async function Importar() {
         ) : repos.length === 0 ? (
           <div className={CARTAO}>
             <p className="text-sm text-muted">
-              A organização {ORGANIZACAO} não tem repositórios visíveis. Se os
+              O GitHub da {ORGANIZACAO} não tem projetos visíveis. Se os
               que procuras forem privados, é preciso um{" "}
               <code>GITHUB_TOKEN</code> — ver <code>docs/07-estudio.md</code>.
             </p>

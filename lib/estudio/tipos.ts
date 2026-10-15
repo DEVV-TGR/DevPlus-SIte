@@ -697,3 +697,93 @@ export function iniciais(nome: string): string {
   if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
   return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
 }
+
+/* ------------------------------------------------------------- sessões -- */
+
+/** O que pode acontecer à porta do Estúdio. Bate com o `check` da tabela
+ *  `entradas` em `schema.sql`. */
+export type ComoEntrou = "entrou" | "saiu" | "terminada" | "recusada";
+
+/** Uma linha do histórico da aba Sessões. `quando` em milissegundos UTC; a
+ *  página converte para a hora de Lisboa. Não confundir com a `Entrada` de
+ *  dinheiro, lá em cima. */
+export type EntradaNaPorta = {
+  id: number;
+  quando: number;
+  githubLogin: string;
+  /** `null` para quem foi recusado — nunca chegou a estar em `utilizadores`. */
+  nome: string | null;
+  como: ComoEntrou;
+  aparelho: string | null;
+};
+
+/** Um aparelho com sessão aberta neste momento. */
+export type SessaoAberta = {
+  id: number;
+  utilizadorId: number;
+  nome: string;
+  githubLogin: string;
+  aparelho: string | null;
+  criadaEm: number;
+  expiraEm: number;
+};
+
+/* Os instantes da aba Sessões, sempre na hora de Lisboa e não na da máquina
+   da Vercel, que está em UTC: uma entrada às 23:30 de sábado não pode aparecer
+   como domingo. */
+const FUSO = "Europe/Lisbon";
+const HORA = new Intl.DateTimeFormat("pt-PT", { hour: "2-digit", minute: "2-digit", timeZone: FUSO });
+const DIA_LONGO = new Intl.DateTimeFormat("pt-PT", { weekday: "long", day: "numeric", month: "long", timeZone: FUSO });
+const DIA_CURTO = new Intl.DateTimeFormat("pt-PT", { day: "numeric", month: "short", timeZone: FUSO });
+const CHAVE_DO_DIA = new Intl.DateTimeFormat("en-CA", { timeZone: FUSO });
+
+/** `14:05`, em Lisboa. */
+export function formatarHora(quando: number): string {
+  return HORA.format(quando);
+}
+
+/** `14 out.`, em Lisboa. */
+export function formatarDiaCurto(quando: number): string {
+  return DIA_CURTO.format(quando);
+}
+
+/** `2026-10-14`, em Lisboa — só para agrupar por dia. */
+export function chaveDoDia(quando: number): string {
+  return CHAVE_DO_DIA.format(quando);
+}
+
+/** "Hoje", "Ontem", ou "Terça-feira, 13 de outubro". */
+export function nomeDoDia(quando: number, agora: number): string {
+  const dia = chaveDoDia(quando);
+  if (dia === chaveDoDia(agora)) return "Hoje";
+  if (dia === chaveDoDia(agora - 24 * 60 * 60 * 1000)) return "Ontem";
+  const nome = DIA_LONGO.format(quando);
+  return nome.charAt(0).toUpperCase() + nome.slice(1);
+}
+
+/** "Quarta-feira, 14 de outubro" — a data de hoje das boas-vindas. */
+export function hojePorExtenso(agora: number): string {
+  const nome = DIA_LONGO.format(agora);
+  return nome.charAt(0).toUpperCase() + nome.slice(1);
+}
+
+/** O que cada linha do histórico diz, depois do nome. */
+export const FRASE_DA_ENTRADA: Record<ComoEntrou, string> = {
+  entrou: "entrou",
+  saiu: "saiu",
+  terminada: "teve a sessão terminada",
+  recusada: "tentou entrar, mas não está na lista",
+};
+
+/** O mesmo, curto, para a coluna "Como" da tabela do resumo. */
+export const ROTULO_DA_ENTRADA: Record<ComoEntrou, string> = {
+  entrou: "Entrou",
+  saiu: "Saiu",
+  terminada: "Sessão terminada",
+  recusada: "Entrada recusada",
+};
+
+/** O primeiro nome, para as boas-vindas: "Tomás Sobral" → "Tomás". */
+export function primeiroNome(nome: string): string {
+  return nome.trim().split(/\s+/)[0] || nome;
+}

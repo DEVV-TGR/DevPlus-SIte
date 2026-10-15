@@ -1,9 +1,10 @@
 /** docs: docs/07-estudio.md */
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { cache } from "react";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { consulta, consultaUma } from "@/lib/estudio/db";
+import { aparelhoDe } from "@/lib/estudio/aparelho";
 import type { Utilizador } from "@/lib/estudio/tipos";
 
 /**
@@ -47,10 +48,14 @@ export async function abrirSessao(utilizadorId: number): Promise<void> {
   const token = tokenAleatorio();
   const expira = new Date(Date.now() + DURACAO_DIAS * 24 * 60 * 60 * 1000);
 
+  /* O aparelho em duas palavras, para a aba Sessões. O IP não — ver o ajuste
+     de 2026-10-14 em `schema.sql`. */
+  const aparelho = aparelhoDe((await headers()).get("user-agent"));
+
   await consulta(
-    `insert into sessoes (token_hash, utilizador_id, expira_em)
-     values ($1, $2, $3)`,
-    [hash(token), utilizadorId, expira],
+    `insert into sessoes (token_hash, utilizador_id, expira_em, aparelho)
+     values ($1, $2, $3, $4)`,
+    [hash(token), utilizadorId, expira, aparelho],
   );
 
   /* Aproveita-se a escrita para varrer o que já expirou. Sem isto a tabela só
@@ -84,7 +89,7 @@ export async function fecharSessao(): Promise<void> {
  * Quem está autenticado, ou `null`.
  *
  * **Envolvida em `cache()` do React, e não é um pormenor.** Cada navegação no
- * Estúdio chamava isto duas vezes: uma no `app/estudio/layout.tsx`, que precisa
+ * Estúdio chamava isto duas vezes: uma no `app/estudio/(dentro)/layout.tsx`, que precisa
  * do nome para o cabeçalho, e outra no `requerSessao()` da página por baixo. São
  * a mesma pergunta, com o mesmo cookie, no mesmo render — e eram duas idas à
  * base. O `cache()` dá-lhes a mesma resposta.
@@ -141,3 +146,21 @@ export async function requerSessao(): Promise<Utilizador> {
   if (!utilizador) redirect("/estudio/entrar");
   return utilizador;
 }
+
+/**
+ * O `id` da sessão deste browser, para a aba Sessões marcar "este aparelho" e
+ * para o terminar saber se está a pôr fora quem carregou no botão.
+ *
+ * Em `cache()` pela mesma razão do `sessaoAtual`. Sem cookie, `null` sem ir à
+ * base.
+ */
+export const idDaSessaoAtual = cache(async function idDaSessaoAtual(): Promise<number | null> {
+  const token = (await cookies()).get(COOKIE)?.value;
+  if (!token) return null;
+
+  const linha = await consultaUma<{ id: string }>(
+    "select id from sessoes where token_hash = $1",
+    [hash(token)],
+  );
+  return linha ? Number(linha.id) : null;
+});

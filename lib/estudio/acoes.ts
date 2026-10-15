@@ -2,10 +2,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { consulta, consultaUma } from "@/lib/estudio/db";
 import { listarRepos } from "@/lib/estudio/repos";
-import { requerSessao } from "@/lib/estudio/sessao";
+import { anotar } from "@/lib/estudio/entradas";
+import { COOKIE, idDaSessaoAtual, requerSessao } from "@/lib/estudio/sessao";
 import { hojeEmLisboa } from "@/lib/estudio/tipos";
 import {
   eData,
@@ -1087,4 +1089,55 @@ export async function apagarObjetivo(form: FormData): Promise<void> {
 
   await consulta("delete from objetivos where id = $1", [id]);
   revalidatePath("/estudio");
+}
+
+/* ------------------------------------------------------------- sessões -- */
+
+/**
+ * Terminar a sessão de um aparelho, a partir da aba Sessões — para o telemóvel
+ * que se perdeu ou o computador emprestado.
+ *
+ * Apaga a sessão e anota quem a perdeu, com o aparelho **dela** e não o de quem
+ * carregou no botão. Se for a deste browser, sai-se: o cookie vai, e a próxima
+ * página é a entrada.
+ *
+ * Qualquer pessoa do Estúdio pode terminar a sessão de qualquer outra. Somos
+ * três e confiamos uns nos outros; o que interessa é que um aparelho perdido se
+ * corta de qualquer lado, e não só do do dono.
+ */
+export async function terminarSessao(form: FormData): Promise<void> {
+  await requerSessao();
+
+  const id = paraId(campo(form.get("sessaoId"), 20));
+  if (!id) return;
+
+  const deste = await idDaSessaoAtual();
+
+  const linha = await consultaUma<{
+    github_login: string;
+    utilizador_id: string;
+    aparelho: string | null;
+  }>(
+    `delete from sessoes s
+      using utilizadores u
+      where s.id = $1 and u.id = s.utilizador_id
+      returning u.github_login, s.utilizador_id, s.aparelho`,
+    [id],
+  );
+
+  if (linha) {
+    await anotar({
+      como: "terminada",
+      githubLogin: linha.github_login,
+      utilizadorId: Number(linha.utilizador_id),
+      aparelho: linha.aparelho,
+    });
+  }
+
+  if (id === deste) {
+    (await cookies()).delete(COOKIE);
+    redirect("/estudio/entrar");
+  }
+
+  revalidatePath("/estudio/sessoes");
 }

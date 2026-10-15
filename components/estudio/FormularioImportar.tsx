@@ -60,7 +60,7 @@ export function FormularioImportar({
       </div>
 
       <fieldset>
-        <legend className="sr-only">Repositórios a trazer</legend>
+        <legend className="sr-only">Projetos a trazer</legend>
 
         <ul className="divide-y divide-border border-y border-border">
           {repos.map((r) => {
@@ -124,7 +124,7 @@ export function FormularioImportar({
       <div className="flex flex-wrap items-center gap-4">
         <BotaoGuardar aGuardar="A trazer…">
           {porTrazer.length > 0
-            ? `Trazer ${porTrazer.length} ${porTrazer.length === 1 ? "repositório" : "repositórios"}`
+            ? `Trazer ${porTrazer.length} ${porTrazer.length === 1 ? "projeto" : "projetos"}`
             : "Trazer os escolhidos"}
         </BotaoGuardar>
 

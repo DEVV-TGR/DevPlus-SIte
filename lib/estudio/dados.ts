@@ -4,7 +4,9 @@ import { vencimentosAte } from "@/lib/estudio/tipos";
 import type {
   Cliente,
   Cobranca,
+  ComoEntrou,
   ContasProjeto,
+  EntradaNaPorta,
   Estado,
   Gasto,
   Metrica,
@@ -17,6 +19,7 @@ import type {
   Recebimento,
   Receita,
   Reparticao,
+  SessaoAberta,
   Tarefa,
   TipoReceita,
   Utilizador,
@@ -1142,5 +1145,76 @@ export async function listarObjetivos(): Promise<Objetivo[]> {
     prazo: l.prazo,
     desde: l.desde,
     feito: Number(l.feito),
+  }));
+}
+
+/* ------------------------------------------------------------- sessões -- */
+
+/**
+ * O histórico da porta: quem entrou, saiu, teve a sessão terminada ou foi
+ * recusado, do mais recente para o mais antigo. Quem escreve é
+ * `lib/estudio/entradas.ts`.
+ *
+ * O nome vem de `utilizadores` quando ainda lá está; quem foi recusado não tem
+ * nome, só o login com que tentou.
+ */
+export async function listarHistoricoDaPorta(limite = 300): Promise<EntradaNaPorta[]> {
+  const linhas = await consulta<{
+    id: string;
+    quando: Date;
+    github_login: string;
+    nome: string | null;
+    como: ComoEntrou;
+    aparelho: string | null;
+  }>(
+    `select e.id, e.quando, e.github_login, u.nome, e.como, e.aparelho
+       from entradas e
+       left join utilizadores u on u.id = e.utilizador_id
+      order by e.quando desc, e.id desc
+      limit $1`,
+    [limite],
+  );
+
+  return linhas.map((l) => ({
+    id: Number(l.id),
+    quando: l.quando.getTime(),
+    githubLogin: l.github_login,
+    nome: l.nome,
+    como: l.como,
+    aparelho: l.aparelho,
+  }));
+}
+
+/**
+ * Os aparelhos que podem entrar agora sem passar pelo GitHub — uma linha por
+ * sessão que ainda não expirou. As sessões abertas antes de 2026-10-14 não têm
+ * aparelho anotado, e a página di-lo.
+ */
+export async function sessoesAbertas(): Promise<SessaoAberta[]> {
+  const linhas = await consulta<{
+    id: string;
+    utilizador_id: string;
+    nome: string;
+    github_login: string;
+    aparelho: string | null;
+    criada_em: Date;
+    expira_em: Date;
+  }>(
+    `select s.id, s.utilizador_id, u.nome, u.github_login, s.aparelho,
+            s.criada_em, s.expira_em
+       from sessoes s
+       join utilizadores u on u.id = s.utilizador_id
+      where s.expira_em > now()
+      order by s.criada_em desc`,
+  );
+
+  return linhas.map((l) => ({
+    id: Number(l.id),
+    utilizadorId: Number(l.utilizador_id),
+    nome: l.nome,
+    githubLogin: l.github_login,
+    aparelho: l.aparelho,
+    criadaEm: l.criada_em.getTime(),
+    expiraEm: l.expira_em.getTime(),
   }));
 }

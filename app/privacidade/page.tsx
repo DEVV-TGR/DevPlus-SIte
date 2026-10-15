@@ -48,6 +48,10 @@ const sections: [string, React.ReactNode][] = [
     "Para gerir os trabalhos que temos em mãos, mantemos um registo interno com o nome do cliente, os contactos que nos deste e notas sobre o que ficou combinado. É acessível apenas a nós, protegido por autenticação, e existe só enquanto durar a relação de trabalho e as obrigações legais associadas. Não é usado para marketing nem partilhado com ninguém.",
   ],
   [
+    "Se tentares entrar na nossa ferramenta interna",
+    "A ferramenta onde gerimos esse registo só abre a quem está numa lista nossa, e entra-se com uma conta do GitHub. Por segurança, anotamos cada entrada e cada tentativa recusada: o nome da conta do GitHub, o dia e a hora, e o tipo de aparelho e de browser (por exemplo, \u201ciPhone · Safari\u201d). Não guardamos o endereço IP. Estas anotações apagam-se ao fim de um ano.",
+  ],
+  [
     "Conservação",
     "Conservamos os dados apenas durante o tempo necessário para responder e gerir a relação, salvo se existir uma obrigação legal de os manter por mais tempo.",
   ],
@@ -94,7 +98,7 @@ export default function PrivacidadePage() {
               </div>
             ))}
             <p className="border-t border-border pt-6 text-sm text-muted">
-              Última atualização: 8 de setembro de 2026.
+              Última atualização: 14 de outubro de 2026.
             </p>
           </div>
         </Container>

@@ -16,8 +16,23 @@ export const CAMPO =
 
 export const ETIQUETA = "mb-1.5 block text-sm font-medium";
 
+/* `rounded-lg` (14 px) e não `rounded-2xl`: este projeto redefine o `2xl` para
+   28 px, e docs/02 manda os cartões ficarem em 16 px ou menos. Esteve a 28 px
+   até à reestruturação de 2026-10-14. */
 export const CARTAO =
-  "rounded-2xl border border-border bg-surface p-6 transition-colors duration-300";
+  "rounded-lg border border-border bg-surface p-5 transition-colors duration-300 sm:p-6";
+
+/**
+ * O que um cartão inteiro precisa para ser clicável: `relative` aqui, e a
+ * `LigacaoQueCobre` (em `Bloco.tsx`) no título. Os botões de dentro levam
+ * `relative z-10` para continuarem por cima da ligação esticada.
+ */
+export const CARTAO_CLICAVEL =
+  "relative transition-colors duration-200 hover:border-border-strong hover:bg-surface-2/40 focus-within:border-border-strong";
+
+/** O título de um cartão — a mesma coisa em todos, para os cartões parecerem da
+ *  mesma família. */
+export const TITULO_CARTAO = "font-display text-lg font-semibold tracking-tight";
 
 export const PASTILHA = "rounded-full border px-2.5 py-1 text-xs";
 

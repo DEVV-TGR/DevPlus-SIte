@@ -47,7 +47,7 @@ export function SeletorDeRepos({
 
       {nada ? (
         <p className="text-sm text-muted">
-          Não há projetos por atribuir nem repositórios por importar.
+          Não há projetos por atribuir, nem projetos novos no GitHub para trazer.
         </p>
       ) : (
         <ul className="divide-y divide-border border-y border-border">
@@ -99,7 +99,7 @@ export function SeletorDeRepos({
 
       {erroDoGitHub ? (
         <p className="mt-3 text-xs text-muted">
-          Não deu para ler os repositórios do GitHub ({erroDoGitHub}) — aqui em
+          Não deu para ler os projetos do GitHub ({erroDoGitHub}) — aqui em
           cima estão só os projetos que já existem no Estúdio.
         </p>
       ) : null}

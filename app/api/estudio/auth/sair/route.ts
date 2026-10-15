@@ -1,5 +1,6 @@
 /** docs: docs/07-estudio.md */
-import { fecharSessao } from "@/lib/estudio/sessao";
+import { anotar } from "@/lib/estudio/entradas";
+import { fecharSessao, sessaoAtual } from "@/lib/estudio/sessao";
 
 /**
  * Sair.
@@ -15,6 +16,12 @@ import { fecharSessao } from "@/lib/estudio/sessao";
  * converte este POST no GET da página seguinte.
  */
 export async function POST(request: Request) {
+  /* Quem é, antes de a sessão deixar de existir — é para o histórico da aba
+     Sessões. */
+  const quem = await sessaoAtual();
   await fecharSessao();
+  if (quem) {
+    await anotar({ como: "saiu", githubLogin: quem.githubLogin, utilizadorId: quem.id });
+  }
   return Response.redirect(new URL("/", request.url), 303);
 }
