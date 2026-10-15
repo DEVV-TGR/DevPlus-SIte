@@ -1,5 +1,6 @@
 /** docs: docs/07-estudio.md */
 import { CAMPO } from "@/components/estudio/estilos";
+import { Marca } from "@/components/estudio/Marca";
 import {
   alternarTarefa,
   apagarTarefa,
@@ -20,38 +21,15 @@ import { iniciais, type Tarefa, type Utilizador } from "@/lib/estudio/tipos";
  * onde carregar para corrigir uma tarefa mal escrita a não ser apagá-la e
  * escrevê-la de novo.
  *
- * Editar existe só aqui, na ficha do projeto. No resumo as tarefas são de
- * leitura — aquilo é uma vista do que está por fazer em todo o lado, e um campo
- * de edição por linha transformava-o num formulário gigante.
+ * Editar existe só aqui, na ficha do projeto. No resumo as tarefas **marcam-se**
+ * como feitas (`MarcarFeita`, desde 2026-10-15) mas não se editam — aquilo é uma
+ * vista do que está por fazer em todo o lado, e um campo de edição por linha
+ * transformava-o num formulário gigante.
  *
  * As tarefas feitas caem para o fim da lista — a ordenação vem de
  * `listarTarefas` em `lib/estudio/dados.ts`.
  */
 
-function Marca({ feita }: { feita: boolean }) {
-  return (
-    <span
-      aria-hidden
-      className={
-        feita
-          ? "grid h-5 w-5 shrink-0 place-items-center rounded border border-accent/50 bg-accent/15 text-accent"
-          : "grid h-5 w-5 shrink-0 place-items-center rounded border border-border-strong"
-      }
-    >
-      {feita ? (
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path
-            d="M2.5 6.2 4.8 8.5 9.5 3.8"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ) : null}
-    </span>
-  );
-}
 
 /** As iniciais de quem ficou com a tarefa. Vazio não desenha nada — uma bolinha
  *  com um ponto de interrogação em cada linha era ruído. */

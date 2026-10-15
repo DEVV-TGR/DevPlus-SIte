@@ -9,10 +9,12 @@ import {
   TopoDoBloco,
   Vazio,
 } from "@/components/estudio/Bloco";
+import { BarraProgresso } from "@/components/estudio/BarraProgresso";
 import { EtiquetaEstado } from "@/components/estudio/EtiquetaEstado";
 import { FormularioObjetivo } from "@/components/estudio/FormularioObjetivo";
 import { GraficoCircular } from "@/components/estudio/GraficoCircular";
 import { Icone } from "@/components/estudio/Icone";
+import { MarcarFeita } from "@/components/estudio/MarcarFeita";
 import { Objetivos } from "@/components/estudio/Objetivos";
 import { SeletorDePeriodo } from "@/components/estudio/SeletorDePeriodo";
 import { SOBRETITULO } from "@/components/estudio/estilos";
@@ -141,13 +143,27 @@ export default async function Resumo({
 
      - uma **despesa** fica enquanto ninguém a der como paga, mesmo que o dia já
        tenha passado — o `vencimentosDoMes()` dá o mês todo;
-     - uma **receita** só aparece enquanto não chegou o dia, com o
-       `proximaOcorrencia()`. Depois disso já está no "por cobrar", e aparecer
-       nos dois sítios era a mesma cobrança duas vezes.
+     - uma **receita** aparece de duas maneiras: a próxima, enquanto não chegou
+       o dia (`proximaOcorrencia()`), e as que já venceram e ninguém deu como
+       recebidas (as `cobrancas`). Até 2026-10-15 as vencidas viviam no "por
+       cobrar"; o Tomás pediu esse cartão só com os projetos, e tudo o que se
+       repete passou a estar aqui, num sítio só. **No próprio dia do
+       vencimento as duas dão a mesma data** — o `proximaOcorrencia()` conta
+       de hoje para a frente e as cobranças até hoje —, e aparecia duas vezes.
+       Fica a recorrente, que diz o projeto e o cliente; a cobrança desse dia
+       sai.
 
      O que já foi marcado (os `pagos` de `recorrentes()`) sai. */
-  const aindaEsteMes = repetem
-    .flatMap((r) => {
+  const aindaEsteMes: {
+    chave: string;
+    quando: string;
+    lado: "entra" | "sai";
+    id: number;
+    descricao: string;
+    contexto: string | null;
+    valor: number;
+  }[] = [
+    ...repetem.flatMap((r) => {
       const pagos = new Set(r.pagos);
       const datas =
         r.lado === "sai"
@@ -158,9 +174,36 @@ export default async function Resumo({
 
       return datas
         .filter((quando) => !pagos.has(quando))
-        .map((quando) => ({ ...r, quando, chave: `${r.chave}-${quando}` }));
-    })
-    .sort((a, b) => a.quando.localeCompare(b.quando));
+        .map((quando) => ({
+          chave: `${r.chave}-${quando}`,
+          quando,
+          lado: r.lado,
+          id: r.id,
+          descricao: r.descricao,
+          contexto: r.contexto,
+          valor: r.valor,
+        }));
+    }),
+    ...cobrancas
+      .filter(
+        (c) =>
+          !repetem.some(
+            (r) =>
+              r.lado === "entra" &&
+              r.id === c.receitaId &&
+              proximaOcorrencia(r.base, r.periodicidade, hoje) === c.vencimento,
+          ),
+      )
+      .map((c) => ({
+      chave: `cobranca-${c.receitaId}-${c.vencimento}`,
+      quando: c.vencimento,
+      lado: "entra" as const,
+      id: c.receitaId,
+      descricao: ROTULO_RECEITA[c.tipo],
+      contexto: c.clienteNome ?? c.projetoNome,
+      valor: c.valor,
+    })),
+  ].sort((a, b) => a.quando.localeCompare(b.quando));
 
   /* Sem `.slice()`: cortar aos seis escondia metade do que está aberto, e a
      lista existe precisamente para se ver o todo. Quem a torna legível é o
@@ -170,19 +213,6 @@ export default async function Resumo({
     (p) => p.estado !== "entregue" && p.estado !== "parado",
   );
 
-  const maiorDivida = porCobrar[0]?.porCobrar ?? 0;
-
-  /* A única soma de euros do Estúdio feita fora do Postgres, e não há como:
-     as cobranças nascem de datas geradas em JavaScript, não de linhas de uma
-     tabela. Arredonda-se aos cêntimos aqui, uma vez, para não haver um
-     `160.00000000000003` a chegar ao ecrã. */
-  const totalCobrancas =
-    Math.round(cobrancas.reduce((soma, c) => soma + c.valor, 0) * 100) / 100;
-  const totalPorCobrar =
-    Math.round((mes.porCobrar + totalCobrancas) * 100) / 100;
-
-  /* Uma cobrança de um mês que já fechou está atrasada, e diz-se. */
-  const mesAtual = hoje.slice(0, 7);
 
   /* Os estados que aparecem em "Em cima da mesa", pela ordem do `ORDEM`. */
   const grupos = agruparPorEstado(emCimaDaMesa);
@@ -305,108 +335,74 @@ export default async function Resumo({
             href="/estudio/financas/receitas"
             rotuloDaSeta="Abrir as receitas"
           />
-          {totalPorCobrar > 0 ? (
+          {mes.porCobrar > 0 ? (
             <Numero
-              rotulo="Falta receber"
-              valor={formatarEuros(totalPorCobrar)}
+              rotulo="Falta receber dos projetos"
+              valor={formatarEuros(mes.porCobrar)}
               tom="atencao"
               grande
             />
           ) : null}
 
-          {/* Primeiro os alojamentos e domínios que se venceram: uma
-              mensalidade que venceu ontem é a única coisa nesta página que se
-              resolve com uma mensagem, e o botão de lhe dar baixa está aqui
-              para não ficar por marcar. */}
-          {cobrancas.length > 0 ? (
-            <ul className="divide-y divide-border border-y border-border">
-              {cobrancas.map((c) => (
-                <li
-                  key={`${c.receitaId}-${c.vencimento}`}
-                  className="flex flex-wrap items-center gap-x-3 gap-y-2 py-3"
-                >
-                  <Link
-                    href={`/estudio/projetos/${c.projetoId}?aba=dinheiro`}
-                    className="min-w-0 flex-1 rounded-lg p-1.5 transition-colors hover:bg-surface-2"
-                  >
-                    <span className="block truncate text-sm font-medium">
-                      {ROTULO_RECEITA[c.tipo]}
-                    </span>
-                    <span className="block truncate text-xs text-muted">
-                      {c.clienteNome ?? c.projetoNome}
-                      {" · venceu a "}
-                      <span
-                        className={cn(
-                          c.vencimento.slice(0, 7) < mesAtual && "text-danger",
-                        )}
-                      >
-                        {formatarData(c.vencimento)}
-                      </span>
-                    </span>
-                  </Link>
-                  <span className="shrink-0 text-sm font-medium tabular-nums text-primary">
-                    {formatarEuros(c.valor)}
-                  </span>
-                  <form action={marcarRecebida}>
-                    <input type="hidden" name="receitaId" value={c.receitaId} />
-                    <input type="hidden" name="vencimento" value={c.vencimento} />
-                    <button
-                      type="submit"
-                      aria-label={`Marcar como recebido: ${ROTULO_RECEITA[c.tipo]}, ${c.clienteNome ?? c.projetoNome}`}
-                      className="min-h-8 rounded-full border border-border-strong px-3 text-xs transition-colors hover:border-accent hover:text-accent"
-                    >
-                      Recebido
-                    </button>
-                  </form>
-                </li>
-              ))}
-            </ul>
-          ) : null}
+          {/* Só os projetos. Os alojamentos e domínios vencidos estão no
+              "Ainda este mês", com o resto do que se repete.
 
+              A barra é **a parte já paga do total** — 680 € de 1700 € enchem
+              40% da barra, e o que falta é o vazio. Até 2026-10-15 era a dívida
+              comparada com a maior, e um projeto quase pago com a maior dívida
+              aparecia com a barra cheia, que lia ao contrário. */}
           {porCobrar.length === 0 ? (
-            cobrancas.length === 0 ? (
-              <Vazio>
-                Não há nada por cobrar. Ou está tudo pago, ou ainda não puseste
-                valores nos projetos — faz-se na aba Dinheiro de cada projeto.
-              </Vazio>
-            ) : null
+            <Vazio>
+              Não há projetos por cobrar. Ou está tudo pago, ou ainda não
+              puseste valores nos projetos — faz-se na aba Dinheiro de cada
+              projeto.
+            </Vazio>
           ) : (
             <ul className="space-y-3">
-              {porCobrar.slice(0, 5).map((p) => (
-                <li key={p.id}>
-                  <Link
-                    href={`/estudio/projetos/${p.id}?aba=dinheiro`}
-                    className="block rounded-lg p-1.5 transition-colors hover:bg-surface-2"
-                  >
-                    <div className="flex items-baseline justify-between gap-3">
-                      <span className="min-w-0 truncate text-sm">
-                        <span className="font-medium">
-                          {p.clienteNome ?? "Sem cliente"}
-                        </span>
-                        <span className="text-muted"> · {p.nome}</span>
-                      </span>
-                      <span className="shrink-0 text-sm font-medium tabular-nums text-primary">
-                        {formatarEuros(p.porCobrar)}
-                      </span>
-                    </div>
-                    <div
-                      className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-surface-2"
-                      aria-hidden
+              {porCobrar.slice(0, 5).map((p) => {
+                const pago =
+                  p.valor > 0
+                    ? Math.min(100, Math.max(0, (p.recebido / p.valor) * 100))
+                    : 0;
+                return (
+                  <li key={p.id}>
+                    <Link
+                      href={`/estudio/projetos/${p.id}?aba=dinheiro`}
+                      className="block rounded-lg p-1.5 transition-colors hover:bg-surface-2"
                     >
+                      <div className="flex items-baseline justify-between gap-3">
+                        <span className="min-w-0 truncate text-sm">
+                          <span className="font-medium">
+                            {p.clienteNome ?? "Sem cliente"}
+                          </span>
+                          {p.clienteNome !== p.nome ? (
+                            <span className="text-muted"> · {p.nome}</span>
+                          ) : null}
+                        </span>
+                        <span className="shrink-0 text-xs tabular-nums text-muted">
+                          {Math.round(pago)}% pago
+                        </span>
+                      </div>
                       <div
-                        className="h-full rounded-full bg-primary"
-                        style={{
-                          width: `${maiorDivida > 0 ? (p.porCobrar / maiorDivida) * 100 : 0}%`,
-                        }}
-                      />
-                    </div>
-                    <p className="mt-1 text-xs text-muted">
-                      {formatarEuros(p.recebido)} recebidos de{" "}
-                      {formatarEuros(p.valor)}
-                    </p>
-                  </Link>
-                </li>
-              ))}
+                        className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-surface-2"
+                        aria-hidden
+                      >
+                        <div
+                          className="h-full rounded-full bg-accent"
+                          style={{ width: `${pago}%` }}
+                        />
+                      </div>
+                      <p className="mt-1 text-xs text-muted">
+                        {formatarEuros(p.recebido)} pagos de{" "}
+                        {formatarEuros(p.valor)} ·{" "}
+                        <span className="font-medium text-primary">
+                          faltam {formatarEuros(p.porCobrar)}
+                        </span>
+                      </p>
+                    </Link>
+                  </li>
+                );
+              })}
               {porCobrar.length > 5 ? (
                 <li className="text-xs text-muted">
                   e mais {porCobrar.length - 5} —{" "}
@@ -457,17 +453,14 @@ export default async function Resumo({
           ) : (
             <ul className="space-y-1">
               {tarefas.map((t) => (
-                <li key={t.id}>
-                  {/* Aqui as tarefas são de leitura. Marcar e editar é na
-                      ficha do projeto, onde está a lista inteira. */}
+                <li key={t.id} className="flex items-start gap-1">
+                  {/* A caixa marca como feita aqui mesmo; o resto leva à
+                      lista do projeto, que é onde se edita. */}
+                  <MarcarFeita id={t.id} projetoId={t.projetoId} texto={t.texto} />
                   <Link
                     href={`/estudio/projetos/${t.projetoId}?aba=tarefas`}
-                    className="flex items-start gap-2.5 rounded-lg p-1.5 transition-colors hover:bg-surface-2"
+                    className="flex min-w-0 flex-1 items-start gap-2.5 rounded-lg p-1.5 transition-colors hover:bg-surface-2"
                   >
-                    <span
-                      aria-hidden
-                      className="mt-0.5 size-4 flex-none rounded border border-border-strong"
-                    />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm">{t.texto}</span>
                       <span className="block truncate text-xs text-muted">
@@ -496,7 +489,7 @@ export default async function Resumo({
             id="ainda"
             icone="calendario"
             titulo="Ainda este mês"
-            sub="O que se repete e ainda não foi marcado como pago ou recebido"
+            sub="O que se repete e o que já venceu, enquanto ninguém o marcar como pago ou recebido"
           />
 
           {aindaEsteMes.length === 0 ? (
@@ -509,39 +502,47 @@ export default async function Resumo({
               {aindaEsteMes.map((r) => (
                 <li
                   key={r.chave}
-                  className="flex flex-wrap items-center gap-x-3 gap-y-2 py-3"
+                  className="flex items-start gap-3 py-3"
                 >
-                  {/* Só dia e mês: a lista é toda deste mês. A vermelho quando
-                      o dia já passou — só acontece a despesas, e quer dizer que
-                      o dinheiro saiu e ainda não foi contado. */}
+                  {/* Só dia e mês: é quase tudo deste mês, e uma cobrança
+                      vencida de outro mês lê-se pelo mês. A vermelho quando o
+                      dia já passou: numa despesa, o dinheiro saiu e ainda não
+                      foi contado; numa receita, alguém ainda não pagou. */}
                   <span
                     className={cn(
-                      "w-12 shrink-0 text-xs tabular-nums",
+                      "w-11 shrink-0 pt-0.5 text-xs tabular-nums",
                       r.quando < hoje ? "text-danger" : "text-muted",
                     )}
                   >
                     {`${r.quando.slice(8, 10)}/${r.quando.slice(5, 7)}`}
                   </span>
+                  {/* A descrição parte em duas linhas em vez de se cortar: na
+                      coluna estreita do computador "Alojamento e apoio" ficava
+                      "Alojamen…", e era a única coisa que dizia o que é. */}
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm">{r.descricao}</span>
+                    <span className="block text-sm leading-snug">{r.descricao}</span>
                     {r.contexto ? (
                       <span className="block truncate text-xs text-muted">
                         {r.contexto}
                       </span>
                     ) : null}
                   </span>
+                  {/* O valor e o botão um por cima do outro, à direita: lado a
+                      lado comiam metade da coluna e o texto ficava sem espaço. */}
+                  <span className="flex shrink-0 flex-col items-end gap-1.5">
                   <span
                     className={cn(
-                      "shrink-0 text-sm font-medium tabular-nums",
+                      "text-sm font-medium tabular-nums",
                       r.lado === "entra" ? "text-accent" : "text-muted",
                     )}
                   >
                     {r.lado === "entra" ? "+" : "−"}
                     {formatarEuros(r.valor)}
                   </span>
-                  {/* Do lado que entra é o mesmo "Recebido" do "por cobrar";
-                      do que sai, o `marcarGastoPago` cria o gasto do mês. Uma
-                      receita a zero não tem botão: não há nada para receber. */}
+                  {/* Do lado que entra, o `marcarRecebida` salda o vencimento —
+                      o próximo ou um que já passou; do que sai, o
+                      `marcarGastoPago` cria o gasto do mês. Uma receita a zero
+                      não tem botão: não há nada para receber. */}
                   {r.valor > 0 ? (
                     <form
                       action={
@@ -563,6 +564,7 @@ export default async function Resumo({
                       </button>
                     </form>
                   ) : null}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -612,31 +614,62 @@ export default async function Resumo({
                       Ver só estes →
                     </span>
                   </Link>
-                  <ul className="mt-1.5 space-y-0.5">
-                    {itens.map((p) => (
-                      <li key={p.id}>
-                        <Link
-                          href={`/estudio/projetos/${p.id}`}
-                          className="flex items-center justify-between gap-3 rounded-lg px-1.5 py-1.5 transition-colors hover:bg-surface-2"
-                        >
-                          <span className="min-w-0 truncate text-sm">
-                            {p.nome}
-                            {p.clienteNome && p.clienteNome !== p.nome ? (
-                              <span className="text-muted"> · {p.clienteNome}</span>
+                  {/* Um cartãozinho por projeto, que se abre todo. Nos que
+                      estão em curso, a data de entrega vem primeiro — é a
+                      pergunta que se faz a um trabalho que está a andar. */}
+                  <ul className="mt-2 grid gap-2 sm:grid-cols-2">
+                    {itens.map((p) => {
+                      const atrasado = emAtraso(p, hoje);
+                      return (
+                        <li key={p.id}>
+                          <Link
+                            href={`/estudio/projetos/${p.id}`}
+                            className="flex h-full flex-col gap-2 rounded-lg border border-border p-3 transition-colors hover:border-border-strong hover:bg-surface-2/40"
+                          >
+                            {estado === "em-curso" ? (
+                              <span
+                                className={cn(
+                                  "flex items-center gap-1.5 text-xs",
+                                  atrasado && p.prazo
+                                    ? "font-medium text-danger"
+                                    : p.prazo
+                                      ? "font-medium text-primary"
+                                      : "text-muted",
+                                )}
+                              >
+                                <Icone nome="calendario" tamanho={14} />
+                                {atrasado && p.prazo
+                                  ? `Atrasado desde ${formatarData(p.prazo)}`
+                                  : p.prazo
+                                    ? `Entrega a ${formatarData(p.prazo)}`
+                                    : "Sem data de entrega"}
+                              </span>
                             ) : null}
-                          </span>
-                          {emAtraso(p, hoje) && p.prazo ? (
-                            <span className="shrink-0 text-xs text-danger">
-                              atrasado desde {formatarData(p.prazo)}
+                            <span className="min-w-0">
+                              <span className="block truncate text-sm font-medium">
+                                {p.nome}
+                              </span>
+                              <span className="block truncate text-xs text-muted">
+                                {p.clienteNome ?? "Sem cliente"}
+                              </span>
                             </span>
-                          ) : (
-                            <span className="shrink-0 text-xs tabular-nums text-muted">
-                              {p.progresso}%
-                            </span>
-                          )}
-                        </Link>
-                      </li>
-                    ))}
+                            {/* Um `div` e não um `span`: a barra é um `div`, e
+                                um `div` dentro de um `span` não é HTML válido. */}
+                            <div className="mt-auto flex items-center gap-2">
+                              <BarraProgresso progresso={p.progresso} estado={p.estado} />
+                              <span className="shrink-0 text-xs tabular-nums text-muted">
+                                {p.progresso}%
+                              </span>
+                            </div>
+                            {estado !== "em-curso" && atrasado && p.prazo ? (
+                              <span className="text-xs text-danger">
+                                Atrasado desde {formatarData(p.prazo)}
+                              </span>
+                            ) : null}
+                          </Link>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               ))}

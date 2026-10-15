@@ -437,7 +437,11 @@ mesmo a toda a gente, de propósito: somos três e o trabalho é partilhado. Mas
 gente.
 
 **O número sem cor**, e por baixo a lista das que estão por fazer em todo o lado
-— no mesmo cartão, e não noutro ao fundo da página. Sem cor semântica porque
+— no mesmo cartão, e não noutro ao fundo da página. **Cada uma marca-se como
+feita ali mesmo** (`MarcarFeita`, desde 2026-10-15), com a mesma
+`alternarTarefa` da ficha mas com `marcar=feita`: no resumo só há tarefas por
+fazer, e dois cliques seguidos não podem desfazer o primeiro. Editar continua a
+ser só na ficha. Sem cor semântica porque
 duas tarefas por fazer não são boas nem más — pintar o zero de verde era
 inventar um juízo que não é nosso.
 
@@ -450,7 +454,17 @@ tarefas que ninguém vê.
 aqui a página chamava `requerSessao()` e deitava fora o que ele devolve.
 
 **"Em cima da mesa" ocupa duas linhas ao meio**, porque é a lista mais comprida.
-Cada estado leva à lista de projetos já filtrada (`?estado=`).
+Cada estado leva à lista de projetos já filtrada (`?estado=`), e **cada projeto
+é um cartãozinho** que se abre todo: o nome, o cliente e a barra com a
+percentagem. **Nos "Em curso" a data de entrega vem em cima, em destaque** — a
+laranja, a vermelho se estiver atrasado, e "Sem data de entrega" quando não há
+prazo, que também é informação.
+
+**O "Por cobrar" é só dos projetos** (desde 2026-10-15). A barra é **a parte já
+paga do total** — 680 € de 1700 € enchem 40% —, a verde, e por baixo "faltam X"
+a laranja. Antes comparava cada dívida com a maior, e um projeto quase pago com
+a maior dívida aparecia de barra cheia, que se lia ao contrário. Os alojamentos
+e domínios vencidos saíram daqui para o "ainda este mês".
 
 ### O resumo é do mês, e a primeira versão não era
 
@@ -479,7 +493,10 @@ um número de planeamento, não de tesouraria, e numa página que é toda sobre 
 mês seria o único valor a falar de outra coisa.
 
 **O "ainda este mês"** junta os dois lados na mesma lista, por data: as despesas
-que se repetem e os alojamentos e domínios a receber. Quem converte uma
+que se repetem, os alojamentos e domínios a receber, **e os que já venceram e
+ninguém deu como recebidos** (as `cobrancas`, desde 2026-10-15 — até aí viviam no
+"por cobrar"). No próprio dia do vencimento a próxima ocorrência e a cobrança
+são a mesma data; fica só a primeira. Quem converte uma
 periodicidade numa data é o `proximaOcorrencia()` de `lib/estudio/tipos.ts`, em
 JavaScript e não em SQL — a conta envolve meses de 28 a 31 dias e dias da
 semana, e em SQL ficava ilegível para poupar uma passagem por dez linhas. Um
@@ -510,9 +527,9 @@ agosto *é* o de agosto, e o "ainda este mês" de agosto não o volta a pedir.
 cujo dia já passou continua na lista, com a data a vermelho, até alguém a dar
 como paga. Dantes saía sozinha no dia seguinte, e o dinheiro nunca chegava ao
 saldo. Quem as calcula é o `vencimentosDoMes()` de `tipos.ts`, que dá os
-vencimentos do mês todo (um semanal dá vários). Uma receita atrasada, pelo
-contrário, sai daqui: já está no "por cobrar", com o seu botão, e aparecer nos
-dois sítios era a mesma cobrança duas vezes.
+vencimentos do mês todo (um semanal dá vários). Uma receita atrasada também
+fica, a vermelho, com o seu "Recebido" — é a mesma cobrança que vivia no "por
+cobrar", mudada de sítio para tudo o que se repete estar junto.
 
 ### O circular, e três regras que mudaram o que lá está
 
