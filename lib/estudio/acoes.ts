@@ -465,14 +465,23 @@ export async function alternarTarefa(form: FormData): Promise<void> {
   const projetoId = paraId(campo(form.get("projetoId"), 20));
   if (!id || !projetoId) return;
 
+  /* `marcar=feita` vem do resumo, que só mostra as tarefas por fazer: aí é
+     para pôr como feita, e não para trocar — dois cliques seguidos não podem
+     desfazer o primeiro. Sem ele, troca, como na checklist do projeto. */
+  const soFeita = form.get("marcar") === "feita";
+
   /* O `and projeto_id` não é decoração: sem ele, um id de tarefa doutro projeto
      passava aqui na mesma. */
   await consulta(
-    "update tarefas set feita = not feita where id = $1 and projeto_id = $2",
+    soFeita
+      ? "update tarefas set feita = true where id = $1 and projeto_id = $2"
+      : "update tarefas set feita = not feita where id = $1 and projeto_id = $2",
     [id, projetoId],
   );
 
   revalidatePath(`/estudio/projetos/${projetoId}`);
+  /* O resumo também mostra as tarefas por fazer, e marca-as. */
+  revalidatePath("/estudio");
 }
 
 export async function apagarTarefa(form: FormData): Promise<void> {
