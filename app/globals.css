@@ -360,7 +360,7 @@ html.lenis body {
 }
 .workshop-caption {
   position: absolute;
-  right: 4rem;
+  left: 1.5rem;
   top: 0;
   font-size: 14px;
   color: var(--muted);
@@ -708,3 +708,5 @@ html.lenis body {
     scroll-snap-align: start;
   }
 }
+
+@media (min-width:768px) and (max-width:1023px) { .workshop-caption { display:none; } }
