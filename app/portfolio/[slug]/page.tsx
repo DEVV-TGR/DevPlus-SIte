@@ -1,3 +1,4 @@
+/** docs: docs/06-projetos.md — casos de estudo e vídeo do Preguiça. */
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -136,12 +137,20 @@ export default async function CaseStudyPage({
             <Reveal className="lg:col-span-8">
               <div className="space-y-10">
                 <div>
-                  <h2 className="font-display text-[clamp(1.5rem,3vw,2.2rem)] font-bold tracking-[-0.03em]">O que era preciso</h2>
-                  <p className="mt-3 max-w-[62ch] text-lg leading-[1.55] text-muted">{project.overview}</p>
+                  <h2 className="font-display text-[clamp(1.5rem,3vw,2.2rem)] font-bold tracking-[-0.03em]">
+                    O que era preciso
+                  </h2>
+                  <p className="mt-3 max-w-[62ch] text-lg leading-[1.55] text-muted">
+                    {project.overview}
+                  </p>
                 </div>
                 <div>
-                  <h2 className="font-display text-[clamp(1.5rem,3vw,2.2rem)] font-bold tracking-[-0.03em]">O que fizemos</h2>
-                  <p className="mt-3 max-w-[62ch] text-lg leading-[1.55] text-muted">{project.contribution}</p>
+                  <h2 className="font-display text-[clamp(1.5rem,3vw,2.2rem)] font-bold tracking-[-0.03em]">
+                    O que fizemos
+                  </h2>
+                  <p className="mt-3 max-w-[62ch] text-lg leading-[1.55] text-muted">
+                    {project.contribution}
+                  </p>
                 </div>
               </div>
             </Reveal>
@@ -186,7 +195,10 @@ export default async function CaseStudyPage({
                       <ul className="mt-2 grid gap-1 text-sm">
                         {project.services.map((s) => (
                           <li key={s} className="text-muted">
-                            <span aria-hidden className="mr-1.5 font-bold text-primary">
+                            <span
+                              aria-hidden
+                              className="mr-1.5 font-bold text-primary"
+                            >
                               +
                             </span>
                             {s}
@@ -196,7 +208,11 @@ export default async function CaseStudyPage({
                     </dd>
                   </div>
                   {project.url ? (
-                    <Button href={project.url} variant="primary" className="w-full">
+                    <Button
+                      href={project.url}
+                      variant="primary"
+                      className="w-full"
+                    >
                       Visitar site
                     </Button>
                   ) : null}
@@ -206,6 +222,48 @@ export default async function CaseStudyPage({
           </div>
         </Container>
       </Section>
+
+      {project.slug === "cafe-preguica" ? (
+        <Section top={false} className="relative">
+          <Container>
+            <div className="grid items-center gap-8 rounded-2xl bg-surface p-6 sm:p-10 md:grid-cols-[1fr_minmax(0,340px)]">
+              <div>
+                <p className="mb-4 text-sm text-primary">
+                  Do espaço físico para o digital
+                </p>
+                <h2 className="home-heading max-w-[16ch]">
+                  A ementa está
+                  <br />
+                  mesmo à mão.
+                </h2>
+                <p className="mt-5 max-w-[42ch] text-lg leading-relaxed text-muted">
+                  Ler o QR code ou aproximar o telemóvel do NFC. Dois caminhos
+                  na mesma mesa para abrir a carta do Café Preguiça.
+                </p>
+              </div>
+              <figure>
+                <video
+                  controls
+                  playsInline
+                  preload="none"
+                  poster="/projetos/preguica-nfc.jpg"
+                  width={720}
+                  height={1280}
+                  aria-label="Demonstração do suporte com QR code e NFC numa mesa do Café Preguiça"
+                  className="max-h-[65svh] w-full rounded-xl bg-bg object-contain"
+                >
+                  <source src="/projetos/preguica-nfc.mp4" type="video/mp4" />O
+                  teu navegador não suporta vídeo. Podes abrir a ementa lendo o
+                  QR code ou aproximando um telemóvel compatível do NFC.
+                </video>
+                <figcaption className="mt-3 text-sm text-muted">
+                  QR code e NFC nas mesas do Café Preguiça. Vídeo demonstrativo.
+                </figcaption>
+              </figure>
+            </div>
+          </Container>
+        </Section>
+      ) : null}
 
       {next.slug !== slug ? (
         <Section top={false} className="relative">

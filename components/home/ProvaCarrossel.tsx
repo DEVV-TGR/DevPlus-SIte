@@ -1,146 +1,249 @@
 "use client";
 /** docs: docs/04-componentes-e-padroes.md · docs/06-projetos.md */
-
 import Image from "next/image";
 import Link from "next/link";
-import { useRef } from "react";
-import { gsap, ScrollTrigger, useGSAP, comPausa } from "@/lib/motion";
-import { Button } from "@/components/ui/Button";
-import { projects } from "@/lib/projects";
+import { useEffect, useRef, useState } from "react";
+import { useLenis } from "lenis/react";
+import { Container } from "@/components/ui/Container";
+import { Section } from "@/components/ui/Section";
+import { homeProjects } from "@/lib/projects";
+import {
+  gsap,
+  ScrollTrigger,
+  useGSAP,
+  comPausa,
+  MOVIMENTO,
+} from "@/lib/motion";
 
-/**
- * O trabalho feito, numa fila que atravessa o ecrã enquanto a secção fica
- * presa.
- *
- * **Movimento lateral lê-se como alcance; vertical lê-se como argumento.**
- * Aqui não se argumenta, mostra-se — por isso a fila anda de lado e a página
- * pára. O percurso é longo de propósito: passa pelos cinco projetos sem
- * pressa, e é a única secção da página que retém o visitante.
- *
- * As legendas são **facto, não argumentário**: nome, o que é, ano. Um card de
- * portfólio que se vende a si próprio deixa de ser prova.
- */
 export function ProvaCarrossel() {
-  const ref = useRef<HTMLElement>(null);
-
+  const lenis = useLenis();
+  const track = useRef<HTMLUListElement>(null);
+  const pin = useRef<ReturnType<typeof ScrollTrigger.create> | null>(null);
   useGSAP(
     () => {
-      const raiz = ref.current;
-      if (!raiz) return;
-      const palco = raiz.querySelector<HTMLElement>("[data-palco]");
-      const fila = raiz.querySelector<HTMLElement>("[data-fila]");
-      if (!palco || !fila) return;
-
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        /* Sem pin nem deslocação: a fila passa a rolar na horizontal com o
-           dedo ou o teclado, e continua a dar acesso aos cinco projetos. */
-        fila.classList.add("overflow-x-auto", "snap-x", "snap-mandatory");
-        return;
-      }
-
-      const percurso = () => Math.max(0, fila.scrollWidth - window.innerWidth);
-
-      /* A folga que aqui estava no fim — um ecrã inteiro em computador, 15% no
-         telemóvel — era uma pausa de saída feita à mão, e só desta secção.
-         Passou a ser a pausa de todas as secções pinadas, vem do
-         `MOVIMENTO.pausa`, e agora há outra igual **antes**: o cabeçalho e a
-         primeira capa ficam parados um momento antes de a fila arrancar. */
-      const st = ScrollTrigger.create({
-        trigger: raiz,
-        start: "top top",
-        end: () => `+=${comPausa(percurso()).total}`,
-        pin: palco,
-        scrub: 0.8,
-        invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          /* O `scrollWidth` custa um reflow: mede-se uma vez por frame. */
-          const d = percurso();
-          gsap.set(fila, {
-            x: -comPausa(d).progresso(self.progress) * d,
-            force3D: true,
+      const el = track.current;
+      const root = el?.closest("section");
+      const stage = root?.querySelector<HTMLElement>("[data-gallery-stage]");
+      if (!el || !root || !stage) return;
+      const mm = gsap.matchMedia();
+      mm.add(
+        "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
+        () => {
+          const distance = () => Math.max(0, el.scrollWidth - el.clientWidth);
+          el.style.scrollSnapType = "none";
+          const st = ScrollTrigger.create({
+            trigger: root,
+            start: "top top",
+            end: () => `+=${comPausa(distance()).total}`,
+            pin: stage,
+            scrub: 0.6,
+            invalidateOnRefresh: true,
+            onUpdate: (self) => {
+              const d = distance();
+              el.scrollLeft = comPausa(d).progresso(self.progress) * d;
+            },
           });
+          pin.current = st;
+          return () => {
+            pin.current = null;
+            st.kill();
+            el.style.removeProperty("scroll-snap-type");
+          };
         },
-      });
-
-      return () => st.kill();
+      );
+      return () => mm.revert();
     },
-    { scope: ref },
+    { scope: track },
   );
-
+  const [active, setActive] = useState(0);
+  const [atEnd, setAtEnd] = useState(false);
+  useEffect(() => {
+    const el = track.current;
+    if (!el) return;
+    const update = () => {
+      const cards = Array.from(el.children) as HTMLElement[];
+      const left = el.getBoundingClientRect().left;
+      const index = cards.reduce(
+        (best, card, i) =>
+          Math.abs(card.getBoundingClientRect().left - left) <
+          Math.abs(cards[best].getBoundingClientRect().left - left)
+            ? i
+            : best,
+        0,
+      );
+      setActive(index);
+      setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 3);
+    };
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => {
+      el.removeEventListener("scroll", update);
+      observer.disconnect();
+    };
+  }, []);
+  const go = (index: number) => {
+    const el = track.current;
+    const card = el?.children[
+      Math.max(0, Math.min(homeProjects.length - 1, index))
+    ] as HTMLElement | undefined;
+    if (!el || !card) return;
+    const position =
+      card.getBoundingClientRect().left -
+      el.getBoundingClientRect().left +
+      el.scrollLeft;
+    const st = pin.current;
+    if (st) {
+      const distance = el.scrollWidth - el.clientWidth;
+      const pause = comPausa(distance).fracao;
+      const progress =
+        pause +
+        (Math.min(position, distance) / Math.max(1, distance)) *
+          (1 - 2 * pause);
+      const target = st.start + progress * (st.end - st.start);
+      if (lenis) lenis.scrollTo(target, { duration: MOVIMENTO.hero });
+      else window.scrollTo({ top: target, behavior: "smooth" });
+      return;
+    }
+    el.scrollTo({
+      left: position,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "instant"
+        : "smooth",
+    });
+  };
   return (
-    <section ref={ref} className="relative bg-paper text-paper-ink" aria-labelledby="prova">
-      <div data-palco className="relative h-[100svh] overflow-hidden">
-        {/* A fila é sempre **uma linha**: é o `x` dela que o scroll conduz, e
-            uma coluna não tem para onde andar. O que muda em telemóvel é a
-            medida — o cabeçalho passa a ocupar um ecrã quase inteiro, e cada
-            capa outro, em vez de dividirem a largura entre si. */}
-        <div
-          data-fila
-          className="flex h-full items-center gap-4 px-6 will-change-transform md:gap-[clamp(1.25rem,3vw,2.5rem)] md:px-[clamp(1.25rem,5vw,5.5rem)]"
-        >
-          <div className="shrink-0 basis-[82vw] md:basis-[min(26rem,58vw)]">
-            <p className="text-xs uppercase tracking-[0.18em] text-paper-muted">
-              Feito
-            </p>
-            <h2
-              id="prova"
-              className="t-seccao mt-2 font-display font-semibold"
+    <Section
+      id="trabalho"
+      top={false}
+      bottom={false}
+      className="relative bg-paper text-paper-ink"
+    >
+      <div data-gallery-stage className="gallery-stage">
+        <Container>
+          <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <p className="mb-4 text-sm text-paper-muted">
+                Negócios diferentes. A mesma atenção.
+              </p>
+              <h2 className="home-heading max-w-[16ch]">
+                Trabalho que
+                <br />
+                fala por nós<span className="text-paper-muted">.</span>
+              </h2>
+            </div>
+            <Link
+              href="/portfolio"
+              className="inline-flex min-h-11 items-center gap-4 border-b border-paper-muted text-sm font-semibold"
             >
-              Cinco que já estão no ar.
-            </h2>
-            <div className="mt-6">
-              <Button href="/portfolio" variant="primary">
-                Ver todos os projetos
-              </Button>
+              Todo o portfólio <span aria-hidden>↗</span>
+            </Link>
+          </div>
+          <ul
+            id="home-projects"
+            ref={track}
+            aria-label="Projetos selecionados"
+            tabIndex={0}
+            onKeyDown={(event) => {
+              if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+                event.preventDefault();
+                go(active + (event.key === "ArrowRight" ? 1 : -1));
+              }
+              if (event.key === "Home" || event.key === "End") {
+                event.preventDefault();
+                go(event.key === "Home" ? 0 : homeProjects.length - 1);
+              }
+            }}
+            className="project-track"
+          >
+            {homeProjects.map((p, i) => (
+              <li key={p.slug} className="project-slide">
+                <Link
+                  href={`/portfolio/${p.slug}`}
+                  className="group block rounded-xl"
+                >
+                  <div className="project-cover">
+                    {p.image && (
+                      <Image
+                        src={p.image}
+                        alt={p.imageAlt ?? `Página inicial de ${p.name}`}
+                        fill
+                        sizes="(min-width: 768px) 58vw, 85vw"
+                        className="object-cover object-top transition-transform duration-500 motion-safe:group-hover:scale-[1.025]"
+                      />
+                    )}
+                    <span className="project-status">
+                      {p.status === "em-curso"
+                        ? "Em desenvolvimento"
+                        : "Concluído"}
+                    </span>
+                    <span className="project-open" aria-hidden>
+                      ↗
+                    </span>
+                  </div>
+                  <div className="mt-5 flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-sm text-paper-muted">
+                        {p.category} · {p.year}
+                      </p>
+                      <h3 className="mt-1 font-display text-2xl font-bold tracking-tight sm:text-3xl">
+                        {p.name}
+                      </h3>
+                    </div>
+                    <span className="pt-1 text-sm tabular-nums text-paper-muted">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+                  <p className="mt-3 max-w-[54ch] text-sm leading-relaxed text-paper-muted">
+                    {p.summary}
+                  </p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-8 flex items-center gap-5">
+            <span
+              className="min-w-12 text-sm tabular-nums"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              {String(active + 1).padStart(2, "0")} /{" "}
+              {String(homeProjects.length).padStart(2, "0")}
+            </span>
+            <div className="h-px flex-1 bg-paper-muted/25" aria-hidden>
+              <div
+                className="h-px bg-paper-ink transition-[width] duration-300"
+                style={{
+                  width: `${((atEnd ? homeProjects.length : active + 1) / homeProjects.length) * 100}%`,
+                }}
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                aria-label="Projeto anterior"
+                aria-controls="home-projects"
+                disabled={active === 0}
+                onClick={() => go(active - 1)}
+                className="gallery-arrow"
+              >
+                ←
+              </button>
+              <button
+                type="button"
+                aria-label="Projeto seguinte"
+                aria-controls="home-projects"
+                disabled={atEnd}
+                onClick={() => go(active + 1)}
+                className="gallery-arrow"
+              >
+                →
+              </button>
             </div>
           </div>
-
-          {projects.map((p, i) => (
-            <article key={p.slug} className="shrink-0 basis-[82vw] md:basis-[min(27rem,72vw)]">
-              <Link href={`/portfolio/${p.slug}`} className="group block">
-                {/* Em telemóvel a moldura é **retrato**. As capas são
-                    paisagem, e a 82vw davam cards de 200px de alto num ecrã de
-                    844: metade da secção era vazio. Com `4/5` e `object-cover`
-                    mostra-se o topo de cada site — que é o hero, a parte por
-                    que se reconhece — e o card ocupa o ecrã como na referência. */}
-                <div className="aspect-[4/5] overflow-hidden rounded-2xl bg-paper-muted/20 shadow-[0_24px_50px_-28px_rgb(34_28_23/0.55)] transition-transform duration-500 group-hover:-translate-y-1 md:aspect-auto">
-                  {p.image ? (
-                    <Image
-                      src={p.image}
-                      alt={p.imageAlt ?? `Página inicial de ${p.name}.`}
-                      width={1200}
-                      height={750}
-                      loading="lazy"
-                      className="block h-full w-full object-cover object-top md:h-auto"
-                    />
-                  ) : (
-                    /* Sem capa não fica um retângulo cinzento a ocupar meio
-                       ecrã: fica o nome, como no `PortfolioIndice`. A lacuna
-                       está registada no `docs/06` e não se disfarça com a capa
-                       de outro projeto. */
-                    <div className="grid h-full place-items-center bg-gradient-to-br from-primary/20 to-paper-muted/25 px-6 text-center md:aspect-[8/5]">
-                      <span className="font-display text-xl font-extrabold tracking-[-0.03em] text-paper-ink">
-                        {p.name}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <div className="mt-4 grid gap-0.5">
-                  <span className="text-xs font-semibold uppercase tracking-[0.18em] tabular-nums text-paper-muted">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <h3 className="font-display text-lg font-semibold tracking-tight">
-                    {p.name}
-                  </h3>
-                  <p className="text-sm text-paper-muted">
-                    {p.category}. {p.year}.
-                  </p>
-                </div>
-              </Link>
-            </article>
-          ))}
-        </div>
+        </Container>
       </div>
-    </section>
+    </Section>
   );
 }

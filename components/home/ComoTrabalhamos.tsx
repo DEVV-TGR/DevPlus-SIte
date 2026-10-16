@@ -3,7 +3,13 @@
 
 import Image from "next/image";
 import { useRef } from "react";
-import { gsap, ScrollTrigger, useGSAP, MOVIMENTO, comPausa } from "@/lib/motion";
+import {
+  gsap,
+  ScrollTrigger,
+  useGSAP,
+  MOVIMENTO,
+  comPausa,
+} from "@/lib/motion";
 
 /**
  * Os quatro passos, em cards que **chegam com o scroll e se acumulam** por
@@ -24,7 +30,7 @@ import { gsap, ScrollTrigger, useGSAP, MOVIMENTO, comPausa } from "@/lib/motion"
  * outra, e uma classe e um `transform` inline a disputar o mesmo elemento dão
  * sempre empate a favor do inline: as poses em classe ficavam a decorar o
  * markup sem mandar em nada. As finais chegam ao CSS na mesma, por custom
- * properties no `style` de cada card (ver o `md:[transform:…]` lá em baixo),
+ * properties no `style` de cada card (ver o `lg:[transform:…]` lá em baixo),
  * para que sem JavaScript — ou com `prefers-reduced-motion` — o leque exista.
  * Uma fonte, dois leitores.
  *
@@ -83,7 +89,7 @@ export function ComoTrabalhamos() {
       const cards = raiz.querySelectorAll<HTMLElement>("[data-passo]");
       if (!palco) return;
 
-      /* As poses finais estão no CSS (o `md:[transform:…]` do card), por isso
+      /* As poses finais estão no CSS (o `lg:[transform:…]` do card), por isso
          aqui não se escreve `transform` nenhum: basta acender os cards e sai-se
          da frente. Um `scale: 1` inline bastava para o GSAP passar a mandar no
          `transform` e apagar o leque. */
@@ -100,12 +106,13 @@ export function ComoTrabalhamos() {
          referência usa nesta mesma secção no iPhone, e é a mesma gramática do
          `ProvaCarrossel` — lateral lê-se como percorrer uma lista, e é isso
          que quatro passos são. */
-      if (window.matchMedia("(max-width: 767px)").matches) {
+      if (window.matchMedia("(max-width: 1023px)").matches) {
         const fila = raiz.querySelector<HTMLElement>("[data-fila]");
         if (!fila) return;
         gsap.set(cards, { opacity: 1 });
 
-        const percurso = () => Math.max(0, fila.scrollWidth - window.innerWidth);
+        const percurso = () =>
+          Math.max(0, fila.scrollWidth - window.innerWidth);
         const st = ScrollTrigger.create({
           trigger: raiz,
           start: "top top",
@@ -226,7 +233,7 @@ export function ComoTrabalhamos() {
            (`overflow-hidden`), e com o conteúdo centrado era o topo do título
            que desaparecia. Em telemóvel o título encosta ao cimo e a fila
            ocupa o que sobra. */
-        className="relative flex min-h-[100svh] flex-col justify-start gap-6 overflow-hidden pb-10 pt-24 md:grid md:place-items-center md:gap-0 md:px-6 md:py-0"
+        className="relative flex min-h-[100svh] flex-col justify-start gap-6 overflow-hidden pb-10 pt-24 lg:grid lg:place-items-center lg:gap-0 lg:px-6 lg:py-0"
       >
         {/* O título tem lugar próprio no terço de cima, e os cards chegam por
             baixo dele. Estavam todos centrados no mesmo ponto: acumulavam-se
@@ -235,7 +242,7 @@ export function ComoTrabalhamos() {
         {/* Em telemóvel o título fica preso no topo enquanto os cards passam
             por baixo dele — é o que a referência faz nesta secção. Em desktop
             continua no terço de cima, com os cards em leque por baixo. */}
-        <div className="mx-auto w-full max-w-[46rem] shrink-0 px-6 text-center md:absolute md:inset-x-0 md:top-[10svh]">
+        <div className="mx-auto w-full max-w-[46rem] shrink-0 px-6 text-center lg:absolute lg:inset-x-0 lg:top-[10svh]">
           <h2
             id="como-trabalhamos"
             className="t-seccao font-display font-extrabold"
@@ -248,67 +255,67 @@ export function ComoTrabalhamos() {
           </p>
         </div>
 
-        {/* `md:contents` faz o wrapper desaparecer do layout em desktop, e os
+        {/* `lg:contents` faz o wrapper desaparecer do layout em desktop, e os
             cards voltam a ser filhos do palco — que é o que o `absolute` das
             poses precisa como referência. */}
         <div
           data-fila
-          className="flex w-max items-stretch gap-4 px-6 will-change-transform md:contents"
+          className="flex w-max items-stretch gap-4 px-6 will-change-transform lg:contents"
         >
-        {PASSOS.map((p) => (
-          <article
-            key={p.n}
-            data-passo
-            /* `data-scroll-item` e não `data-reveal-item`: estes cards não
+          {PASSOS.map((p) => (
+            <article
+              key={p.n}
+              data-passo
+              /* `data-scroll-item` e não `data-reveal-item`: estes cards não
                entram de uma vez quando a secção aparece — chegam ao longo do
                percurso, e enquanto a secção se aproxima é suposto estarem
                invisíveis. O verificador trata os dois casos de maneira
                diferente; ver `scripts/verificar-scroll.mjs`. */
-            data-scroll-item
-            /* A pose final entra por custom properties e o `transform` lê-as:
+              data-scroll-item
+              /* A pose final entra por custom properties e o `transform` lê-as:
                é a mesma fonte que o GSAP usa, sem duplicar números no markup.
                Enquanto o GSAP não escreve o seu `transform` inline — antes da
                hidratação, sem JavaScript, ou com `prefers-reduced-motion` — é
                esta regra que põe o leque de pé. Assim que ele escreve, o inline
                ganha e esta fica em segundo plano, que é a ordem certa. */
-            style={
-              {
-                "--pousa-x": `${p.pousa.x}vw`,
-                "--pousa-y": `${p.pousa.y}svh`,
-                "--pousa-r": `${p.pousa.r}deg`,
-              } as React.CSSProperties
-            }
-            className="grid w-[78vw] shrink-0 gap-2 rounded-2xl border border-border bg-surface p-5 shadow-[0_30px_60px_-30px_rgb(0_0_0/0.7)] md:absolute md:w-[min(20rem,74vw)] md:[transform:translate(var(--pousa-x),var(--pousa-y))_rotate(var(--pousa-r))]"
-          >
-            <span className="justify-self-start rounded-full bg-primary px-3 py-0.5 text-xs font-semibold uppercase tracking-[0.18em] text-primary-ink">
-              Processo
-            </span>
-            <span className="font-display text-[clamp(2rem,4vw,3rem)] font-extrabold leading-none tabular-nums text-primary">
-              {p.n}
-            </span>
-            <h3 className="font-display text-xl font-semibold tracking-tight">
-              {p.t}
-            </h3>
-            <p className="text-sm text-muted">{p.d}</p>
-            {/* A figura é posicionada contra esta caixa, e não dimensionada em
+              style={
+                {
+                  "--pousa-x": `${p.pousa.x}vw`,
+                  "--pousa-y": `${p.pousa.y}svh`,
+                  "--pousa-r": `${p.pousa.r}deg`,
+                } as React.CSSProperties
+              }
+              className="grid w-[78vw] shrink-0 gap-2 rounded-2xl border border-border bg-surface p-5 shadow-[0_30px_60px_-30px_rgb(0_0_0/0.7)] lg:absolute lg:w-[min(20rem,74vw)] lg:[transform:translate(var(--pousa-x),var(--pousa-y))_rotate(var(--pousa-r))]"
+            >
+              <span className="justify-self-start rounded-full bg-primary px-3 py-0.5 text-xs font-semibold uppercase tracking-[0.18em] text-primary-ink">
+                Processo
+              </span>
+              <span className="font-display text-[clamp(2rem,4vw,3rem)] font-extrabold leading-none tabular-nums text-primary">
+                {p.n}
+              </span>
+              <h3 className="font-display text-xl font-semibold tracking-tight">
+                {p.t}
+              </h3>
+              <p className="text-sm text-muted">{p.d}</p>
+              {/* A figura é posicionada contra esta caixa, e não dimensionada em
                 percentagem dentro dela: com `h-[90%]` numa linha de grelha
                 automática a altura realimentava-se — a linha crescia para caber
                 a imagem, a imagem crescia para 90% da linha, e a figura acabava
                 ao dobro da caixa, a sair pelas bordas do card. O `overflow`
                 fechado é o cinto; o `object-contain` garante que assenta lá
                 dentro inteira. */}
-            <div className="relative mt-1 h-32 overflow-hidden rounded-xl bg-ink/5 max-md:h-24">
-              <Image
-                src={p.img}
-                alt={p.alt}
-                width={760}
-                height={760}
-                loading="lazy"
-                className="absolute inset-0 h-full w-full object-contain p-1"
-              />
-            </div>
-          </article>
-        ))}
+              <div className="relative mt-1 h-32 overflow-hidden rounded-xl bg-ink/5 max-lg:h-24">
+                <Image
+                  src={p.img}
+                  alt={p.alt}
+                  width={760}
+                  height={760}
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-contain p-1"
+                />
+              </div>
+            </article>
+          ))}
         </div>
       </div>
     </section>

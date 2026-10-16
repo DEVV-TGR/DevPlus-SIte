@@ -1,142 +1,151 @@
 "use client";
-/** docs: docs/04-componentes-e-padroes.md — o hero da página inicial. */
-
+/** docs: docs/04-componentes-e-padroes.md — a oficina digital. */
 import Image from "next/image";
+import Link from "next/link";
 import { useRef } from "react";
-import { gsap, ScrollTrigger, useGSAP, MOVIMENTO } from "@/lib/motion";
+import { gsap, useGSAP, MOVIMENTO } from "@/lib/motion";
+import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
+import { Logo } from "@/components/Logo";
 
-/**
- * A capa. É o pico da página — decisão do Gonçalo, setembro de 2026 — e por
- * isso leva o maior espaço de scroll e a única ilustração grande.
- *
- * **O título parte-se pelas duas margens** e a figura ocupa o vão entre elas.
- * As duas metades são posicionadas em absoluto e não em linhas de grelha: com
- * grelha, a segunda caía na faixa do meio, aterrava por cima da ilustração e
- * por cima da primeira, e lia-se "tetunegócio".
- *
- * O `h1` contém a frase **inteira**. As duas metades são `span` dentro dele,
- * porque um título partido em dois elementos chega ao Google e a um leitor de
- * ecrã como duas frases soltas.
- */
 export function HeroHome() {
   const ref = useRef<HTMLElement>(null);
-
   useGSAP(
     () => {
-      const raiz = ref.current;
-      if (!raiz) return;
-
-      const itens = raiz.querySelectorAll("[data-reveal-item]");
-      const figura = raiz.querySelector("[data-figura]");
-
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        gsap.set(itens, { opacity: 1, y: 0, clearProps: "transform" });
-        return;
-      }
-
-      gsap.timeline().fromTo(
-        itens,
-        { opacity: 0, y: MOVIMENTO.y },
-        {
-          opacity: 1,
-          y: 0,
-          duration: MOVIMENTO.hero,
-          ease: MOVIMENTO.ease,
-          stagger: MOVIMENTO.stagger,
-          clearProps: "transform",
-        },
-      );
-
-      /* A figura afunda mais devagar que o texto. Sem esta diferença de
-         velocidade a capa move-se como uma folha só, e a profundidade que a
-         composição promete não chega a existir. */
-      if (figura) {
-        ScrollTrigger.create({
-          trigger: raiz,
-          start: "top top",
-          end: "bottom top",
-          scrub: 0.5,
-          onUpdate: (self) =>
-            gsap.set(figura, { y: self.progress * 90, force3D: true }),
+      const mm = gsap.matchMedia();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.fromTo(
+          "[data-hero-copy]",
+          { y: 24 },
+          {
+            y: 0,
+            duration: MOVIMENTO.hero,
+            ease: MOVIMENTO.ease,
+            stagger: MOVIMENTO.stagger,
+            clearProps: "transform",
+          },
+        );
+        gsap.fromTo(
+          "[data-oficina]",
+          { rotate: -4, scale: 0.94 },
+          {
+            rotate: 0,
+            scale: 1,
+            duration: MOVIMENTO.hero,
+            ease: MOVIMENTO.ease,
+          },
+        );
+        gsap.to("[data-oficina]", {
+          y: 55,
+          rotate: 3,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ref.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+          },
         });
-      }
+        gsap.to("[data-modulo]", {
+          y: -35,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ref.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+          },
+        });
+      });
+      return () => mm.revert();
     },
     { scope: ref },
   );
-
   return (
     <section
       ref={ref}
-      className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-bg"
+      className="home-hero relative isolate overflow-hidden"
+      aria-labelledby="home-title"
     >
-      {/* A figura vive à esquerda e não ao centro: a segunda metade do título
-          vem da direita, e ao centro o creme da ilustração cruzava o creme do
-          texto — medido, 1.5:1 de contraste. */}
-      <div
-        data-figura
-        aria-hidden
-        className="pointer-events-none absolute inset-0 grid place-items-center justify-items-start py-[clamp(6rem,16vh,10rem)] pl-[clamp(2rem,12vw,12rem)]"
-      >
-        <Image
-          src="/hero/boneco.webp"
-          alt=""
-          width={1100}
-          height={831}
-          priority
-          className="h-[min(58%,27rem)] w-auto max-w-[46vw] object-contain"
-        />
-      </div>
-
-      {/* Scrim nas bordas, transparente no meio: escurece a moldura onde o
-          texto vive e deixa a ilustração intacta. Um véu de página inteira
-          resolveria o contraste e mataria a figura. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-[1]"
-        style={{
-          background:
-            "radial-gradient(closest-side at 50% 52%, transparent 30%, color-mix(in oklab, var(--bg) 62%, transparent) 60%, var(--bg) 100%)",
-        }}
-      />
-
-      <h1 className="sr-only">
-        Web design que soma ao teu negócio.
-      </h1>
-
-      <div aria-hidden className="absolute inset-0 z-[2]">
-        <span
-          data-reveal-item
-          className="absolute left-[var(--gut)] top-[clamp(4.5rem,12vh,8rem)] block max-w-[8ch] font-display text-[clamp(2.1rem,7vw,6.4rem)] font-extrabold leading-[0.9] tracking-[-0.05em] text-ink [--gut:clamp(1.25rem,5vw,5.5rem)]"
-        >
-          Web design
-        </span>
-        <span
-          data-reveal-item
-          className="absolute bottom-[clamp(11rem,30vh,17rem)] right-[var(--gut)] -mr-2 block max-w-[11ch] rounded-l-full py-[0.35em] pl-6 pr-2 text-right font-display text-[clamp(2.1rem,7vw,6.4rem)] font-extrabold leading-[0.9] tracking-[-0.05em] text-ink [--gut:clamp(1.25rem,5vw,5.5rem)]"
-          style={{
-            background:
-              "radial-gradient(115% 130% at 100% 50%, var(--bg) 46%, color-mix(in oklab, var(--bg) 86%, transparent) 70%, transparent 100%)",
-          }}
-        >
-          que <span className="text-primary">soma</span> ao teu negócio.
-        </span>
-      </div>
-
-      <div className="absolute bottom-[clamp(2rem,6vh,3.5rem)] left-[clamp(1.25rem,5vw,5.5rem)] z-[2] max-w-[32ch]">
-        <p data-reveal-item className="text-sm text-muted">
-          Estúdio de web design e desenvolvimento. Desenhamos, mostramos, e só
-          depois se escreve código.
-        </p>
-        <div data-reveal-item className="mt-4 flex flex-wrap gap-3">
-          <Button href="/portfolio" variant="primary">
-            Ver o trabalho
-          </Button>
-          <Button href="/contacto" variant="outline">
-            Falar connosco
-          </Button>
+      <Container>
+        <div className="home-hero-grid">
+          <div className="relative z-10">
+            <p
+              data-hero-copy
+              className="mb-6 flex items-center gap-3 text-sm text-muted"
+            >
+              <span className="h-2 w-2 rounded-full bg-accent" aria-hidden />
+              Design com intenção. Código à medida.
+            </p>
+            <h1 id="home-title" data-hero-copy className="home-title">
+              Web design
+              <br />
+              que <span className="text-primary">soma</span>
+              <br />
+              ao teu negócio.
+            </h1>
+            <p
+              data-hero-copy
+              className="mt-6 max-w-[37ch] text-base leading-relaxed text-muted sm:text-lg"
+            >
+              Da primeira ideia ao site no ar. Criamos sites, menus digitais e
+              ferramentas que te dão mais tempo para o teu negócio.
+            </p>
+            <div data-hero-copy className="mt-8 flex flex-wrap gap-3">
+              <Button href="/portfolio" className="group">
+                Ver o trabalho{" "}
+                <span
+                  aria-hidden
+                  className="transition-transform motion-safe:group-hover:translate-x-1"
+                >
+                  ↗
+                </span>
+              </Button>
+              <Button href="/contacto" variant="outline">
+                Falar connosco
+              </Button>
+            </div>
+          </div>
+          <div className="home-workshop relative" aria-hidden>
+            <div className="workshop-orbit" />
+            <div className="workshop-orbit workshop-orbit-inner" />
+            <span className="workshop-caption">
+              IDEIA → DESIGN → CÓDIGO → NO AR
+            </span>
+            <div data-oficina className="relative z-10">
+              <Image
+                src="/hero/oficina-digital.webp"
+                alt=""
+                width={1200}
+                height={800}
+                sizes="(min-width: 1024px) 55vw, (min-width: 768px) 50vw, 100vw"
+                preload
+                className="h-auto w-full"
+              />
+            </div>
+            <div data-modulo className="workshop-label">
+              <Logo className="h-6 w-6 text-primary" />
+              <span>
+                O teu negócio.
+                <br />
+                <strong>Com mais possibilidades.</strong>
+              </span>
+            </div>
+          </div>
         </div>
-      </div>
+        <div className="home-hero-bottom">
+          <p>
+            Websites <span aria-hidden> / </span> Lojas online{" "}
+            <span aria-hidden> / </span> Menus digitais
+          </p>
+          <Link
+            href="#trabalho"
+            className="inline-flex min-h-11 items-center gap-3"
+          >
+            Explora o que fazemos <span aria-hidden>↓</span>
+          </Link>
+        </div>
+      </Container>
     </section>
   );
 }

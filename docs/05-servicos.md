@@ -138,3 +138,11 @@ não uma etiqueta".
 | as regras de escrita (blurb, items) | revê os 6 serviços existentes de uma vez                       |
 
 | acrescentares ou mudares um pacote | `lib/packages.ts` — a página inicial e a `/servicos` leem ambas de lá        |
+
+## Home de outubro de 2026
+
+A meia-roda e a escolha por scroll, hover, clique e teclado são preservadas.
+Cada cena liga a um trabalho real: JSK, Império Auto Concept ou Café Preguiça.
+Os menus do Preguiça incluem QR code e NFC; o painel é um exemplo separado.
+Os pacotes mantêm o conteúdo comercial; a etiqueta do Website passa a
+"Website completo", sem alegar popularidade sem dados.

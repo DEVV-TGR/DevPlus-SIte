@@ -88,31 +88,32 @@ de projetos à lista de clientes.
 
 ## A homepage conta uma história
 
-Setembro de 2026, segunda escrita. A versão anterior tinha sete secções que
-eram **todas a mesma forma**: título grande, texto, uma coisa por baixo. Mudava
-a cor e o conteúdo, mas o molde não mudava — e uma página assim lê-se como uma
-lista, não como um percurso. O Gonçalo disse-o em três palavras: *"todas as
-secções seguem o mesmo padrão"*.
+Outubro de 2026. A home preserva o que distingue o remake: a coreografia
+conduzida pelo scroll, o leque de cards do processo e a meia-roda dos serviços.
+A melhoria não os substitui por uma página estática. A ordem passa a:
 
-A resposta não foi mais movimento. Foi **cada capítulo ter uma forma
-diferente**, e é essa a regra que agora governa esta página:
+| # | Capítulo | Forma |
+| --- | --- | --- |
+| 0 | Capa | Um h1 visível e oficina digital em profundidade, com dois CTAs |
+| 1 | Trabalho | Sete projetos, galeria horizontal conduzida pelo scroll em desktop |
+| 2 | Processo | Cards que entram, rodam e se acumulam; fila conduzida pelo scroll em mobile |
+| 3 | Serviços | Meia-roda interativa, cenas pinadas, troca por scroll, hover, clique e teclado |
+| 4 | Pacotes | Três pontos de partida e uma saída para todos os serviços |
 
-| # | Capítulo | A forma | Porque esta |
-| - | --- | --- | --- |
-| 0 | Capa | Tipografia partida pelas duas margens, figura no vão | É o pico da página, e um pico precisa de composição, não de um cabeçalho |
-| 1 | Como trabalhamos | Quatro cards inclinados que chegam com o scroll e se **acumulam** sobre o título | No fim vê-se o processo todo de uma vez. Quatro caixas lado a lado diziam o mesmo e não se lembravam |
-| 2 | A prova | Fila horizontal, com a página presa | Lateral lê-se como **alcance**; vertical lê-se como argumento. Aqui não se argumenta |
-| 3 | Serviços | Um de cada vez, número enorme, meia-roda à direita | Uma lista lê-se; isto **opera-se**, e quem procura um serviço passa-lhe o rato por cima |
-| 4 | Por onde começar | Grelha de pacotes: três e um caminho | O quarto não é um card, é a saída para quem não se revê nos três |
+A galeria preserva setas, contador e progresso. Em desktop ≥1024px tem pin com
+pausas `comPausa`; escolher uma seta ou usar as teclas move o scroll vertical
+para a posição correspondente. Abaixo desse breakpoint e com movimento reduzido,
+o percurso é horizontal nativo com snap, sem pin. Não se repetem projetos.
+O catálogo e os sete slugs selecionados na home são independentes.
 
-**Cinco formas, zero repetidas.** Se acrescentares um capítulo, ele traz uma
-forma nova ou não entra.
+A oficina é um asset ImageGen com alfa e versões WebP. O h1 é um elemento
+visível só: o título e a imagem têm áreas próprias, sem sobreposição. O símbolo
+não foi gerado: continua a ser o `Logo`. O prompt e os ficheiros estão em
+`docs/08-home-remake.md`.
 
-O convite era o capítulo 5 desta tabela e **deixou de viver aqui**: é hoje o
-rodapé inteiro, igual nas seis páginas. Ver "O fim do site é um bloco só".
-
-Os grounds mudam por capítulo com cortes duros, separados por `Curva` — ver os
-tokens em `docs/02`. O `Cruz` é a única coisa que atravessa todos.
+O convite continua integrado no rodapé, igual nas páginas públicas. Os grounds
+alternam com `Curva`: bg → paper → bg-deep → bg. O “+” acompanha o percurso
+inteiro; nenhuma animação é exigida a quem pede movimento reduzido.
 
 ### O percurso do "+" mede-se de zero a `"max"`
 
@@ -665,44 +666,22 @@ animam para lá. O `Flip` do GSAP fazia o mesmo com menos código, **mas é plug
 do Club**: se um dia o projeto tiver licença, é aqui que se usa. Para um risco de
 2 px não se pediu.
 
-### O que a página inicial nova custou a aprender
+### O hero e a navegação da home
 
-- **O título da capa é um `h1` só.** Esteve partido em dois elementos, e o
-  Google e um leitor de ecrã recebiam duas frases soltas. Agora o `h1` é
-  `sr-only` com a frase inteira e as duas metades visíveis são `aria-hidden` —
-  quem vê tem a composição, quem lê tem a frase.
-- **As duas metades posicionam-se em absoluto, não em linhas de grelha.** Com
-  grelha, a segunda caía na faixa do meio, aterrava por cima da ilustração e
-  por cima da primeira: lia-se "tetunegócio".
-- **A figura da capa não fica ao centro.** Ao centro, o creme da ilustração
-  cruzava o creme do título e o contraste local caía a 1.5:1. Está à esquerda,
-  e o título tem um scrim próprio.
-- **Um `scrim` de página inteira resolve o contraste e mata a ilustração.** O
-  que se usa é um gradiente radial invertido: escuro na moldura, onde o texto
-  vive, transparente no meio.
-- **Nas cenas dos serviços usa-se `hidden`, não `opacity: 0`.** Uma cena a zero
-  de opacidade continua tabulável e continua a ser lida, o que punha quatro
-  botões "Falar sobre isto" na ordem de teclado, três deles invisíveis. E o
-  `[hidden]` precisa de regra explícita quando há um `display` declarado, senão
-  não faz nada. **Mas um elemento com `hidden` não anima**, portanto quem sai só
-  o recebe no fim da saída — até lá fica `inert`, que tira do teclado e do leitor
-  de ecrã sem tirar do ecrã.
-- **Os cards do processo acumulam-se, e por isso não levam `stagger`.** Cada um
-  tem a sua fatia do percurso e **fica**; um stagger fá-los-ia suceder-se.
-- **E são atirados para a mesa, não acesos no sítio.** Cada card entra de fora
-  do palco — os das pontas pelo lado, os do meio de baixo — rodado a mais do que
-  a inclinação em que acaba, e assenta nela com o `easeCarta`. O
-  `overflow-hidden` do palco corta-os à entrada, e é isso que se quer ver: uma
-  carta a aparecer pela borda da mesa. Um `fade` com escala, que era o que havia,
-  materializava o card exatamente onde ele já estava.
-- **As poses do leque são dados, não classes.** Vivem no array `PASSOS` de
-  `components/home/ComoTrabalhamos.tsx` (`pousa` e `atira`, em `vw`/`svh`/graus),
-  porque o GSAP tem de animar de uma para a outra e o `transform` inline dele
-  ganha sempre a uma classe. Chegam ao CSS por custom properties no `style` do
-  card, que um `md:[transform:…]` lê — é o que põe o leque de pé antes da
-  hidratação, sem JavaScript e com `prefers-reduced-motion`. Por isso o ramo de
-  movimento reduzido **acende os cards e mais nada**: um `scale: 1` inline
-  bastava para o GSAP tomar conta do `transform` e apagar o leque.
+O hero usa um único h1 visível, com tracking −0,035em. A oficina fica à direita
+em desktop e abaixo do texto em mobile. A entrada anima a posição e a escala;
+a profundidade acompanha o scroll. A transição de página não esconde a árvore
+inteira antes de hidratar.
+
+O menu mobile usa `dialog.showModal()`: foco contido, Escape nativo e regresso
+ao botão de abertura. Fecha ao escolher destino e ao passar para desktop.
+O scroll do fundo fica bloqueado só enquanto o diálogo está aberto. A
+navegação desktop indica a página ativa com fundo e `aria-current`.
+
+O processo mantém as poses de chegada e de repouso, e o mobile mantém o
+percurso horizontal pinado. A roda conserva a sua geometria, a trégua da escolha
+manual e as teclas direcionais. Cada serviço ganha um caso real; os de menus e
+painel ligam ao Café Preguiça, com QR code e NFC mencionados no exemplo.
 
 ### A meia-roda dos serviços
 
@@ -910,3 +889,17 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | o plano do Resend                 | o `TETO_DIARIO` em `app/api/contacto/route.ts`, que existe para ficar abaixo da quota desse plano         |
 | o que o `Providers` monta         | confirma o que acontece em `/estudio` — o Lenis está lá desligado de propósito, e não por esquecimento |
 | onde vive o `.grain-overlay`      | é textura do site público e mora na `CascaDoSite`; a regra CSS continua em `app/globals.css` (docs/02) |
+
+### Adaptação dos capítulos imersivos
+
+O leque do processo começa em 1024px; abaixo disso usa a fila por scroll, para
+não cortar os cards nos tablets. Nos serviços mobile, o número fica abaixo da
+navegação, a figura ocupa a área superior esquerda, a roda a superior direita,
+e o texto tem uma área própria em baixo. A indicação QR/NFC e o CTA continuam
+visíveis sem se sobrepor à figura. A galeria desktop limita a altura da capa
+pelo viewport, para as setas caberem também em portáteis de 768px de altura.
+
+Com movimento reduzido, o `Providers` desmonta também o Lenis e usa o scroll
+nativo. A galeria deixa de ter pin; no processo, a fila mobile/tablet ganha
+overflow horizontal nativo, para os quatro passos continuarem acessíveis. A
+roda dos serviços mantém escolha manual, sem animação nem pin.

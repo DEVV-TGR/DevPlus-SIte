@@ -29,10 +29,77 @@ export type Project = {
 };
 
 /**
- * O primeiro da lista é o projeto em destaque na página inicial (card grande).
+ * O catálogo alimenta o portfólio; a seleção da home vive em HOME_PROJECT_SLUGS.
  * A cor de capa alterna entre `primary` e `accent` — ver docs/06.
  */
 export const projects: Project[] = [
+  {
+    slug: "cafe-preguica",
+    name: "Café Preguiça",
+    client: "Café Preguiça — Cocktails & Snacks",
+    category: "Café & cocktail bar",
+    year: "2026",
+    updatedAt: "2026-10-16",
+    status: "concluido",
+    url: "https://cafepreguica.pt",
+    image: "/capas/cafe-preguica.jpg",
+    imageAlt:
+      "Site do Café Preguiça, com a identidade da casa e a apresentação dos cocktails e snacks.",
+    summary:
+      "Da mesa à ementa, por QR code ou NFC. Um site com a personalidade da casa e um painel para a equipa gerir a carta.",
+    services: [
+      "Web Design",
+      "Desenvolvimento",
+      "Menus & Ecrãs Digitais",
+      "Painel de Gestão",
+    ],
+    accent: "primary",
+    overview:
+      "O Café Preguiça, em Ermesinde, precisava de levar a identidade do espaço para o digital e tornar a carta acessível a quem já está à mesa. A equipa precisava também de autonomia para atualizar produtos e preços sem depender de alterações ao código.",
+    contribution:
+      "Desenhámos e desenvolvemos o site em português e inglês, com uma apresentação própria dos cocktails e snacks. Criámos a ementa digital e o painel que permite à equipa gerir a carta. Nas mesas, os suportes com QR codes e NFC abrem a ementa: basta ler o código com a câmara ou aproximar um telemóvel compatível. Os acessos por mesa podem ser acompanhados no painel, ligando a experiência no espaço à ferramenta de gestão.",
+  },
+  {
+    slug: "cafe-avenida",
+    name: "Café Avenida",
+    client: "Café Avenida",
+    category: "Café & restauração",
+    year: "2026",
+    updatedAt: "2026-10-16",
+    status: "concluido",
+    url: "https://cafe-avenida.vercel.app",
+    image: "/capas/cafe-avenida.jpg",
+    imageAlt:
+      "Página inicial do Café Avenida, com fotografia do espaço e acesso à ementa.",
+    summary:
+      "Uma casa com presença própria na web. Site e ementa em três línguas, acessíveis no telemóvel por QR code.",
+    services: ["Web Design", "Desenvolvimento", "Menus & Ecrãs Digitais"],
+    accent: "accent",
+    overview:
+      "O Café Avenida, em Alpendurada, precisava de um site que apresentasse o espaço, mostrasse as sugestões da casa e desse acesso simples à ementa, tanto antes da visita como à mesa.",
+    contribution:
+      "Criámos o site com fotografias do espaço, galeria, sugestões, localização e horário com indicação de aberto ou fechado. A ementa está disponível em português, inglês e francês, organizada por categorias e preparada para consulta no telemóvel. Os QR codes nas mesas dão acesso direto à carta, e as imagens otimizadas mantêm a navegação leve.",
+  },
+  {
+    slug: "damira",
+    name: "Confeitaria Damira",
+    client: "Confeitaria Damira",
+    category: "Loja online · Confeitaria",
+    year: "2026",
+    updatedAt: "2026-10-16",
+    status: "em-curso",
+    image: "/capas/damira.jpg",
+    imageAlt:
+      "Pré-visualização do site da Confeitaria Damira, com os produtos e a identidade da marca.",
+    summary:
+      "Uma loja online em desenvolvimento para levar os produtos da confeitaria até ao pedido, com uma experiência à medida da casa.",
+    services: ["Web Design", "Desenvolvimento"],
+    accent: "primary",
+    overview:
+      "A Confeitaria Damira, em Ermesinde, junta pastelaria, padaria e cozinha. O projeto precisa de apresentar essa variedade com clareza e dar aos clientes uma forma simples de escolher produtos e preparar encomendas online.",
+    contribution:
+      "Estamos a desenvolver a loja online e a organizar a carta, os produtos por encomenda e os kits de festa. O trabalho já inclui a apresentação dos produtos em português e inglês, páginas de detalhe e um cesto para preparar o pedido. A loja continua em desenvolvimento; as funcionalidades previstas para o lançamento não são apresentadas como já entregues.",
+  },
   {
     slug: "taskuinha-do-pirata",
     name: "Taskuinha do Pirata",
@@ -159,3 +226,19 @@ export const projects: Project[] = [
 export function getProject(slug: string): Project | undefined {
   return projects.find((p) => p.slug === slug);
 }
+
+/** Seleção editorial da home, independente da ordem do catálogo completo. */
+export const HOME_PROJECT_SLUGS = [
+  "cafe-preguica",
+  "cafe-avenida",
+  "jsk",
+  "antonio-home-repair",
+  "imperio-auto-concept",
+  "taskuinha-do-pirata",
+  "damira",
+] as const;
+export const homeProjects: Project[] = HOME_PROJECT_SLUGS.map((slug) => {
+  const project = getProject(slug);
+  if (!project) throw new Error(`Projeto da home inexistente: ${slug}`);
+  return project;
+});

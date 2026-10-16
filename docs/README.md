@@ -42,6 +42,8 @@ Se um doc e o código discordarem, é um bug, não uma questão de gosto.
 | `scripts/estudio-migrar.mjs`                                                                              | 07                       |
 | `vercel.json`                                                                                             | 07                       |
 
+[08-home-remake.md](08-home-remake.md) regista a entrega da home de outubro, o asset e a validação.
+
 ## Um doc que não é especificação
 
 [motion-reference.md](motion-reference.md) é a **medição** de um site de

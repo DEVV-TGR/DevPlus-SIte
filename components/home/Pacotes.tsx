@@ -42,7 +42,7 @@ export function Pacotes() {
     <Section top={false}>
       <Container>
         <Reveal>
-          <h2 className="max-w-[16ch] font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+          <h2 className="home-heading max-w-[19ch]">
             Por onde podemos começar.
           </h2>
           <p className="mt-3 max-w-xl text-muted">
@@ -65,7 +65,7 @@ export function Pacotes() {
                 >
                   {p.featured ? (
                     <span className="absolute right-0 top-0 rounded-bl-xl rounded-tr-2xl bg-primary-ink px-3 py-1 text-xs text-ink">
-                      Mais escolhido
+                      Website completo
                     </span>
                   ) : null}
                   <h3 className="font-display text-lg font-semibold tracking-tight">

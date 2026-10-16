@@ -3,7 +3,7 @@
 
 import { ReactLenis, useLenis } from "lenis/react";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { gsap, ScrollTrigger } from "@/lib/motion";
 import { noEstudio } from "@/lib/estudio/rotas";
 
@@ -60,8 +60,22 @@ function LigarAoTicker() {
   return null;
 }
 
+const reducedMotionQuery = "(prefers-reduced-motion: reduce)";
+function subscribeMotion(callback: () => void) {
+  const media = window.matchMedia(reducedMotionQuery);
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+}
+const readMotion = () => window.matchMedia(reducedMotionQuery).matches;
+const serverMotion = () => false;
+
 export default function Providers({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const reducedMotion = useSyncExternalStore(
+    subscribeMotion,
+    readMotion,
+    serverMotion,
+  );
 
   /*
     As posições de arranque do ScrollTrigger são medidas antes de as imagens
@@ -103,7 +117,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
      lacuna "Raiz própria" em docs/07 — quando os PR #54 e #65 fundirem, isto
      resolve-se melhor com `app/(site)` e `app/(estudio)`, e esta verificação
      desaparece com a `CascaDoSite`. */
-  if (noEstudio(pathname)) {
+  if (noEstudio(pathname) || reducedMotion) {
     return <>{children}</>;
   }
 

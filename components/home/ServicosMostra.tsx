@@ -2,8 +2,15 @@
 /** docs: docs/04-componentes-e-padroes.md · docs/05-servicos.md */
 
 import Image from "next/image";
+import Link from "next/link";
 import { useRef, type CSSProperties } from "react";
-import { MOVIMENTO, ScrollTrigger, gsap, useGSAP, comPausa } from "@/lib/motion";
+import {
+  MOVIMENTO,
+  ScrollTrigger,
+  gsap,
+  useGSAP,
+  comPausa,
+} from "@/lib/motion";
 import { Button } from "@/components/ui/Button";
 import { services } from "@/lib/services";
 
@@ -20,10 +27,22 @@ import { services } from "@/lib/services";
  * `/servicos` — a página inicial apresenta, não cataloga.
  */
 const FIGURAS = [
-  { src: "/ilustra/s1-web-design.webp", alt: "Um ecrã com um pincel e uma paleta de cores." },
-  { src: "/ilustra/s2-desenvolvimento.webp", alt: "Um ecrã com chavetas de código e uma engrenagem." },
-  { src: "/ilustra/s3-menus.webp", alt: "Um telemóvel com um código QR ao lado de um ecrã de parede." },
-  { src: "/ilustra/s4-painel.webp", alt: "Um painel com interruptores e controlos deslizantes." },
+  {
+    src: "/ilustra/s1-web-design.webp",
+    alt: "Um ecrã com um pincel e uma paleta de cores.",
+  },
+  {
+    src: "/ilustra/s2-desenvolvimento.webp",
+    alt: "Um ecrã com chavetas de código e uma engrenagem.",
+  },
+  {
+    src: "/ilustra/s3-menus.webp",
+    alt: "Um telemóvel com um código QR ao lado de um ecrã de parede.",
+  },
+  {
+    src: "/ilustra/s4-painel.webp",
+    alt: "Um painel com interruptores e controlos deslizantes.",
+  },
 ];
 
 /* ── A geometria da roda ───────────────────────────────────────────────────
@@ -66,7 +85,10 @@ function fatia(de: number, ate: number) {
 function limites(i: number, n: number) {
   const passo = ARCO / n;
   const base = 180 - ARCO / 2;
-  return [base + i * passo + FOLGA / 2, base + (i + 1) * passo - FOLGA / 2] as const;
+  return [
+    base + i * passo + FOLGA / 2,
+    base + (i + 1) * passo - FOLGA / 2,
+  ] as const;
 }
 
 /** Dois segundos de trégua: ver `manual`, abaixo. */
@@ -102,9 +124,15 @@ export function ServicosMostra() {
       if (!palco) return;
 
       const painéis = gsap.utils.toArray<HTMLElement>("[data-cena]", raiz);
-      const segmentos = gsap.utils.toArray<HTMLElement>("[data-segmento]", raiz);
-      const reduzido = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const peças = (cena: HTMLElement) => gsap.utils.toArray<HTMLElement>("[data-peca]", cena);
+      const segmentos = gsap.utils.toArray<HTMLElement>(
+        "[data-segmento]",
+        raiz,
+      );
+      const reduzido = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      const peças = (cena: HTMLElement) =>
+        gsap.utils.toArray<HTMLElement>("[data-peca]", cena);
 
       let troca: gsap.core.Timeline | null = null;
 
@@ -168,7 +196,13 @@ export function ServicosMostra() {
           .fromTo(
             peças(entra),
             { opacity: 0, y: 34 * d },
-            { opacity: 1, y: 0, duration: 0.36, ease: MOVIMENTO.ease, stagger: 0.05 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.36,
+              ease: MOVIMENTO.ease,
+              stagger: 0.05,
+            },
             /* Sem sobreposição: as duas ilustrações a atravessarem-se a meio
                do crossfade liam-se como um borrão, não como uma troca. Uma
                sai, a outra chega. */
@@ -210,7 +244,15 @@ export function ServicosMostra() {
           stagger: MOVIMENTO.stagger * 0.5,
           transformOrigin: "100% 50%",
         })
-        .to(segmentos, { opacity: 1, duration: MOVIMENTO.escala, stagger: MOVIMENTO.stagger * 0.5 }, "<")
+        .to(
+          segmentos,
+          {
+            opacity: 1,
+            duration: MOVIMENTO.escala,
+            stagger: MOVIMENTO.stagger * 0.5,
+          },
+          "<",
+        )
         .from(
           inicial,
           {
@@ -221,10 +263,22 @@ export function ServicosMostra() {
           },
           "<0.12",
         )
-        .to(inicial, { opacity: 1, duration: MOVIMENTO.escala, stagger: MOVIMENTO.stagger }, "<")
+        .to(
+          inicial,
+          {
+            opacity: 1,
+            duration: MOVIMENTO.escala,
+            stagger: MOVIMENTO.stagger,
+          },
+          "<",
+        )
         .from(
           painéis[0].querySelectorAll("[data-figura]"),
-          { scale: MOVIMENTO.escalaDe, duration: MOVIMENTO.entrada, ease: MOVIMENTO.ease },
+          {
+            scale: MOVIMENTO.escalaDe,
+            duration: MOVIMENTO.entrada,
+            ease: MOVIMENTO.ease,
+          },
           "<",
         )
         /* O `transform` volta ao CSS no fim, senão o `rotate: 0` que a
@@ -282,7 +336,11 @@ export function ServicosMostra() {
   const rato = (e: React.PointerEvent) => e.pointerType === "mouse";
 
   return (
-    <section ref={ref} className="relative bg-bg" aria-labelledby="servicos-mostra">
+    <section
+      ref={ref}
+      className="relative bg-bg"
+      aria-labelledby="servicos-mostra"
+    >
       <h2 id="servicos-mostra" className="sr-only">
         O que fazemos
       </h2>
@@ -301,7 +359,10 @@ export function ServicosMostra() {
             {/* O deslocamento vive no invólucro porque o GSAP escreve
                 `transform` na figura, e as duas coisas não cabem no mesmo
                 elemento sem uma apagar a outra. */}
-            <div className="lg:-translate-x-[6%] max-sm:-translate-x-[14%]">
+            <div
+              data-service-figure-wrap
+              className="lg:-translate-x-[6%] max-sm:-translate-x-[14%]"
+            >
               <div
                 data-peca
                 data-figura
@@ -321,6 +382,7 @@ export function ServicosMostra() {
             <span
               data-peca
               aria-hidden
+              data-service-number
               className="absolute left-[clamp(1.25rem,5vw,5.5rem)] top-[clamp(3.5rem,9vh,6rem)] font-display text-[clamp(4rem,13vw,11rem)] font-extrabold leading-[0.8] tracking-[-0.06em] tabular-nums text-primary"
             >
               {String(i + 1).padStart(2, "0")}
@@ -328,13 +390,27 @@ export function ServicosMostra() {
 
             <div
               data-peca
+              data-service-copy
               className="absolute bottom-[clamp(4.5rem,12vh,8rem)] left-[clamp(1.25rem,5vw,5.5rem)] max-w-[min(26rem,70vw)]"
             >
               <h3 className="font-display text-[clamp(1.8rem,5vw,3.6rem)] font-extrabold leading-[0.98] tracking-[-0.04em]">
                 {s.title}
               </h3>
               <p className="mt-3 max-w-[34ch] text-sm text-muted">{s.blurb}</p>
-              <div className="mt-5">
+              <Link
+                href={`/portfolio/${i === 0 ? "jsk" : i === 1 ? "imperio-auto-concept" : "cafe-preguica"}`}
+                className="mt-3 inline-flex min-h-11 items-center gap-2 text-sm text-primary"
+              >
+                {i === 0
+                  ? "Ver o trabalho da JSK"
+                  : i === 1
+                    ? "Ver o Império Auto Concept"
+                    : i === 2
+                      ? "QR code e NFC no Café Preguiça"
+                      : "O painel do Café Preguiça"}{" "}
+                <span aria-hidden>↗</span>
+              </Link>
+              <div className="mt-3">
                 <Button href="/contacto" variant="primary">
                   Falar sobre isto
                 </Button>
@@ -362,7 +438,12 @@ export function ServicosMostra() {
           }}
           onKeyDown={(e) => {
             const n = cenas.length;
-            const passo = e.key === "ArrowUp" || e.key === "ArrowLeft" ? -1 : e.key === "ArrowDown" || e.key === "ArrowRight" ? 1 : 0;
+            const passo =
+              e.key === "ArrowUp" || e.key === "ArrowLeft"
+                ? -1
+                : e.key === "ArrowDown" || e.key === "ArrowRight"
+                  ? 1
+                  : 0;
             const i = passo
               ? (ativo.current + passo + n) % n
               : e.key === "Home"

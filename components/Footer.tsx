@@ -55,7 +55,7 @@ export function Footer() {
       <footer className="relative bg-primary text-primary-ink">
         <Fecho />
 
-        <Container className="py-12 sm:py-16">
+        <Container className="border-t border-primary-ink/20 py-12 sm:py-16">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <Reveal className="lg:col-span-2">
               <Link

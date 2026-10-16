@@ -363,3 +363,10 @@ a partir do `layout`), as perguntas frequentes (em `/servicos`) e, em cada caso 
 estudo, o trabalho mais o rasto de navegação. Todos os campos vêm de `lib/site.ts`
 e de `lib/projects.ts` — **não escrevas valores à mão neste ficheiro**, é a mesma
 regra do resto do doc. Depois de mexer, passa o output pelo Rich Results Test.
+
+## Home de outubro de 2026
+
+O hero mantém "Web design que soma ao teu negócio" num único h1 visível. A
+navegação passa a destacar o destino ativo e usa "Vamos conversar" no CTA. O
+convite do rodapé mantém texto e destino, com a escala `home-heading` e uma
+régua a separar os contactos, sem criar outro fecho.

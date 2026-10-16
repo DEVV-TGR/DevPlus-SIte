@@ -255,7 +255,7 @@ export function Fecho() {
         </div>
 
         <Container className="relative">
-          <h2 className="t-seccao mx-auto max-w-[15ch] font-display font-extrabold text-primary-ink">
+          <h2 className="home-heading mx-auto max-w-[15ch] text-primary-ink">
             {TITULO.map((l) => (
               /* Uma máscara por linha, e o `h2` continua a ser **um elemento
                  só**: quem lê com leitor de ecrã recebe a frase inteira. O

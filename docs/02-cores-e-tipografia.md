@@ -239,3 +239,13 @@ tokens e não dois.
 | `--primary` (o ground do rodapé)   | volta a medir as duas tintas sobre ele **e** o pior caso com a poeira do `Fecho` por baixo — a secção "O ground laranja tem duas tintas" tem os números |
 | a medida de um título              | `t-capa` / `t-seccao` / `t-obra` em `app/globals.css`, e a tabela acima — não escrevas um `clamp` novo num componente sem dizer porquê |
 | a escala do corpo em telemóvel     | o bloco `@media (max-width: 767px)` de `app/globals.css`; e corre o verificador em `--mobile`, que falha abaixo de 14px |
+
+## Home de outubro de 2026
+
+A identidade e os tokens mantêm-se. `home-title` vai de 3,15rem a 5,6rem em
+desktop, com entrelinha 1,02 e tracking −0,035em; em mobile usa 11,7vw entre
+2,9rem e 4,3rem. `home-heading` vai de 2,6rem a 4,4rem (mobile: 2,4–3,8rem).
+A medida própria evita voltar a sobrepor texto e asset no hero. As utilidades
+`t-capa`, `t-seccao` e `t-obra` deixam de usar tracking abaixo de −0,04em.
+A home, as órbitas, as etiquetas e os controlos não acrescentam cores: usam
+os tokens existentes, com a tinta do ground correspondente.
