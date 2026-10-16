@@ -903,3 +903,7 @@ Com movimento reduzido, o `Providers` desmonta também o Lenis e usa o scroll
 nativo. A galeria deixa de ter pin; no processo, a fila mobile/tablet ganha
 overflow horizontal nativo, para os quatro passos continuarem acessíveis. A
 roda dos serviços mantém escolha manual, sem animação nem pin.
+
+O processo recria a sua coreografia com `gsap.matchMedia()` quando a janela
+atravessa os 1024px, revertendo os transforms e pins anteriores. Não exige
+recarregar a página depois de rodar um dispositivo ou redimensionar a janela.

@@ -83,22 +83,30 @@ export function ComoTrabalhamos() {
 
   useGSAP(
     () => {
-      const raiz = ref.current;
-      if (!raiz) return;
-      const palco = raiz.querySelector<HTMLElement>("[data-palco]");
-      const cards = raiz.querySelectorAll<HTMLElement>("[data-passo]");
-      if (!palco) return;
+      const media = gsap.matchMedia();
+      media.add(
+        {
+          desktop: "(min-width: 1024px)",
+          mobile: "(max-width: 1023px)",
+          reduced: "(prefers-reduced-motion: reduce)",
+        },
+        () => {
+          const raiz = ref.current;
+          if (!raiz) return;
+          const palco = raiz.querySelector<HTMLElement>("[data-palco]");
+          const cards = raiz.querySelectorAll<HTMLElement>("[data-passo]");
+          if (!palco) return;
 
-      /* As poses finais estão no CSS (o `lg:[transform:…]` do card), por isso
+          /* As poses finais estão no CSS (o `lg:[transform:…]` do card), por isso
          aqui não se escreve `transform` nenhum: basta acender os cards e sai-se
          da frente. Um `scale: 1` inline bastava para o GSAP passar a mandar no
          `transform` e apagar o leque. */
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        gsap.set(cards, { opacity: 1 });
-        return;
-      }
+          if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            gsap.set(cards, { opacity: 1 });
+            return;
+          }
 
-      /* **No telemóvel a acumulação não cabe.** Quatro cards sobrepostos num
+          /* **No telemóvel a acumulação não cabe.** Quatro cards sobrepostos num
          ecrã de 390px saem pelas margens — metade do texto do passo 01 ficava
          cortada à esquerda — e a pilha custava 2,8 ecrãs de scroll. Aí a
          secção passa a uma **fila horizontal**: o título fica preso em cima e
@@ -106,69 +114,69 @@ export function ComoTrabalhamos() {
          referência usa nesta mesma secção no iPhone, e é a mesma gramática do
          `ProvaCarrossel` — lateral lê-se como percorrer uma lista, e é isso
          que quatro passos são. */
-      if (window.matchMedia("(max-width: 1023px)").matches) {
-        const fila = raiz.querySelector<HTMLElement>("[data-fila]");
-        if (!fila) return;
-        gsap.set(cards, { opacity: 1 });
+          if (window.matchMedia("(max-width: 1023px)").matches) {
+            const fila = raiz.querySelector<HTMLElement>("[data-fila]");
+            if (!fila) return;
+            gsap.set(cards, { opacity: 1 });
 
-        const percurso = () =>
-          Math.max(0, fila.scrollWidth - window.innerWidth);
-        const st = ScrollTrigger.create({
-          trigger: raiz,
-          start: "top top",
-          /* Os 25% de ecrã que aqui sobravam no fim eram a mesma ideia da
+            const percurso = () =>
+              Math.max(0, fila.scrollWidth - window.innerWidth);
+            const st = ScrollTrigger.create({
+              trigger: raiz,
+              start: "top top",
+              /* Os 25% de ecrã que aqui sobravam no fim eram a mesma ideia da
              pausa, escrita à mão e só de um lado. Agora são as duas, e vêm do
              `MOVIMENTO`. */
-          end: () => `+=${comPausa(percurso()).total}`,
-          pin: palco,
-          scrub: 0.6,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            const d = percurso();
-            gsap.set(fila, {
-              x: -comPausa(d).progresso(self.progress) * d,
-              force3D: true,
+              end: () => `+=${comPausa(percurso()).total}`,
+              pin: palco,
+              scrub: 0.6,
+              invalidateOnRefresh: true,
+              onUpdate: (self) => {
+                const d = percurso();
+                gsap.set(fila, {
+                  x: -comPausa(d).progresso(self.progress) * d,
+                  force3D: true,
+                });
+              },
             });
-          },
-        });
-        return () => st.kill();
-      }
+            return () => st.kill();
+          }
 
-      gsap.set(cards, { opacity: 0 });
+          gsap.set(cards, { opacity: 0 });
 
-      /* As poses vêm em `vw`/`svh` e o GSAP escreve px. São funções para o
+          /* As poses vêm em `vw`/`svh` e o GSAP escreve px. São funções para o
          `invalidateOnRefresh` as remedir a cada `refresh` — de outro modo o
          leque ficava com as medidas da janela que existia ao carregar. */
-      const vw = (n: number) => (window.innerWidth * n) / 100;
-      const svh = (n: number) => (palco.clientHeight * n) / 100;
+          const vw = (n: number) => (window.innerWidth * n) / 100;
+          const svh = (n: number) => (palco.clientHeight * n) / 100;
 
-      /* O leque ocupa 180% de ecrã, como sempre ocupou. O que é novo são as
+          /* O leque ocupa 180% de ecrã, como sempre ocupou. O que é novo são as
          duas pausas em volta: o título fica sozinho e parado antes de o
          primeiro card chegar, e os quatro ficam parados e inteiros antes de a
          página seguir. */
-      const percurso = () => comPausa(window.innerHeight * 1.8);
-      const { fracao } = percurso();
+          const percurso = () => comPausa(window.innerHeight * 1.8);
+          const { fracao } = percurso();
 
-      /* O ritmo dos cards está em unidades da timeline, e é o `scrub` que as
+          /* O ritmo dos cards está em unidades da timeline, e é o `scrub` que as
          estica para caber no percurso. Por isso o que aqui se escreve são
          **frações do percurso todo** — e a animação vale o que sobra depois de
          tirar as duas pausas. */
-      const DUR = 0.6;
-      const PASSO = 0.7;
-      const escala = (1 - fracao * 2) / (PASSO * (cards.length - 1) + DUR);
+          const DUR = 0.6;
+          const PASSO = 0.7;
+          const escala = (1 - fracao * 2) / (PASSO * (cards.length - 1) + DUR);
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: raiz,
-          start: "top top",
-          end: () => `+=${percurso().total}`,
-          pin: palco,
-          scrub: 0.6,
-          invalidateOnRefresh: true,
-        },
-      });
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: raiz,
+              start: "top top",
+              end: () => `+=${percurso().total}`,
+              pin: palco,
+              scrub: 0.6,
+              invalidateOnRefresh: true,
+            },
+          });
 
-      /* Cada card ocupa uma fatia do percurso e **fica** — o `stagger` não
+          /* Cada card ocupa uma fatia do percurso e **fica** — o `stagger` não
          serve aqui, porque queremos que se acumulem, não que se sucedam.
 
          E cada um **chega de fora**: os das pontas entram pelo lado, os do
@@ -182,41 +190,44 @@ export function ComoTrabalhamos() {
          e a opacidade leva a curva normal, porque uma opacidade com overshoot
          passa de 1 e volta, o que é um `flash` e não um gesto. A escala
          assenta antes da posição, como em todo o site. */
-      cards.forEach((c, i) => {
-        const { pousa, atira } = PASSOS[i];
-        const inicio = fracao + i * PASSO * escala;
-        tl.fromTo(
-          c,
-          { opacity: 0, scale: MOVIMENTO.escalaDe },
-          {
-            opacity: 1,
-            scale: 1,
-            duration: 0.36 * escala,
-            ease: MOVIMENTO.ease,
-          },
-          inicio,
-        ).fromTo(
-          c,
-          {
-            x: () => vw(atira.x),
-            y: () => svh(atira.y),
-            rotation: atira.r,
-          },
-          {
-            x: () => vw(pousa.x),
-            y: () => svh(pousa.y),
-            rotation: pousa.r,
-            duration: DUR * escala,
-            ease: MOVIMENTO.easeCarta,
-          },
-          inicio,
-        );
-      });
+          cards.forEach((c, i) => {
+            const { pousa, atira } = PASSOS[i];
+            const inicio = fracao + i * PASSO * escala;
+            tl.fromTo(
+              c,
+              { opacity: 0, scale: MOVIMENTO.escalaDe },
+              {
+                opacity: 1,
+                scale: 1,
+                duration: 0.36 * escala,
+                ease: MOVIMENTO.ease,
+              },
+              inicio,
+            ).fromTo(
+              c,
+              {
+                x: () => vw(atira.x),
+                y: () => svh(atira.y),
+                rotation: atira.r,
+              },
+              {
+                x: () => vw(pousa.x),
+                y: () => svh(pousa.y),
+                rotation: pousa.r,
+                duration: DUR * escala,
+                ease: MOVIMENTO.easeCarta,
+              },
+              inicio,
+            );
+          });
 
-      /* A pausa da saída tem de estar **na** timeline: sem um tramo que a
+          /* A pausa da saída tem de estar **na** timeline: sem um tramo que a
          ocupe, o GSAP encurta-a ao último card e o `scrub` volta a esticar
          tudo até ao fim do pin — a pausa desaparecia sozinha. */
-      tl.to({}, { duration: fracao }, 1 - fracao);
+          tl.to({}, { duration: fracao }, 1 - fracao);
+        },
+      );
+      return () => media.revert();
     },
     { scope: ref },
   );
