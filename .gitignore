@@ -67,3 +67,6 @@ scrollcraft/builds/*/package*.json
 
 # capturas do verificador de scroll (scripts/verificar-scroll.mjs)
 /lab/
+
+# Runtime local instalado pela atualização do Impeccable; não versionar binários.
+/.claude/skills/impeccable/scripts/bin/
