@@ -1,10 +1,14 @@
+/** docs: docs/04-componentes-e-padroes.md · docs/10-materiais-atelier.md */
+import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Reveal } from "@/components/Reveal";
 import { Capa } from "@/components/paginas/Capa";
 import { Cruz, POSTOS_PAGINA } from "@/components/home/Cruz";
 import { Curva } from "@/components/home/Curva";
+import { atelierAssets } from "@/components/atelier/assets";
 import { site } from "@/lib/site";
+import styles from "@/components/paginas/paginas.module.css";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
@@ -106,6 +110,8 @@ export default function SobrePage() {
       <Cruz postos={POSTOS_PAGINA} />
 
       <Capa
+        id="sobre-capa"
+        ambiente="espelho"
         eyebrow="Sobre"
         title="Estúdio pequeno, projetos poucos, atenção toda."
         intro={`A ${site.name} nasceu de uma ideia simples: a maior parte dos sites podia ser bem melhor. Existimos para acrescentar o que lhes falta.`}
@@ -164,18 +170,39 @@ export default function SobrePage() {
 
       <Section className="relative">
         <Container>
-          <Reveal>
-            <h2 className="t-seccao max-w-[14ch] font-display font-extrabold">
-              Em que acreditamos
-            </h2>
-          </Reveal>
+          {/* O INTERVALO
+              A peça de precisão vive aqui, entre a voz e as crenças, e não na
+              capa: a capa já tem o ambiente, e a figura que pousa ao lado do
+              título é o gesto da página inicial. Fica à esquerda, o título
+              assenta à direita — a única página interior com o objeto desse
+              lado. É ilustração, não uma fotografia do estúdio. */}
+          <div className="grid grid-cols-[minmax(0,1fr)] items-end gap-6 lg:grid-cols-12 lg:gap-10">
+            <Reveal className="lg:col-span-6">
+              <div aria-hidden className="w-[min(78%,26rem)] pr-[6%] lg:w-full">
+                <Image
+                  src={atelierAssets.precision.src}
+                  alt=""
+                  width={atelierAssets.precision.width}
+                  height={atelierAssets.precision.height}
+                  sizes="(min-width: 1024px) 34rem, 78vw"
+                  loading="lazy"
+                  className="h-auto w-full"
+                />
+              </div>
+            </Reveal>
+            <Reveal className="lg:col-span-5 lg:col-start-8 lg:pb-10">
+              <h2 className="t-seccao max-w-[14ch] font-display font-extrabold">
+                Em que acreditamos
+              </h2>
+            </Reveal>
+          </div>
           {/* Sem cards e sem 01/02/03: não é uma sequência — são três coisas
               em que se acredita ao mesmo tempo, e numerá-las era decoração.
               Fica uma lista assumida, com o peso na frase e não na caixa. */}
           <dl className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-3">
             {beliefs.map(([title, blurb]) => (
               <Reveal key={title}>
-                <div className="border-t border-border pt-5">
+                <div className={`${styles.regua} pt-5`}>
                   <dt className="font-display text-2xl tracking-tight">
                     {title}
                   </dt>

@@ -1,4 +1,4 @@
-/** docs: docs/06-projetos.md */
+/** docs: docs/06-projetos.md · docs/04-componentes-e-padroes.md · docs/10-materiais-atelier.md */
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Capa } from "@/components/paginas/Capa";
@@ -7,6 +7,7 @@ import { Curva } from "@/components/home/Curva";
 import { PortfolioIndice } from "@/components/paginas/PortfolioIndice";
 import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/Reveal";
+import { MaterialSurface } from "@/components/atelier/MaterialSurface";
 import { projects } from "@/lib/projects";
 import { site } from "@/lib/site";
 import { pageMetadata } from "@/lib/seo";
@@ -36,6 +37,8 @@ export default function PortfolioPage() {
       <Cruz postos={POSTOS_PAGINA} />
 
       <Capa
+        id="portfolio-capa"
+        ambiente="margens"
         eyebrow="Portfólio"
         title="O trabalho, com nome e ano."
         intro="Restaurantes, um stand, serviços ao domicílio e uma plataforma. Todos começaram da mesma maneira: uma folha em branco e uma conversa."
@@ -56,21 +59,28 @@ export default function PortfolioPage() {
 
       <Section className="relative">
         <Container>
+          {/* O convite ganha vidro verde: é a única placa da página que não
+              é trabalho, e a cor separa-a das capas sem mais um laranja. */}
           <Reveal>
-            <div className="flex flex-col gap-6 rounded-2xl border border-border bg-surface p-8 sm:flex-row sm:items-center sm:justify-between sm:p-12">
-              <div>
-                <h2 className="t-seccao font-display font-extrabold">
-                  O próximo pode ser o teu.
-                </h2>
-                <p className="mt-2 max-w-md text-sm text-muted">
-                  Conta-nos o que tens em mente. Não precisas de ter tudo
-                  decidido para nos falares.
-                </p>
+            <MaterialSurface finish="forest" padding="none">
+              {/* O padding vive aqui e não no `contentClassName`: o
+                  `padding="none"` do material é CSS sem camada e ganha a
+                  qualquer utilidade do Tailwind (docs/10). */}
+              <div className="flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-12">
+                <div>
+                  <h2 className="t-seccao font-display font-extrabold">
+                    O próximo pode ser o teu.
+                  </h2>
+                  <p className="mt-2 max-w-md text-sm text-muted">
+                    Conta-nos o que tens em mente. Não precisas de ter tudo
+                    decidido para nos falares.
+                  </p>
+                </div>
+                <Button href="/contacto" variant="primary" className="shrink-0">
+                  Vamos a isso
+                </Button>
               </div>
-              <Button href="/contacto" variant="primary" className="shrink-0">
-                Vamos a isso
-              </Button>
-            </div>
+            </MaterialSurface>
           </Reveal>
         </Container>
       </Section>

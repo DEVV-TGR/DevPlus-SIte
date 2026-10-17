@@ -1,4 +1,4 @@
-/** docs: docs/06-projetos.md — casos de estudo e vídeo do Preguiça. */
+/** docs: docs/06-projetos.md — casos de estudo e vídeo do Preguiça. · docs/04-componentes-e-padroes.md · docs/10-materiais-atelier.md */
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -9,6 +9,8 @@ import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/Reveal";
 import { CaseStudyJsonLd } from "@/components/JsonLd";
+import { Ambiente } from "@/components/paginas/Ambiente";
+import { MaterialSurface } from "@/components/atelier/MaterialSurface";
 import { projects, getProject } from "@/lib/projects";
 import { pageMetadata } from "@/lib/seo";
 import { cn } from "@/lib/utils";
@@ -70,39 +72,33 @@ export default async function CaseStudyPage({
         year={project.year}
       />
       {/* O "+" fica todo do lado direito nesta página: o texto do caso corre à
-          esquerda e a ficha, que é opaca, tapa-o do outro lado. */}
+          esquerda e a ficha, que é opaca, tapa-o do outro lado. O primeiro
+          posto é mais pequeno e mais encostado ao canto do que nas outras
+          páginas: a capa já não é uma imagem opaca a sangrar que o tapava, e
+          em escala 1,6 ele pousava em cima do nome do projeto. */}
       <Cruz
         postos={[
-          { p: 0.0, s: 1.6, x: 36, y: -22, r: 8, c: "var(--primary)" },
+          { p: 0.0, s: 1.0, x: 44, y: -30, r: 8, c: "var(--primary)" },
           { p: 0.4, s: 0.5, x: 44, y: 24, r: 0, c: "var(--paper-muted)" },
           { p: 0.76, s: 0.55, x: 46, y: -22, r: 6, c: "var(--primary)" },
           { p: 1.0, s: 1.3, x: 40, y: 30, r: 0, c: "var(--primary)" },
         ]}
       />
 
-      {/* A CAPA, A SANGRAR
-          É o único sítio do site onde uma fotografia ocupa o ecrã todo: aqui o
-          assunto é o trabalho, e o trabalho vê-se. Antes eram dois blocos — um
-          cabeçalho com o nome e, por baixo, a capa numa caixa com o nome outra
-          vez — e o nome aparecia duas vezes com um scroll de intervalo. */}
-      <section className="relative grid min-h-[82svh] place-items-center overflow-hidden">
-        <div aria-hidden className="absolute inset-0">
-          {project.image ? (
-            <Image
-              src={project.image}
-              alt=""
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover"
-            />
-          ) : (
-            <div className={cn("absolute inset-0", shape)} />
-          )}
-          {/* Véu de baixo para cima: o texto assenta sobre capas claras e
-              escuras sem trocar de cor. */}
-          <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/70 to-bg/25" />
-        </div>
+      {/* A CAPA, EXPOSTA
+          Continua a ser o único sítio do site onde o trabalho ocupa o ecrã,
+          e continua a ser a captura real do site. O que mudou foi o lugar do
+          título. A sangrar, o nome do projeto ficava **por cima** da captura,
+          e a captura é uma página com os seus próprios títulos: no Império
+          lia-se "Que viatura procura?" atravessado pelo "Império Auto
+          Concept", com o véu a escurecer o trabalho para salvar o texto.
+          Agora o nome vem primeiro, sobre o ambiente do atelier, e a captura
+          logo a seguir, inteira e sem véu, numa placa com espessura. */}
+      <section
+        id="caso-capa"
+        className="relative overflow-hidden px-4 pb-4 pt-36 sm:px-8 sm:pt-32"
+      >
+        <Ambiente corte="topo" alvo="caso-capa" />
 
         {/* A saída fica no canto, e não por cima do título: centrada, uma
             seta de voltar lê-se como parte do cabeçalho do projeto. */}
@@ -113,7 +109,7 @@ export default async function CaseStudyPage({
           ← Portfólio
         </Link>
 
-        <div className="relative z-[1] mx-auto w-full max-w-6xl px-6 text-center sm:px-8">
+        <div className="relative z-[1] mx-auto w-full max-w-6xl px-2 text-center sm:px-0">
           <Reveal delay={0.05}>
             <p className="text-sm uppercase tracking-[0.18em] text-primary">
               {project.category} · {project.year}
@@ -128,6 +124,29 @@ export default async function CaseStudyPage({
               {project.summary}
             </p>
           </Reveal>
+        </div>
+
+        {/* A placa: a proporção é a das capas (8:5), por isso a captura
+            entra inteira, sem corte. A aresta clara de cima e a sombra curta
+            dão-lhe espessura; nada se mexe por cima do trabalho. */}
+        <div
+          aria-hidden
+          className="relative mx-auto mt-12 w-full max-w-6xl sm:mt-16"
+        >
+          <div className="relative aspect-[8/5] overflow-hidden rounded-2xl border border-border-strong/40 bg-surface shadow-[inset_0_1px_0_color-mix(in_oklch,var(--ink)_14%,transparent),0_24px_48px_-16px_color-mix(in_oklch,var(--bg-deep)_80%,transparent)]">
+            {project.image ? (
+              <Image
+                src={project.image}
+                alt=""
+                fill
+                preload
+                sizes="(min-width: 1200px) 72rem, 100vw"
+                className="object-cover object-top"
+              />
+            ) : (
+              <div className={cn("absolute inset-0", shape)} />
+            )}
+          </div>
         </div>
       </section>
 
@@ -161,62 +180,74 @@ export default async function CaseStudyPage({
                 fundo próprio e não só borda: o "+" passa por trás, e sobre uma
                 caixa transparente atravessava as etiquetas. */}
             <div className="lg:col-span-4">
-              <Reveal delay={0.08}>
-                <dl className="grid gap-5 rounded-2xl border border-border bg-surface p-6 lg:sticky lg:top-[18vh]">
-                  <div>
-                    <dt className="text-xs uppercase tracking-[0.18em] text-muted">
-                      Cliente
-                    </dt>
-                    <dd className="mt-1 font-display font-semibold">
-                      {project.client}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs uppercase tracking-[0.18em] text-muted">
-                      Setor
-                    </dt>
-                    <dd className="mt-1 font-display font-semibold">
-                      {project.category}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs uppercase tracking-[0.18em] text-muted">
-                      Ano
-                    </dt>
-                    <dd className="mt-1 font-display font-semibold tabular-nums">
-                      {project.year}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs uppercase tracking-[0.18em] text-muted">
-                      O que entrou
-                    </dt>
-                    <dd>
-                      <ul className="mt-2 grid gap-1 text-sm">
-                        {project.services.map((s) => (
-                          <li key={s} className="text-muted">
-                            <span
-                              aria-hidden
-                              className="mr-1.5 font-bold text-primary"
-                            >
-                              +
-                            </span>
-                            {s}
-                          </li>
-                        ))}
-                      </ul>
-                    </dd>
-                  </div>
-                  {project.url ? (
-                    <Button
-                      href={project.url}
-                      variant="primary"
-                      className="w-full"
-                    >
-                      Visitar site
-                    </Button>
-                  ) : null}
-                </dl>
+              {/* O `h-full` é o que deixa a ficha prender. Um `sticky` só
+                  anda dentro do pai, e o pai era o `Reveal`, da altura exata
+                  da ficha: não havia percurso. Esticado à coluna, há. */}
+              <Reveal delay={0.08} className="h-full">
+                {/* A ficha é uma placa: alumínio grafite, opaca, presa ao lado
+                    do texto. Não se inclina — está ao lado de uma leitura
+                    longa, e um objeto a mexer na margem tira o olho da
+                    frase. O `sticky` vive num `div` próprio porque o material
+                    ocupa 100% da altura do pai. */}
+                <div className="lg:sticky lg:top-[18vh]">
+                  <MaterialSurface finish="graphite" interactive={false}>
+                    <dl className="grid gap-5">
+                      <div>
+                        <dt className="text-xs uppercase tracking-[0.18em] text-muted">
+                          Cliente
+                        </dt>
+                        <dd className="mt-1 font-display font-semibold">
+                          {project.client}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs uppercase tracking-[0.18em] text-muted">
+                          Setor
+                        </dt>
+                        <dd className="mt-1 font-display font-semibold">
+                          {project.category}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs uppercase tracking-[0.18em] text-muted">
+                          Ano
+                        </dt>
+                        <dd className="mt-1 font-display font-semibold tabular-nums">
+                          {project.year}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs uppercase tracking-[0.18em] text-muted">
+                          O que entrou
+                        </dt>
+                        <dd>
+                          <ul className="mt-2 grid gap-1 text-sm">
+                            {project.services.map((s) => (
+                              <li key={s} className="text-muted">
+                                <span
+                                  aria-hidden
+                                  className="mr-1.5 font-bold text-primary"
+                                >
+                                  +
+                                </span>
+                                {s}
+                              </li>
+                            ))}
+                          </ul>
+                        </dd>
+                      </div>
+                      {project.url ? (
+                        <Button
+                          href={project.url}
+                          variant="primary"
+                          className="w-full"
+                        >
+                          Visitar site
+                        </Button>
+                      ) : null}
+                    </dl>
+                  </MaterialSurface>
+                </div>
               </Reveal>
             </div>
           </div>
@@ -272,7 +303,7 @@ export default async function CaseStudyPage({
               <p className="text-sm text-muted">Próximo projeto</p>
               <Link
                 href={`/portfolio/${next.slug}`}
-                className="group mt-2 inline-flex items-center gap-3 font-display text-3xl font-semibold tracking-tight transition-colors hover:text-primary sm:text-4xl"
+                className="group mt-2 inline-flex min-h-11 items-center gap-3 font-display text-3xl font-semibold tracking-tight transition-colors hover:text-primary sm:text-4xl"
               >
                 {next.name}
                 <span className="transition-transform duration-300 group-hover:translate-x-1">

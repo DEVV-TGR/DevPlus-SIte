@@ -1,0 +1,148 @@
+/* docs: docs/04-componentes-e-padroes.md · docs/10-materiais-atelier.md
+   Estilos locais das páginas interiores. Só tokens de app/globals.css. */
+
+/* ── Ambiente ────────────────────────────────────────────────────────────
+   O AtelierBackdrop pinta o seu próprio ground. Dentro de uma secção
+   `isolate` ele ficava por cima do "+" do `Cruz` (camada `fixed z-0`) e
+   apagava o primeiro tramo do gesto nas capas. Por isso vive aqui, numa
+   camada negativa, em secções **sem fundo próprio**: o ambiente fica por
+   baixo do "+", e o conteúdo, em fluxo, por cima dos dois. */
+.ambiente {
+  position: absolute;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+}
+
+/* Cada página corta o mesmo bitmap de outra maneira: a família repete-se,
+   o enquadramento não. */
+.margens {
+  mask-image: linear-gradient(
+    to right,
+    #000 0%,
+    #000 14%,
+    transparent 34%,
+    transparent 66%,
+    #000 86%,
+    #000 100%
+  );
+}
+
+.espelho {
+  transform: scaleX(-1);
+}
+
+.topo {
+  mask-image: linear-gradient(to bottom, #000 0%, #000 45%, transparent 100%);
+}
+
+/* ── Colunas do acordeão ─────────────────────────────────────────────────
+   Alumínio muito discreto atrás de um véu: a textura dá o material, o véu
+   garante a leitura. A aresta clara de cima é a espessura da placa. */
+.coluna::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background: url("/atelier/metal-escovado-v1.webp") center / cover no-repeat;
+  opacity: 0.05;
+}
+
+/* `isolate` prende o `z-index: -1` da textura à própria coluna: fica por
+   cima do fundo dela e por baixo do texto. */
+.coluna {
+  isolation: isolate;
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklch, var(--ink) 9%, transparent),
+    0 8px 16px color-mix(in oklch, var(--bg-deep) 40%, transparent);
+}
+
+.coluna[data-aberta="true"] {
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklch, var(--primary) 30%, transparent),
+    0 12px 24px color-mix(in oklch, var(--bg-deep) 55%, transparent);
+}
+
+/* ── Réguas ──────────────────────────────────────────────────────────────
+   Um fio de metal escovado no lugar do `border-t`: claro numa ponta, a
+   apagar-se na outra. */
+.regua {
+  position: relative;
+}
+
+.regua::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    color-mix(in oklch, var(--ink) 55%, transparent),
+    color-mix(in oklch, var(--muted) 30%, transparent) 45%,
+    color-mix(in oklch, var(--border) 60%, transparent)
+  );
+}
+
+.regua::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -1px;
+  width: 2.25rem;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--primary);
+}
+
+/* ── Título do contacto ─────────────────────────────────────────────────
+   O `t-capa` é a escala de um título que ocupa um ecrã sozinho. Aqui
+   divide o ecrã com o formulário, numa coluna de cinco: a 90px saía uma
+   palavra por linha. Mesma família e peso, escala da coluna. */
+.tituloContacto {
+  font-size: clamp(2.9rem, 13.5vw, 4.4rem);
+  line-height: 0.95;
+}
+
+/* ── Moldura do portfólio ───────────────────────────────────────────────
+   A abertura do bitmap foi medida: x 143–854 e y 109–523 num quadro de
+   1000×667. A capa real fica por baixo do alumínio, meio pixel para dentro
+   de cada aresta, para não se ver o fundo entre a imagem e o metal. */
+.moldura {
+  position: relative;
+  aspect-ratio: 1000 / 667;
+}
+
+.molduraJanela {
+  position: absolute;
+  left: 14%;
+  right: 14.3%;
+  top: 15.9%;
+  bottom: 21.3%;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--surface);
+}
+
+.molduraMetal {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  /* O bitmap tem ~10% de transparência à volta; em desktop a moldura
+     come-a para o lado do intervalo entre colunas, onde não corta nada. */
+  .moldura {
+    margin-inline: -6% -10%;
+  }
+}
+
+@media (forced-colors: active) {
+  .ambiente,
+  .coluna::before,
+  .molduraMetal {
+    display: none;
+  }
+}

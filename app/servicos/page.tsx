@@ -1,17 +1,16 @@
-/** docs: docs/05-servicos.md */
+/** docs: docs/05-servicos.md · docs/04-componentes-e-padroes.md · docs/10-materiais-atelier.md */
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
-import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/Reveal";
 import { Capa } from "@/components/paginas/Capa";
 import { Cruz, POSTOS_PAGINA } from "@/components/home/Cruz";
 import { Curva } from "@/components/home/Curva";
 import { ServicosAcordeao } from "@/components/paginas/ServicosAcordeao";
+import { PacotesBancada } from "@/components/paginas/PacotesBancada";
 import { FaqJsonLd } from "@/components/JsonLd";
 import { services } from "@/lib/services";
 import { packages } from "@/lib/packages";
-import { cn } from "@/lib/utils";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
@@ -83,6 +82,7 @@ export default function ServicosPage() {
       <Cruz postos={POSTOS_PAGINA} />
 
       <Capa
+        id="servicos-capa"
         eyebrow="Serviços"
         title="Design, código e as chaves na tua mão."
         intro="Fazemos tudo o que o teu site precisa, da primeira ideia ao dia em que fica no ar. E deixamos-te o painel para seres tu a mandar nele a partir daí."
@@ -148,48 +148,7 @@ export default function ServicosPage() {
               acrescentar alguma coisa, falamos antes de fazer.
             </p>
           </Reveal>
-          <div className="mt-10 grid gap-4 lg:grid-cols-3">
-            {packages.map((p, i) => (
-              <Reveal key={p.name} delay={i * 0.06}>
-                <div
-                  className={cn(
-                    "flex h-full flex-col rounded-2xl border p-6",
-                    p.featured
-                      ? "border-primary/60 bg-primary/[0.06]"
-                      : "border-border bg-surface",
-                  )}
-                >
-                  {p.featured ? (
-                    <span className="mb-3 inline-flex w-fit items-center rounded-full bg-primary px-2.5 py-1 text-xs font-medium text-primary-ink">
-                      Mais escolhido
-                    </span>
-                  ) : null}
-                  <h3 className="font-display text-xl">{p.name}</h3>
-                  <p className="mt-2 text-sm text-muted">{p.desc}</p>
-                  <ul className="mt-5 space-y-2 text-sm">
-                    {p.points.map((pt) => (
-                      <li key={pt} className="flex items-start gap-2.5">
-                        <span
-                          aria-hidden
-                          className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent"
-                        />
-                        <span className="text-muted">{pt}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-auto pt-6">
-                    <Button
-                      href="/contacto"
-                      variant={p.featured ? "primary" : "outline"}
-                      className="w-full"
-                    >
-                      Pedir proposta
-                    </Button>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
+          <PacotesBancada />
           <p className="mt-4 text-sm text-muted">
             Nenhum destes é o teu caso?{" "}
             <Link

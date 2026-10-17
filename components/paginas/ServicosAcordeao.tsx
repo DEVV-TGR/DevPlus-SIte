@@ -1,11 +1,12 @@
 "use client";
-/** docs: docs/04-componentes-e-padroes.md · docs/05-servicos.md */
+/** docs: docs/04-componentes-e-padroes.md · docs/05-servicos.md · docs/10-materiais-atelier.md */
 
 import Image from "next/image";
 import { useCallback, useRef } from "react";
 import { ScrollTrigger, useGSAP, comPausa } from "@/lib/motion";
-import { Logo } from "@/components/Logo";
+import { atelierAssets } from "@/components/atelier/assets";
 import { services } from "@/lib/services";
+import styles from "./paginas.module.css";
 
 /**
  * Os seis serviços, em colunas verticais que abrem uma de cada vez.
@@ -34,17 +35,21 @@ import { services } from "@/lib/services";
  * está fechado não é um duplicado do que está aberto.
  */
 
-/** As ilustrações que existem, pela ordem de `lib/services.ts`. */
-const FIGURAS: (string | null)[] = [
-  "/ilustra/s1-web-design.webp",
-  "/ilustra/s2-desenvolvimento.webp",
-  "/ilustra/s3-menus.webp",
-  "/ilustra/s4-painel.webp",
-  /* Branding e Motion não têm ilustração. Ficam com o "+" em marca-d'água em
-     vez de uma figura emprestada de outro serviço — ver docs/05. */
-  null,
-  null,
-];
+/**
+ * As figuras, pela ordem de `lib/services.ts`: as seis da família do atelier —
+ * acrílico laranja, vidro verde, alumínio. Branding e Motion deixaram de ficar
+ * com o "+" em marca-d'água: têm escultura própria, e nenhuma é emprestada de
+ * outro serviço. São ilustrações conceptuais, não capturas de trabalho
+ * entregue — ver docs/09 e docs/10.
+ */
+const FIGURAS = [
+  atelierAssets.webDesign,
+  atelierAssets.development,
+  atelierAssets.nfc,
+  atelierAssets.dashboard,
+  atelierAssets.branding,
+  atelierAssets.motion,
+] as const;
 
 export function ServicosAcordeao() {
   const ref = useRef<HTMLElement>(null);
@@ -144,37 +149,37 @@ export function ServicosAcordeao() {
                 manual.current = performance.now() + 2000;
                 abrir(i);
               }}
-              className="group relative grid min-w-0 cursor-pointer content-end overflow-hidden rounded-2xl border border-border bg-surface p-4 text-left transition-[flex-grow,background-color,border-color] duration-[420ms] ease-out md:data-[aberta=true]:border-primary/45 md:data-[aberta=true]:bg-primary/10 md:basis-0 md:grow md:p-5 md:data-[aberta=true]:grow-[5]"
+              className={`${styles.coluna} group relative grid min-w-0 cursor-pointer content-end overflow-hidden rounded-2xl border border-border bg-surface p-4 text-left transition-[flex-grow,background-color,border-color] duration-[420ms] ease-out md:data-[aberta=true]:border-primary/45 md:data-[aberta=true]:bg-primary/10 md:basis-0 md:grow md:p-5 md:data-[aberta=true]:grow-[5]`}
             >
               <span className="absolute left-4 top-4 text-sm font-extrabold tabular-nums text-primary md:left-5 md:top-5">
                 {String(i + 1).padStart(2, "0")}
               </span>
 
-              {fig ? (
-                <span
-                  aria-hidden
-                  className="absolute right-4 top-4 hidden w-[min(34%,15rem)] opacity-0 transition-opacity duration-[420ms] group-data-[aberta=true]:opacity-100 md:block"
-                >
-                  <Image
-                    src={fig}
-                    alt=""
-                    width={760}
-                    height={760}
-                    loading="lazy"
-                    className="h-auto w-full"
-                  />
-                </span>
-              ) : (
-                <Logo
-                  aria-hidden
-                  className="absolute right-6 top-6 hidden w-[min(26%,11rem)] opacity-0 transition-opacity duration-[420ms] group-data-[aberta=true]:opacity-[0.12] md:block [&_path]:fill-primary"
+              {/* A figura é a peça da coluna aberta: grande, à direita, por
+                  cima da zona do texto e nunca por baixo dele. No telemóvel
+                  todas as linhas estão abertas, e a figura encolhe para o
+                  lado do título — seis esculturas a ocupar o ecrã inteiro
+                  eram seis ecrãs de scroll. Os 44px são a altura da linha
+                  do título: com 64px a figura já tapava o início do texto. */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute right-3 top-3 w-11 transition-[opacity,transform] duration-[420ms] ease-out md:right-[4%] md:top-[6%] md:w-[min(42%,24rem)] md:translate-y-2 md:opacity-0 md:group-data-[aberta=true]:translate-y-0 md:group-data-[aberta=true]:opacity-100"
+              >
+                <Image
+                  src={fig.src}
+                  alt=""
+                  width={fig.width}
+                  height={fig.height}
+                  sizes="(min-width: 768px) 24rem, 3rem"
+                  loading="lazy"
+                  className="h-auto w-full"
                 />
-              )}
+              </span>
 
               {/* O nome roda quando a coluna está fechada e endireita-se ao
                   abrir: é o que torna seis colunas legíveis a 130px de largura.
                   No telemóvel nunca roda — lá as colunas são linhas. */}
-              <h3 className="m-0 whitespace-nowrap pl-10 font-display text-[1.35rem] font-bold tracking-[-0.02em] md:pl-0 md:text-[clamp(1rem,1.5vw,1.35rem)] md:[writing-mode:vertical-rl] md:[transform:rotate(180deg)] md:group-data-[aberta=true]:text-[clamp(1.5rem,3vw,2.6rem)] md:group-data-[aberta=true]:[writing-mode:horizontal-tb] md:group-data-[aberta=true]:[transform:none]">
+              <h3 className="m-0 pl-10 pr-14 font-display md:whitespace-nowrap md:pr-0 text-[1.35rem] font-bold tracking-[-0.02em] md:pl-0 md:text-[clamp(1rem,1.5vw,1.35rem)] md:[writing-mode:vertical-rl] md:[transform:rotate(180deg)] md:group-data-[aberta=true]:text-[clamp(1.5rem,3vw,2.6rem)] md:group-data-[aberta=true]:[writing-mode:horizontal-tb] md:group-data-[aberta=true]:[transform:none]">
                 {s.title}
               </h3>
 

@@ -1,7 +1,8 @@
-/** docs: docs/01-marca.md — o nome e o email vêm de lib/site.ts. */
+/** docs: docs/01-marca.md — o nome e o email vêm de lib/site.ts. · docs/04-componentes-e-padroes.md · docs/10-materiais-atelier.md */
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { PageHero } from "@/components/PageHero";
+import { Ambiente } from "@/components/paginas/Ambiente";
 import { site } from "@/lib/site";
 import { pageMetadata } from "@/lib/seo";
 
@@ -78,11 +79,17 @@ const sections: [string, React.ReactNode][] = [
 export default function PrivacidadePage() {
   return (
     <>
-      <PageHero
-        eyebrow="Legal"
-        title="Política de Privacidade"
-        intro="Como tratamos os teus dados quando usas este site ou nos contactas."
-      />
+      {/* Um documento legal não leva composição (docs/04) — leva só o
+          ambiente nas margens do cabeçalho, parado e quase todo coberto. O
+          texto da política fica sobre o ground liso. */}
+      <div className="relative">
+        <Ambiente corte="margens" />
+        <PageHero
+          eyebrow="Legal"
+          title="Política de Privacidade"
+          intro="Como tratamos os teus dados quando usas este site ou nos contactas."
+        />
+      </div>
 
       <Section>
         <Container>

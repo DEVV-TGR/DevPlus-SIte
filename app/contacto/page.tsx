@@ -1,8 +1,12 @@
-/** docs: docs/01-marca.md — o email, os telefones e as redes vêm de lib/site.ts. */
+/** docs: docs/01-marca.md — o email, os telefones e as redes vêm de lib/site.ts. · docs/04-componentes-e-padroes.md · docs/10-materiais-atelier.md */
+import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Cruz, type Posto } from "@/components/home/Cruz";
 import { ContactForm } from "@/components/ContactForm";
+import { MaterialSurface } from "@/components/atelier/MaterialSurface";
+import { atelierAssets } from "@/components/atelier/assets";
+import styles from "@/components/paginas/paginas.module.css";
 import { site, socials, team, telHref } from "@/lib/site";
 import { pageMetadata } from "@/lib/seo";
 
@@ -51,7 +55,12 @@ export default function ContactoPage() {
               <p className="text-sm font-medium uppercase tracking-[0.18em] text-primary">
                 Contacto
               </p>
-              <h1 className="t-capa mt-4 max-w-[13ch] font-display font-extrabold">
+              {/* `t-capa` dá a família e o desenho; a escala é a da coluna
+                  (ver `tituloContacto`): a 90px saía uma palavra por linha
+                  e o formulário descia para lá do primeiro ecrã. */}
+              <h1
+                className={`t-capa ${styles.tituloContacto} mt-4 max-w-[15ch] font-display font-extrabold`}
+              >
                 Vamos falar sobre o teu projeto.
               </h1>
               <p className="mt-5 max-w-[44ch] text-lg text-muted">
@@ -152,8 +161,34 @@ export default function ContactoPage() {
                 trocá-los era reescrever o formulário para ganhar uma cor. */}
             <div className="order-2 lg:order-none lg:col-span-7 lg:col-start-6 lg:row-span-2 lg:row-start-1">
               <h2 className="sr-only">Formulário de contacto</h2>
-              <div className="rounded-2xl border border-border bg-surface p-6 sm:p-8">
-                <ContactForm />
+              {/* A peça de sinal — duas cápsulas ligadas — pousa na aresta
+                  de cima do painel, do lado sem rótulos, e só onde há margem
+                  livre para ela. É estática: nada se mexe perto de campos ou
+                  de mensagens de erro. No telemóvel não existe; lá o espaço é
+                  todo do formulário. */}
+              <div className="relative">
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute bottom-full right-6 z-[1] hidden w-[clamp(9rem,14vw,12.5rem)] translate-y-[28%] lg:block"
+                >
+                  <Image
+                    src={atelierAssets.contact.src}
+                    alt=""
+                    width={atelierAssets.contact.width}
+                    height={atelierAssets.contact.height}
+                    sizes="12.5rem"
+                    loading="lazy"
+                    className="h-auto w-full"
+                  />
+                </div>
+                {/* O painel é uma placa de grafite com o metal muito
+                    discreto, e **não se inclina**: um formulário que se mexe
+                    debaixo do cursor é um formulário onde se falha o campo. */}
+                <MaterialSurface finish="graphite" interactive={false} padding="none">
+                  <div className="p-6 sm:p-8">
+                    <ContactForm />
+                  </div>
+                </MaterialSurface>
               </div>
             </div>
           </div>
