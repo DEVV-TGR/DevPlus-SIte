@@ -5,8 +5,9 @@ export type Package = {
   desc: string;
   points: string[];
   /**
-   * O mais escolhido. Só um pode ter: na página inicial pinta o card inteiro
-   * de laranja, e dois destaques não destacam nada. Ver `docs/05`.
+   * O mais escolhido. Só um pode ter: na página inicial a linha dele leva o
+   * nome e o filete em laranja e o botão cheio, e dois destaques não destacam
+   * nada. Ver `docs/05`.
    */
   featured?: boolean;
 };

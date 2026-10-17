@@ -40,26 +40,30 @@ export type Posto = {
   c: string;
 };
 
-/** Os postos da **página inicial**: sete, para um percurso de quinze ecrãs. */
+/**
+ * Percurso da home em fluxo livre: o símbolo vive nas margens de leitura.
+ *
+ * As travessias de um lado ao outro acontecem por trás dos capítulos opacos
+ * (galeria, processo, serviços). Os pacotes são linhas sem fundo, e a última
+ * travessia caía-lhes em cima: o "+" laranja passava por baixo do texto. Pô-lo
+ * à espera na margem direita só resultava a partir de 1280px — abaixo disso
+ * não há margem, e ele espreitava por trás do botão do pacote em destaque.
+ * Por isso as duas últimas travessias e o desaparecimento cabem entre 0,57 e
+ * 0,79 — dentro dos serviços em todas as larguras ≥768px (medido: 0,43–0,87 a
+ * 768px, 0,66–0,92 a 1366px; os pacotes começam a 0,79 e 0,87). O "+"
+ * **encolhe até desaparecer** enquanto os pacotes se lêem, e só volta a
+ * crescer no último ecrã, por baixo do laranja do rodapé (ver docs/04).
+ */
 const POSTOS_HOME: Posto[] = [
-  { p: 0.0, s: 2.7, x: 30, y: -10, r: 0, c: "var(--primary)" },
-  { p: 0.12, s: 2.1, x: 34, y: 8, r: 18, c: "var(--primary)" },
-  { p: 0.26, s: 0.55, x: -38, y: 18, r: 45, c: "var(--primary)" },
-  { p: 0.44, s: 0.8, x: 36, y: -20, r: 0, c: "var(--paper-muted)" },
-  { p: 0.62, s: 0.5, x: -40, y: -26, r: 45, c: "var(--primary)" },
-  { p: 0.8, s: 0.9, x: 36, y: 22, r: 12, c: "var(--primary)" },
-  /* O último posto **mergulha por baixo do laranja**. O fecho é agora o
-     rodapé inteiro (ver `components/Footer.tsx`), e um ground opaco a subir
-     tapa uma camada `fixed` que vive em `z-0` — ou seja, no último ecrã o "+"
-     não se vê, faça ele o que fizer. Em vez de fingir que ainda lá está, o
-     gesto desce e cresce, como quem passa por baixo; quem o continua é a
-     poeira de "+" do `Fecho`, que converge para a régua do convite.
-
-     A cor volta a `--primary` porque o que se vê deste tramo é o que acontece
-     **antes** da ocultação, sobre o ground escuro dos pacotes (7.45:1). O
-     creme, que servia para marca-d'água sobre o laranja, já não tem laranja
-     nenhum onde pousar. */
-  { p: 1.0, s: 1.3, x: 34, y: 36, r: 0, c: "var(--primary)" },
+  { p: 0, s: 1.45, x: 44, y: -26, r: 0, c: "var(--primary)" },
+  { p: 0.17, s: 0.5, x: 44, y: 24, r: 12, c: "var(--primary)" },
+  { p: 0.34, s: 0.45, x: -43, y: -24, r: 0, c: "var(--primary)" },
+  { p: 0.57, s: 0.5, x: 44, y: 18, r: 12, c: "var(--primary)" },
+  { p: 0.7, s: 0.5, x: -44, y: -18, r: 0, c: "var(--primary)" },
+  { p: 0.76, s: 0.4, x: 46, y: 24, r: 12, c: "var(--primary)" },
+  { p: 0.79, s: 0, x: 46, y: 24, r: 12, c: "var(--primary)" },
+  { p: 0.97, s: 0, x: 40, y: 30, r: 0, c: "var(--primary)" },
+  { p: 1, s: 1.3, x: 34, y: 36, r: 0, c: "var(--primary)" },
 ];
 
 /**
@@ -103,6 +107,23 @@ export const POSTOS_MOBILE: Posto[] = [
   { p: 0.0, s: 1.1, x: 40, y: -34, r: 0, c: "var(--primary)" },
   { p: 0.34, s: 0.42, x: 44, y: 30, r: 8, c: "var(--primary)" },
   { p: 0.72, s: 0.4, x: -44, y: -32, r: 10, c: "var(--paper-muted)" },
+  { p: 1.0, s: 0.9, x: -42, y: 34, r: 0, c: "var(--primary)" },
+];
+
+/**
+ * O percurso do telemóvel **na home**. O `POSTOS_MOBILE` acima serve as
+ * interiores; na home a travessia de 0,34 a 0,72 acabava já por cima do
+ * título dos pacotes, que lá começam entre 0,66 e 0,70 do percurso (medido de
+ * 320 a 414px). Aqui atravessa por trás do processo, desaparece antes dos
+ * pacotes e só volta no último ecrã, por baixo do rodapé — a mesma regra do
+ * `POSTOS_HOME`.
+ */
+export const POSTOS_HOME_MOBILE: Posto[] = [
+  { p: 0.0, s: 1.1, x: 40, y: -34, r: 0, c: "var(--primary)" },
+  { p: 0.34, s: 0.42, x: 44, y: 30, r: 8, c: "var(--primary)" },
+  { p: 0.56, s: 0.4, x: -44, y: -32, r: 10, c: "var(--primary)" },
+  { p: 0.62, s: 0, x: -44, y: -32, r: 10, c: "var(--primary)" },
+  { p: 0.97, s: 0, x: -42, y: 34, r: 0, c: "var(--primary)" },
   { p: 1.0, s: 0.9, x: -42, y: 34, r: 0, c: "var(--primary)" },
 ];
 
@@ -210,7 +231,7 @@ export function Cruz({
       data-cruz
       className="pointer-events-none fixed inset-0 z-0 grid place-items-center"
     >
-      <Logo className="h-[22vmin] w-[22vmin] overflow-visible [transform-origin:50%_50%] [transform:translate3d(var(--cx,0),var(--cy,0),0)_rotate(var(--cr,0deg))_scale(var(--cs,1))] [&_path]:fill-[var(--cfill,var(--primary))] [&_path]:transition-[fill] [&_path]:duration-500" />
+      <Logo className="h-[22vmin] w-[22vmin] overflow-visible [transform-origin:50%_50%] [transform:translate3d(var(--cx,44vw),var(--cy,-26vh),0)_rotate(var(--cr,0deg))_scale(var(--cs,1.45))] [&_path]:fill-[var(--cfill,var(--primary))] [&_path]:transition-[fill] [&_path]:duration-500" />
     </div>
   );
 }

@@ -1,8 +1,10 @@
 /** docs: docs/07-estudio.md */
 "use client";
 
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Nav } from "@/components/Nav";
+import { SeletorTema } from "@/components/SeletorTema";
 import { noEstudio } from "@/lib/estudio/rotas";
 
 /**
@@ -16,6 +18,11 @@ import { noEstudio } from "@/lib/estudio/rotas";
  * O grão veio do `app/layout.tsx` pela mesma razão que a `Nav`: é textura do
  * site público. Numa ferramenta de trabalho era uma camada `fixed` a cobrir o
  * ecrã inteiro para não acrescentar nada a uma tabela de números.
+ *
+ * O tema claro também é só do site público. O script do `app/layout.tsx` marca
+ * o `<html>` com `data-area="estudio"` numa entrada direta no Estúdio; aqui
+ * mantém-se a marca certa quando se navega entre os dois sem recarregar — o
+ * CSS do tema claro ignora o `<html>` marcado. Ver docs/02, "Temas".
  *
  * Isto vive num componente próprio, e não dentro do `Nav` ou do `Footer`, para
  * não tocar em ficheiros que os PR #54 e #65 estão a reescrever. Quando esses
@@ -32,6 +39,12 @@ export function CascaDoSite({
   const pathname = usePathname();
   const noEstudioAgora = noEstudio(pathname);
 
+  useEffect(() => {
+    const raiz = document.documentElement;
+    if (noEstudioAgora) raiz.dataset.area = "estudio";
+    else delete raiz.dataset.area;
+  }, [noEstudioAgora]);
+
   return (
     <>
       {noEstudioAgora ? null : <Nav />}
@@ -39,6 +52,7 @@ export function CascaDoSite({
         {children}
       </main>
       {noEstudioAgora ? null : rodape}
+      {noEstudioAgora ? null : <SeletorTema />}
       {noEstudioAgora ? null : <div className="grain-overlay" aria-hidden />}
     </>
   );

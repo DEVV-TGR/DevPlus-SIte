@@ -12,6 +12,7 @@ controla:
   - app/privacidade/page.tsx
   - components/Footer.tsx
   - app/contacto/page.tsx
+  - components/InstagramLink.tsx
 relacionado:
   - docs/03-simbolo-e-logotipo.md
 ---
@@ -363,3 +364,18 @@ a partir do `layout`), as perguntas frequentes (em `/servicos`) e, em cada caso 
 estudo, o trabalho mais o rasto de navegação. Todos os campos vêm de `lib/site.ts`
 e de `lib/projects.ts` — **não escrevas valores à mão neste ficheiro**, é a mesma
 regra do resto do doc. Depois de mexer, passa o output pelo Rich Results Test.
+
+## Home de outubro de 2026
+
+O hero mantém "Web design que soma ao teu negócio" num único h1 visível. A
+navegação passa a destacar o destino ativo e usa "Vamos conversar" no CTA. O
+convite do rodapé mantém texto e destino, com a escala `home-heading` e uma
+régua a separar os contactos, sem criar outro fecho.
+
+## O Instagram com o perfil
+
+Outubro de 2026. Onde o site identifica a conta — navegação (a partir de
+1280px), menu do telemóvel, portfólio, contacto e rodapé — o Instagram aparece
+como "Instagram · @devplus.pt". O perfil sai do próprio `href` em `socials`
+(`perfil()` em `lib/site.ts`), e o link é o `components/InstagramLink.tsx`.
+Nunca se escreve o endereço nem o nome à mão.

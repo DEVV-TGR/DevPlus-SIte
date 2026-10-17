@@ -25,9 +25,11 @@ const variants: Record<Variant, string> = {
   /* O CTA **sobre o ground laranja**, onde o `primary` desapareceria: laranja
      sobre laranja não é um botão. Escuro e opaco (7.26:1 medido, ver docs/02),
      e no hover inverte para creme — é o único sítio do site onde um botão
-     troca de ground, e é de propósito: é o botão do fim do percurso. */
+     troca de ground, e é de propósito: é o botão do fim do percurso. Usa
+     `creme` e não `ink`: o laranja é o mesmo nos dois temas, e no claro o
+     `ink` passa a escuro — ver docs/02, "Temas". */
   contraste:
-    "bg-primary-ink text-ink hover:bg-ink hover:text-primary-ink",
+    "bg-primary-ink text-creme hover:bg-creme hover:text-primary-ink",
 };
 
 export function Button({

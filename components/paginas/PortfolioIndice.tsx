@@ -1,10 +1,12 @@
 "use client";
-/** docs: docs/04-componentes-e-padroes.md · docs/06-projetos.md */
+/** docs: docs/04-componentes-e-padroes.md · docs/06-projetos.md · docs/10-materiais-atelier.md */
 
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef } from "react";
 import { projects } from "@/lib/projects";
+import { atelierAssets } from "@/components/atelier/assets";
+import styles from "./paginas.module.css";
 
 /**
  * O trabalho todo, num índice: os nomes numa coluna e a capa do que está a ser
@@ -82,7 +84,10 @@ export function PortfolioIndice() {
   return (
     <div
       ref={ref}
-      className="grid items-start gap-10 lg:grid-cols-[1fr_minmax(0,42%)] lg:gap-16"
+      /* Só a partir de 768px. No telemóvel o índice punha o nome longe da
+         capa e a lista custava ecrãs de scroll; lá vive o `Carril` da página,
+         com capa, nome, estado e serviços no mesmo cartão. */
+      className="hidden items-start gap-10 md:grid lg:grid-cols-[1fr_minmax(0,42%)] lg:gap-16"
     >
       <ol className="grid gap-4 sm:gap-6">
         {projects.map((p, i) => (
@@ -95,16 +100,16 @@ export function PortfolioIndice() {
             className="group/obra border-t border-border pt-4 sm:pt-6"
           >
             <Link href={`/portfolio/${p.slug}`} className="group grid gap-1.5">
-              <h2 className="t-obra m-0 font-display font-extrabold text-ink/40 transition-colors duration-300 group-hover:text-ink group-data-[ativo=true]/obra:text-ink">
+              <h2 className="t-obra m-0 font-display font-titulo text-ink/40 transition-colors [html[data-theme=light]_&]:text-ink/60 duration-300 group-hover:text-ink group-data-[ativo=true]/obra:text-ink">
                 {p.name}
               </h2>
               <p className="flex flex-wrap items-center gap-2 text-sm text-muted">
-                <span className="font-semibold tabular-nums text-primary">
+                <span className="font-semibold tabular-nums text-acento">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 {p.category} · {p.year}
                 {p.status === "em-curso" ? (
-                  <span className="rounded-full border border-primary/55 px-2 py-0.5 text-xs uppercase tracking-[0.18em] text-primary">
+                  <span className="rounded-full border border-primary/55 px-2 py-0.5 text-xs uppercase tracking-[0.18em] text-acento">
                     Em curso
                   </span>
                 ) : null}
@@ -116,38 +121,55 @@ export function PortfolioIndice() {
 
       {/* A moldura fica; muda o que está lá dentro. É `aria-hidden` porque
           repete o que a coluna já diz — quem navega por leitor de ecrã lê os
-          nomes, não precisa de ouvir seis capas. */}
+          nomes, não precisa de ouvir seis capas.
+
+          Desde outubro a moldura é um objeto: alumínio escovado com um pé de
+          vidro verde, render com a abertura transparente. **A capa continua a
+          ser a captura real do site**, num elemento HTML por baixo do metal —
+          a moldura enquadra o trabalho, nunca o substitui. */}
       <div
         aria-hidden
-        className="relative order-first aspect-[8/5] overflow-hidden rounded-2xl bg-surface lg:sticky lg:top-[18vh] lg:order-last"
+        className="relative order-first lg:sticky lg:top-[16vh] lg:order-last"
       >
-        {projects.map((p, i) => (
-          <div
-            key={p.slug}
-            data-capa
-            data-i={i}
-            data-ativo={i === 0 ? "true" : "false"}
-            className="absolute inset-0 opacity-0 transition-opacity duration-[420ms] data-[ativo=true]:opacity-100"
-          >
-            {p.image ? (
-              <Image
-                src={p.image}
-                alt=""
-                fill
-                sizes="(min-width: 1024px) 42vw, 100vw"
-                className="object-cover"
-              />
-            ) : (
-              /* Sem capa não se põe a de outro nem um buraco: fica o nome, que
-                 é o que existe. A lacuna está registada no docs/06. */
-              <div className="grid h-full place-items-center bg-gradient-to-br from-primary/20 to-surface px-8 text-center">
-                <span className="font-display text-[clamp(1.2rem,2.5vw,2rem)] font-extrabold tracking-[-0.03em]">
-                  {p.name}
-                </span>
+        <div className={styles.moldura}>
+          <div className={styles.molduraJanela}>
+            {projects.map((p, i) => (
+              <div
+                key={p.slug}
+                data-capa
+                data-i={i}
+                data-ativo={i === 0 ? "true" : "false"}
+                className="absolute inset-0 opacity-0 transition-opacity duration-[420ms] data-[ativo=true]:opacity-100"
+              >
+                {p.image ? (
+                  <Image
+                    src={p.image}
+                    alt=""
+                    fill
+                    sizes="(min-width: 1024px) 40vw, 80vw"
+                    className="object-cover object-top"
+                  />
+                ) : (
+                  /* Sem capa não se põe a de outro nem um buraco: fica o nome,
+                     que é o que existe. A lacuna está registada no docs/06. */
+                  <div className="grid h-full place-items-center bg-gradient-to-br from-primary/20 to-surface px-8 text-center">
+                    <span className="font-display text-[clamp(1.2rem,2.5vw,2rem)] font-titulo tracking-[-0.03em]">
+                      {p.name}
+                    </span>
+                  </div>
+                )}
               </div>
-            )}
+            ))}
           </div>
-        ))}
+          <Image
+            src={atelierAssets.frame.src}
+            alt=""
+            width={atelierAssets.frame.width}
+            height={atelierAssets.frame.height}
+            sizes="(min-width: 1024px) 48vw, 100vw"
+            className={`${styles.molduraMetal} h-full w-full`}
+          />
+        </div>
       </div>
     </div>
   );

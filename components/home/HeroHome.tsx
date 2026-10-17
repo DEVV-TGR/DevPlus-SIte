@@ -1,66 +1,93 @@
 "use client";
-/** docs: docs/04-componentes-e-padroes.md — o hero da página inicial. */
-
+/** docs: docs/04-componentes-e-padroes.md · docs/09-direcao-atelier.md — atelier digital, profundidade por camadas. */
 import Image from "next/image";
+import Link from "next/link";
 import { useRef } from "react";
-import { gsap, ScrollTrigger, useGSAP, MOVIMENTO } from "@/lib/motion";
+import { gsap, useGSAP, MOVIMENTO } from "@/lib/motion";
+import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
+import { Logo } from "@/components/Logo";
 
 /**
- * A capa. É o pico da página — decisão do Gonçalo, setembro de 2026 — e por
- * isso leva o maior espaço de scroll e a única ilustração grande.
+ * A capa. Três linhas, "soma" em itálico, e a escultura do atelier ao lado.
  *
- * **O título parte-se pelas duas margens** e a figura ocupa o vão entre elas.
- * As duas metades são posicionadas em absoluto e não em linhas de grelha: com
- * grelha, a segunda caía na faixa do meio, aterrava por cima da ilustração e
- * por cima da primeira, e lia-se "tetunegócio".
+ * A escultura vive em três invólucros, e cada um tem um só dono do
+ * `transform`: `data-hero-depth` é do scroll, `data-hero-object` é da entrada e
+ * da inclinação ao ponteiro (o GSAP compõe `rotate`/`scale` com
+ * `rotationX`/`rotationY` no mesmo elemento), e o disco é do scroll na
+ * direção oposta. Juntos dão profundidade sem duas animações a escreverem a
+ * mesma propriedade.
  *
- * O `h1` contém a frase **inteira**. As duas metades são `span` dentro dele,
- * porque um título partido em dois elementos chega ao Google e a um leitor de
- * ecrã como duas frases soltas.
+ * O texto está visível por omissão: a entrada só desloca, não esconde, e sem
+ * movimento não há nada à espera.
  */
 export function HeroHome() {
   const ref = useRef<HTMLElement>(null);
-
   useGSAP(
     () => {
-      const raiz = ref.current;
-      if (!raiz) return;
-
-      const itens = raiz.querySelectorAll("[data-reveal-item]");
-      const figura = raiz.querySelector("[data-figura]");
-
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        gsap.set(itens, { opacity: 1, y: 0, clearProps: "transform" });
-        return;
-      }
-
-      gsap.timeline().fromTo(
-        itens,
-        { opacity: 0, y: MOVIMENTO.y },
-        {
-          opacity: 1,
-          y: 0,
+      const root = ref.current;
+      if (!root) return;
+      const mm = gsap.matchMedia();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.from("[data-hero-line]", {
+          y: 38,
+          rotate: 1.5,
+          duration: MOVIMENTO.hero,
+          stagger: MOVIMENTO.staggerHero,
+          ease: MOVIMENTO.ease,
+          clearProps: "transform",
+        });
+        gsap.from("[data-hero-object]", {
+          scale: 0.88,
+          rotate: -7,
           duration: MOVIMENTO.hero,
           ease: MOVIMENTO.ease,
-          stagger: MOVIMENTO.stagger,
-          clearProps: "transform",
+        });
+        gsap
+          .timeline({
+            scrollTrigger: {
+              trigger: root,
+              start: "top top",
+              end: "bottom top",
+              scrub: 0.6,
+            },
+          })
+          .to(
+            "[data-hero-depth]",
+            { yPercent: 16, rotate: 6, scale: 1.08, ease: "none" },
+            0,
+          )
+          .to("[data-hero-disc]", { yPercent: -18, rotate: -12, ease: "none" }, 0);
+      });
+      /* A inclinação só com um ponteiro fino: num ecrã tátil não há
+         `pointermove` sem dedo em cima, e o objeto ficava torto onde o toque
+         o deixou. */
+      mm.add(
+        "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)",
+        () => {
+          const object = root.querySelector<HTMLElement>("[data-hero-object]");
+          if (!object) return;
+          const tilt = { duration: MOVIMENTO.hero, ease: MOVIMENTO.ease };
+          const x = gsap.quickTo(object, "rotationY", tilt);
+          const y = gsap.quickTo(object, "rotationX", tilt);
+          const move = (event: PointerEvent) => {
+            const r = root.getBoundingClientRect();
+            x(((event.clientX - r.left) / r.width - 0.5) * 12);
+            y(-((event.clientY - r.top) / r.height - 0.5) * 8);
+          };
+          const reset = () => {
+            x(0);
+            y(0);
+          };
+          root.addEventListener("pointermove", move);
+          root.addEventListener("pointerleave", reset);
+          return () => {
+            root.removeEventListener("pointermove", move);
+            root.removeEventListener("pointerleave", reset);
+          };
         },
       );
-
-      /* A figura afunda mais devagar que o texto. Sem esta diferença de
-         velocidade a capa move-se como uma folha só, e a profundidade que a
-         composição promete não chega a existir. */
-      if (figura) {
-        ScrollTrigger.create({
-          trigger: raiz,
-          start: "top top",
-          end: "bottom top",
-          scrub: 0.5,
-          onUpdate: (self) =>
-            gsap.set(figura, { y: self.progress * 90, force3D: true }),
-        });
-      }
+      return () => mm.revert();
     },
     { scope: ref },
   );
@@ -68,75 +95,66 @@ export function HeroHome() {
   return (
     <section
       ref={ref}
-      className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-bg"
+      className="home-hero relative isolate overflow-hidden"
+      aria-labelledby="home-title"
     >
-      {/* A figura vive à esquerda e não ao centro: a segunda metade do título
-          vem da direita, e ao centro o creme da ilustração cruzava o creme do
-          texto — medido, 1.5:1 de contraste. */}
-      <div
-        data-figura
-        aria-hidden
-        className="pointer-events-none absolute inset-0 grid place-items-center justify-items-start py-[clamp(6rem,16vh,10rem)] pl-[clamp(2rem,12vw,12rem)]"
-      >
-        <Image
-          src="/hero/boneco.webp"
-          alt=""
-          width={1100}
-          height={831}
-          priority
-          className="h-[min(58%,27rem)] w-auto max-w-[46vw] object-contain"
-        />
-      </div>
-
-      {/* Scrim nas bordas, transparente no meio: escurece a moldura onde o
-          texto vive e deixa a ilustração intacta. Um véu de página inteira
-          resolveria o contraste e mataria a figura. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-[1]"
-        style={{
-          background:
-            "radial-gradient(closest-side at 50% 52%, transparent 30%, color-mix(in oklab, var(--bg) 62%, transparent) 60%, var(--bg) 100%)",
-        }}
-      />
-
-      <h1 className="sr-only">
-        Web design que soma ao teu negócio.
-      </h1>
-
-      <div aria-hidden className="absolute inset-0 z-[2]">
-        <span
-          data-reveal-item
-          className="absolute left-[var(--gut)] top-[clamp(4.5rem,12vh,8rem)] block max-w-[8ch] font-display text-[clamp(2.1rem,7vw,6.4rem)] font-extrabold leading-[0.9] tracking-[-0.05em] text-ink [--gut:clamp(1.25rem,5vw,5.5rem)]"
-        >
-          Web design
-        </span>
-        <span
-          data-reveal-item
-          className="absolute bottom-[clamp(11rem,30vh,17rem)] right-[var(--gut)] -mr-2 block max-w-[11ch] rounded-l-full py-[0.35em] pl-6 pr-2 text-right font-display text-[clamp(2.1rem,7vw,6.4rem)] font-extrabold leading-[0.9] tracking-[-0.05em] text-ink [--gut:clamp(1.25rem,5vw,5.5rem)]"
-          style={{
-            background:
-              "radial-gradient(115% 130% at 100% 50%, var(--bg) 46%, color-mix(in oklab, var(--bg) 86%, transparent) 70%, transparent 100%)",
-          }}
-        >
-          que <span className="text-primary">soma</span> ao teu negócio.
-        </span>
-      </div>
-
-      <div className="absolute bottom-[clamp(2rem,6vh,3.5rem)] left-[clamp(1.25rem,5vw,5.5rem)] z-[2] max-w-[32ch]">
-        <p data-reveal-item className="text-sm text-muted">
-          Estúdio de web design e desenvolvimento. Desenhamos, mostramos, e só
-          depois se escreve código.
-        </p>
-        <div data-reveal-item className="mt-4 flex flex-wrap gap-3">
-          <Button href="/portfolio" variant="primary">
-            Ver o trabalho
-          </Button>
-          <Button href="/contacto" variant="outline">
-            Falar connosco
-          </Button>
+      <Container>
+        <div className="home-hero-grid">
+          <div className="relative z-[2]">
+            <h1 id="home-title" className="home-title">
+              <span data-hero-line>Web design</span>
+              <span data-hero-line>
+                que <em>soma</em>
+              </span>
+              <span data-hero-line>ao teu negócio.</span>
+            </h1>
+            <p className="home-hero-intro">
+              Da primeira ideia ao site no ar. Criamos sites, menus digitais e
+              ferramentas que te dão mais tempo para o teu negócio.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Button href="#trabalho">
+                Explorar o trabalho <span aria-hidden>↗</span>
+              </Button>
+              <Button href="/contacto" variant="outline">
+                Falar connosco
+              </Button>
+            </div>
+          </div>
+          <div className="home-hero-art" aria-hidden>
+            <div data-hero-disc className="home-hero-disc">
+              <Logo className="home-hero-disc-mark" />
+            </div>
+            <div data-hero-depth className="relative z-[1]">
+              <div data-hero-object className="[transform-style:preserve-3d]">
+                <Image
+                  src="/hero/atelier-digital-v2.webp"
+                  alt=""
+                  width={1200}
+                  height={1200}
+                  /* Os mesmos tetos do CSS: 620px ou 46vw em desktop, metade
+                     da grelha em tablet, 390px ou 85vw no telemóvel. */
+                  sizes="(min-width: 1348px) 620px, (min-width: 1024px) 46vw, (min-width: 768px) 50vw, (min-width: 459px) 390px, 85vw"
+                  preload
+                  className="block h-auto w-full"
+                />
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+        <div className="home-hero-bottom">
+          <p>
+            Websites <span aria-hidden>/</span> Lojas online{" "}
+            <span aria-hidden>/</span> Menus digitais
+          </p>
+          <Link
+            href="#trabalho"
+            className="inline-flex min-h-11 items-center gap-3"
+          >
+            Continua a explorar <span aria-hidden>↓</span>
+          </Link>
+        </div>
+      </Container>
     </section>
   );
 }

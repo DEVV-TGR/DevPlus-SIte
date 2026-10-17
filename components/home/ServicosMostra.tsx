@@ -2,10 +2,18 @@
 /** docs: docs/04-componentes-e-padroes.md · docs/05-servicos.md */
 
 import Image from "next/image";
-import { useRef, type CSSProperties } from "react";
-import { MOVIMENTO, ScrollTrigger, gsap, useGSAP, comPausa } from "@/lib/motion";
+import Link from "next/link";
+import { useRef, useSyncExternalStore, type CSSProperties } from "react";
+import {
+  MOVIMENTO,
+  ScrollTrigger,
+  gsap,
+  useGSAP,
+  comPausa,
+} from "@/lib/motion";
 import { Button } from "@/components/ui/Button";
 import { services } from "@/lib/services";
+import { MaterialGround } from "@/components/atelier/MaterialGround";
 
 /**
  * Os serviços, **um de cada vez**: número enorme, figura num círculo, nome em
@@ -18,12 +26,29 @@ import { services } from "@/lib/services";
  *
  * Mostra os **quatro primeiros** de `lib/services.ts`. Os restantes vivem na
  * `/servicos` — a página inicial apresenta, não cataloga.
+ *
+ * As quatro figuras são ilustrações conceptuais da mesma família do hero
+ * (docs/09) e o `alt` di-lo: nenhuma é uma captura de um sistema entregue. A
+ * prova real de cada serviço é o link para o caso, por baixo do texto — a
+ * captura do Império continua no portfólio e no caso de estudo.
  */
 const FIGURAS = [
-  { src: "/ilustra/s1-web-design.webp", alt: "Um ecrã com um pincel e uma paleta de cores." },
-  { src: "/ilustra/s2-desenvolvimento.webp", alt: "Um ecrã com chavetas de código e uma engrenagem." },
-  { src: "/ilustra/s3-menus.webp", alt: "Um telemóvel com um código QR ao lado de um ecrã de parede." },
-  { src: "/ilustra/s4-painel.webp", alt: "Um painel com interruptores e controlos deslizantes." },
+  {
+    src: "/hero/atelier-digital-v2.webp",
+    alt: "Composição de interfaces web e mobile em acrílico laranja, vidro verde e alumínio.",
+  },
+  {
+    src: "/atelier/desenvolvimento-digital-v3.webp",
+    alt: "Ilustração conceptual de um website em construção, em camadas de alumínio, vidro verde e acrílico laranja.",
+  },
+  {
+    src: "/hero/nfc-digital-v2.webp",
+    alt: "Ilustração de um telemóvel com ementa digital sobre um suporte contactless.",
+  },
+  {
+    src: "/hero/painel-digital-v2.webp",
+    alt: "Ilustração conceptual de um painel de gestão em alumínio e vidro verde.",
+  },
 ];
 
 /* ── A geometria da roda ───────────────────────────────────────────────────
@@ -66,13 +91,28 @@ function fatia(de: number, ate: number) {
 function limites(i: number, n: number) {
   const passo = ARCO / n;
   const base = 180 - ARCO / 2;
-  return [base + i * passo + FOLGA / 2, base + (i + 1) * passo - FOLGA / 2] as const;
+  return [
+    base + i * passo + FOLGA / 2,
+    base + (i + 1) * passo - FOLGA / 2,
+  ] as const;
 }
 
 /** Dois segundos de trégua: ver `manual`, abaixo. */
 const TREGUA = 2000;
 
+const motionQuery = "(prefers-reduced-motion: reduce)";
+const subscribeMotion = (callback: () => void) => {
+  const media = window.matchMedia(motionQuery);
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+};
+
 export function ServicosMostra() {
+  const reducedMotion = useSyncExternalStore(
+    subscribeMotion,
+    () => window.matchMedia(motionQuery).matches,
+    () => false,
+  );
   const ref = useRef<HTMLElement>(null);
   /* O serviço ativo **não é estado do React**. Quem o muda é o scroll, e um
      `setState` a partir do `onUpdate` de um ScrollTrigger re-renderiza durante
@@ -102,9 +142,25 @@ export function ServicosMostra() {
       if (!palco) return;
 
       const painéis = gsap.utils.toArray<HTMLElement>("[data-cena]", raiz);
-      const segmentos = gsap.utils.toArray<HTMLElement>("[data-segmento]", raiz);
-      const reduzido = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const peças = (cena: HTMLElement) => gsap.utils.toArray<HTMLElement>("[data-peca]", cena);
+      const segmentos = gsap.utils.toArray<HTMLElement>(
+        "[data-segmento]",
+        raiz,
+      );
+      const reduzido = reducedMotion;
+      ativo.current = 0;
+      raiz.dataset.tone = "0";
+      /* A cena recomeça no 01 quando a preferência de movimento muda: o
+         revert desfaz as animações, mas não o `hidden` que o scroll deixou. */
+      painéis.forEach((painel, i) => {
+        painel.hidden = i !== 0;
+        painel.inert = i !== 0;
+      });
+      segmentos.forEach((segmento, i) => {
+        segmento.setAttribute("aria-selected", String(i === 0));
+        segmento.tabIndex = i === 0 ? 0 : -1;
+      });
+      const peças = (cena: HTMLElement) =>
+        gsap.utils.toArray<HTMLElement>("[data-peca]", cena);
 
       let troca: gsap.core.Timeline | null = null;
 
@@ -125,6 +181,7 @@ export function ServicosMostra() {
         const anterior = ativo.current;
         if (i === anterior || i < 0 || i >= painéis.length) return;
         ativo.current = i;
+        raiz.dataset.tone = String(i);
         marcar(i);
 
         troca?.kill();
@@ -168,7 +225,13 @@ export function ServicosMostra() {
           .fromTo(
             peças(entra),
             { opacity: 0, y: 34 * d },
-            { opacity: 1, y: 0, duration: 0.36, ease: MOVIMENTO.ease, stagger: 0.05 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.36,
+              ease: MOVIMENTO.ease,
+              stagger: 0.05,
+            },
             /* Sem sobreposição: as duas ilustrações a atravessarem-se a meio
                do crossfade liam-se como um borrão, não como uma troca. Uma
                sai, a outra chega. */
@@ -210,7 +273,15 @@ export function ServicosMostra() {
           stagger: MOVIMENTO.stagger * 0.5,
           transformOrigin: "100% 50%",
         })
-        .to(segmentos, { opacity: 1, duration: MOVIMENTO.escala, stagger: MOVIMENTO.stagger * 0.5 }, "<")
+        .to(
+          segmentos,
+          {
+            opacity: 1,
+            duration: MOVIMENTO.escala,
+            stagger: MOVIMENTO.stagger * 0.5,
+          },
+          "<",
+        )
         .from(
           inicial,
           {
@@ -221,10 +292,22 @@ export function ServicosMostra() {
           },
           "<0.12",
         )
-        .to(inicial, { opacity: 1, duration: MOVIMENTO.escala, stagger: MOVIMENTO.stagger }, "<")
+        .to(
+          inicial,
+          {
+            opacity: 1,
+            duration: MOVIMENTO.escala,
+            stagger: MOVIMENTO.stagger,
+          },
+          "<",
+        )
         .from(
           painéis[0].querySelectorAll("[data-figura]"),
-          { scale: MOVIMENTO.escalaDe, duration: MOVIMENTO.entrada, ease: MOVIMENTO.ease },
+          {
+            scale: MOVIMENTO.escalaDe,
+            duration: MOVIMENTO.entrada,
+            ease: MOVIMENTO.ease,
+          },
           "<",
         )
         /* O `transform` volta ao CSS no fim, senão o `rotate: 0` que a
@@ -276,73 +359,34 @@ export function ServicosMostra() {
         escolher.current = null;
       };
     },
-    { scope: ref, dependencies: [cenas.length] },
+    {
+      scope: ref,
+      dependencies: [cenas.length, reducedMotion],
+      revertOnUpdate: true,
+    },
   );
 
   const rato = (e: React.PointerEvent) => e.pointerType === "mouse";
 
   return (
-    <section ref={ref} className="relative bg-bg" aria-labelledby="servicos-mostra">
+    <section
+      ref={ref}
+      className="relative"
+      aria-labelledby="servicos-mostra"
+    >
       <h2 id="servicos-mostra" className="sr-only">
         O que fazemos
       </h2>
-      <div data-palco className="relative h-[100svh] overflow-hidden">
-        {cenas.map((s, i) => (
-          <div
-            key={s.title}
-            data-cena
-            id={`servico-cena-${i}`}
-            role="tabpanel"
-            aria-labelledby={`servico-tab-${i}`}
-            hidden={i !== 0}
-            inert={i !== 0}
-            className="absolute inset-0 grid place-items-center"
-          >
-            {/* O deslocamento vive no invólucro porque o GSAP escreve
-                `transform` na figura, e as duas coisas não cabem no mesmo
-                elemento sem uma apagar a outra. */}
-            <div className="lg:-translate-x-[6%] max-sm:-translate-x-[14%]">
-              <div
-                data-peca
-                data-figura
-                className="grid aspect-square w-[min(62vh,36rem)] place-items-center rounded-full bg-ink/[0.06] max-sm:w-[min(42vh,17.5rem)]"
-              >
-                <Image
-                  src={FIGURAS[i].src}
-                  alt={FIGURAS[i].alt}
-                  width={760}
-                  height={760}
-                  loading={i === 0 ? "eager" : "lazy"}
-                  className="w-[82%] object-contain"
-                />
-              </div>
-            </div>
-
-            <span
-              data-peca
-              aria-hidden
-              className="absolute left-[clamp(1.25rem,5vw,5.5rem)] top-[clamp(3.5rem,9vh,6rem)] font-display text-[clamp(4rem,13vw,11rem)] font-extrabold leading-[0.8] tracking-[-0.06em] tabular-nums text-primary"
-            >
-              {String(i + 1).padStart(2, "0")}
-            </span>
-
-            <div
-              data-peca
-              className="absolute bottom-[clamp(4.5rem,12vh,8rem)] left-[clamp(1.25rem,5vw,5.5rem)] max-w-[min(26rem,70vw)]"
-            >
-              <h3 className="font-display text-[clamp(1.8rem,5vw,3.6rem)] font-extrabold leading-[0.98] tracking-[-0.04em]">
-                {s.title}
-              </h3>
-              <p className="mt-3 max-w-[34ch] text-sm text-muted">{s.blurb}</p>
-              <div className="mt-5">
-                <Button href="/contacto" variant="primary">
-                  Falar sobre isto
-                </Button>
-              </div>
-            </div>
-          </div>
-        ))}
-
+      <div data-palco className="relative isolate h-[100svh] overflow-hidden">
+        {/* O vidro vive no palco e não na secção: a secção mede o pin inteiro
+            (3,4 ecrãs), e os planos em percentagem dela ficavam do tamanho de
+            um prédio. No palco pinam com a cena. */}
+        <MaterialGround finish="glass" />
+        {/* A roda vem **antes** das cenas no DOM, embora se desenhe por cima
+            delas (`z-[4]`). É a ordem do padrão de separadores: Tab a partir
+            do serviço escolhido entra na cena dele — o link do caso e o
+            "Falar sobre isto". Com a roda no fim, o Tab saltava a cena e ia
+            direto para os pacotes. */}
         <div
           role="tablist"
           aria-label="Serviços"
@@ -362,7 +406,12 @@ export function ServicosMostra() {
           }}
           onKeyDown={(e) => {
             const n = cenas.length;
-            const passo = e.key === "ArrowUp" || e.key === "ArrowLeft" ? -1 : e.key === "ArrowDown" || e.key === "ArrowRight" ? 1 : 0;
+            const passo =
+              e.key === "ArrowUp" || e.key === "ArrowLeft"
+                ? -1
+                : e.key === "ArrowDown" || e.key === "ArrowRight"
+                  ? 1
+                  : 0;
             const i = passo
               ? (ativo.current + passo + n) % n
               : e.key === "Home"
@@ -426,6 +475,78 @@ export function ServicosMostra() {
             );
           })}
         </div>
+        {cenas.map((s, i) => (
+          <div
+            key={s.title}
+            data-cena
+            id={`servico-cena-${i}`}
+            role="tabpanel"
+            aria-labelledby={`servico-tab-${i}`}
+            hidden={i !== 0}
+            inert={i !== 0}
+            className="absolute inset-0 grid place-items-center"
+          >
+            {/* O deslocamento vive no invólucro porque o GSAP escreve
+                `transform` na figura, e as duas coisas não cabem no mesmo
+                elemento sem uma apagar a outra. */}
+            <div data-service-figure-wrap>
+              <div
+                data-peca
+                data-figura
+                className="grid aspect-square w-[min(62vh,36rem)] place-items-center max-sm:w-[min(42vh,17.5rem)]"
+              >
+                <Image
+                  src={FIGURAS[i].src}
+                  alt={FIGURAS[i].alt}
+                  width={760}
+                  height={760}
+                  loading="lazy"
+                  sizes="(min-width: 1280px) 37vw, (min-width: 768px) 32vw, 60vw"
+                  className="w-full object-contain"
+                />
+              </div>
+            </div>
+
+            <span
+              data-peca
+              aria-hidden
+              data-service-number
+              className="absolute left-[clamp(1.25rem,5vw,5.5rem)] top-[clamp(3.5rem,9vh,6rem)] font-display text-[clamp(4rem,13vw,11rem)] font-titulo leading-[0.8] tracking-[-0.035em] tabular-nums text-acento"
+            >
+              {String(i + 1).padStart(2, "0")}
+            </span>
+
+            <div
+              data-peca
+              data-service-copy
+              className="absolute bottom-[clamp(4.5rem,12vh,8rem)] left-[clamp(1.25rem,5vw,5.5rem)] max-w-[min(26rem,70vw)]"
+            >
+              <h3 className="font-display text-[clamp(1.8rem,5vw,3.6rem)] font-titulo leading-[0.98] tracking-[-0.04em]">
+                {s.title}
+              </h3>
+              <p className="mt-3 max-w-[34ch] text-sm text-verde-muted">{s.blurb}</p>
+              <Link
+                href={`/portfolio/${i === 0 ? "jsk" : i === 1 ? "imperio-auto-concept" : "cafe-preguica"}`}
+                className="mt-3 inline-flex min-h-11 items-center gap-2 text-sm text-acento"
+              >
+                {i === 0
+                  ? "Ver o trabalho da JSK"
+                  : i === 1
+                    ? "Ver o Império Auto Concept"
+                    : i === 2
+                      ? "QR code e NFC no Café Preguiça"
+                      : "O painel do Café Preguiça"}{" "}
+                <span aria-hidden>↗</span>
+              </Link>
+              <div className="mt-3">
+                <Button href="/contacto" variant="primary">
+                  Falar sobre isto
+                </Button>
+              </div>
+            </div>
+          </div>
+        ))}
+
       </div>
     </section>
   );

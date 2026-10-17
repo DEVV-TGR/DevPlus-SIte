@@ -1,16 +1,17 @@
+/** docs: docs/06-projetos.md — casos de estudo e vídeo do Preguiça. · docs/04-componentes-e-padroes.md · docs/10-materiais-atelier.md */
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { Cruz } from "@/components/home/Cruz";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
-import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/Reveal";
 import { CaseStudyJsonLd } from "@/components/JsonLd";
-import { projects, getProject } from "@/lib/projects";
+import { Ambiente } from "@/components/paginas/Ambiente";
+import { MaterialSurface } from "@/components/atelier/MaterialSurface";
+import { Dispositivos } from "@/components/paginas/Dispositivos";
+import { projects, getProject, notasDoCaso, capturas } from "@/lib/projects";
 import { pageMetadata } from "@/lib/seo";
-import { cn } from "@/lib/utils";
 
 export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
@@ -57,7 +58,7 @@ export default async function CaseStudyPage({
 
   const idx = projects.findIndex((p) => p.slug === slug);
   const next = projects[(idx + 1) % projects.length];
-  const shape = project.accent === "accent" ? "bg-accent/15" : "bg-primary/15";
+  const notas = notasDoCaso[project.slug];
 
   return (
     <>
@@ -69,159 +70,166 @@ export default async function CaseStudyPage({
         year={project.year}
       />
       {/* O "+" fica todo do lado direito nesta página: o texto do caso corre à
-          esquerda e a ficha, que é opaca, tapa-o do outro lado. */}
+          esquerda e a ficha, que é opaca, tapa-o do outro lado. O primeiro
+          posto é mais pequeno e mais encostado ao canto do que nas outras
+          páginas: a capa já não é uma imagem opaca a sangrar que o tapava, e
+          em escala 1,6 ele pousava em cima do nome do projeto. */}
       <Cruz
         postos={[
-          { p: 0.0, s: 1.6, x: 36, y: -22, r: 8, c: "var(--primary)" },
+          { p: 0.0, s: 1.0, x: 44, y: -30, r: 8, c: "var(--primary)" },
           { p: 0.4, s: 0.5, x: 44, y: 24, r: 0, c: "var(--paper-muted)" },
           { p: 0.76, s: 0.55, x: 46, y: -22, r: 6, c: "var(--primary)" },
           { p: 1.0, s: 1.3, x: 40, y: 30, r: 0, c: "var(--primary)" },
         ]}
       />
 
-      {/* A CAPA, A SANGRAR
-          É o único sítio do site onde uma fotografia ocupa o ecrã todo: aqui o
-          assunto é o trabalho, e o trabalho vê-se. Antes eram dois blocos — um
-          cabeçalho com o nome e, por baixo, a capa numa caixa com o nome outra
-          vez — e o nome aparecia duas vezes com um scroll de intervalo. */}
-      <section className="relative grid min-h-[82svh] place-items-center overflow-hidden">
-        <div aria-hidden className="absolute inset-0">
-          {project.image ? (
-            <Image
-              src={project.image}
-              alt=""
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover"
-            />
-          ) : (
-            <div className={cn("absolute inset-0", shape)} />
-          )}
-          {/* Véu de baixo para cima: o texto assenta sobre capas claras e
-              escuras sem trocar de cor. */}
-          <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/70 to-bg/25" />
-        </div>
+      {/* O PROJETO, PARA PERCORRER
+          Outubro de 2026. O caso deixou de ser uma capa e dois parágrafos: o
+          nome, os serviços e o próprio site em duas molduras — computador e
+          telemóvel — que se percorrem por scroll. São capturas reais, não o
+          site vivo; um clique abre o original. Os parágrafos longos passaram
+          a tópicos curtos (`notasDoCaso`), por pedido do utilizador; o texto
+          completo continua no catálogo. Ver docs/06. */}
+      <section
+        id="caso-capa"
+        className="relative overflow-hidden px-4 pb-4 pt-28 sm:px-8"
+      >
+        <Ambiente corte="topo" alvo="caso-capa" />
 
-        {/* A saída fica no canto, e não por cima do título: centrada, uma
-            seta de voltar lê-se como parte do cabeçalho do projeto. */}
-        <Link
-          href="/portfolio"
-          className="absolute left-4 top-[5rem] z-[2] inline-flex min-h-11 items-center px-2 text-sm text-muted transition-colors hover:text-ink sm:left-6"
-        >
-          ← Portfólio
-        </Link>
-
-        <div className="relative z-[1] mx-auto w-full max-w-6xl px-6 text-center sm:px-8">
+        <div className="relative z-[1] mx-auto w-full max-w-6xl">
+          <Link
+            href="/portfolio"
+            className="-ml-2 inline-flex min-h-11 items-center px-2 text-sm text-muted transition-colors hover:text-ink"
+          >
+            ← Portfólio
+          </Link>
           <Reveal delay={0.05}>
-            <p className="text-sm uppercase tracking-[0.18em] text-primary">
-              {project.category} · {project.year}
-              {project.status === "em-curso" ? " · Em curso" : ""}
-            </p>
-            <h1 className="t-capa mt-4 font-display font-extrabold">
-              {project.name}
-            </h1>
+            <div className="mt-4 flex flex-wrap items-end justify-between gap-6">
+              <div>
+                <p className="text-sm text-acento">
+                  {project.category} · {project.year} ·{" "}
+                  {project.status === "em-curso" ? "Em desenvolvimento" : "Concluído"}
+                </p>
+                <h1 className="t-capa mt-3 font-display font-titulo">
+                  {project.name}
+                </h1>
+              </div>
+              <ul className="flex max-w-md flex-wrap gap-1.5 sm:justify-end" aria-label="Serviços">
+                {project.services.map((s) => (
+                  <li
+                    key={s}
+                    className="rounded-full border border-border-strong px-3 py-1 text-sm"
+                  >
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </Reveal>
-          <Reveal delay={0.1}>
-            <p className="mx-auto mt-6 max-w-[54ch] text-lg text-muted">
-              {project.summary}
-            </p>
-          </Reveal>
+
+          <div className="mt-10">
+            <Dispositivos projeto={project} captura={capturas[project.slug]} />
+          </div>
         </div>
       </section>
 
-      <Section className="relative">
-        <Container>
-          <div className="grid gap-12 lg:grid-cols-12">
-            <Reveal className="lg:col-span-8">
-              <div className="space-y-10">
-                <div>
-                  <h2 className="font-display text-[clamp(1.5rem,3vw,2.2rem)] font-bold tracking-[-0.03em]">O que era preciso</h2>
-                  <p className="mt-3 max-w-[62ch] text-lg leading-[1.55] text-muted">{project.overview}</p>
-                </div>
-                <div>
-                  <h2 className="font-display text-[clamp(1.5rem,3vw,2.2rem)] font-bold tracking-[-0.03em]">O que fizemos</h2>
-                  <p className="mt-3 max-w-[62ch] text-lg leading-[1.55] text-muted">{project.contribution}</p>
-                </div>
-              </div>
-            </Reveal>
-
-            {/* A FICHA FICA
-                Numa leitura desta dimensão, a ficha presa é o que impede que
-                se perca de quem é o projeto a meio do segundo parágrafo. Leva
-                fundo próprio e não só borda: o "+" passa por trás, e sobre uma
-                caixa transparente atravessava as etiquetas. */}
-            <div className="lg:col-span-4">
-              <Reveal delay={0.08}>
-                <dl className="grid gap-5 rounded-2xl border border-border bg-surface p-6 lg:sticky lg:top-[18vh]">
-                  <div>
-                    <dt className="text-xs uppercase tracking-[0.18em] text-muted">
-                      Cliente
-                    </dt>
-                    <dd className="mt-1 font-display font-semibold">
-                      {project.client}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs uppercase tracking-[0.18em] text-muted">
-                      Setor
-                    </dt>
-                    <dd className="mt-1 font-display font-semibold">
-                      {project.category}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs uppercase tracking-[0.18em] text-muted">
-                      Ano
-                    </dt>
-                    <dd className="mt-1 font-display font-semibold tabular-nums">
-                      {project.year}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs uppercase tracking-[0.18em] text-muted">
-                      O que entrou
-                    </dt>
-                    <dd>
-                      <ul className="mt-2 grid gap-1 text-sm">
-                        {project.services.map((s) => (
-                          <li key={s} className="text-muted">
-                            <span aria-hidden className="mr-1.5 font-bold text-primary">
-                              +
-                            </span>
-                            {s}
-                          </li>
-                        ))}
-                      </ul>
-                    </dd>
-                  </div>
-                  {project.url ? (
-                    <Button href={project.url} variant="primary" className="w-full">
-                      Visitar site
-                    </Button>
-                  ) : null}
-                </dl>
-              </Reveal>
+      {notas ? (
+        <Section className="relative">
+          <Container>
+            <div className="grid gap-10 md:grid-cols-2 md:gap-14">
+              {(
+                [
+                  ["O que era preciso", notas.preciso],
+                  ["O que fizemos", notas.feito],
+                ] as const
+              ).map(([titulo, itens]) => (
+                <Reveal key={titulo} className="border-t border-border-strong pt-6">
+                  <h2 className="font-display text-[clamp(1.5rem,3vw,2rem)] font-titulo tracking-[-0.03em]">
+                    {titulo}
+                  </h2>
+                  <ul className="mt-4 grid gap-2.5 text-lg text-muted">
+                    {itens.map((t) => (
+                      <li key={t} className="flex gap-3">
+                        <span aria-hidden className="text-acento">
+                          •
+                        </span>
+                        {t}
+                      </li>
+                    ))}
+                  </ul>
+                </Reveal>
+              ))}
             </div>
-          </div>
-        </Container>
-      </Section>
+          </Container>
+        </Section>
+      ) : null}
+
+      {project.slug === "cafe-preguica" ? (
+        <Section top={false} className="relative">
+          <Container>
+            <MaterialSurface padding="none" interactive={false}>
+              <div className="grid items-center gap-8 p-6 sm:p-10 md:grid-cols-[1fr_minmax(0,300px)]">
+                <div>
+                  <p className="mb-4 text-sm text-acento">
+                    Do espaço físico para o digital
+                  </p>
+                  <h2 className="home-heading max-w-[16ch]">
+                    A ementa está
+                    <br />
+                    mesmo à mão.
+                  </h2>
+                  <p className="mt-5 max-w-[42ch] text-lg leading-relaxed text-muted">
+                    Ler o QR code ou aproximar o telemóvel do NFC. Dois caminhos
+                    na mesma mesa para abrir a carta do Café Preguiça.
+                  </p>
+                </div>
+                <figure>
+                  <video
+                    controls
+                    playsInline
+                    preload="none"
+                    poster="/projetos/preguica-nfc.jpg"
+                    width={720}
+                    height={1280}
+                    aria-label="Demonstração do suporte com QR code e NFC numa mesa do Café Preguiça"
+                    className="max-h-[65svh] w-full rounded-xl bg-bg-deep object-contain"
+                  >
+                    <source src="/projetos/preguica-nfc.mp4" type="video/mp4" />O
+                    teu navegador não suporta vídeo. Podes abrir a ementa lendo o
+                    QR code ou aproximando um telemóvel compatível do NFC.
+                  </video>
+                  <figcaption className="mt-3 text-sm text-muted">
+                    QR code e NFC nas mesas do Café Preguiça. Vídeo sem som.
+                  </figcaption>
+                </figure>
+              </div>
+            </MaterialSurface>
+          </Container>
+        </Section>
+      ) : null}
 
       {next.slug !== slug ? (
         <Section top={false} className="relative">
           <Container>
-            <div className="border-t border-border pt-10">
-              <p className="text-sm text-muted">Próximo projeto</p>
+            <MaterialSurface padding="none">
               <Link
                 href={`/portfolio/${next.slug}`}
-                className="group mt-2 inline-flex items-center gap-3 font-display text-3xl font-semibold tracking-tight transition-colors hover:text-primary sm:text-4xl"
+                className="group flex min-h-24 items-center justify-between gap-6 p-6 sm:p-8"
               >
-                {next.name}
-                <span className="transition-transform duration-300 group-hover:translate-x-1">
+                <span>
+                  <span className="block text-sm text-muted">Próximo projeto</span>
+                  <span className="mt-1 block font-display text-3xl font-titulo tracking-[-0.025em] sm:text-4xl">
+                    {next.name}
+                  </span>
+                </span>
+                <span
+                  aria-hidden
+                  className="text-2xl transition-transform duration-300 motion-safe:group-hover:translate-x-1"
+                >
                   →
                 </span>
               </Link>
-            </div>
+            </MaterialSurface>
           </Container>
         </Section>
       ) : null}

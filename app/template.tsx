@@ -1,3 +1,4 @@
+/** docs: docs/04-componentes-e-padroes.md — transição sem esconder a página. */
 "use client";
 
 import { useRef } from "react";
@@ -8,7 +9,7 @@ import { gsap, useGSAP, MOVIMENTO } from "@/lib/motion";
  * rota, por isso o conteúdo entra enquanto a `Nav` e o `Footer` (que vivem no
  * layout) ficam onde estão.
  *
- * Discreta de propósito: 10 px e um `fade`. Quem navega já sabe que a página
+ * Discreta de propósito: 10 px, sem esconder o conteúdo. Quem navega já sabe que a página
  * mudou — a animação confirma, não anuncia.
  */
 export default function Template({ children }: { children: React.ReactNode }) {
@@ -32,7 +33,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
           }
           gsap.fromTo(
             el,
-            { opacity: 0, y: 10 },
+            { y: 10 },
             {
               opacity: 1,
               y: 0,
@@ -49,7 +50,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div ref={ref} data-reveal>
+    <div ref={ref}>
       {children}
     </div>
   );

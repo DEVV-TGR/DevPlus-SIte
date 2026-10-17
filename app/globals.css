@@ -50,10 +50,88 @@
   --paper-ink: oklch(0.25 0.012 60);
   --paper-muted: oklch(0.44 0.018 60);
 
+  /* Profundidades e luminosidades do laranja e do verde — direção atelier,
+     outubro de 2026, ver docs/02 e docs/09. Não substituem nenhum token:
+     cada uma vem com a tinta com que foi medida. `--copper` é o acento legível
+     sobre `--paper` (7,35:1); `--peach` leva `--primary-ink` (13,18:1);
+     `--mint` leva `--forest` (11,71:1); `--forest` leva `--ink` (15,10:1) ou
+     `--forest-muted` (8,06:1). */
+  --copper: oklch(0.43 0.105 46);
+  --peach: oklch(0.88 0.065 54);
+  --forest: oklch(0.235 0.038 158);
+  --mint: oklch(0.88 0.055 154);
+  --forest-muted: oklch(0.77 0.035 154);
+
   /* Signature gradient — surfaces/rules only, never text */
   --grad: linear-gradient(100deg, var(--primary) 0%, var(--accent) 100%);
 
   --radius: 0.875rem; /* 14px — cards stay <=16px */
+
+  /* ── Papéis que o tema troca ─────────────────────────────────────────────
+     Os componentes pedem um **papel**, não uma cor, e o tema decide a cor.
+     No escuro (o de sempre) cada papel aponta para o token de antes; o claro
+     está no bloco `html[data-theme="light"]` abaixo. Ver docs/02, "Temas".
+
+     `--acento` é o laranja **quando é texto**: no claro passa a cobre, porque
+     o primary sobre papel dá 2,30:1. Como fundo de botão, o primary não muda.
+     `--foco` é o contorno de foco: o verde no escuro, forest no claro.
+     `--creme` não troca nunca — é a tinta de cima de superfícies que ficam
+     escuras nos dois temas (o botão de contraste do fecho). */
+  --acento: var(--primary);
+  /* O acento dentro de um capítulo **inverso** (`.capitulo-inverso`): o
+     fundo é o contrário do tema, o acento também — cobre sobre o creme no
+     escuro (7,35:1), laranja sobre o grafite no claro (7,45:1). */
+  --acento-inverso: var(--copper);
+  --foco: var(--accent);
+  --creme: oklch(0.97 0.006 80);
+  --verde: var(--forest);
+  --verde-ink: var(--ink);
+  --verde-muted: var(--forest-muted);
+  --quente: color-mix(in oklch, var(--copper) 18%, var(--bg-deep));
+  --quente-ink: var(--ink);
+  --quente-muted: var(--muted);
+}
+
+/* ── O tema claro ─────────────────────────────────────────────────────────
+   Outubro de 2026. Segue `prefers-color-scheme` na primeira visita e a escolha
+   do botão depois disso (script em `app/layout.tsx`, botão em
+   `components/SeletorTema.tsx`). A inversão faz-se nos tokens, não nos
+   componentes: a navegação, o rodapé, os formulários e as interiores
+   acompanham sem uma segunda implementação.
+
+   Base e papel trocam de lugar — o capítulo que era creme no escuro (a
+   galeria) passa a grafite, e o resto do site a creme. O verde passa de forest
+   a mint, o quente de cobre-grafite a peach. Os valores de `--bg`, `--ink`,
+   `--muted`, `--paper*` são os tokens de sempre trocados; `--bg-deep`,
+   `--surface*`, `--border*` e `--danger` são valores novos do claro, medidos
+   no docs/02. O Estúdio (`data-area="estudio"`) fica sempre escuro. */
+html[data-theme="light"]:not([data-area="estudio"]) {
+  color-scheme: light;
+  --bg: oklch(0.952 0.008 80);
+  --bg-deep: oklch(0.915 0.011 76);
+  --surface: oklch(0.975 0.006 80);
+  --surface-2: oklch(0.925 0.01 78);
+  --border: oklch(0.86 0.012 70);
+  --border-strong: oklch(0.58 0.016 60);
+  --ink: oklch(0.25 0.012 60);
+  --muted: oklch(0.44 0.018 60);
+  --danger: oklch(0.5 0.19 25);
+  --paper: oklch(0.15 0.011 56);
+  --paper-ink: oklch(0.97 0.006 80);
+  --paper-muted: oklch(0.77 0.012 80);
+  --acento: var(--copper);
+  --acento-inverso: var(--primary);
+  --foco: var(--forest);
+  --verde: var(--mint);
+  --verde-ink: var(--forest);
+  --verde-muted: var(--forest);
+  --quente: var(--peach);
+  --quente-ink: var(--primary-ink);
+  --quente-muted: var(--primary-ink);
+}
+/* O laranja do fecho é o mesmo nos dois temas; as tintas também. */
+html[data-theme="light"]:not([data-area="estudio"]) .ground-laranja {
+  --paper-ink: oklch(0.25 0.012 60);
 }
 
 @theme inline {
@@ -75,6 +153,25 @@
   --color-paper: var(--paper);
   --color-paper-ink: var(--paper-ink);
   --color-paper-muted: var(--paper-muted);
+  --color-copper: var(--copper);
+  --color-peach: var(--peach);
+  --color-forest: var(--forest);
+  --color-mint: var(--mint);
+  --color-forest-muted: var(--forest-muted);
+  --color-acento: var(--acento);
+  --color-acento-inverso: var(--acento-inverso);
+  --color-creme: var(--creme);
+  --color-verde: var(--verde);
+  --color-verde-ink: var(--verde-ink);
+  --color-verde-muted: var(--verde-muted);
+  --color-quente: var(--quente);
+  --color-quente-ink: var(--quente-ink);
+  --color-quente-muted: var(--quente-muted);
+
+  /* O peso dos títulos, igual em todo o site: 650, o das previews aprovadas
+     em outubro. `font-titulo` substitui os `font-extrabold`/`font-bold`
+     soltos — ver docs/02, "Tipografia". */
+  --font-weight-titulo: 650;
 
   /* A mesma família nos dois papéis — ver docs/02. `font-display` e
      `font-sans` continuam a existir porque marcam a intenção no markup, e
@@ -85,6 +182,78 @@
   --radius-lg: var(--radius);
   --radius-xl: 1.25rem;
   --radius-2xl: 1.75rem;
+}
+
+/* ── Os capítulos, por papel ─────────────────────────────────────────────
+   Cada capítulo diz o papel que tem, não a cor: o tema decide. Definem
+   `--ground` e `--fg`, que o `MaterialGround` lê, e pintam-nos. Ver docs/02,
+   "Temas", para a tabela papel → cor nos dois temas. */
+.capitulo-base,
+.capitulo-inverso,
+.capitulo-verde,
+.capitulo-fundo,
+.capitulo-quente,
+.capitulo-laranja {
+  background: var(--ground);
+  color: var(--fg);
+}
+.capitulo-base {
+  --ground: var(--bg);
+  --fg: var(--ink);
+}
+.capitulo-inverso {
+  --ground: var(--paper);
+  --fg: var(--paper-ink);
+}
+.capitulo-verde {
+  --ground: var(--verde);
+  --fg: var(--verde-ink);
+}
+.capitulo-fundo {
+  --ground: var(--bg-deep);
+  --fg: var(--ink);
+}
+.capitulo-quente {
+  --ground: var(--quente);
+  --fg: var(--quente-ink);
+}
+.capitulo-laranja {
+  --ground: var(--primary);
+  --fg: var(--primary-ink);
+}
+
+/* As costuras da `Curva`, por papel do capítulo que fica para trás. Sobre
+   escuro o laranja lê-se sozinho; sobre claro passa ao `--primary-strong` e as
+   opacidades sobem 1,6× — ver o comentário dos `GROUNDS` na `Curva`. */
+:root {
+  --curva-base-acento: var(--primary);
+  --curva-base-ganho: 1;
+  --curva-papel-acento: var(--primary-strong);
+  --curva-papel-ganho: 1.6;
+  --curva-verde-acento: var(--primary);
+  --curva-verde-ganho: 1;
+  --curva-quente-acento: var(--primary);
+  --curva-quente-ganho: 1;
+  --curva-fim-acento: var(--curva-base-acento);
+  --curva-fim-ganho: var(--curva-base-ganho);
+  --fim-ground: var(--bg);
+}
+html[data-theme="light"]:not([data-area="estudio"]) {
+  --curva-base-acento: var(--primary-strong);
+  --curva-base-ganho: 1.6;
+  --curva-papel-acento: var(--primary);
+  --curva-papel-ganho: 1;
+  --curva-verde-acento: var(--primary-strong);
+  --curva-verde-ganho: 1.6;
+  --curva-quente-acento: var(--primary-strong);
+  --curva-quente-ganho: 1.6;
+}
+/* A home acaba nos pacotes, que são um capítulo quente, e não no `--bg` das
+   outras páginas. O rodapé é partilhado; é a página que o avisa. */
+html:has(.home-packages) {
+  --fim-ground: var(--quente);
+  --curva-fim-acento: var(--curva-quente-acento);
+  --curva-fim-ganho: var(--curva-quente-ganho);
 }
 
 /* ── A escala dos títulos ───────────────────────────────────────────────
@@ -102,21 +271,21 @@
   /* O título de uma capa: 74px a 390px, 90px a 1440px. */
   font-size: clamp(3rem, 19vw, 5.6rem);
   line-height: 0.92;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.035em;
 }
 
 @utility t-seccao {
   /* O título de uma secção: 62px a 390px, 74px a 1440px. */
   font-size: clamp(2.4rem, 16vw, 4.6rem);
   line-height: 0.95;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.035em;
 }
 
 @utility t-obra {
   /* O nome de um projeto no índice: 51px a 390px, 64px a 1440px. */
   font-size: clamp(2.2rem, 13vw, 4rem);
   line-height: 0.95;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.035em;
 }
 
 /* ── E o corpo, no telemóvel ────────────────────────────────────────────
@@ -138,11 +307,19 @@
   }
 }
 
-/* Default border color to our token (Tailwind v4 defaults to currentColor) */
-*,
-*::before,
-*::after {
-  border-color: var(--color-border);
+/* Default border color to our token (Tailwind v4 defaults to currentColor).
+   **Em `@layer base`, não solto.** No Tailwind v4 as utilidades vivem em
+   `@layer utilities`, e uma regra sem camada ganha a qualquer camada, seja
+   qual for a especificidade: fora de camada, este `*` apagava todos os
+   `border-border-strong`, `border-primary/45` e `border-current` do site — os
+   campos do formulário ficavam com a borda de 1,4:1 em vez dos 3,56:1 que o
+   docs/02 manda para controlos. Medido em outubro de 2026. */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    border-color: var(--color-border);
+  }
 }
 
 html {
@@ -160,15 +337,20 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-h1,
-h2,
-h3,
-h4 {
-  font-family: var(--font-display), var(--font-sans), sans-serif;
-  /* Eixo óptico alto: em tamanho grande fecha e ganha o carácter da família. */
-  font-variation-settings: "opsz" 48;
-  letter-spacing: -0.02em; /* >= -0.04em floor */
-  text-wrap: balance;
+/* Também em `@layer base`, pela mesma razão do `border-color` acima: solto,
+   este `letter-spacing` ganhava a todos os `tracking-*` dos títulos e ao
+   tracking de `t-capa`/`t-seccao`/`t-obra`. */
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display), var(--font-sans), sans-serif;
+    /* Eixo óptico alto: em tamanho grande fecha e ganha o carácter da família. */
+    font-variation-settings: "opsz" 48;
+    letter-spacing: -0.02em; /* >= -0.04em floor */
+    text-wrap: balance;
+  }
 }
 
 p {
@@ -181,7 +363,7 @@ p {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--foco);
   outline-offset: 2px;
   border-radius: 3px;
 }
@@ -312,5 +494,840 @@ html.lenis body {
   }
   .carousel-item {
     scroll-snap-align: center;
+  }
+}
+
+/* ── Página inicial ─────────────────────────────────────────────────────
+   docs: docs/02-cores-e-tipografia.md · docs/04-componentes-e-padroes.md ·
+   docs/09-direcao-atelier.md. Só tokens; as medidas vêm do briefing de
+   17 de outubro e estão explicadas no docs/09. */
+/* O teto é 5,3rem e não 6rem: o contentor pára nos 1152px, a coluna do texto
+   nos 565px, e "ao teu negócio." pede 6,52em — a 89px (6,2vw a 1440px)
+   partia-se em quatro linhas. Até 1366px o tamanho é o mesmo de antes. */
+.home-title {
+  font-size: clamp(3.2rem, 6.2vw, 5.3rem);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  font-weight: 650;
+}
+/* Uma linha por frase, mas **sem `nowrap`**: com o texto a 200% o "ao teu
+   negócio." passava a margem e o `overflow-hidden` do hero cortava-o. A
+   tamanho normal as três linhas cabem até aos 320px (medido: sobram 6px). */
+.home-title > span {
+  display: block;
+}
+.home-title em {
+  font-weight: 500;
+  color: var(--acento);
+}
+.home-heading {
+  font-size: clamp(2.6rem, 4.6vw, 4.4rem);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  font-weight: 650;
+  text-wrap: balance;
+}
+.home-hero {
+  background: transparent;
+}
+.home-hero-grid {
+  display: grid;
+  grid-template-columns: 1.08fr 1fr;
+  align-items: center;
+  min-height: min(800px, calc(100svh - 140px));
+  padding-block: 2.5rem;
+}
+.home-hero-intro {
+  max-width: 37ch;
+  margin-top: 1.75rem;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.3vw, 1.125rem);
+  line-height: 1.6;
+}
+/* A escultura é quadrada e nunca passa de 74svh: a 1366×768 a proposta, a
+   imagem e as duas ações cabem no primeiro ecrã. */
+.home-hero-art {
+  position: relative;
+  aspect-ratio: 1;
+  width: min(100%, 74svh);
+  justify-self: end;
+  margin-block: -1rem;
+  perspective: 1000px;
+}
+.home-hero-disc {
+  position: absolute;
+  inset: 13% 7%;
+  border-radius: 50%;
+  background: var(--copper);
+  transform: rotate(-8deg);
+  overflow: hidden;
+}
+.home-hero-disc-mark {
+  position: absolute;
+  width: 80%;
+  height: 80%;
+  left: 30%;
+  top: 30%;
+  color: var(--primary);
+  opacity: 0.6;
+}
+.home-hero-bottom {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding-block: 1.25rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 14px;
+}
+.home-hero-bottom p span {
+  color: var(--acento);
+  padding-inline: 0.6rem;
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .home-title {
+    font-size: clamp(2.8rem, 5.7vw, 3.7rem);
+  }
+}
+@media (max-width: 767px) {
+  /* No telemóvel o hero tapa o "+" da página: a escultura já ocupa a largura
+     toda, e o símbolo em escala de capa ficava por cima dela. */
+  .home-hero {
+    background: var(--bg);
+  }
+  .home-hero-grid {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    padding-block: 2rem 1rem;
+  }
+  .home-title {
+    font-size: clamp(2.55rem, 11.7vw, 4.5rem);
+  }
+  .home-hero-intro {
+    max-width: 36ch;
+    margin-top: 1.25rem;
+    font-size: 1rem;
+  }
+  .home-hero-art {
+    width: min(85vw, 390px);
+    justify-self: center;
+    margin: 1.5rem auto 0.5rem;
+  }
+  .home-hero-disc {
+    inset: 8%;
+  }
+  .home-heading {
+    font-size: clamp(2.4rem, 10.4vw, 3.8rem);
+  }
+  .home-hero-bottom {
+    flex-wrap: wrap;
+    gap: 0.2rem;
+    padding-top: 1.5rem;
+  }
+  .home-hero-bottom p span {
+    padding-inline: 0.2rem;
+  }
+}
+@media (min-width: 1280px) {
+  .home-hero-art {
+    width: min(620px, 46vw, 74svh);
+    margin-inline: -1.5rem -3rem;
+  }
+}
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+}
+.nav-link {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 1rem;
+  border-radius: 3rem;
+  color: var(--muted);
+  font-size: 14px;
+  transition:
+    color 0.2s,
+    background-color 0.2s;
+}
+.nav-link:hover {
+  color: var(--ink);
+}
+.nav-link-active {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.mobile-navigation {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  padding: 1.25rem 1.5rem;
+  border: 0;
+  background: var(--bg);
+  color: var(--ink);
+}
+.mobile-navigation[open] {
+  display: flex;
+  flex-direction: column;
+}
+/* O botão sol/lua, no canto inferior esquerdo do site público. 48px de alvo,
+   fora das safe-areas; a dica aparece ao hover e ao foco. Ver docs/02, "Temas". */
+.seletor-tema {
+  position: fixed;
+  z-index: 45;
+  left: max(1rem, env(safe-area-inset-left));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: color-mix(in oklch, var(--surface) 88%, transparent);
+  color: var(--ink);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 6px 18px color-mix(in oklch, var(--bg-deep) 35%, transparent);
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+.seletor-tema:hover {
+  background: var(--surface-2);
+}
+.seletor-tema-dica {
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 0.6rem);
+  padding: 0.4rem 0.7rem;
+  border-radius: 0.5rem;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 14px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.seletor-tema:hover .seletor-tema-dica,
+.seletor-tema:focus-visible .seletor-tema-dica {
+  opacity: 1;
+}
+@media (forced-colors: active) {
+  .seletor-tema {
+    background: Canvas;
+    border-color: CanvasText;
+    backdrop-filter: none;
+  }
+}
+.mobile-navigation::backdrop {
+  background: var(--bg);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .mobile-navigation[open] {
+    animation: menu-open 0.28s ease-out;
+  }
+  @keyframes menu-open {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* ── O carrossel glass dos projetos ─────────────────────────────────────
+   Um cartão ao centro e os vizinhos em perspetiva (`ProvaCarrossel`). O
+   capítulo é **inverso**: creme no tema escuro, grafite no claro — por isso o
+   vidro tem duas receitas, a clara por omissão e a escura no tema claro. As
+   medidas vêm da preview aprovada; a altura do palco e a largura do cartão
+   encolhem com a altura do ecrã para caberem num portátil de 768px pinado. */
+.gallery-stage {
+  --vidro-fill: color-mix(in oklch, var(--creme) 58%, transparent);
+  --vidro-edge: color-mix(in oklch, var(--creme) 85%, transparent);
+  --vidro-shadow:
+    inset 0 1px 0 var(--creme),
+    inset 0 -2px 1px color-mix(in oklch, var(--forest) 10%, transparent),
+    0 22px 45px color-mix(in oklch, var(--forest) 12%, transparent);
+  --vidro-meta: transparent;
+  position: relative;
+  padding-block: 4rem 3rem;
+}
+html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
+  --vidro-fill: color-mix(in oklch, var(--paper) 78%, transparent);
+  --vidro-edge: color-mix(in oklch, var(--creme) 22%, transparent);
+  --vidro-shadow:
+    inset 0 1px 0 color-mix(in oklch, var(--creme) 25%, transparent),
+    0 22px 45px color-mix(in oklch, var(--paper) 60%, transparent);
+  --vidro-meta: linear-gradient(
+    to bottom,
+    color-mix(in oklch, var(--paper) 20%, transparent),
+    color-mix(in oklch, var(--paper) 85%, transparent)
+  );
+}
+.gallery-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem 2.5rem;
+}
+.gallery-head .home-heading {
+  max-width: 16ch;
+}
+.gallery-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 44px;
+  border-bottom: 1px solid color-mix(in oklch, var(--paper-ink) 35%, transparent);
+  font-size: 15px;
+  white-space: nowrap;
+}
+.gallery-glass {
+  --card-width: clamp(300px, min(30vw, 50svh), 410px);
+  --step: clamp(180px, 19vw, 270px);
+  position: relative;
+  height: clamp(400px, 60svh, 490px);
+  margin-top: 0.75rem;
+  perspective: 1600px;
+  touch-action: pan-y;
+  outline-offset: -8px;
+}
+.glass-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--card-width);
+  padding: 14px;
+  border: 1px solid var(--vidro-edge);
+  border-radius: 18px;
+  background: var(--vidro-fill);
+  box-shadow: var(--vidro-shadow);
+  color: var(--paper-ink);
+  transform: translate(-50%, -50%) translateX(calc(var(--distance) * var(--step)))
+    translateY(calc(abs(var(--distance)) * 12px)) rotateY(var(--turn)) scale(var(--scale));
+  transform-origin: center;
+  transition:
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 420ms ease;
+  user-select: none;
+}
+/* O desfoque custa: só o cartão do centro o leva (docs/10). */
+.glass-card[data-current="true"] {
+  backdrop-filter: blur(18px) saturate(110%);
+}
+.glass-card[data-depth="3"] {
+  opacity: 0.4;
+}
+.glass-card-edge {
+  position: absolute;
+  inset: 5px;
+  border: 1px solid color-mix(in oklch, var(--creme) 30%, transparent);
+  border-radius: 14px;
+  pointer-events: none;
+}
+.glass-card-image {
+  position: relative;
+  aspect-ratio: 1.35;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--forest);
+}
+.glass-card-image img {
+  opacity: var(--fade);
+  pointer-events: none;
+}
+.glass-card-meta {
+  position: relative;
+  min-height: 130px;
+  margin: 0 -5px -5px;
+  padding: 1.25rem 3.25rem 0.875rem 0.75rem;
+  border-radius: 0 0 10px 10px;
+  background: var(--vidro-meta);
+  opacity: var(--fade);
+}
+.glass-card-meta h3 {
+  font-size: clamp(1.4rem, 2.1vw, 1.8rem);
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+.glass-card-state {
+  margin-top: 0.5rem;
+  color: var(--paper-muted);
+  font-size: 14px;
+}
+.glass-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 0.875rem;
+}
+.glass-card-tags li {
+  padding: 4px 9px;
+  border: 1px solid color-mix(in oklch, var(--paper-ink) 13%, transparent);
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--paper) 55%, transparent);
+  font-size: 14px;
+  line-height: 1.3;
+}
+.glass-card-link {
+  position: absolute;
+  right: 4px;
+  top: 1.1rem;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid color-mix(in oklch, var(--paper-ink) 24%, transparent);
+  border-radius: 50%;
+}
+.glass-card-link:hover {
+  background: var(--paper-ink);
+  color: var(--paper);
+}
+.glass-card[data-current="false"] .glass-card-link {
+  visibility: hidden;
+}
+.glass-card-select {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+}
+.glass-card[data-current="true"] .glass-card-select {
+  display: none;
+}
+.gallery-controls {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+.gallery-controls button {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid color-mix(in oklch, var(--paper-ink) 24%, transparent);
+  border-radius: 50%;
+  background: var(--vidro-fill);
+  backdrop-filter: blur(12px);
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+.gallery-controls button:hover {
+  background: var(--paper-ink);
+  color: var(--paper);
+}
+.gallery-count {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.gallery-count-line {
+  width: 64px;
+  height: 1px;
+  background: color-mix(in oklch, var(--paper-ink) 35%, transparent);
+}
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .gallery-stage {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100svh;
+    padding-block: 5.5rem 1.5rem;
+  }
+  .gallery-stage .home-heading {
+    max-width: none;
+    font-size: clamp(2.2rem, 3.6vw, 3.4rem);
+  }
+}
+@media (max-width: 600px) {
+  .gallery-glass {
+    --card-width: calc(100vw - 64px);
+    --step: 73vw;
+    height: 450px;
+  }
+  .glass-card {
+    padding: 10px;
+    border-radius: 16px;
+    transform: translate(-50%, -50%) translateX(calc(var(--distance) * var(--step))) scale(var(--scale));
+  }
+  .glass-card-image {
+    aspect-ratio: 1.4;
+  }
+  .glass-card-meta {
+    min-height: 150px;
+    padding: 1.125rem 2.75rem 0.75rem 0.5rem;
+  }
+  .glass-card-link {
+    right: 0;
+    top: 0.75rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glass-card {
+    transition: none;
+    transform: translate(-50%, -50%) translateX(calc(var(--distance) * var(--step))) scale(var(--scale));
+  }
+}
+@media (forced-colors: active) {
+  .glass-card {
+    background: Canvas;
+    border-color: CanvasText;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+  .glass-card-edge {
+    display: none;
+  }
+}
+
+/* O QR code e o NFC à mesa: capítulo verde (`.capitulo-verde`). */
+.table-story {
+  overflow: hidden;
+}
+.table-story-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  align-items: center;
+  gap: 6rem;
+}
+.table-story-title {
+  font-size: clamp(2.8rem, 4.8vw, 4.8rem);
+}
+.table-story-title em {
+  font-weight: 500;
+  color: var(--acento);
+}
+.table-story-intro {
+  max-width: 40ch;
+  margin-block: 2rem 1rem;
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.table-story-text {
+  max-width: 40ch;
+  line-height: 1.65;
+}
+.table-methods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block: 1.5rem;
+}
+.table-methods li {
+  border: 1px solid currentColor;
+  border-radius: 3rem;
+  padding: 0.5rem 0.8rem;
+  font-size: 14px;
+}
+.table-story-link {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 2rem;
+  border-bottom: 1px solid currentColor;
+  font-weight: 600;
+}
+.table-film-scene {
+  position: relative;
+  display: grid;
+  justify-items: center;
+}
+.table-film {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 280px);
+}
+.table-film video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 9 / 16;
+  border-radius: 12px;
+  background: var(--forest);
+  box-shadow: 0 20px 45px color-mix(in oklch, var(--bg-deep) 30%, transparent);
+}
+.table-film figcaption {
+  margin-top: 1rem;
+  font-size: 14px;
+  text-align: center;
+}
+.table-story-mark {
+  position: absolute;
+  width: 140%;
+  height: 100%;
+  left: -20%;
+  color: var(--accent);
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .table-story-grid {
+    gap: 2.5rem;
+  }
+}
+@media (max-width: 767px) {
+  .table-story-grid {
+    grid-template-columns: 1fr;
+    gap: 3.5rem;
+  }
+  .table-story-title {
+    font-size: clamp(2.5rem, 11vw, 3.8rem);
+  }
+  .table-story-intro {
+    margin-top: 1.25rem;
+  }
+  .table-film {
+    width: 240px;
+  }
+  .table-story-mark {
+    width: 110%;
+    left: -5%;
+  }
+}
+
+/* Os serviços: o fundo acompanha a cena — verde, base, verde, fundo. O
+   `data-tone` é escrito pelo `ServicosMostra` na troca, não pelo React. São
+   papéis, e o tema decide as cores (forest/bg no escuro, mint/creme no claro);
+   `--ground` e `--fg` servem também o vidro do `MaterialGround`. */
+[aria-labelledby="servicos-mostra"] {
+  --ground: var(--verde);
+  --fg: var(--verde-ink);
+  background: var(--ground);
+  color: var(--fg);
+  transition: background-color 0.4s;
+}
+[aria-labelledby="servicos-mostra"][data-tone="1"] {
+  --ground: var(--bg);
+  --fg: var(--ink);
+}
+[aria-labelledby="servicos-mostra"][data-tone="3"] {
+  --ground: var(--bg-deep);
+  --fg: var(--ink);
+}
+/* A roda continua em mobile; figura, título e texto recebem áreas próprias. */
+@media (max-width: 767px) {
+  [data-service-figure-wrap] {
+    position: absolute;
+    top: 20svh;
+    left: 1.25rem;
+    transform: none;
+  }
+  /* ~228px a 390×844: a figura chega perto da roda sem lhe tocar (a roda
+     começa a 264px) e o vazio entre ela e o título desce de 170 para 135px. */
+  [data-service-figure-wrap] [data-figura] {
+    width: min(60vw, 27svh);
+  }
+  [data-service-number] {
+    top: 6.5rem;
+  }
+  [aria-labelledby="servicos-mostra"] [role="tablist"] {
+    top: 35%;
+  }
+  /* 5,5rem e não 3rem: o botão do tema vive no canto inferior esquerdo
+     (48px a 16px da aresta), e o "Falar sobre isto" ficava-lhe por baixo. */
+  [data-service-copy] {
+    bottom: 5.5rem;
+    max-width: calc(100% - 2.5rem);
+  }
+  [data-service-copy] h3 {
+    max-width: 16ch;
+  }
+}
+@media (max-width: 767px) and (max-height: 700px) {
+  /* 10rem e não 8rem: o número acaba perto dos 9,7rem, e a 320×700 a figura
+     subia-lhe para cima. */
+  [data-service-figure-wrap] {
+    top: 10rem;
+  }
+  [data-service-figure-wrap] [data-figura] {
+    width: min(40vw, 22svh);
+  }
+  [aria-labelledby="servicos-mostra"] [role="tablist"] {
+    top: 26%;
+    --roda: 6.25rem !important;
+  }
+  [data-service-copy] {
+    bottom: 4.75rem;
+  }
+  [data-service-copy] p {
+    font-size: 14px;
+  }
+}
+/* Em tablet a figura fica entre o texto e a roda: 32vw acaba antes de a roda
+   começar (a 768px e a 1024px sobram 4 e 26px), com 34vw tocava-lhe. */
+@media (min-width: 768px) and (max-width: 1279px) {
+  [data-service-figure-wrap] {
+    position: absolute;
+    left: 44%;
+    top: 20%;
+    transform: none;
+  }
+  [data-service-figure-wrap] [data-figura] {
+    width: 32vw;
+  }
+}
+@media (min-width: 1280px) {
+  [data-service-figure-wrap] {
+    position: absolute;
+    left: 41%;
+    top: 18%;
+  }
+  [data-service-figure-wrap] [data-figura] {
+    width: min(37vw, 58svh);
+  }
+}
+
+@media (max-width: 1279px) and (prefers-reduced-motion: reduce) {
+  [aria-labelledby="como-trabalhamos"] [data-fila] {
+    width: 100%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+  [aria-labelledby="como-trabalhamos"] [data-passo] {
+    scroll-snap-align: start;
+  }
+}
+
+/* Os pacotes: três placas comparáveis, cada uma com o seu objeto. Colunas
+   objeto · texto · o que inclui · ação em desktop; em tablet a lista desce
+   para baixo do texto; no telemóvel o objeto encosta ao título e a ação vai a
+   toda a largura. As medidas são as da preview aprovada (docs/10). */
+.package-bench {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+.package-plate {
+  display: grid;
+  grid-template-columns: 132px 1.3fr 1fr auto;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.625rem 1.75rem;
+}
+.package-object {
+  display: grid;
+  place-items: center;
+  height: 146px;
+}
+.package-object img {
+  width: 132px;
+  height: 146px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 14px color-mix(in oklch, var(--bg-deep) 30%, transparent));
+}
+.package-copy h3 {
+  font-size: clamp(1.5rem, 2.2vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+.package-copy p {
+  max-width: 35ch;
+  margin-top: 0.75rem;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.65;
+}
+.package-points {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding-left: 1.125rem;
+  list-style: disc;
+  color: var(--muted);
+  font-size: 14px;
+}
+.package-points li::marker {
+  color: var(--acento);
+}
+[data-atelier-surface="forest"] .package-copy p,
+[data-atelier-surface="forest"] .package-points {
+  color: var(--forest-muted);
+}
+:root[data-theme="light"]:not([data-area="estudio"]) [data-atelier-surface="forest"] .package-copy p,
+:root[data-theme="light"]:not([data-area="estudio"]) [data-atelier-surface="forest"] .package-points {
+  color: var(--forest);
+}
+.package-cta {
+  white-space: nowrap;
+}
+.package-other {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-top: 1.75rem;
+  color: var(--quente-muted);
+  font-size: 14px;
+}
+@media (max-width: 1023px) {
+  .package-plate {
+    grid-template-columns: 112px 1fr auto;
+    gap: 1.25rem;
+  }
+  .package-object {
+    grid-row: 1 / 3;
+  }
+  .package-object img {
+    width: 112px;
+  }
+  .package-points {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .package-cta {
+    grid-column: 3;
+    grid-row: 1 / 3;
+  }
+  .package-copy p {
+    max-width: none;
+  }
+}
+@media (max-width: 600px) {
+  .package-plate {
+    grid-template-columns: 76px 1fr;
+    gap: 1rem;
+    padding: 1.5rem 1.25rem;
+  }
+  .package-object {
+    grid-row: 1;
+    align-self: start;
+    height: 100px;
+  }
+  .package-object img {
+    width: 76px;
+    height: 100px;
+  }
+  .package-copy h3 {
+    font-size: 1.5rem;
+  }
+  .package-copy p {
+    font-size: 14px;
+  }
+  .package-points {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 1.25rem;
+  }
+  .package-cta {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    justify-content: center;
   }
 }

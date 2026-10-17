@@ -1,0 +1,329 @@
+/* docs: docs/04-componentes-e-padroes.md · docs/10-materiais-atelier.md
+   Estilos locais das páginas interiores. Só tokens de app/globals.css. */
+
+/* ── Ambiente ────────────────────────────────────────────────────────────
+   O AtelierBackdrop pinta o seu próprio ground. Dentro de uma secção
+   `isolate` ele ficava por cima do "+" do `Cruz` (camada `fixed z-0`) e
+   apagava o primeiro tramo do gesto nas capas. Por isso vive aqui, numa
+   camada negativa, em secções **sem fundo próprio**: o ambiente fica por
+   baixo do "+", e o conteúdo, em fluxo, por cima dos dois. */
+.ambiente {
+  position: absolute;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+}
+
+/* Cada página corta o mesmo bitmap de outra maneira: a família repete-se,
+   o enquadramento não. */
+.margens {
+  mask-image: linear-gradient(
+    to right,
+    #000 0%,
+    #000 14%,
+    transparent 34%,
+    transparent 66%,
+    #000 86%,
+    #000 100%
+  );
+}
+
+.espelho {
+  transform: scaleX(-1);
+}
+
+.topo {
+  mask-image: linear-gradient(to bottom, #000 0%, #000 45%, transparent 100%);
+}
+
+/* ── Colunas do acordeão ─────────────────────────────────────────────────
+   Alumínio muito discreto atrás de um véu: a textura dá o material, o véu
+   garante a leitura. A aresta clara de cima é a espessura da placa. */
+.coluna::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background: url("/atelier/metal-escovado-v1.webp") center / cover no-repeat;
+  opacity: 0.05;
+}
+
+/* `isolate` prende o `z-index: -1` da textura à própria coluna: fica por
+   cima do fundo dela e por baixo do texto. */
+.coluna {
+  isolation: isolate;
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklch, var(--ink) 9%, transparent),
+    0 8px 16px color-mix(in oklch, var(--bg-deep) 40%, transparent);
+}
+
+.coluna[data-aberta="true"] {
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklch, var(--primary) 30%, transparent),
+    0 12px 24px color-mix(in oklch, var(--bg-deep) 55%, transparent);
+}
+
+/* ── Réguas ──────────────────────────────────────────────────────────────
+   Um fio de metal escovado no lugar do `border-t`: claro numa ponta, a
+   apagar-se na outra. */
+.regua {
+  position: relative;
+}
+
+.regua::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    color-mix(in oklch, var(--ink) 55%, transparent),
+    color-mix(in oklch, var(--muted) 30%, transparent) 45%,
+    color-mix(in oklch, var(--border) 60%, transparent)
+  );
+}
+
+.regua::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -1px;
+  width: 2.25rem;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--primary);
+}
+
+/* ── Título do contacto ─────────────────────────────────────────────────
+   O `t-capa` é a escala de um título que ocupa um ecrã sozinho. Aqui
+   divide o ecrã com o formulário, numa coluna de cinco: a 90px saía uma
+   palavra por linha. Mesma família e peso, escala da coluna. */
+.tituloContacto {
+  font-size: clamp(2.9rem, 13.5vw, 4.4rem);
+  line-height: 0.95;
+}
+
+/* ── Moldura do portfólio ───────────────────────────────────────────────
+   A abertura do bitmap foi medida: x 143–854 e y 109–523 num quadro de
+   1000×667. A capa real fica por baixo do alumínio, meio pixel para dentro
+   de cada aresta, para não se ver o fundo entre a imagem e o metal. */
+.moldura {
+  position: relative;
+  aspect-ratio: 1000 / 667;
+}
+
+.molduraJanela {
+  position: absolute;
+  left: 14%;
+  right: 14.3%;
+  top: 15.9%;
+  bottom: 21.3%;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--surface);
+}
+
+.molduraMetal {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  /* O bitmap tem ~10% de transparência à volta; em desktop a moldura
+     come-a para o lado do intervalo entre colunas, onde não corta nada. */
+  .moldura {
+    margin-inline: -6% -10%;
+  }
+}
+
+/* ── Carril do telemóvel ─────────────────────────────────────────────────
+   Cartões lado a lado com snap, a mostrar um pedaço do seguinte para se
+   perceber que há mais. Vidro claro no tema claro, grafite no escuro: são as
+   mesmas superfícies da página, sem uma cor própria. */
+.carril {
+  display: grid;
+  gap: 1rem;
+}
+.carrilControlos {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 14px;
+}
+.carrilControlos > span:nth-child(2) {
+  margin-right: auto;
+}
+.carrilControlos button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: color-mix(in oklch, var(--surface) 80%, transparent);
+}
+.carrilControlos button:disabled {
+  opacity: 0.35;
+}
+.carrilPista {
+  display: flex;
+  gap: 0.875rem;
+  margin-inline: -1.5rem;
+  padding: 0.25rem 1.5rem 1rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 1.5rem;
+  scrollbar-width: none;
+}
+.carrilPista::-webkit-scrollbar {
+  display: none;
+}
+.carrilCartao {
+  flex: 0 0 min(84vw, 22rem);
+  scroll-snap-align: start;
+  display: grid;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: color-mix(in oklch, var(--surface) 82%, transparent);
+  box-shadow: 0 18px 36px -24px color-mix(in oklch, var(--bg-deep) 70%, transparent);
+}
+:global(html[data-theme="light"]:not([data-area="estudio"])) .carrilCartao {
+  border-color: color-mix(in oklch, var(--creme) 85%, transparent);
+  box-shadow:
+    inset 0 1px 0 var(--creme),
+    0 18px 36px -22px color-mix(in oklch, var(--forest) 18%, transparent);
+}
+
+/* ── Dispositivos do caso de estudo ──────────────────────────────────────
+   As molduras têm a proporção da janela que tirou a captura: 1440/900 no
+   computador, 390/844 no telemóvel. O scroll é por dentro do ecrã. Em
+   desktop as duas lado a lado; abaixo de 768px uma de cada vez. */
+.dispositivos {
+  display: grid;
+}
+.dispositivosBarra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.dispositivosTroca {
+  display: none;
+}
+.dispositivosPar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 14rem);
+  align-items: end;
+  gap: 1.75rem;
+}
+.dispositivo {
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: color-mix(in oklch, var(--surface) 85%, transparent);
+  box-shadow: 0 24px 48px -28px color-mix(in oklch, var(--bg-deep) 75%, transparent);
+}
+:global(html[data-theme="light"]:not([data-area="estudio"])) .dispositivo {
+  border-color: color-mix(in oklch, var(--creme) 85%, transparent);
+  box-shadow:
+    inset 0 1px 0 var(--creme),
+    0 24px 48px -26px color-mix(in oklch, var(--forest) 22%, transparent);
+}
+.dispositivoTopo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 1.75rem;
+  color: var(--muted);
+  font-size: 14px;
+}
+.dispositivoPontos {
+  position: absolute;
+  left: 0.5rem;
+  display: flex;
+  gap: 4px;
+}
+.dispositivoPontos i {
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+}
+.dispositivo[data-dispositivo="mobile"] .dispositivoPontos {
+  display: none;
+}
+.dispositivoEcra {
+  position: relative;
+  aspect-ratio: 1440 / 900;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 10px;
+  background: var(--bg-deep);
+  scrollbar-width: thin;
+  cursor: pointer;
+}
+.dispositivo[data-dispositivo="mobile"] .dispositivoEcra {
+  aspect-ratio: 390 / 844;
+  border-radius: 14px;
+}
+.dispositivoVazio {
+  display: grid;
+  place-content: center;
+  gap: 0.5rem;
+  height: 100%;
+  padding: 1.5rem;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+}
+.dispositivoVazio strong {
+  color: var(--ink);
+  font-size: 1.1rem;
+}
+@media (max-width: 767px) {
+  .dispositivosTroca {
+    display: inline-flex;
+    justify-self: start;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+    padding: 0.25rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+  }
+  .dispositivosTroca button {
+    min-height: 44px;
+    padding: 0 1rem;
+    border-radius: 999px;
+    font-size: 14px;
+  }
+  .dispositivosTroca button[aria-pressed="true"] {
+    background: var(--ink);
+    color: var(--bg);
+  }
+  .dispositivosPar {
+    grid-template-columns: 1fr;
+  }
+  .dispositivosPar[data-vista="desktop"] .dispositivo[data-dispositivo="mobile"],
+  .dispositivosPar[data-vista="mobile"] .dispositivo[data-dispositivo="desktop"] {
+    display: none;
+  }
+  .dispositivo[data-dispositivo="mobile"] {
+    justify-self: center;
+    width: min(100%, 17rem);
+  }
+}
+
+@media (forced-colors: active) {
+  .ambiente,
+  .coluna::before,
+  .molduraMetal {
+    display: none;
+  }
+}

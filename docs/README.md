@@ -16,12 +16,17 @@ Se um doc e o código discordarem, é um bug, não uma questão de gosto.
 | a lista de serviços                            | [05-servicos.md](05-servicos.md)                           |
 | o portfólio, um cliente novo, capas            | [06-projetos.md](06-projetos.md)                           |
 | o Estúdio interno em /estudio, projetos, login | [07-estudio.md](07-estudio.md)                             |
+| materiais, ambiente e assets do atelier         | [10-materiais-atelier.md](10-materiais-atelier.md)         |
 
 ## Mapa inverso — de um ficheiro para o seu doc
 
 | Ficheiro                                                                                                  | Doc que manda nele       |
 | --------------------------------------------------------------------------------------------------------- | ------------------------ |
 | `lib/site.ts`, `lib/seo.ts`                                                                               | 01                       |
+| `components/InstagramLink.tsx`                                                                            | 01                       |
+| `lib/tema.ts`, `components/SeletorTema.tsx` (o tema claro/escuro)                                         | 02                       |
+| `lib/carrossel.ts`, `components/paginas/Carril.tsx`                                                       | 04                       |
+| `components/paginas/Dispositivos.tsx`, `public/casos/`                                                    | 06                       |
 | `app/layout.tsx`, `app/sitemap.ts`, `app/robots.ts`                                                       | 01                       |
 | `app/globals.css`                                                                                         | 02                       |
 | `lib/brand.ts`, `components/Logo.tsx`, `components/Lockup.tsx`, `components/Wordmark.tsx`                 | 03                       |
@@ -40,7 +45,10 @@ Se um doc e o código discordarem, é um bug, não uma questão de gosto.
 | `lib/projects.ts`, `components/ui/ProjectCard.tsx`, `components/ProjectsMarquee.tsx`, `public/capas/`     | 06                       |
 | `app/estudio/`, `app/api/estudio/`, `lib/estudio/`, `components/estudio/`, `components/CascaDoSite.tsx` | 07                       |
 | `scripts/estudio-migrar.mjs`                                                                              | 07                       |
+| `components/atelier/`, `public/atelier/`                                                                  | 10                       |
 | `vercel.json`                                                                                             | 07                       |
+
+[08-home-remake.md](08-home-remake.md) regista a entrega da home de outubro, o asset e a validação.
 
 ## Um doc que não é especificação
 
@@ -71,3 +79,6 @@ O doc duplica **apenas** aquilo que o código já é obrigado a duplicar (os hex
 cores, a geometria do "+"). Tudo o que o código tem numa fonte única — a lista de
 serviços, a de projetos, os tokens — o doc **aponta**, não copia. Copiar cria uma
 segunda fonte que diverge ao segundo mês.
+
+[09-direcao-atelier.md](09-direcao-atelier.md) regista a direção aprovada, referências, expansão da paleta e assets v2.
+[10-materiais-atelier.md](10-materiais-atelier.md) governa os primitivos `MaterialSurface` e `AtelierBackdrop` e o catálogo único dos assets em `public/atelier/`.

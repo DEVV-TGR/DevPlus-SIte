@@ -153,17 +153,26 @@ const SEMENTEIRA = [
  * igualar entre as dez passagens é a **presença**, não o número.
  *
  * Nenhuma das duas cores é nova: ambas são tokens do `app/globals.css`.
+ *
+ * **Com o tema claro, claro e escuro deixaram de ser fixos**: o `--bg` é escuro
+ * num tema e creme no outro. Por isso quem chama diz o **papel** do capítulo
+ * que fica para trás (base, papel, verde, quente), e o acento e o ganho vêm
+ * de variáveis CSS que o tema troca (`--curva-*` em `app/globals.css`). `fim`
+ * é o último capítulo antes do rodapé, que a home muda com um `:has()`.
  */
 const GROUNDS = {
-  escuro: { acento: "var(--primary)", ganho: 1 },
-  claro: { acento: "var(--primary-strong)", ganho: 1.6 },
+  base: { acento: "var(--curva-base-acento)", ganho: "var(--curva-base-ganho)" },
+  papel: { acento: "var(--curva-papel-acento)", ganho: "var(--curva-papel-ganho)" },
+  verde: { acento: "var(--curva-verde-acento)", ganho: "var(--curva-verde-ganho)" },
+  quente: { acento: "var(--curva-quente-acento)", ganho: "var(--curva-quente-ganho)" },
+  fim: { acento: "var(--curva-fim-acento)", ganho: "var(--curva-fim-ganho)" },
 } as const;
 
 export function Curva({
   forma = "a",
   cor,
   de,
-  ground = "escuro",
+  ground = "base",
 }: {
   forma?: keyof typeof FORMAS;
   /** Um token de cor. Nunca um hex — ver docs/02. */
@@ -177,17 +186,19 @@ export function Curva({
    */
   de: string;
   /**
-   * Se o `de` é claro ou escuro. Não se deduz do token porque o `de` é uma
-   * string de CSS que o servidor não resolve — e é uma pergunta com duas
-   * respostas, não uma cor a escolher: quem chama diz o que tem por trás e o
-   * componente trata do resto.
+   * O papel do `de`: base, papel, verde, quente ou fim. Não se deduz do token
+   * porque o `de` é uma string de CSS que o servidor não resolve, e porque o
+   * mesmo token é claro num tema e escuro no outro — quem chama diz o que tem
+   * por trás e o tema trata do resto.
    */
   ground?: keyof typeof GROUNDS;
 }) {
   const f = FORMAS[forma];
   const linha = caminho(f);
   const { acento, ganho } = GROUNDS[ground];
-  const op = (o: number) => Math.min(1, o * ganho);
+  /* O ganho é uma variável CSS, por isso a opacidade também: `min(1, …)` em
+     CSS em vez de `Math.min` em JS. */
+  const op = (o: number) => `min(1, calc(${o} * ${ganho}))`;
 
   return (
     <div
@@ -226,7 +237,7 @@ export function Curva({
             fill="none"
             stroke={acento}
             strokeWidth={1.5}
-            strokeOpacity={op(n.o)}
+            style={{ strokeOpacity: op(n.o) }}
             vectorEffect="non-scaling-stroke"
           />
         ))}
@@ -242,7 +253,7 @@ export function Curva({
           fill="none"
           stroke={acento}
           strokeWidth={3}
-          strokeOpacity={op(0.6)}
+          style={{ strokeOpacity: op(0.6) }}
           strokeLinecap="round"
           strokeDasharray="0 26"
           vectorEffect="non-scaling-stroke"

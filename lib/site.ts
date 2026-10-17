@@ -76,3 +76,16 @@ export const socials: Social[] = [
   },
   { label: "WhatsApp" },
 ];
+
+/**
+ * O perfil de uma rede, tirado do próprio `href`: `@devplus.pt` do Instagram.
+ * Escreve-se onde o site identifica a conta (navegação, contactos, rodapé,
+ * portfólio) sem a repetir à mão — se o `href` mudar, o nome muda com ele.
+ */
+export function perfil(s: Social): string | null {
+  if (!s.href || s.label !== "Instagram") return null;
+  const nome = new URL(s.href).pathname.split("/").filter(Boolean)[0];
+  return nome ? `@${nome}` : null;
+}
+
+export const instagram = socials.find((s) => s.label === "Instagram" && s.href);
