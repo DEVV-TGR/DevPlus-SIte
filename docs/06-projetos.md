@@ -74,8 +74,9 @@ coisas ao mesmo tempo — o campo e o tempo verbal.
 
 A home usa uma galeria horizontal sem repetição: sete projetos, setas,
 contador e progresso. Em desktop é conduzida pelo scroll com pin e pausas;
-em mobile e com movimento reduzido usa scroll horizontal nativo. O índice do portfólio continua tipográfico, com a capa do
-ativo numa moldura; aceita qualquer número. `ProjectsMarquee` permanece disponível
+em mobile e com movimento reduzido usa scroll horizontal nativo. O índice do portfólio continua tipográfico; a capa real do ativo aparece dentro
+de uma moldura de alumínio (render com abertura transparente, docs/10), sempre
+com a captura do cliente por baixo, em HTML. Aceita qualquer número. `ProjectsMarquee` permanece disponível
 para usos existentes, mas já não é a galeria da home.
 
 ## Capas
@@ -191,9 +192,15 @@ Duas consequências para quem acrescenta um projeto:
   com o nome sobre um ground da marca. É o caso d'`A Barraquinha Nova`, e é por
   isso que a lacuna está registada aqui e não disfarçada no código.
 
-O caso de estudo mudou pela mesma razão: a capa passou a sangrar num ecrã só (o
-nome aparecia duas vezes, no cabeçalho e por cima da imagem, com um scroll de
-intervalo) e a ficha técnica fica presa ao lado do texto.
+O caso de estudo mudou duas vezes. Em setembro a capa passou a sangrar num ecrã
+só (o nome aparecia duas vezes, no cabeçalho e por cima da imagem). Em outubro
+o nome saiu de cima dela: as capturas são páginas com títulos próprios, e a do
+Império lia-se "Que viatura procura?" atravessado pelo nome do projeto, com um
+véu a escurecer o trabalho para salvar o texto. Agora o nome vem primeiro, sobre
+o ambiente do atelier, e a captura logo a seguir, inteira e sem véu, numa placa
+8:5 — a proporção das capas. A ficha técnica é uma placa de grafite que fica
+presa ao lado do texto (o `sticky` nunca chegou a prender antes: o pai tinha a
+altura exata da ficha).
 
 ## Ao alterar este documento
 
@@ -207,3 +214,12 @@ intervalo) e a ficha técnica fica presa ao lado do texto.
 | como as capas funcionam  | `components/ui/ProjectCard.tsx`, `app/portfolio/[slug]/page.tsx` **e** `components/paginas/PortfolioIndice.tsx` — os três renderizam capa |
 | a forma da `/portfolio`  | lê "A `/portfolio` é um índice, não uma grelha" antes: a decisão tem uma razão e não é de gosto |
 | resolveres uma lacuna    | apaga a linha da lista acima                                                                |
+
+## Prova QR/NFC na home
+
+O vídeo fornecido do Preguiça também aparece em `NaMesa`, depois da galeria.
+Sem autoplay, com preload none e poster; o texto adjacente explica integralmente
+a demonstração. A derivada servida não tem faixa de áudio, por isso **não leva
+legendas**: uma descrição posta como `captions` apresentava-se como transcrição
+de um som que não existe. A legenda da figura diz "vídeo sem som, 20 s". Os
+sete slugs e os estados mantêm-se.

@@ -219,6 +219,11 @@ suavidade que essa estrutura existe para recusar. Ver `docs/04`.
 | `--paper-ink` | texto sobre `--paper` | 12.6:1 |
 | `--paper-muted` | apoio sobre `--paper` | 6.1:1 |
 | `--primary` | o fecho, que é o rodapé inteiro | O último ground do site, e o único quente. Ver `docs/01` |
+| `--mint` | o capítulo QR/NFC (`NaMesa`), os cards pares do processo, uma das molduras das capas | Verde claro para a prova à mesa. Leva `--forest`: 11,71:1 |
+| `--forest` | as cenas 01 e 03 dos serviços, uma das molduras das capas, tinta sobre `--mint` | Verde fundo, a profundidade dos serviços. `--ink` sobre ele: 15,10:1; `--primary`: 6,23:1 |
+| `--forest-muted` | apoio nos serviços, sobre `--forest`, `--bg` e `--bg-deep` | 8,06:1 / 9,64:1 / 9,98:1 |
+| `--peach` | os cards ímpares do processo, uma das molduras das capas | Laranja claro. Leva `--primary-ink`: 13,18:1 |
+| `--copper` | o itálico sobre `--paper` ("fala por nós.") | O laranja não se lê no creme; o cobre dá 7,35:1 |
 
 **`--paper` nunca se usa sozinho.** Sobre creme, o `--ink` é invisível: quem
 usa o fundo usa também a tinta que lhe pertence. É por isso que são quatro
@@ -242,10 +247,27 @@ tokens e não dois.
 
 ## Home de outubro de 2026
 
-A identidade e os tokens mantêm-se. `home-title` vai de 3,15rem a 5,6rem em
-desktop, com entrelinha 1,02 e tracking −0,035em; em mobile usa 11,7vw entre
-2,9rem e 4,3rem. `home-heading` vai de 2,6rem a 4,4rem (mobile: 2,4–3,8rem).
+A identidade e os tokens mantêm-se. `home-title` é `clamp(3.2rem, 6.2vw,
+5.3rem)`, peso 700, entrelinha 1 e tracking −0,035em; entre 768 e 1023px
+`clamp(2.8rem, 5.7vw, 3.7rem)`; em mobile 11,7vw entre 2,55rem e 4,5rem. O teto
+é 5,3rem porque a coluna do texto pára nos 565px e "ao teu negócio." pede
+6,52em: a 6rem partia-se em quatro linhas a partir de 1440px. As três linhas
+não levam `nowrap` — com o texto a 200% têm de poder quebrar, senão o
+`overflow-hidden` do hero cortava-as. `home-heading` vai de 2,6rem a 4,4rem
+(mobile: 2,4–3,8rem).
 A medida própria evita voltar a sobrepor texto e asset no hero. As utilidades
 `t-capa`, `t-seccao` e `t-obra` deixam de usar tracking abaixo de −0,04em.
 A home, as órbitas, as etiquetas e os controlos não acrescentam cores: usam
 os tokens existentes, com a tinta do ground correspondente.
+
+## Extensão atelier — 17 de outubro
+
+Por pedido explícito do utilizador, a home acrescenta cinco tokens, sem alterar
+os valores originais. `copper` é o acento legível no papel; `peach` é uma
+superfície clara quente; `forest` dá profundidade aos serviços; `mint` sustenta
+a demonstração real e cartões; `forest-muted` serve o texto secundário no
+escuro. Valores em `:root`, espelhados em `@theme inline`, junto dos tokens
+originais e não num bloco à parte. As combinações usadas e os contrastes medidos
+estão na tabela "Os grounds dos capítulos", acima.
+A tipografia mantém Bricolage: itálico de peso médio em soma, fala por nós,
+à mesa, trabalhamos e começar. A direção e os assets estão em docs/09.

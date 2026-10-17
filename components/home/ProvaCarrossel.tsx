@@ -123,16 +123,11 @@ export function ProvaCarrossel() {
       <div data-gallery-stage className="gallery-stage">
         <Container>
           <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
-            <div>
-              <p className="mb-4 text-sm text-paper-muted">
-                Negócios diferentes. A mesma atenção.
-              </p>
-              <h2 className="home-heading max-w-[16ch]">
-                Trabalho que
-                <br />
-                fala por nós<span className="text-paper-muted">.</span>
-              </h2>
-            </div>
+            <h2 className="home-heading max-w-[16ch]">
+              Trabalho que
+              <br />
+              <em className="font-medium text-copper">fala por nós.</em>
+            </h2>
             <Link
               href="/portfolio"
               className="inline-flex min-h-11 items-center gap-4 border-b border-paper-muted text-sm font-semibold"
@@ -158,20 +153,29 @@ export function ProvaCarrossel() {
             className="project-track"
           >
             {homeProjects.map((p, i) => (
-              <li key={p.slug} className="project-slide">
+              <li
+                key={p.slug}
+                className="project-slide"
+                /* Três enquadramentos em rotação — forest, peach, mint — para
+                   as capas se lerem como peças montadas, não como capturas
+                   soltas. Ver docs/09. */
+                data-project-tone={i % 3}
+              >
                 <Link
                   href={`/portfolio/${p.slug}`}
                   className="group block rounded-xl"
                 >
                   <div className="project-cover">
                     {p.image && (
-                      <Image
-                        src={p.image}
-                        alt={p.imageAlt ?? `Página inicial de ${p.name}`}
-                        fill
-                        sizes="(min-width: 768px) 58vw, 85vw"
-                        className="object-cover object-top transition-transform duration-500 motion-safe:group-hover:scale-[1.025]"
-                      />
+                      <div className="project-cover-frame">
+                        <Image
+                          src={p.image}
+                          alt={p.imageAlt ?? `Página inicial de ${p.name}`}
+                          fill
+                          sizes="(min-width: 1024px) 760px, (min-width: 768px) 65vw, 85vw"
+                          className="object-cover object-top transition-transform duration-500 motion-safe:group-hover:scale-[1.025]"
+                        />
+                      </div>
                     )}
                     <span className="project-status">
                       {p.status === "em-curso"

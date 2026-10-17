@@ -40,13 +40,29 @@ export type Posto = {
   c: string;
 };
 
-/** Percurso da home em fluxo livre: o símbolo vive nas margens de leitura. */
+/**
+ * Percurso da home em fluxo livre: o símbolo vive nas margens de leitura.
+ *
+ * As travessias de um lado ao outro acontecem por trás dos capítulos opacos
+ * (galeria, processo, serviços). Os pacotes são linhas sem fundo, e a última
+ * travessia caía-lhes em cima: o "+" laranja passava por baixo do texto. Pô-lo
+ * à espera na margem direita só resultava a partir de 1280px — abaixo disso
+ * não há margem, e ele espreitava por trás do botão do pacote em destaque.
+ * Por isso as duas últimas travessias e o desaparecimento cabem entre 0,57 e
+ * 0,79 — dentro dos serviços em todas as larguras ≥768px (medido: 0,43–0,87 a
+ * 768px, 0,66–0,92 a 1366px; os pacotes começam a 0,79 e 0,87). O "+"
+ * **encolhe até desaparecer** enquanto os pacotes se lêem, e só volta a
+ * crescer no último ecrã, por baixo do laranja do rodapé (ver docs/04).
+ */
 const POSTOS_HOME: Posto[] = [
   { p: 0, s: 1.45, x: 44, y: -26, r: 0, c: "var(--primary)" },
   { p: 0.17, s: 0.5, x: 44, y: 24, r: 12, c: "var(--primary)" },
   { p: 0.34, s: 0.45, x: -43, y: -24, r: 0, c: "var(--primary)" },
   { p: 0.57, s: 0.5, x: 44, y: 18, r: 12, c: "var(--primary)" },
-  { p: 0.8, s: 0.5, x: -44, y: -18, r: 0, c: "var(--primary)" },
+  { p: 0.7, s: 0.5, x: -44, y: -18, r: 0, c: "var(--primary)" },
+  { p: 0.76, s: 0.4, x: 46, y: 24, r: 12, c: "var(--primary)" },
+  { p: 0.79, s: 0, x: 46, y: 24, r: 12, c: "var(--primary)" },
+  { p: 0.97, s: 0, x: 40, y: 30, r: 0, c: "var(--primary)" },
   { p: 1, s: 1.3, x: 34, y: 36, r: 0, c: "var(--primary)" },
 ];
 
@@ -91,6 +107,23 @@ export const POSTOS_MOBILE: Posto[] = [
   { p: 0.0, s: 1.1, x: 40, y: -34, r: 0, c: "var(--primary)" },
   { p: 0.34, s: 0.42, x: 44, y: 30, r: 8, c: "var(--primary)" },
   { p: 0.72, s: 0.4, x: -44, y: -32, r: 10, c: "var(--paper-muted)" },
+  { p: 1.0, s: 0.9, x: -42, y: 34, r: 0, c: "var(--primary)" },
+];
+
+/**
+ * O percurso do telemóvel **na home**. O `POSTOS_MOBILE` acima serve as
+ * interiores; na home a travessia de 0,34 a 0,72 acabava já por cima do
+ * título dos pacotes, que lá começam entre 0,66 e 0,70 do percurso (medido de
+ * 320 a 414px). Aqui atravessa por trás do processo, desaparece antes dos
+ * pacotes e só volta no último ecrã, por baixo do rodapé — a mesma regra do
+ * `POSTOS_HOME`.
+ */
+export const POSTOS_HOME_MOBILE: Posto[] = [
+  { p: 0.0, s: 1.1, x: 40, y: -34, r: 0, c: "var(--primary)" },
+  { p: 0.34, s: 0.42, x: 44, y: 30, r: 8, c: "var(--primary)" },
+  { p: 0.56, s: 0.4, x: -44, y: -32, r: 10, c: "var(--primary)" },
+  { p: 0.62, s: 0, x: -44, y: -32, r: 10, c: "var(--primary)" },
+  { p: 0.97, s: 0, x: -42, y: 34, r: 0, c: "var(--primary)" },
   { p: 1.0, s: 0.9, x: -42, y: 34, r: 0, c: "var(--primary)" },
 ];
 

@@ -18,6 +18,9 @@ controla:
   - components/paginas/Capa.tsx
   - components/paginas/ServicosAcordeao.tsx
   - components/paginas/PortfolioIndice.tsx
+  - components/paginas/Ambiente.tsx
+  - components/paginas/PacotesBancada.tsx
+  - components/paginas/paginas.module.css
   - components/Providers.tsx
   - components/Nav.tsx
   - components/ContactForm.tsx
@@ -55,9 +58,11 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `Marquee`         | faixa horizontal infinita, decorativa                                      | pôr lá conteúdo que importe — é `aria-hidden`                                              |
 | `ProjectsMarquee` | a faixa de projetos da página inicial: conteúdo real, focável e arrastável | usá-lo para decoração — para isso é o `Marquee`; e pôr `gap` no track, que parte o ciclo   |
 | `PageHero`        | cabeçalho da `/privacidade` — texto que não precisa de composição           | usá-lo nas quatro páginas que ganharam capa própria; para essas é o `paginas/Capa`         |
-| `paginas/Capa`    | a capa de uma página interior: um ecrã só, com o título a ocupá-lo          | pôr-lhe uma figura — a figura é o pico da inicial e repeti-la em cinco capas gasta-a       |
+| `paginas/Capa`    | a capa de uma página interior: um ecrã só, com o título a ocupá-lo, e o ambiente do atelier por trás (`ambiente`: `pleno`, `margens`, `espelho`) | pôr-lhe uma figura — a figura é o pico da inicial e repeti-la em cinco capas gasta-a. O ambiente é profundidade, não figura |
 | `paginas/ServicosAcordeao` | os seis serviços, em colunas que abrem uma de cada vez             | usá-lo na inicial: lá os serviços apresentam-se um a um, aqui catalogam-se                  |
 | `paginas/PortfolioIndice`  | o trabalho em índice, com a capa do ativo numa moldura fixa        | voltar a pôr aqui a grelha de `ProjectCard` — diz o mesmo que a fila da página inicial      |
+| `paginas/Ambiente` | o `AtelierBackdrop` (docs/10) numa camada negativa, por baixo do "+" do `Cruz` | usá-lo numa secção com `bg-*` próprio (fica tapado pelo fundo dela); ligar-lhe o rato (`alvo`) por trás de campos ou de texto legal |
+| `paginas/PacotesBancada` | "Por onde podemos começar" na `/servicos`: três placas `MaterialSurface` com um objeto pequeno cada | pôr o objeto a mandar na leitura, esconder texto atrás de hover, ou desalinhar os títulos das três placas |
 | `home/HeroHome`   | a capa da página inicial                                                   | reutilizar noutro sítio; e pôr o título em dois elementos — ver abaixo                    |
 | `home/Cruz`       | o "+" que atravessa uma página. `postos` muda o percurso                    | dar-lhe os mesmos postos em duas páginas — o que gasta o gesto é repeti-lo **igual**       |
 | `home/Curva`      | o corte entre dois capítulos                                               | pôr uma linha reta no lugar dela; e usá-la sem `de`, que deixa passar o fundo do `body`     |
@@ -304,11 +309,11 @@ que distribuída por ficheiros.
 | Página | A forma | Porque esta |
 | - | --- | --- |
 | `/servicos` | Acordeão de seis colunas verticais, uma aberta de cada vez | Aqui quem chega já sabe o que procura. A inicial **apresenta** quatro serviços um a um; esta **cataloga** os seis, e catalogar quer dizer vê-los todos ao mesmo tempo |
-| `/portfolio` | Índice tipográfico, com a capa do ativo numa moldura que não se mexe | A inicial já mostra o trabalho a passar de lado. Uma grelha de capas aqui era a mesma coisa outra vez — e um índice é a forma de quem procura, não de quem passeia |
-| `/portfolio/[slug]` | Capa a sangrar, e uma ficha técnica que fica presa ao lado do texto | Numa leitura longa a ficha fixa é o que impede que se perca de quem é o projeto a meio do segundo parágrafo |
-| `/sobre` | Coluna central estreita, com as margens habitadas pelas notas | Um estúdio pequeno a falar de si não precisa de secções: precisa de uma voz, e de notas à margem que não a interrompam |
-| `/contacto` | Duas colunas num ecrã, sem percurso | É onde se age. Um formulário que obriga a rolar para se ver inteiro perde gente a meio |
-| `/privacidade` | `PageHero` e texto | É a exceção, e é deliberada: um documento legal não leva composição |
+| `/portfolio` | Índice tipográfico, com a capa real do ativo dentro de uma moldura de alumínio que não se mexe | A inicial já mostra o trabalho a passar de lado. A moldura é um render com a abertura transparente; a captura do cliente fica por baixo, em HTML — enquadra o trabalho, nunca o substitui |
+| `/portfolio/[slug]` | Nome sobre o ambiente, a captura real logo a seguir numa placa 8:5 sem véu, e uma ficha-placa presa ao lado do texto | A sangrar, o nome ficava por cima da captura, e a captura tem os seus próprios títulos ("Que viatura procura?" atravessado por "Império Auto Concept"). Exposta, lê-se inteira |
+| `/sobre` | Coluna central estreita, com as margens habitadas pelas notas; a peça de precisão no intervalo antes de "Em que acreditamos", à esquerda do título | Uma voz, notas à margem, e o único objeto da página num intervalo — não na capa, que é o gesto da inicial |
+| `/contacto` | Duas colunas num ecrã, sem percurso; o título à escala da coluna, painel do formulário em grafite parado, peça de sinal pousada na aresta do painel (só desktop) | É onde se age. A 90px o título ia uma palavra por linha e empurrava o formulário |
+| `/privacidade` | `PageHero` e texto, com o ambiente parado nas margens do cabeçalho | É a exceção, e é deliberada: um documento legal não leva composição — o ambiente não toca no texto da política |
 
 **O "+" deixou de ser só da inicial.** A regra anterior dizia para não o repetir
 noutra página. Estava certa enquanto a homepage era a única com esta gramática;
@@ -330,6 +335,20 @@ as secções levam `relative`**. A camada do "+" é `fixed z-0`, e uma secção 
 baixo dele. Na página inicial nunca se viu porque lá todas as secções já são
 `relative`; na `/contacto` o "+" apareceu por cima do formulário, a tapar os
 campos.
+
+E uma quarta, que veio com os materiais de outubro: **o ambiente vive por baixo
+do "+"**. O `AtelierBackdrop` pinta o seu próprio ground; dentro de uma secção
+`isolate`, como o docs/10 descreve, ele ficava por cima da camada `fixed z-0` do
+`Cruz` e apagava o primeiro tramo do gesto nas capas. O `paginas/Ambiente` põe-no
+numa camada `z-index: -10`, por cima só do fundo do `body`. Isso só funciona em
+secções **sem** `bg-*` próprio — numa secção com fundo, a camada negativa fica
+por baixo dele e não se vê.
+
+Duas notas de `MaterialSurface` que custaram uma volta: o `padding="none"` é
+CSS sem camada e **ganha a qualquer utilidade do Tailwind** passada no
+`contentClassName` (um `p-6` ali não faz nada) — o padding vai num `div`
+interior; e o material ocupa `height: 100%` do pai, por isso um `sticky` vai num
+invólucro próprio, nunca na `className` do material.
 
 ### O telemóvel não é o computador estreitado
 
@@ -869,17 +888,21 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | um elemento que só chega a meio do scroll | marca-o `data-scroll-item`, não `data-reveal-item` — ver "Chegar não é o mesmo que aparecer" |
 | a forma da roda dos serviços      | a geometria sai das constantes `ARCO` / `FOLGA` / `R_DENTRO` do `ServicosMostra.tsx`, e o sector, o anel de fundo e a posição do número das mesmas funções — não escrevas um `polygon()` à mão |
 | a forma de uma página interior    | a tabela em "As páginas interiores também têm forma própria" — uma forma repetida é o defeito que ela existe para travar |
+| o ambiente de uma página interior | confirma que a secção não tem `bg-*` próprio e que o "+" continua por cima dele — o `Ambiente` é uma camada negativa |
+| o recorte da moldura do portfólio | a abertura do bitmap foi medida (x 143–854, y 109–523 em 1000×667); se a moldura mudar, mede outra vez e atualiza `.molduraJanela` em `components/paginas/paginas.module.css` |
 | os postos do `Cruz` numa página   | confirma que o gesto continua a "andar até ao fim" no `verificar-scroll.mjs`, e que a meio da página não passa de 0,6 de escala |
 | acrescentares uma secção a uma página com `Cruz` | dá-lhe `relative` — sem isso o "+" é pintado por cima dela |
 | qualquer coisa que se veja no telemóvel | corre o verificador em `--mobile`: ele mede ecrãs de scroll, alvos de toque, texto miúdo e o "+" por cima de texto, e nenhuma dessas quatro coisas era apanhada antes |
-| os postos do `Cruz`              | são **dois** conjuntos: `POSTOS_PAGINA` e `POSTOS_MOBILE`. Em `vw`, o mesmo número é margem num ecrã de 1440 e centro num de 390 |
+| os postos do `Cruz`              | são **dois** conjuntos por página: `POSTOS_PAGINA` e `POSTOS_MOBILE` nas interiores, `POSTOS_HOME` e `POSTOS_HOME_MOBILE` na home. Em `vw`, o mesmo número é margem num ecrã de 1440 e centro num de 390 |
+| um pin criado dentro de um `gsap.matchMedia` | nada: o `Providers` chama `ScrollTrigger.sort()` antes de cada `refresh` de breakpoint. Sem isso o pin recriado passa para o fim da lista e os de baixo medem-se sem ele — ver "Evolução atelier" |
+| uma timeline que escreve `transform` e é revertida por breakpoint | limpa o `transform` à entrada do ramo seguinte (`clearProps`); o revert do GSAP pode deixar a pose do CSS composta inline |
 | o ground de um card, ou o pacote destacado | confirma o contraste do título, do texto de apoio **e** do "+" da lista: são três, e o que se esquece é sempre o terceiro |
 | um hover que desloca               | mete o deslocamento atrás de `motion-safe:` — a regra global corta a duração, não o `translate`, e sem a variante ele continua a acontecer |
 | recolheres um testemunho          | `lib/testimonials.ts`; a secção aparece sozinha assim que o array deixar de estar vazio                  |
 | a duração ou o easing             | **`lib/motion.ts`** e a tabela de valores acima — os componentes leem de lá, não têm números próprios      |
 | a pausa de uma secção pinada      | `MOVIMENTO.pausa` / `pausaMovel` em **`lib/motion.ts`**, e nada nos componentes: eles chamam `comPausa`. Depois corre o verificador em `--mobile` — a pausa conta duas vezes por secção e a homepage tem teto |
 | acrescentares uma secção pinada nova | dá-lhe a pausa com `comPausa`, como as outras quatro. Uma secção que arranca no primeiro pixel do pin volta a colar-se à anterior |
-| o percurso de uma secção pinada   | volta a medir onde caem as fronteiras dos capítulos e confirma que os postos do `Cruz` não mudaram de capítulo — sobretudo o de `--paper-muted`, que só se lê sobre o creme |
+| o percurso de uma secção pinada   | volta a medir onde caem as fronteiras dos capítulos e confirma que os postos do `Cruz` não mudaram de capítulo — nas interiores sobretudo o de `--paper-muted`, que só se lê sobre o creme; na home, que nenhuma travessia nem nenhum "+" visível cai nos pacotes, que não têm fundo |
 | introduzires um componente que anima | verifica `prefers-reduced-motion` dentro dele: o GSAP não o faz por ti                                   |
 | o espaçamento vertical            | `components/ui/Section.tsx`, não as páginas                                                               |
 | a largura máxima                  | `components/ui/Container.tsx`, não as páginas                                                             |
@@ -892,7 +915,7 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 
 ### Adaptação dos capítulos imersivos
 
-O leque do processo começa em 1024px; abaixo disso usa a fila por scroll, para
+O leque do processo começa em 1280px; abaixo disso usa a fila por scroll, para
 não cortar os cards nos tablets. Nos serviços mobile, o número fica abaixo da
 navegação, a figura ocupa a área superior esquerda, a roda a superior direita,
 e o texto tem uma área própria em baixo. A indicação QR/NFC e o CTA continuam
@@ -905,5 +928,87 @@ overflow horizontal nativo, para os quatro passos continuarem acessíveis. A
 roda dos serviços mantém escolha manual, sem animação nem pin.
 
 O processo recria a sua coreografia com `gsap.matchMedia()` quando a janela
-atravessa os 1024px, revertendo os transforms e pins anteriores. Não exige
+atravessa os 1280px, revertendo os transforms e pins anteriores. Não exige
 recarregar a página depois de rodar um dispositivo ou redimensionar a janela.
+
+## Evolução atelier — 17 de outubro
+
+O percurso atual é hero → projetos → prova QR/NFC → processo → serviços →
+pacotes → rodapé. `NaMesa` usa o vídeo real, com controlos nativos e sem autoplay;
+a figura acompanha o scroll apenas em desktop e sem movimento reduzido.
+O hero mantém conteúdo visível por defeito; entrada por linhas, profundidade
+por scroll e inclinação ao ponteiro fino usam wrappers diferentes e matchMedia.
+A galeria usa enquadramentos forest/peach/mint. O leque conserva a coreografia,
+mas os cards passam a ser tipográficos, com a entrega de cada etapa. Os serviços
+partilham a família de assets do hero, com fundo por cena e recomposição quando
+a preferência de movimento muda. Os pacotes passam a linhas comparáveis.
+Ver docs/09 para o contrato visual, referências, prompts e âmbito.
+
+### Redimensionar não pode deixar um capítulo vazio
+
+Após mudança dos breakpoints 1024/1280, o `Providers` espera duas frames, chama
+`ScrollTrigger.sort()` e só depois `refresh()`. O `sort` é a parte que faltava:
+a galeria e o processo recriam os pins no seu `gsap.matchMedia`, os pins novos
+vão para o fim da lista do ScrollTrigger, e os serviços — que não são recriados
+— mediam-se antes deles. Reproduzido: carregar a 1366px, ir aos serviços,
+estreitar para 874px, e o capítulo inteiro era um ecrã vazio (a cena ficava
+2244, 1320 e 396px abaixo do topo a 15%, 50% e 85% do pin). Com o `sort`,
+fica a 0 nos três pontos.
+
+O processo, ao sair do leque, limpa o `transform` dos cards (`clearProps`): o
+revert da timeline compunha-lhes a pose do CSS com o `scale` de partida, e a
+fila horizontal ficava 400px mais larga do que num carregamento a frio. Depois
+das duas correções, oito sequências de resize (1440→1024, 1024→1440, 1280→1279,
+1279→1300, 390→1440, 1440→390, 768→1366, 1366→768→1366) dão a mesma altura de
+página e os mesmos pins que um carregamento a frio na largura final.
+
+### Atelier — o que mudou na composição
+
+- **Hero.** Três `span` em bloco sem `nowrap` (ver docs/02 para a medida). A
+  escultura fica quadrada até `min(620px, 46vw, 74svh)` a partir de 1280px, e
+  `min(100%, 74svh)` abaixo disso.
+- **Galeria.** A moldura de cada capa é um invólucro (`.project-cover-frame`, 7%
+  de margem) e não `!important` sobre o `fill` do `next/image`.
+- **Processo.** Cards peach/mint por classe, com a entrega de cada passo em
+  `PASSOS`. Em tablet a largura é `min(78vw, 24rem)`; com 78vw um card chegava
+  aos 800px a 1024. Em desktop continua `min(20rem, 22vw)`.
+- **Serviços.** A roda vem **antes** das cenas no DOM (desenha-se por cima com
+  `z-[4]`): Tab a partir do serviço escolhido entra na cena dele e só depois
+  sai da secção. A figura mede 32vw em tablet (com 34vw tocava na roda),
+  `min(60vw, 27svh)` no telemóvel e `min(40vw, 22svh)` em ecrãs com menos de
+  700px de altura, abaixo do número.
+- **O "+" e os pacotes.** Os pacotes são linhas sem fundo, e o "+" que antes
+  passava escondido atrás dos cartões ficava por baixo do texto. Os postos da
+  home acabam as travessias dentro dos serviços e encolhem o "+" até zero antes
+  dos pacotes; só volta no último ecrã, por baixo do rodapé. Os da home em
+  telemóvel são próprios (`POSTOS_HOME_MOBILE`), pela mesma razão.
+- **`NaMesa`.** Sem `<track>`: a derivada não tem áudio (docs/06).
+
+### O que foi verificado — 17 de outubro
+
+Contra a build de produção (`next build --webpack`, `next start`), com
+Playwright e o Chromium headless da cache local, e o browser integrado para o
+vídeo (o Chromium headless não traz H.264):
+
+- matriz 320×700, 360×780, 390×844, 768×1024, 1024×768, 1366×768 e 1440×900,
+  com capturas de hero, galeria (início, meio, fim), `NaMesa`, processo (início,
+  meio, fim), as quatro cenas dos serviços, pacotes e rodapé: zero overflow
+  horizontal e zero erros de consola;
+- movimento reduzido a 390 e 1366: sem pins nem Lenis, nenhum texto com
+  opacidade 0, leque estático pelo CSS, fila e galeria com scroll nativo,
+  escolha manual dos serviços;
+- teclado: setas, Home e End da galeria com contador, progresso e setas
+  sincronizados; setas, Home e End da roda; Tab e Shift+Tab entre roda e cena;
+  foco visível; nenhum elemento oculto continua focável;
+- toque emulado: menu mobile abre e fecha com Escape, toque na roda, gesto
+  horizontal na galeria, gesto vertical continua a rolar a página;
+- navegar para um caso de estudo e voltar, duas vezes: três pins, sem
+  duplicados;
+- vídeo: `preload="none"` respeitado até ao clique; depois do clique reproduz
+  (0 → 2,4 s em 2,5 s), sem erros;
+- texto a 200% (raiz a 32px): o título quebra dentro da coluna.
+
+Não verificado: dispositivos físicos (toque e Safari iOS reais), Lighthouse e
+Core Web Vitals. Pré-existente e fora deste âmbito: em `/servicos`, o pin do
+`ServicosAcordeao` decide-se na montagem e não se desfaz ao estreitar abaixo de
+768px sem recarregar.

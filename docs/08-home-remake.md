@@ -64,3 +64,10 @@ e movimento reduzido, a galeria usa scroll horizontal nativo. O processo conserv
 a acumulação dos cards em desktop e o percurso horizontal por scroll em mobile.
 Os serviços mantêm a meia-roda, o pin e a escolha por scroll, rato, toque e teclado.
 A alternativa de movimento reduzido preserva os conteúdos e a escolha manual.
+
+## Revisão seguinte
+
+A direção visual foi ampliada em 17 de outubro, depois de estudar referências
+premiadas e receber exemplos de posts do utilizador. A descrição histórica da
+primeira oficina acima permanece como proveniência; o hero e os serviços usam
+agora os assets v2 e o sistema documentado em docs/09-direcao-atelier.md.

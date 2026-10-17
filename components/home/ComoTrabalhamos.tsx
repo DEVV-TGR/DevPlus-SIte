@@ -1,7 +1,6 @@
 "use client";
 /** docs: docs/04-componentes-e-padroes.md */
 
-import Image from "next/image";
 import { useRef } from "react";
 import {
   gsap,
@@ -10,6 +9,7 @@ import {
   MOVIMENTO,
   comPausa,
 } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
 /**
  * Os quatro passos, em cards que **chegam com o scroll e se acumulam** por
@@ -30,7 +30,7 @@ import {
  * outra, e uma classe e um `transform` inline a disputar o mesmo elemento dão
  * sempre empate a favor do inline: as poses em classe ficavam a decorar o
  * markup sem mandar em nada. As finais chegam ao CSS na mesma, por custom
- * properties no `style` de cada card (ver o `lg:[transform:…]` lá em baixo),
+ * properties no `style` de cada card (ver o `xl:[transform:…]` lá em baixo),
  * para que sem JavaScript — ou com `prefers-reduced-motion` — o leque exista.
  * Uma fonte, dois leitores.
  *
@@ -44,8 +44,7 @@ const PASSOS = [
     n: "01",
     t: "Conversa",
     d: "Sentamo-nos contigo a perceber o negócio, quem são os teus clientes e o que queres ganhar com isto. Sem isso, o resto é decoração.",
-    img: "/ilustra/t1-conversa.webp",
-    alt: "Duas pessoas frente a frente com balões de fala e um caderno.",
+    entrega: "Objetivos alinhados",
     pousa: { x: -31, y: 8, r: -5 },
     atira: { x: -78, y: 34, r: -30 },
   },
@@ -53,8 +52,7 @@ const PASSOS = [
     n: "02",
     t: "Design",
     d: "Mostramos-te o site desenhado antes de ele existir. Vês, dizes o que mudarias, e só depois se escreve código.",
-    img: "/ilustra/t2-design.webp",
-    alt: "Uma pessoa a desenhar um layout numa prancha, com régua e esquadro.",
+    entrega: "Design validado",
     pousa: { x: -10.5, y: 13, r: 4 },
     atira: { x: -21, y: 95, r: 22 },
   },
@@ -62,8 +60,7 @@ const PASSOS = [
     n: "03",
     t: "Construção",
     d: "Abre depressa, funciona bem no telemóvel e aparece nas pesquisas. Não são extras que se pedem, é como fazemos.",
-    img: "/ilustra/t3-construcao.webp",
-    alt: "Blocos geométricos empilhados a formar uma janela de browser.",
+    entrega: "Site construído",
     pousa: { x: 10.5, y: 8, r: -3 },
     atira: { x: 21, y: 95, r: -20 },
   },
@@ -71,8 +68,7 @@ const PASSOS = [
     n: "04",
     t: "No ar",
     d: "Pomos o site online, acompanhamos os primeiros dias e afinamos o que for preciso. E ficamos cá para o que vier a seguir.",
-    img: "/ilustra/t4-no-ar.webp",
-    alt: "Uma janela de browser a subir com um foguete e linhas de velocidade.",
+    entrega: "Lançamento e acompanhamento",
     pousa: { x: 31, y: 13, r: 5 },
     atira: { x: 78, y: 34, r: 30 },
   },
@@ -86,8 +82,8 @@ export function ComoTrabalhamos() {
       const media = gsap.matchMedia();
       media.add(
         {
-          desktop: "(min-width: 1024px)",
-          mobile: "(max-width: 1023px)",
+          desktop: "(min-width: 1280px)",
+          mobile: "(max-width: 1279px)",
           reduced: "(prefers-reduced-motion: reduce)",
         },
         () => {
@@ -97,7 +93,15 @@ export function ComoTrabalhamos() {
           const cards = raiz.querySelectorAll<HTMLElement>("[data-passo]");
           if (!palco) return;
 
-          /* As poses finais estão no CSS (o `lg:[transform:…]` do card), por isso
+          /* Vindo do leque, o revert da timeline deixa um `transform` inline
+             nos cards: o GSAP decompôs a pose do CSS na primeira leitura e volta
+             a compô-la com o `scale` de partida. A 1024px a fila ficava 400px
+             mais larga do que num carregamento a frio, e o pin mais comprido.
+             Aqui recomeça-se sempre do markup — e sem `transform` inline é o
+             CSS que manda na pose, que é o que o ramo reduzido precisa. */
+          gsap.set(cards, { clearProps: "transform,translate,rotate,scale" });
+
+          /* As poses finais estão no CSS (o `xl:[transform:…]` do card), por isso
          aqui não se escreve `transform` nenhum: basta acender os cards e sai-se
          da frente. Um `scale: 1` inline bastava para o GSAP passar a mandar no
          `transform` e apagar o leque. */
@@ -114,7 +118,7 @@ export function ComoTrabalhamos() {
          referência usa nesta mesma secção no iPhone, e é a mesma gramática do
          `ProvaCarrossel` — lateral lê-se como percorrer uma lista, e é isso
          que quatro passos são. */
-          if (window.matchMedia("(max-width: 1023px)").matches) {
+          if (window.matchMedia("(max-width: 1279px)").matches) {
             const fila = raiz.querySelector<HTMLElement>("[data-fila]");
             if (!fila) return;
             gsap.set(cards, { opacity: 1 });
@@ -244,7 +248,7 @@ export function ComoTrabalhamos() {
            (`overflow-hidden`), e com o conteúdo centrado era o topo do título
            que desaparecia. Em telemóvel o título encosta ao cimo e a fila
            ocupa o que sobra. */
-        className="relative flex min-h-[100svh] flex-col justify-start gap-6 overflow-hidden pb-10 pt-24 lg:grid lg:place-items-center lg:gap-0 lg:px-6 lg:py-0"
+        className="relative flex min-h-[100svh] flex-col justify-start gap-6 overflow-hidden pb-10 pt-24 xl:grid xl:place-items-center xl:gap-0 xl:px-6 xl:py-0"
       >
         {/* O título tem lugar próprio no terço de cima, e os cards chegam por
             baixo dele. Estavam todos centrados no mesmo ponto: acumulavam-se
@@ -253,12 +257,12 @@ export function ComoTrabalhamos() {
         {/* Em telemóvel o título fica preso no topo enquanto os cards passam
             por baixo dele — é o que a referência faz nesta secção. Em desktop
             continua no terço de cima, com os cards em leque por baixo. */}
-        <div className="mx-auto w-full max-w-[46rem] shrink-0 px-6 text-center lg:absolute lg:inset-x-0 lg:top-[10svh]">
+        <div className="mx-auto w-full max-w-[46rem] shrink-0 px-6 text-center xl:absolute xl:inset-x-0 xl:top-[10svh]">
           <h2
             id="como-trabalhamos"
             className="t-seccao font-display font-extrabold"
           >
-            Como trabalhamos.
+            Como <em className="font-medium text-peach">trabalhamos.</em>
           </h2>
           <p className="mx-auto mt-4 max-w-[40ch] text-muted">
             Metade dos sites da tua rua saiu do mesmo template. O teu não sai:
@@ -266,14 +270,14 @@ export function ComoTrabalhamos() {
           </p>
         </div>
 
-        {/* `lg:contents` faz o wrapper desaparecer do layout em desktop, e os
+        {/* `xl:contents` faz o wrapper desaparecer do layout em desktop, e os
             cards voltam a ser filhos do palco — que é o que o `absolute` das
             poses precisa como referência. */}
         <div
           data-fila
-          className="flex w-max items-stretch gap-4 px-6 will-change-transform lg:contents"
+          className="flex w-max items-stretch gap-4 px-6 will-change-transform xl:contents"
         >
-          {PASSOS.map((p) => (
+          {PASSOS.map((p, i) => (
             <article
               key={p.n}
               data-passo
@@ -296,35 +300,25 @@ export function ComoTrabalhamos() {
                   "--pousa-r": `${p.pousa.r}deg`,
                 } as React.CSSProperties
               }
-              className="grid w-[78vw] shrink-0 gap-2 rounded-2xl border border-border bg-surface p-5 shadow-[0_30px_60px_-30px_rgb(0_0_0/0.7)] lg:absolute lg:w-[min(20rem,74vw)] lg:[transform:translate(var(--pousa-x),var(--pousa-y))_rotate(var(--pousa-r))]"
+              /* Peach e mint alternados: as versões claras do laranja e do verde,
+                 cada uma com a sua tinta — ver docs/02. Em tablet a largura
+                 fica limitada a 24rem; com 78vw um card chegava aos 800px. */
+              className={cn(
+                "grid min-h-[22rem] w-[min(78vw,24rem)] shrink-0 content-start gap-2 rounded-xl p-6 shadow-[0_30px_60px_-30px_rgb(0_0_0/0.7)] xl:absolute xl:w-[min(20rem,22vw)] xl:p-7 xl:[transform:translate(var(--pousa-x),var(--pousa-y))_rotate(var(--pousa-r))]",
+                i % 2 ? "bg-mint text-forest" : "bg-peach text-primary-ink",
+              )}
             >
-              <span className="justify-self-start rounded-full bg-primary px-3 py-0.5 text-xs font-semibold uppercase tracking-[0.18em] text-primary-ink">
-                Processo
-              </span>
-              <span className="font-display text-[clamp(2rem,4vw,3rem)] font-extrabold leading-none tabular-nums text-primary">
+              <span className="mb-4 font-display text-[4rem] font-medium leading-none tabular-nums">
                 {p.n}
               </span>
-              <h3 className="font-display text-xl font-semibold tracking-tight">
+              <h3 className="font-display text-[1.7rem] font-semibold tracking-tight">
                 {p.t}
               </h3>
-              <p className="text-sm text-muted">{p.d}</p>
-              {/* A figura é posicionada contra esta caixa, e não dimensionada em
-                percentagem dentro dela: com `h-[90%]` numa linha de grelha
-                automática a altura realimentava-se — a linha crescia para caber
-                a imagem, a imagem crescia para 90% da linha, e a figura acabava
-                ao dobro da caixa, a sair pelas bordas do card. O `overflow`
-                fechado é o cinto; o `object-contain` garante que assenta lá
-                dentro inteira. */}
-              <div className="relative mt-1 h-32 overflow-hidden rounded-xl bg-ink/5 max-lg:h-24">
-                <Image
-                  src={p.img}
-                  alt={p.alt}
-                  width={760}
-                  height={760}
-                  loading="lazy"
-                  className="absolute inset-0 h-full w-full object-contain p-1"
-                />
-              </div>
+              <p className="text-sm">{p.d}</p>
+              <p className="mt-5 grid gap-1 border-t border-current pt-4">
+                <span className="text-sm">O que levamos daqui</span>
+                <strong className="font-semibold">{p.entrega}</strong>
+              </p>
             </article>
           ))}
         </div>

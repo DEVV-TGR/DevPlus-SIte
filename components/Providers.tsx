@@ -91,11 +91,42 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     O ScrollTrigger já ouve o `resize` da janela sozinho; para as imagens, o
     `load` chega.
   */
+  /*
+    **E a ordem conta.** O ScrollTrigger remede os triggers pela ordem em que
+    foram criados, e cada pin empurra tudo o que está por baixo dele. Ao cruzar
+    1024px ou 1280px, o `gsap.matchMedia` da galeria e do processo recria os
+    pins deles — e passam para o fim da lista, depois dos serviços, que não são
+    recriados. Os serviços mediam-se então sem o pin de cima e ficavam com um
+    início antigo: a 874px, depois de vir de 1366px, o capítulo inteiro era um
+    ecrã vazio. O `sort()` repõe a ordem da página antes de medir; as duas
+    frames deixam assentar todos os `matchMedia` primeiro.
+  */
   useEffect(() => {
-    const refrescar = () => ScrollTrigger.refresh();
+    const refrescar = () => {
+      ScrollTrigger.sort();
+      ScrollTrigger.refresh();
+    };
     if (document.readyState === "complete") refrescar();
     else window.addEventListener("load", refrescar, { once: true });
-    return () => window.removeEventListener("load", refrescar);
+    let frame = 0;
+    const media = [
+      window.matchMedia("(min-width: 1024px)"),
+      window.matchMedia("(min-width: 1280px)"),
+    ];
+    const afterLayout = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        frame = requestAnimationFrame(refrescar);
+      });
+    };
+    media.forEach((query) => query.addEventListener("change", afterLayout));
+    return () => {
+      window.removeEventListener("load", refrescar);
+      media.forEach((query) =>
+        query.removeEventListener("change", afterLayout),
+      );
+      cancelAnimationFrame(frame);
+    };
   }, []);
 
   /* **O Estúdio não leva scroll suave**, e não é questão de gosto.

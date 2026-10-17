@@ -50,6 +50,18 @@
   --paper-ink: oklch(0.25 0.012 60);
   --paper-muted: oklch(0.44 0.018 60);
 
+  /* Profundidades e luminosidades do laranja e do verde — direção atelier,
+     outubro de 2026, ver docs/02 e docs/09. Não substituem nenhum token:
+     cada uma vem com a tinta com que foi medida. `--copper` é o acento legível
+     sobre `--paper` (7,35:1); `--peach` leva `--primary-ink` (13,18:1);
+     `--mint` leva `--forest` (11,71:1); `--forest` leva `--ink` (15,10:1) ou
+     `--forest-muted` (8,06:1). */
+  --copper: oklch(0.43 0.105 46);
+  --peach: oklch(0.88 0.065 54);
+  --forest: oklch(0.235 0.038 158);
+  --mint: oklch(0.88 0.055 154);
+  --forest-muted: oklch(0.77 0.035 154);
+
   /* Signature gradient — surfaces/rules only, never text */
   --grad: linear-gradient(100deg, var(--primary) 0%, var(--accent) 100%);
 
@@ -75,6 +87,11 @@
   --color-paper: var(--paper);
   --color-paper-ink: var(--paper-ink);
   --color-paper-muted: var(--paper-muted);
+  --color-copper: var(--copper);
+  --color-peach: var(--peach);
+  --color-forest: var(--forest);
+  --color-mint: var(--mint);
+  --color-forest-muted: var(--forest-muted);
 
   /* A mesma família nos dois papéis — ver docs/02. `font-display` e
      `font-sans` continuam a existir porque marcam a intenção no markup, e
@@ -315,14 +332,28 @@ html.lenis body {
   }
 }
 
-/* Home remake — docs: docs/02-cores-e-tipografia.md / docs/04-componentes-e-padroes.md.
-   Composição da oficina: nenhum token novo; todos os fundos usam a paleta. */
+/* ── Página inicial ─────────────────────────────────────────────────────
+   docs: docs/02-cores-e-tipografia.md · docs/04-componentes-e-padroes.md ·
+   docs/09-direcao-atelier.md. Só tokens; as medidas vêm do briefing de
+   17 de outubro e estão explicadas no docs/09. */
+/* O teto é 5,3rem e não 6rem: o contentor pára nos 1152px, a coluna do texto
+   nos 565px, e "ao teu negócio." pede 6,52em — a 89px (6,2vw a 1440px)
+   partia-se em quatro linhas. Até 1366px o tamanho é o mesmo de antes. */
 .home-title {
-  font-size: clamp(3.15rem, 5.7vw, 5.6rem);
-  line-height: 1.02;
+  font-size: clamp(3.2rem, 6.2vw, 5.3rem);
+  line-height: 1;
   letter-spacing: -0.035em;
-  font-weight: 800;
-  text-wrap: balance;
+  font-weight: 700;
+}
+/* Uma linha por frase, mas **sem `nowrap`**: com o texto a 200% o "ao teu
+   negócio." passava a margem e o `overflow-hidden` do hero cortava-o. A
+   tamanho normal as três linhas cabem até aos 320px (medido: sobram 6px). */
+.home-title > span {
+  display: block;
+}
+.home-title em {
+  font-weight: 500;
+  color: var(--primary);
 }
 .home-heading {
   font-size: clamp(2.6rem, 4.6vw, 4.4rem);
@@ -336,53 +367,44 @@ html.lenis body {
 }
 .home-hero-grid {
   display: grid;
-  grid-template-columns: 1.05fr 1fr;
+  grid-template-columns: 1.08fr 1fr;
   align-items: center;
-  gap: 1rem;
-  min-height: min(700px, calc(100svh - 130px));
-  padding-block: 3rem 2rem;
+  min-height: min(800px, calc(100svh - 140px));
+  padding-block: 2.5rem;
 }
-.home-workshop {
-  margin-inline: -3rem -5rem;
+.home-hero-intro {
+  max-width: 37ch;
+  margin-top: 1.75rem;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.3vw, 1.125rem);
+  line-height: 1.6;
 }
-.workshop-orbit {
+/* A escultura é quadrada e nunca passa de 74svh: a 1366×768 a proposta, a
+   imagem e as duas ações cabem no primeiro ecrã. */
+.home-hero-art {
+  position: relative;
+  aspect-ratio: 1;
+  width: min(100%, 74svh);
+  justify-self: end;
+  margin-block: -1rem;
+  perspective: 1000px;
+}
+.home-hero-disc {
   position: absolute;
-  inset: 2% 0;
-  border: 1px solid var(--border);
+  inset: 13% 7%;
   border-radius: 50%;
-  transform: rotate(-18deg);
+  background: var(--copper);
+  transform: rotate(-8deg);
+  overflow: hidden;
 }
-.workshop-orbit-inner {
-  inset: 12% -3%;
-  transform: rotate(23deg);
-  border-style: dashed;
+.home-hero-disc-mark {
+  position: absolute;
+  width: 80%;
+  height: 80%;
+  left: 30%;
+  top: 30%;
+  color: var(--primary);
   opacity: 0.6;
-}
-.workshop-caption {
-  position: absolute;
-  left: 1.5rem;
-  top: 0;
-  font-size: 14px;
-  color: var(--muted);
-}
-.workshop-label {
-  position: absolute;
-  right: 1.5rem;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: var(--surface);
-  color: var(--muted);
-  padding: 1rem 1.25rem;
-  border-radius: var(--radius);
-  z-index: 11;
-  font-size: 14px;
-  line-height: 1.5;
-}
-.workshop-label strong {
-  color: var(--ink);
-  font-weight: 500;
 }
 .home-hero-bottom {
   position: relative;
@@ -391,7 +413,7 @@ html.lenis body {
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  padding-block: 1rem;
+  padding-block: 1.25rem;
   border-top: 1px solid var(--border);
   color: var(--muted);
   font-size: 14px;
@@ -415,22 +437,41 @@ html.lenis body {
   display: none;
 }
 .project-slide {
-  flex: 0 0 66%;
+  flex: 0 0 76%;
   min-width: 0;
   scroll-snap-align: start;
 }
+/* A sobra final deixa o último projeto chegar ao início da faixa. */
 .project-slide:last-child {
-  margin-right: 34%;
+  margin-right: 24%;
 }
+/* A capa é uma peça montada: um ground da marca e a captura real dentro dele,
+   com 7% de margem. O invólucro existe para isso — o `fill` do `next/image`
+   escreve `inset: 0` inline, e sem ele a moldura só se fazia com
+   `!important`. */
 .project-cover {
   position: relative;
   aspect-ratio: 8/5;
   overflow: hidden;
-  border-radius: var(--radius);
-  background: var(--paper-muted);
+  border-radius: 12px;
+  background: var(--forest);
+}
+[data-project-tone="1"] .project-cover {
+  background: var(--peach);
+}
+[data-project-tone="2"] .project-cover {
+  background: var(--mint);
+}
+.project-cover-frame {
+  position: absolute;
+  inset: 7%;
+  overflow: hidden;
+  border-radius: 6px;
+  box-shadow: 0 12px 24px color-mix(in oklch, var(--bg) 25%, transparent);
 }
 .project-status {
   position: absolute;
+  z-index: 1;
   top: 1rem;
   left: 1rem;
   padding: 0.45rem 0.85rem;
@@ -441,6 +482,7 @@ html.lenis body {
 }
 .project-open {
   position: absolute;
+  z-index: 1;
   right: 1rem;
   bottom: 1rem;
   display: grid;
@@ -471,72 +513,70 @@ html.lenis body {
 .gallery-arrow:disabled {
   opacity: 0.4;
 }
-@media (max-width: 1023px) {
-  .home-hero-grid {
-    min-height: 620px;
-  }
-  .home-workshop {
-    margin-inline: -2rem -2.5rem;
-  }
-  .workshop-caption {
-    right: 1rem;
-    font-size: 14px;
+@media (min-width: 768px) and (max-width: 1023px) {
+  .home-title {
+    font-size: clamp(2.8rem, 5.7vw, 3.7rem);
   }
 }
 @media (max-width: 767px) {
+  /* No telemóvel o hero tapa o "+" da página: a escultura já ocupa a largura
+     toda, e o símbolo em escala de capa ficava por cima dela. */
+  .home-hero {
+    background: var(--bg);
+  }
   .home-hero-grid {
     grid-template-columns: 1fr;
     min-height: 0;
-    padding-block: 2.5rem 1rem;
-    gap: 0.5rem;
+    padding-block: 2rem 1rem;
   }
   .home-title {
-    font-size: clamp(2.9rem, 11.7vw, 4.3rem);
-    max-width: 14ch;
+    font-size: clamp(2.55rem, 11.7vw, 4.5rem);
+  }
+  .home-hero-intro {
+    max-width: 36ch;
+    margin-top: 1.25rem;
+    font-size: 1rem;
+  }
+  .home-hero-art {
+    width: min(85vw, 390px);
+    justify-self: center;
+    margin: 1.5rem auto 0.5rem;
+  }
+  .home-hero-disc {
+    inset: 8%;
   }
   .home-heading {
     font-size: clamp(2.4rem, 10.4vw, 3.8rem);
-  }
-  .home-workshop {
-    width: 100%;
-    max-width: 460px;
-    justify-self: center;
-    margin: 1.5rem 0 0;
-  }
-  .workshop-caption {
-    display: none;
-  }
-  .workshop-label {
-    bottom: -0.25rem;
-    right: 0;
-    padding: 0.65rem 0.9rem;
   }
   .home-hero-bottom {
     flex-wrap: wrap;
     gap: 0.2rem;
     padding-top: 1.5rem;
   }
-  .home-hero-bottom p {
-    font-size: 14px;
-  }
   .home-hero-bottom p span {
     padding-inline: 0.2rem;
   }
   .project-slide {
-    flex-basis: 91%;
+    flex-basis: 94%;
   }
   .project-slide:last-child {
-    margin-right: 9%;
+    margin-right: 6%;
   }
   .project-track {
     gap: 1rem;
   }
   .project-cover {
-    aspect-ratio: 1.15;
+    aspect-ratio: 1.3;
   }
   .project-status {
     top: 0.75rem;
     left: 0.75rem;
+  }
+}
+@media (min-width: 1280px) {
+  .home-hero-art {
+    width: min(620px, 46vw, 74svh);
+    margin-inline: -1.5rem -3rem;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -624,24 +664,141 @@ html.lenis body {
   .gallery-stage .mb-10 {
     margin-bottom: 1.25rem;
   }
-  .gallery-stage .mb-4 {
-    margin-bottom: 0.5rem;
-  }
   .gallery-stage .project-track {
     overflow-y: hidden;
   }
   .gallery-stage .project-slide h3 {
     font-size: clamp(1.5rem, 2vw, 1.875rem);
   }
+  .gallery-stage .project-slide > a > p {
+    max-width: 65ch;
+  }
   .gallery-stage .project-cover {
     aspect-ratio: auto;
-    height: clamp(12rem, 30svh, 19rem);
+    height: clamp(14rem, 36svh, 24rem);
   }
   .gallery-stage .mt-8 {
     margin-top: 1rem;
   }
 }
 
+/* O QR code e o NFC à mesa: mint com tinta forest (11,71:1). */
+.table-story {
+  background: var(--mint);
+  color: var(--forest);
+  overflow: hidden;
+}
+.table-story-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  align-items: center;
+  gap: 6rem;
+}
+.table-story-title {
+  font-size: clamp(2.8rem, 4.8vw, 4.8rem);
+}
+.table-story-title em {
+  font-weight: 500;
+}
+.table-story-intro {
+  max-width: 40ch;
+  margin-block: 2rem 1rem;
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.table-story-text {
+  max-width: 40ch;
+  line-height: 1.65;
+}
+.table-methods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block: 1.5rem;
+}
+.table-methods li {
+  border: 1px solid var(--forest);
+  border-radius: 3rem;
+  padding: 0.5rem 0.8rem;
+  font-size: 14px;
+}
+.table-story-link {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 2rem;
+  border-bottom: 1px solid var(--forest);
+  font-weight: 600;
+}
+.table-film-scene {
+  position: relative;
+  display: grid;
+  justify-items: center;
+}
+.table-film {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 280px);
+}
+.table-film video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 9 / 16;
+  border-radius: 12px;
+  background: var(--forest);
+  box-shadow: 0 20px 45px color-mix(in oklch, var(--forest) 24%, transparent);
+}
+.table-film figcaption {
+  margin-top: 1rem;
+  font-size: 14px;
+  text-align: center;
+}
+.table-story-mark {
+  position: absolute;
+  width: 140%;
+  height: 100%;
+  left: -20%;
+  color: var(--accent);
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .table-story-grid {
+    gap: 2.5rem;
+  }
+}
+@media (max-width: 767px) {
+  .table-story-grid {
+    grid-template-columns: 1fr;
+    gap: 3.5rem;
+  }
+  .table-story-title {
+    font-size: clamp(2.5rem, 11vw, 3.8rem);
+  }
+  .table-story-intro {
+    margin-top: 1.25rem;
+  }
+  .table-film {
+    width: 240px;
+  }
+  .table-story-mark {
+    width: 110%;
+    left: -5%;
+  }
+}
+
+/* Os serviços: o fundo acompanha a cena (forest, bg, forest, bg-deep). O
+   `data-tone` é escrito pelo `ServicosMostra` na troca, não pelo React. */
+[aria-labelledby="servicos-mostra"] {
+  background: var(--forest);
+  transition: background-color 0.4s;
+}
+[aria-labelledby="servicos-mostra"][data-tone="1"] {
+  background: var(--bg);
+}
+[aria-labelledby="servicos-mostra"][data-tone="3"] {
+  background: var(--bg-deep);
+}
 /* A roda continua em mobile; figura, título e texto recebem áreas próprias. */
 @media (max-width: 767px) {
   [data-service-figure-wrap] {
@@ -650,8 +807,10 @@ html.lenis body {
     left: 1.25rem;
     transform: none;
   }
+  /* ~228px a 390×844: a figura chega perto da roda sem lhe tocar (a roda
+     começa a 264px) e o vazio entre ela e o título desce de 170 para 135px. */
   [data-service-figure-wrap] [data-figura] {
-    width: min(47vw, 23svh);
+    width: min(60vw, 27svh);
   }
   [data-service-number] {
     top: 6.5rem;
@@ -668,11 +827,13 @@ html.lenis body {
   }
 }
 @media (max-width: 767px) and (max-height: 700px) {
+  /* 10rem e não 8rem: o número acaba perto dos 9,7rem, e a 320×700 a figura
+     subia-lhe para cima. */
   [data-service-figure-wrap] {
-    top: 8rem;
+    top: 10rem;
   }
   [data-service-figure-wrap] [data-figura] {
-    width: 100px;
+    width: min(40vw, 22svh);
   }
   [aria-labelledby="servicos-mostra"] [role="tablist"] {
     top: 26%;
@@ -685,7 +846,8 @@ html.lenis body {
     font-size: 14px;
   }
 }
-
+/* Em tablet a figura fica entre o texto e a roda: 32vw acaba antes de a roda
+   começar (a 768px e a 1024px sobram 4 e 26px), com 34vw tocava-lhe. */
 @media (min-width: 768px) and (max-width: 1279px) {
   [data-service-figure-wrap] {
     position: absolute;
@@ -694,11 +856,21 @@ html.lenis body {
     transform: none;
   }
   [data-service-figure-wrap] [data-figura] {
-    width: 34vw;
+    width: 32vw;
+  }
+}
+@media (min-width: 1280px) {
+  [data-service-figure-wrap] {
+    position: absolute;
+    left: 41%;
+    top: 18%;
+  }
+  [data-service-figure-wrap] [data-figura] {
+    width: min(37vw, 58svh);
   }
 }
 
-@media (max-width: 1023px) and (prefers-reduced-motion: reduce) {
+@media (max-width: 1279px) and (prefers-reduced-motion: reduce) {
   [aria-labelledby="como-trabalhamos"] [data-fila] {
     width: 100%;
     overflow-x: auto;
@@ -709,4 +881,63 @@ html.lenis body {
   }
 }
 
-@media (min-width:768px) and (max-width:1023px) { .workshop-caption { display:none; } }
+/* Os pacotes em linhas comparáveis: nome, descrição, o que inclui, proposta. */
+.home-packages {
+  position: relative;
+}
+.package-rows {
+  margin-top: 3rem;
+}
+.package-row {
+  display: grid;
+  grid-template-columns: 0.8fr 1.25fr 1fr auto;
+  gap: 2rem;
+  align-items: center;
+  padding-block: 2rem;
+  border-top: 1px solid var(--border-strong);
+}
+.package-row h3 {
+  font-size: clamp(1.6rem, 2.5vw, 2.4rem);
+}
+.package-row p,
+.package-row ul {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.package-row ul {
+  display: grid;
+  gap: 0.2rem;
+}
+.package-row-featured {
+  border-color: var(--primary);
+}
+.package-row-featured h3 {
+  color: var(--primary);
+}
+.package-other {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-block: 2rem;
+  border-top: 1px solid var(--border-strong);
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .package-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 767px) {
+  .package-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .package-row ul {
+    grid-template-columns: 1fr 1fr;
+  }
+  .package-row > a {
+    justify-self: start;
+  }
+}
