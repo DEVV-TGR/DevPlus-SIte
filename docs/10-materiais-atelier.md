@@ -1,0 +1,132 @@
+---
+doc: materiais-atelier
+fonte-de-verdade: codigo
+controla:
+  - components/atelier/
+  - public/atelier/
+relacionado:
+  - docs/02-cores-e-tipografia.md
+  - docs/04-componentes-e-padroes.md
+  - docs/09-direcao-atelier.md
+---
+
+# Materiais atelier — integração partilhada
+
+Primitivos preparados pelo Codex para a home e páginas interiores. A integração
+nos consumidores pertence aos dois Claudes; este documento descreve os ficheiros
+novos, não afirma que os componentes já estão montados no site.
+
+## Fontes e catálogo
+
+`components/atelier/assets.ts` é o catálogo único dos caminhos, dimensões, bytes,
+alfa e hashes: 11 novos WebP em `public/atelier/` e referências aos três v2 já
+existentes em `public/hero/`. Não duplica os bitmaps v2. Originais e prompts dos
+novos assets estão em `outputs/atelier-3d-evolution/`; a imagem de estudo dos
+botões fica apenas nessa pasta e não é servida como controlo da interface.
+
+Importar `atelierAssets` de `@/components/atelier/assets` em código de servidor;
+importar cada componente diretamente pelo seu ficheiro quando se pretende uma
+fronteira cliente explícita. O barrel `@/components/atelier` também está disponível.
+Nenhuma imagem é preload por defeito. Consumidores de `next/image` passam `src`,
+`width`, `height` e `sizes`; não espalham o objeto inteiro com bytes/hash em JSX.
+
+As figuras são ilustrações conceptuais. Capas reais, estados e dados dos clientes
+continuam no catálogo de projetos. Usar `contain` nas esculturas. A moldura tem
+abertura central transparente; a imagem real é um elemento HTML separado, com
+inset calibrado pelo consumidor. Nunca gerar trabalho fictício de um cliente.
+
+## MaterialSurface
+
+```tsx
+import { MaterialSurface } from "@/components/atelier/MaterialSurface";
+
+// O article mantém a semântica e recebe o transform do leque/GSAP.
+<article className="h-full">
+  <MaterialSurface finish="graphite" contentClassName="flex flex-col gap-4">
+    {conteudoExistente}
+  </MaterialSurface>
+</article>
+```
+
+| Prop | Default | Papel |
+|---|---|---|
+| `finish` | `graphite` | `graphite`, `silver` ou `forest`, com tinta emparelhada |
+| `interactive` | `true` | Autoriza tilt apenas com rato, desktop e movimento permitido |
+| `padding` | `default` | 24px; `none` entrega o espaçamento ao conteúdo existente |
+| `className` | — | Wrapper exterior: largura, altura e layout do consumidor |
+| `contentClassName` | — | Conteúdo interior: flex/grid/alinhamento |
+| restantes atributos de div | — | id, aria, handlers e style exteriores |
+
+Não cria headings, texto, tabIndex, role de botão nem handlers de clique. Não
+usar como controlo clicável: os links/botões reais ficam dentro. O consumidor
+mantém semântica, dimensões e conteúdo. O padding ajusta-se pela prop, sem
+depender da precedência entre Tailwind e CSS Modules.
+
+Três camadas: wrapper com perspectiva, face interna transformável, conteúdo
+acima da textura/reflexo decorativos. A face não corta overflow: anéis de foco
+dos controlos devem ficar visíveis. Não aplicar animações externas em
+`[data-atelier-face]` ou nas propriedades `--atelier-*`; são reservadas.
+
+Os acabamentos usam exclusivamente tokens existentes. `silver` herda
+`paper-ink`; texto secundário dentro dele deve usar `paper-muted`, nunca a
+utilidade global `text-muted` pensada para escuro. `graphite` e `forest`
+herdam `ink`. Um filho que define a sua cor continua a ser responsabilidade do
+consumidor. O material não faz uma auditoria automática de contraste.
+
+## AtelierBackdrop
+
+```tsx
+import { AtelierBackdrop } from "@/components/atelier/AtelierBackdrop";
+
+<section id="secao-existente" className="relative isolate">
+  <AtelierBackdrop interactive intensity="quiet" />
+  <div className="relative z-10">{conteudoExistente}</div>
+</section>
+```
+
+| Prop | Default | Papel |
+|---|---|---|
+| `theme` | `dark` | `dark` usa bg; `forest` usa forest |
+| `intensity` | `quiet` | `quiet` ou `standard`; presença da imagem |
+| `interactive` | `false` | Ativa deslocação/luz quando a modalidade o permite |
+| `targetId` | — | ID existente da região que recebe o ponteiro; sem prop usa o pai imediato |
+| `className` | — | Ajustes locais de enquadramento |
+
+O pai deve ter posição relativa e altura determinada por conteúdo; nunca dar
+altura só ao backdrop absoluto. Os irmãos de conteúdo ficam em z-10. A
+decoração é aria-hidden e pointer-events:none; escuta o ponteiro no pai/alvo e
+não interceta cliques. Se um targetId explícito não existir na montagem, fica
+estático. Não mudar o elemento alvo mantendo o mesmo id sem remontar o fundo.
+
+Imagem de ambiente lazy com sizes=100vw, véus e luz em camadas próprias.
+Deslocação limitada a ±12px, com 14px extra de imagem por aresta. As arestas
+misturam-se com o token do fundo; o bitmap não é prometido como seamless.
+Não usar atrás de campos nem do texto legal com interatividade ligada.
+
+## Movimento, acesso e ciclo de vida
+
+`pointerMaterial.ts` atualiza as coordenadas num máximo de um rAF pendente por
+instância, solicitado por pointermove; não há loop permanente, listener de
+scroll, ticker GSAP ou sistema Lenis novo. Tilt ±4°, resposta 160ms e retorno
+300ms por CSS. Estas durações são feedback de ponteiro, não entradas de scroll.
+
+Condições: hover, pointer fine, largura mínima 768px, movimento não reduzido,
+pointerType mouse e região visível. Pressão/seleção, foco dentro da região,
+pointerleave/cancel, blur da janela, tab oculta e saída da viewport anulam o
+frame e repõem a pose. Alterar a preferência de movimento em execução também
+repõe a pose. O foco conserva texto/controlo estáveis. Toque fica estático.
+
+O cleanup remove listeners de target/window/document/media, desliga o
+IntersectionObserver, cancela o frame e restaura as propriedades/atributos
+reservados anteriores. Em forced-colors, textura, fundo e reflexo desaparecem;
+a borda da placa usa CanvasText. Os defaults SSR já mostram todo o conteúdo.
+
+## Ao alterar este documento
+
+| Se mudares… | Faz também |
+|---|---|
+| API ou defaults | componentes TSX, exemplos acima e relatório de integração |
+| condições, limites ou cleanup do movimento | pointerMaterial.ts, CSS e testes isolados |
+| materiais/camadas | atelier.module.css; rever tinta dos filhos e foco |
+| caminhos/bitmaps | assets.ts, hashes e manifestos; preservar originais |
+| registo no índice de docs | passar a alteração a Claude 1, dono de docs/README.md |

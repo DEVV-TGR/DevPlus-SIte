@@ -1,0 +1,173 @@
+/* docs: docs/10-materiais-atelier.md */
+.material {
+  --atelier-face-bg: var(--surface);
+  --atelier-face-ink: var(--ink);
+  --atelier-grain-opacity: 0.055;
+  --atelier-light-opacity: 0.065;
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  height: 100%;
+  perspective: 1100px;
+  border-radius: var(--radius);
+}
+
+.material[data-atelier-surface="silver"] {
+  --atelier-face-bg: var(--paper);
+  --atelier-face-ink: var(--paper-ink);
+  --atelier-grain-opacity: 0.09;
+  --atelier-light-opacity: 0.04;
+}
+
+.material[data-atelier-surface="forest"] {
+  --atelier-face-bg: var(--forest);
+}
+
+.face {
+  position: relative;
+  min-width: 0;
+  height: 100%;
+  border: 1px solid color-mix(in oklch, var(--atelier-face-ink) 16%, transparent);
+  border-radius: inherit;
+  background: var(--atelier-face-bg);
+  color: var(--atelier-face-ink);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklch, var(--ink) 15%, transparent),
+    inset 0 -2px 2px color-mix(in oklch, var(--bg-deep) 25%, transparent),
+    0 7px 14px color-mix(in oklch, var(--bg-deep) 24%, transparent);
+}
+
+.grain,
+.reflection {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.grain {
+  background: url("/atelier/metal-escovado-v1.webp") center / cover no-repeat;
+  opacity: var(--atelier-grain-opacity);
+}
+
+.reflection {
+  background: radial-gradient(
+    ellipse at var(--atelier-pointer-x, 35%) var(--atelier-pointer-y, 20%),
+    color-mix(in oklch, var(--ink) 80%, transparent),
+    transparent 65%
+  );
+  opacity: var(--atelier-light-opacity);
+}
+
+.content {
+  position: relative;
+  height: 100%;
+  min-width: 0;
+  padding: 1.5rem;
+}
+
+.content[data-padding="none"] {
+  padding: 0;
+}
+
+/* Consumers keep their semantic article/section and all content in normal flow.
+   No overflow:hidden on the face: focus rings must remain visible. */
+.backdrop {
+  --atelier-backdrop-ground: var(--bg);
+  --atelier-image-opacity: 0.25;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  isolation: isolate;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--atelier-backdrop-ground);
+}
+
+.backdrop[data-atelier-backdrop="forest"] {
+  --atelier-backdrop-ground: var(--forest);
+  --atelier-image-opacity: 0.16;
+}
+
+.backdrop[data-intensity="standard"] {
+  --atelier-image-opacity: 0.4;
+}
+
+.environment {
+  position: absolute;
+  inset: -14px;
+}
+
+.environmentImage {
+  object-fit: cover;
+  opacity: var(--atelier-image-opacity);
+}
+
+.veil,
+.ambientLight {
+  position: absolute;
+  inset: 0;
+}
+
+.veil {
+  background:
+    linear-gradient(to bottom, var(--atelier-backdrop-ground), transparent 20%, transparent 80%, var(--atelier-backdrop-ground)),
+    radial-gradient(ellipse at center, var(--atelier-backdrop-ground) 15%, transparent 85%);
+}
+
+.ambientLight {
+  background: radial-gradient(
+    ellipse 32rem 24rem at var(--atelier-pointer-x, 50%) var(--atelier-pointer-y, 50%),
+    color-mix(in oklch, var(--primary) 4%, transparent),
+    transparent 80%
+  );
+  opacity: 0;
+}
+
+@media (hover: hover) and (pointer: fine) and (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .face {
+    transform: rotateX(var(--atelier-rotate-x, 0deg)) rotateY(var(--atelier-rotate-y, 0deg));
+    transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .face[data-atelier-active="true"] {
+    transition-duration: 160ms;
+    will-change: transform;
+  }
+
+  .material:focus-within .face {
+    transform: none;
+  }
+
+  .environment {
+    transform: translate3d(var(--atelier-shift-x, 0px), var(--atelier-shift-y, 0px), 0);
+    transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .backdrop[data-atelier-active="true"] .environment {
+    transition-duration: 160ms;
+    will-change: transform;
+  }
+
+  .ambientLight {
+    transition: opacity 200ms ease-out;
+  }
+
+  .backdrop[data-atelier-active="true"] .ambientLight {
+    opacity: 1;
+  }
+}
+
+@media (forced-colors: active) {
+  .grain,
+  .reflection,
+  .backdrop {
+    display: none;
+  }
+
+  .face {
+    border-color: CanvasText;
+    box-shadow: none;
+    transform: none;
+  }
+}
