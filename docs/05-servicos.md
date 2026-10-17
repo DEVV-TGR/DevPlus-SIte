@@ -155,11 +155,16 @@ da mesma família — acrílico laranja, vidro verde e alumínio — e o `alt` d
 uma diz que é uma ilustração conceptual. Desenvolvimento usa
 `desenvolvimento-digital-v3.webp`, um browser montado por camadas, por decisão
 do utilizador; a prova real continua no link "Ver o Império Auto Concept" e no
-caso de estudo. Os pacotes da home passam a linhas comparáveis; o destaque do
-Website é o nome e o filete laranja **e** o botão cheio em vez de contorno (o
-sinal não pode ser só cor), sem etiqueta, sem alegações de popularidade e sem
-mudanças aos compromissos comerciais. A etiqueta "Website completo" descrita
-acima deixou de existir na home.
+caso de estudo. Os pacotes da home são três placas comparáveis, cada uma com o
+objeto do seu pacote (folha, camadas, expositor — docs/10); o Website destaca-se
+pela placa forest/mint **e** pelo botão cheio em vez de contorno (o sinal não
+pode ser só cor), sem etiqueta, sem alegações de popularidade e sem mudanças
+aos compromissos comerciais. A etiqueta "Website completo" descrita acima
+deixou de existir na home.
+
+No telemóvel, a `/servicos` mostra os seis serviços num carril
+(`components/paginas/Carril.tsx`): objeto, nome, texto, etiquetas e "Falar
+sobre isto", a mesma ação da home. O acordeão fica a partir de 768px.
 
 Na `/servicos` o acordeão passou às seis figuras da família, e "Por onde podemos
 começar" é uma bancada de três placas `MaterialSurface`

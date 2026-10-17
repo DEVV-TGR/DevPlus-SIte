@@ -20,7 +20,11 @@ controla:
   - components/paginas/PortfolioIndice.tsx
   - components/paginas/Ambiente.tsx
   - components/paginas/PacotesBancada.tsx
+  - components/paginas/Carril.tsx
   - components/paginas/paginas.module.css
+  - components/home/Pacotes.tsx
+  - components/home/NaMesa.tsx
+  - lib/carrossel.ts
   - components/Providers.tsx
   - components/Nav.tsx
   - components/ContactForm.tsx
@@ -967,17 +971,17 @@ página e os mesmos pins que um carregamento a frio na largura final.
 - **Hero.** Três `span` em bloco sem `nowrap` (ver docs/02 para a medida). A
   escultura fica quadrada até `min(620px, 46vw, 74svh)` a partir de 1280px, e
   `min(100%, 74svh)` abaixo disso.
-- **Galeria.** A moldura de cada capa é um invólucro (`.project-cover-frame`, 7%
-  de margem) e não `!important` sobre o `fill` do `next/image`.
-- **Processo.** Cards peach/mint por classe, com a entrega de cada passo em
-  `PASSOS`. Em tablet a largura é `min(78vw, 24rem)`; com 78vw um card chegava
-  aos 800px a 1024. Em desktop continua `min(20rem, 22vw)`.
+- **Galeria.** Substituída pelo carrossel glass — ver "Conjunto final", abaixo.
+- **Processo.** Cards de material (`MaterialSurface`, grafite no escuro,
+  cristal no claro), com a entrega de cada passo em `PASSOS`. Em tablet a
+  largura é `min(78vw, 24rem)`; com 78vw um card chegava aos 800px a 1024. Em
+  desktop continua `min(20rem, 22vw)`.
 - **Serviços.** A roda vem **antes** das cenas no DOM (desenha-se por cima com
   `z-[4]`): Tab a partir do serviço escolhido entra na cena dele e só depois
   sai da secção. A figura mede 32vw em tablet (com 34vw tocava na roda),
   `min(60vw, 27svh)` no telemóvel e `min(40vw, 22svh)` em ecrãs com menos de
   700px de altura, abaixo do número.
-- **O "+" e os pacotes.** Os pacotes são linhas sem fundo, e o "+" que antes
+- **O "+" e os pacotes.** Os pacotes não têm fundo opaco, e o "+" que antes
   passava escondido atrás dos cartões ficava por baixo do texto. Os postos da
   home acabam as travessias dentro dos serviços e encolhem o "+" até zero antes
   dos pacotes; só volta no último ecrã, por baixo do rodapé. Os da home em
@@ -1009,6 +1013,79 @@ vídeo (o Chromium headless não traz H.264):
 - texto a 200% (raiz a 32px): o título quebra dentro da coluna.
 
 Não verificado: dispositivos físicos (toque e Safari iOS reais), Lighthouse e
-Core Web Vitals. Pré-existente e fora deste âmbito: em `/servicos`, o pin do
-`ServicosAcordeao` decide-se na montagem e não se desfaz ao estreitar abaixo de
-768px sem recarregar.
+Core Web Vitals. O pin do `ServicosAcordeao` que não se desfazia ao estreitar
+abaixo de 768px foi resolvido na passagem seguinte (`gsap.matchMedia`).
+
+## Conjunto final — cristal, temas e carris (17 de outubro, noite)
+
+A entrega consolidada juntou as previews aprovadas no site real. O que ficou
+e porquê:
+
+- **Carrossel glass dos projetos (`ProvaCarrossel`).** Um cartão ao centro com
+  capa verdadeira, nome, estado e serviços; vizinhos a ±1, ±2 e ±3 em
+  perspetiva, escala e transparência (`--distance`, `--scale`, `--fade`,
+  `--turn`). A volta é circular (`lib/carrossel.ts`). **O contrato com o
+  scroll mudou:** em desktop o capítulo continua pinado, mas cada troço de
+  0,55 ecrã põe o projeto seguinte ao centro, em vez de deslizar uma faixa — o
+  pin passou de ~6500px para ~4000px. Setas, teclado (← → Home End), arrasto e
+  clique num vizinho movem o **scroll** para a posição desse projeto, para o
+  centro e a página dizerem sempre o mesmo. Sem pin no telemóvel e com
+  movimento reduzido: aí é só manual. A seleção vive no DOM (`aplicar`), não no
+  React, pela regra do GSAP acima; só o cartão do centro tem elementos
+  focáveis. O desfoque do vidro está só no cartão do centro. O capítulo é
+  **inverso**: vidro claro sobre creme no escuro, vidro escuro sobre grafite no
+  claro, com fundo de metal.
+- **Materiais por capítulo** (`MaterialGround`, docs/10): galeria metal,
+  `NaMesa` vidro, processo cristal, serviços vidro (no palco pinado, não na
+  secção), pacotes cetim. As junções continuam a ser as `Curva`, agora por
+  papel (`ground="base|papel|verde|quente|fim"`); o rodapé lê `--fim-ground`, e
+  a home troca-o com `html:has(.home-packages)`.
+- **Pacotes da home.** Três placas `MaterialSurface` (grafite no escuro,
+  cristal no claro, Website em forest/mint) com o objeto de cada pacote —
+  folha, camadas, expositor — e as colunas comparáveis. Capítulo quente.
+- **Tema** (docs/02): botão sol/lua fixo no canto inferior esquerdo. Por causa
+  dele, o texto dos serviços em telemóvel subiu para `bottom: 5.5rem`, o
+  acordeão de `/servicos` ganhou `md:pb-20` e o rodapé `pb-24`: nenhum controlo
+  das cenas pinadas nem do fim da página fica por baixo do botão (medido em
+  seis larguras). O indicador de desenvolvimento do Next passou para a direita
+  (`devIndicators` em `next.config.ts`).
+- **Carris no telemóvel** (`components/paginas/Carril.tsx`): portfólio (capa,
+  nome, ano, estado, serviços e "Explorar projeto" no mesmo cartão) e serviços
+  (objeto, nome, texto, etiquetas e "Falar sobre isto"). Scroll nativo com
+  snap, contador, setas e ← →, sem autoplay. O índice e o acordeão continuam a
+  partir de 768px. O acordeão monta e desmonta o pin com `gsap.matchMedia`, e o
+  `Providers` reordena os pins também aos 768px.
+- **Caso de estudo** (docs/06): `Dispositivos.tsx` e `notasDoCaso`.
+- **Instagram** com o perfil (`InstagramLink`, `perfil()` em `lib/site.ts`) na
+  navegação a partir de 1280px, no menu, no portfólio, no contacto e no rodapé.
+
+### O que foi verificado — conjunto final
+
+Build de produção (`next build --webpack` + `next start`), Playwright com o
+Chromium headless da cache local, nos dois temas:
+
+- tema: segue o sistema já no primeiro desenho (no `DOMContentLoaded`); a
+  escolha manual vence o sistema, sobrevive a navegação de cliente e a
+  recarregar; sem escolha, acompanha o sistema em direto; Enter no botão
+  troca, dica visível ao foco, alvo de 48px; o Estúdio fica escuro com claro
+  guardado;
+- resize em oito sequências entre 390 e 1440px, nos dois temas, e em
+  `/servicos` (1366→390→1366, 390→1366): pins e altura iguais aos de um
+  carregamento a frio;
+- carrossel: → End, seguinte no último (volta ao primeiro), anterior, scroll a
+  50% do pin (projeto 04), clique num vizinho, Tab entra no link do centro;
+  nenhum vizinho focável; ir a um caso e voltar mantém três pins;
+- telemóvel com toque emulado: gesto horizontal troca o projeto, o vertical
+  continua a rolar a página; carris do portfólio e dos serviços avançam; no
+  caso, a vista Telemóvel tem proporção 0,462 e o scroll fica dentro do ecrã;
+- movimento reduzido nos dois temas: sem pins nem Lenis, nada escondido,
+  cartões sem transição, carrossel e roda manuais;
+- contraste AA de todo o texto visível (incluindo navegação, rodapé e o
+  formulário em erro), 1366 e 390px, nos dois temas: zero falhas;
+- matriz 320, 390, 768, 1024, 1366 e 1440 na home e oito rotas interiores, nos
+  dois temas: zero overflow, zero imagens partidas, zero erros de consola.
+
+Não verificado: dispositivos físicos, Safari e Firefox, leitor de ecrã,
+Lighthouse, Core Web Vitals e o custo real do `backdrop-filter` em telemóveis
+modestos (está no cartão do centro, nos controlos, no botão do tema e, só no
+tema claro, nas placas de material).

@@ -23,6 +23,10 @@ Se um doc e o código discordarem, é um bug, não uma questão de gosto.
 | Ficheiro                                                                                                  | Doc que manda nele       |
 | --------------------------------------------------------------------------------------------------------- | ------------------------ |
 | `lib/site.ts`, `lib/seo.ts`                                                                               | 01                       |
+| `components/InstagramLink.tsx`                                                                            | 01                       |
+| `lib/tema.ts`, `components/SeletorTema.tsx` (o tema claro/escuro)                                         | 02                       |
+| `lib/carrossel.ts`, `components/paginas/Carril.tsx`                                                       | 04                       |
+| `components/paginas/Dispositivos.tsx`, `public/casos/`                                                    | 06                       |
 | `app/layout.tsx`, `app/sitemap.ts`, `app/robots.ts`                                                       | 01                       |
 | `app/globals.css`                                                                                         | 02                       |
 | `lib/brand.ts`, `components/Logo.tsx`, `components/Lockup.tsx`, `components/Wordmark.tsx`                 | 03                       |

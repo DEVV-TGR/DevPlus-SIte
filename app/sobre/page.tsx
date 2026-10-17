@@ -95,7 +95,7 @@ function Nota({ nota }: { nota: (typeof notas)[number] }) {
       } ${nota.topo}`}
     >
       <aside className="border-l-2 border-primary pl-4">
-        <h2 className="font-display text-lg font-bold tracking-[-0.02em]">
+        <h2 className="font-display text-lg font-titulo tracking-[-0.02em]">
           {titulo}
         </h2>
         <p className="mt-1.5 text-sm text-muted">{texto}</p>
@@ -191,7 +191,7 @@ export default function SobrePage() {
               </div>
             </Reveal>
             <Reveal className="lg:col-span-5 lg:col-start-8 lg:pb-10">
-              <h2 className="t-seccao max-w-[14ch] font-display font-extrabold">
+              <h2 className="t-seccao max-w-[14ch] font-display font-titulo">
                 Em que acreditamos
               </h2>
             </Reveal>

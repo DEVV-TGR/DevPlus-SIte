@@ -48,12 +48,12 @@ export function Capa({
       />
       <div className="mx-auto w-full max-w-6xl">
         <Reveal>
-          <p className="text-sm font-medium uppercase tracking-[0.18em] text-primary">
+          <p className="text-sm font-medium uppercase tracking-[0.18em] text-acento">
             {eyebrow}
           </p>
         </Reveal>
         <Reveal delay={0.05}>
-          <h1 className="t-capa mt-4 max-w-[14ch] font-display font-extrabold">
+          <h1 className="t-capa mt-4 max-w-[14ch] font-display font-titulo">
             {title}
           </h1>
         </Reveal>
@@ -68,7 +68,7 @@ export function Capa({
               {contas.map((c) => (
                 <div key={c.label}>
                   <dt className="sr-only">{c.label}</dt>
-                  <dd className="font-display text-[clamp(1.6rem,3vw,2.4rem)] font-extrabold tabular-nums tracking-[-0.03em]">
+                  <dd className="font-display text-[clamp(1.6rem,3vw,2.4rem)] font-titulo tabular-nums tracking-[-0.03em]">
                     {c.n}
                   </dd>
                   <p

@@ -90,7 +90,7 @@ export function Hero() {
       {/* O "+" em contorno, a rodar devagar — o logo no fundo */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-[12%] -top-[18%] z-0 w-[78%] max-w-[42rem] text-primary opacity-[0.06] sm:opacity-[0.07]"
+        className="pointer-events-none absolute -right-[12%] -top-[18%] z-0 w-[78%] max-w-[42rem] text-acento opacity-[0.06] sm:opacity-[0.07]"
       >
         <Logo
           outline
@@ -123,7 +123,7 @@ export function Hero() {
                 <span
                   data-reveal-item
                   data-hero="palavra"
-                  className={cn("inline-block", w.accent && "text-primary")}
+                  className={cn("inline-block", w.accent && "text-acento")}
                 >
                   {w.t}
                 </span>

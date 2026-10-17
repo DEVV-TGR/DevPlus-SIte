@@ -48,7 +48,7 @@ export default function Error({
           sizes="10rem"
           className="mb-6 h-auto w-40 opacity-90"
         />
-        <p className="font-display text-sm font-medium text-primary">Erro</p>
+        <p className="font-display text-sm font-medium text-acento">Erro</p>
         <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
           Alguma coisa correu mal
         </h1>

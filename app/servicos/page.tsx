@@ -104,7 +104,7 @@ export default function ServicosPage() {
       <Section className="relative">
         <Container>
           <Reveal>
-            <h2 className="t-seccao max-w-[18ch] font-display font-extrabold">
+            <h2 className="t-seccao max-w-[18ch] font-display font-titulo">
               Como um projeto corre.
             </h2>
             <p className="mt-3 max-w-[52ch] text-muted">
@@ -121,10 +121,10 @@ export default function ServicosPage() {
             {steps.map(([n, t, d], i) => (
               <Reveal key={n} delay={i * 0.08}>
                 <div className="relative grid gap-2">
-                  <span className="relative z-[1] grid h-9 w-9 place-items-center rounded-full bg-primary text-sm font-extrabold tabular-nums text-primary-ink">
+                  <span className="relative z-[1] grid h-9 w-9 place-items-center rounded-full bg-primary text-sm font-titulo tabular-nums text-primary-ink">
                     {n}
                   </span>
-                  <h3 className="mt-2 font-display text-xl font-bold tracking-[-0.02em]">
+                  <h3 className="mt-2 font-display text-xl font-titulo tracking-[-0.02em]">
                     {t}
                   </h3>
                   <p className="text-sm text-muted">{d}</p>
@@ -139,7 +139,7 @@ export default function ServicosPage() {
       <Section top={false} className="relative">
         <Container>
           <Reveal>
-            <h2 className="t-seccao font-display font-extrabold">
+            <h2 className="t-seccao font-display font-titulo">
               Por onde podemos começar
             </h2>
             <p className="mt-3 max-w-xl text-muted">
@@ -167,7 +167,7 @@ export default function ServicosPage() {
         <Container>
           <div className="grid gap-10 lg:grid-cols-12">
             <Reveal className="lg:col-span-4">
-              <h2 className="t-seccao font-display font-extrabold">
+              <h2 className="t-seccao font-display font-titulo">
                 Perguntas frequentes
               </h2>
               <p className="mt-3 text-muted">

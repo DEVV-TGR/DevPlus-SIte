@@ -6,6 +6,7 @@ import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { gsap, useGSAP } from "@/lib/motion";
 import { Logo } from "@/components/Logo";
+import { MaterialGround } from "@/components/atelier/MaterialGround";
 
 /**
  * O QR code e o NFC do Café Preguiça, com o vídeo real das mesas.
@@ -19,6 +20,10 @@ import { Logo } from "@/components/Logo";
  *
  * O movimento é só em desktop e só desloca a figura e o "+": os controlos do
  * vídeo continuam no sítio onde o dedo ou o rato os procura.
+ *
+ * É um capítulo **verde**: mint no tema claro, forest no escuro, sobre vidro
+ * verde (`MaterialGround`). As cores vêm do papel, não de tokens fixos — ver
+ * docs/02, "Temas".
  */
 export function NaMesa() {
   const ref = useRef<HTMLDivElement>(null);
@@ -53,7 +58,8 @@ export function NaMesa() {
   );
 
   return (
-    <Section className="table-story relative" id="na-mesa">
+    <Section className="table-story capitulo-verde relative isolate" id="na-mesa">
+      <MaterialGround finish="glass" />
       <div ref={ref}>
         <Container>
           <div className="table-story-grid">

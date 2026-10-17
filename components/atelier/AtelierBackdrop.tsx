@@ -14,6 +14,9 @@ export type AtelierBackdropProps = {
   /** Defaults to the direct parent. Pass an existing section id when needed. */
   targetId?: string;
   className?: string;
+  /** `eager` quando o fundo está acima da dobra: aí é a imagem LCP da página,
+   *  e em `lazy` o browser só a pedia depois de desenhar o resto. */
+  loading?: "lazy" | "eager";
 };
 
 /** Decorative absolute sibling: parent relative/isolate, content relative/z-10. */
@@ -23,6 +26,7 @@ export function AtelierBackdrop({
   interactive = false,
   targetId,
   className,
+  loading = "lazy",
 }: AtelierBackdropProps) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -51,7 +55,7 @@ export function AtelierBackdrop({
           alt=""
           fill
           sizes="100vw"
-          loading="lazy"
+          loading={loading}
           className={styles.environmentImage}
         />
       </div>

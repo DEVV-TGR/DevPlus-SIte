@@ -7,6 +7,7 @@ import { Wordmark } from "@/components/Wordmark";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { site } from "@/lib/site";
+import { InstagramLink } from "@/components/InstagramLink";
 const links = [
   { href: "/", label: "Início" },
   { href: "/portfolio", label: "Portfólio" },
@@ -58,7 +59,11 @@ export function Nav() {
               </li>
             ))}
           </ul>
-          <div className="hidden md:block">
+          <div className="hidden items-center gap-4 md:flex">
+            {/* O perfil do Instagram só a partir de 1280px: entre 768 e 1279
+                as cinco ligações e o CTA já ocupam a barra. No menu do
+                telemóvel aparece sempre. */}
+            <InstagramLink compacto className="hidden text-muted transition-colors hover:text-ink xl:inline-flex" />
             <Button href="/contacto">
               Vamos conversar <span aria-hidden>↗</span>
             </Button>
@@ -75,7 +80,7 @@ export function Nav() {
             className="inline-flex min-h-11 items-center gap-3 px-2 text-sm md:hidden"
           >
             Menu{" "}
-            <span aria-hidden className="text-2xl text-primary">
+            <span aria-hidden className="text-2xl text-acento">
               +
             </span>
           </button>
@@ -101,7 +106,7 @@ export function Nav() {
             className="inline-flex min-h-11 items-center gap-3 px-2 text-sm"
           >
             Fechar{" "}
-            <span aria-hidden className="text-2xl text-primary">
+            <span aria-hidden className="text-2xl text-acento">
               ×
             </span>
           </button>
@@ -114,7 +119,7 @@ export function Nav() {
                   href={l.href}
                   onClick={close}
                   aria-current={active(l.href) ? "page" : undefined}
-                  className={`flex min-h-16 items-center justify-between gap-4 py-4 font-display text-3xl font-semibold tracking-tight ${active(l.href) ? "text-primary" : "text-ink"}`}
+                  className={`flex min-h-16 items-center justify-between gap-4 py-4 font-display text-3xl font-semibold tracking-tight ${active(l.href) ? "text-acento" : "text-ink"}`}
                 >
                   {l.label}
                   <span aria-hidden className="text-sm text-muted">
@@ -125,6 +130,7 @@ export function Nav() {
             ))}
           </ul>
         </nav>
+        <InstagramLink className="mb-4 text-ink" />
         <p className="text-sm text-muted">
           Uma ideia?{" "}
           <a

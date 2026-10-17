@@ -868,3 +868,11 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | o prefixo `/estudio`                   | é só em `lib/estudio/rotas.ts`; a `CascaDoSite` e o `Providers` importam de lá, nunca escrevem a string      |
 | o que a `CascaDoSite` esconde          | confirma no browser que o Estúdio não ganhou `Nav`, rodapé nem grão — e que o site público não os perdeu    |
 | onde o `sessaoAtual()` é chamado        | continua envolvido em `cache()`; o layout e a página fazem a mesma pergunta no mesmo render                  |
+
+## O Estúdio fica escuro
+
+Outubro de 2026: o site público ganhou um tema claro (docs/02). O Estúdio não:
+é uma ferramenta, e muda-se uma de cada vez. O script do `app/layout.tsx` marca
+o `<html>` com `data-area="estudio"` numa entrada direta, a `CascaDoSite`
+mantém a marca ao navegar entre o site e o Estúdio, e o CSS do tema claro
+ignora o `<html>` marcado. O botão sol/lua não aparece no Estúdio.

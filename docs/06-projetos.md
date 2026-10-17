@@ -8,6 +8,8 @@ controla:
   - components/ProjectsMarquee.tsx
   - app/portfolio/page.tsx
   - app/portfolio/[slug]/page.tsx
+  - components/paginas/Dispositivos.tsx
+  - public/casos/
   - app/page.tsx#projetos
   - public/capas/
 relacionado:
@@ -223,3 +225,36 @@ a demonstração. A derivada servida não tem faixa de áudio, por isso **não l
 legendas**: uma descrição posta como `captions` apresentava-se como transcrição
 de um som que não existe. A legenda da figura diz "vídeo sem som, 20 s". Os
 sete slugs e os estados mantêm-se.
+
+## O caso de estudo visual e o portfólio no telemóvel
+
+Outubro de 2026, por pedido do utilizador. A página do caso passou a ser: o
+nome, a categoria, o ano e o estado; os serviços; e **o próprio site em duas
+molduras**, computador e telemóvel (`components/paginas/Dispositivos.tsx`),
+para percorrer por scroll. Em desktop as duas lado a lado, no telemóvel uma de
+cada vez. Depois, os tópicos curtos, o vídeo QR/NFC no Preguiça e o próximo
+projeto.
+
+- **Capturas, não sites vivos.** `capturas` em `lib/projects.ts` aponta para
+  `public/casos/`: páginas inteiras a 1440 e 390px dos seis sites publicados
+  (Preguiça, Avenida, Taskuinha, Império, JSK, António). Nenhum script do
+  cliente corre no nosso site; um clique no ecrã abre o `url` original, e um
+  arrasto de mais de 8px não conta como clique. As molduras têm a proporção da
+  janela que tirou a captura (1440/900 e 390/844), com o scroll por dentro.
+  Sites com animações de entrada podem ter estados intermédios na captura.
+- **Sem endereço, sem captura.** Damira, Mira Mar e Barraquinha não têm `url`:
+  mostra-se a capa real quando há, e um aviso no ecrã do telemóvel — nunca uma
+  captura ou um URL inventados.
+- **Tópicos curtos** em `notasDoCaso` ("o que era preciso", "o que fizemos"),
+  resumidos do `overview` e do `contribution` sem acrescentar nada; as
+  pendências (painéis em desenvolvimento, sites em construção) continuam
+  ditas. O texto longo fica no catálogo.
+- **Portfólio no telemóvel:** um carril de cartões com capa, nome, ano, estado,
+  serviços e "Explorar projeto" juntos. O índice com o nome longe da capa foi
+  rejeitado no telemóvel e fica a partir de 768px. O Instagram aparece com o
+  perfil por baixo.
+
+| Se mudares… | Faz também |
+| --- | --- |
+| um projeto passar a ter `url` | recolhe as duas capturas (1440 e 390px), põe-nas em `public/casos/` e acrescenta-as a `capturas` |
+| o texto de um caso | revê os tópicos em `notasDoCaso` — são o que a página mostra |

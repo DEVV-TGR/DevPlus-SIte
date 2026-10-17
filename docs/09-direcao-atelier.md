@@ -79,3 +79,13 @@ testes que o browser integrado não permita executar.
 Novos contrastes: copper/paper 7,35:1; forest/mint 11,71:1; primary-ink/peach
 13,18:1; ink/forest 15,10:1; forest-muted/forest 8,06:1; primary/forest 6,23:1.
 O leque começa em 1280px; abaixo permanece o percurso horizontal.
+
+## Conjunto final
+
+A entrega consolidada de 17 de outubro juntou as previews aprovadas no site: o
+carrossel glass dos projetos, o peso 650 dos títulos, os pacotes com objetos,
+os cinco acabamentos por capítulo, o tema claro/escuro, os carris do telemóvel
+e o caso de estudo com capturas. Os estudos de fundos serviram só para a
+sequência de cores e materiais; não substituíram nenhuma peça aprovada. O que
+mudou e como foi verificado está no docs/04 ("Conjunto final") e no docs/02
+("Temas").

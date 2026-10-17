@@ -6,7 +6,7 @@ import { Curva } from "@/components/home/Curva";
 import { Fecho } from "@/components/Fecho";
 import { Logo } from "@/components/Logo";
 import { Reveal } from "@/components/Reveal";
-import { site, socials } from "@/lib/site";
+import { site, socials, perfil } from "@/lib/site";
 
 const nav = [
   { href: "/servicos", label: "Serviços" },
@@ -45,17 +45,22 @@ export function Footer() {
     <>
       {/* A passagem para o laranja. Vivia na `app/page.tsx`, ao lado do
           `Fecho`; agora é do rodapé, porque o rodapé é que é o fecho. As seis
-          páginas acabam num ground `--bg`, portanto o `de` é o mesmo em todas
-          — se alguma passar a acabar noutro ground, é aqui que se vê. */}
-      <Curva forma="a" de="var(--bg)" cor="var(--primary)" />
+          páginas acabam num ground `--bg`, e a home nos pacotes, que são um
+          capítulo quente: o `de` é `--fim-ground`, que a home troca com um
+          `:has()` em `app/globals.css`. */}
+      <Curva forma="a" de="var(--fim-ground)" cor="var(--primary)" ground="fim" />
 
       {/* `relative` porque as páginas têm `Cruz`: uma secção sem `position` é
           pintada antes de qualquer elemento posicionado, ou seja por baixo do
           "+". Ver docs/04. */}
-      <footer className="relative bg-primary text-primary-ink">
+      {/* `ground-laranja`: o laranja não muda com o tema, e a classe repõe
+          lá dentro as tintas de sempre — ver docs/02, "Temas". */}
+      <footer className="ground-laranja relative bg-primary text-primary-ink">
         <Fecho />
 
-        <Container className="border-t border-primary-ink/20 py-12 sm:py-16">
+        {/* Mais espaço em baixo do que em cima: o botão do tema fica no
+            canto inferior esquerdo e não pode tapar os links legais. */}
+        <Container className="border-t border-primary-ink/20 pb-24 pt-12 sm:pt-16">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <Reveal className="lg:col-span-2">
               <Link
@@ -108,6 +113,7 @@ export function Footer() {
                         className="flex min-h-11 items-center text-sm text-primary-ink underline decoration-transparent underline-offset-4 transition-[text-decoration-color] hover:decoration-primary-ink"
                       >
                         {s.label}
+                        {perfil(s) ? ` · ${perfil(s)}` : ""}
                       </a>
                     ) : (
                       /* Sem link é uma conta que ainda não existe — ver

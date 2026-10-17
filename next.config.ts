@@ -111,6 +111,13 @@ const nextConfig: NextConfig = {
      dizer a quem procura alvos que avisos lhe há de experimentar. */
   poweredByHeader: false,
 
+  /* Só em desenvolvimento. O indicador do Next nasce no canto inferior
+     esquerdo, que é o canto do botão sol/lua do tema (docs/02, "Temas"): em
+     dev os dois sobrepunham-se e o indicador ficava com os cliques. */
+  devIndicators: {
+    position: "bottom-right",
+  },
+
   /** Cabeçalhos de segurança em todas as rotas. Ver o comentário da `csp`. */
   async headers() {
     return [

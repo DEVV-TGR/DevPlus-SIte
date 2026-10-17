@@ -17,11 +17,11 @@ export default function Home() {
       <HeroHome />
       <Curva forma="b" de="var(--bg)" cor="var(--paper)" />
       <ProvaCarrossel />
-      <Curva forma="c" de="var(--paper)" cor="var(--mint)" ground="claro" />
+      <Curva forma="c" de="var(--paper)" cor="var(--verde)" ground="papel" />
       <NaMesa />
-      <Curva forma="a" de="var(--mint)" cor="var(--bg-deep)" ground="claro" />
+      <Curva forma="a" de="var(--verde)" cor="var(--bg-deep)" ground="verde" />
       <ComoTrabalhamos />
-      <Curva forma="a" de="var(--bg-deep)" cor="var(--forest)" />
+      <Curva forma="a" de="var(--bg-deep)" cor="var(--verde)" />
       <ServicosMostra />
       <Pacotes />
       <Testimonials />

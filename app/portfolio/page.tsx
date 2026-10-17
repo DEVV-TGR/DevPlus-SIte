@@ -4,7 +4,11 @@ import { Section } from "@/components/ui/Section";
 import { Capa } from "@/components/paginas/Capa";
 import { Cruz, POSTOS_PAGINA } from "@/components/home/Cruz";
 import { Curva } from "@/components/home/Curva";
+import Image from "next/image";
+import Link from "next/link";
 import { PortfolioIndice } from "@/components/paginas/PortfolioIndice";
+import { Carril } from "@/components/paginas/Carril";
+import { InstagramLink } from "@/components/InstagramLink";
 import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/Reveal";
 import { MaterialSurface } from "@/components/atelier/MaterialSurface";
@@ -53,6 +57,60 @@ export default function PortfolioPage() {
         <Container>
           <h2 className="sr-only">Os projetos</h2>
           <PortfolioIndice />
+          <div className="md:hidden">
+            <Carril rotulo="Projeto">
+              {projects.map((p) => (
+                <article key={p.slug} className="grid h-full content-start">
+                  <Link
+                    href={`/portfolio/${p.slug}`}
+                    tabIndex={-1}
+                    aria-hidden
+                    className="relative m-3 mb-0 block aspect-[1.35] overflow-hidden rounded-[10px] bg-forest"
+                  >
+                    {p.image ? (
+                      <Image
+                        src={p.image}
+                        alt=""
+                        fill
+                        sizes="84vw"
+                        className="object-cover object-top"
+                      />
+                    ) : (
+                      /* Sem capa não se põe a de outro: fica o nome — ver docs/06. */
+                      <span className="grid h-full place-items-center px-6 text-center font-display text-2xl font-titulo text-creme">
+                        {p.name}
+                      </span>
+                    )}
+                  </Link>
+                  <div className="grid gap-3 p-5 pt-4">
+                    <div className="flex items-baseline justify-between gap-4">
+                      <h3 className="font-display text-[1.6rem] font-titulo leading-tight tracking-[-0.025em]">
+                        <Link href={`/portfolio/${p.slug}`}>{p.name}</Link>
+                      </h3>
+                      <span className="text-sm tabular-nums text-muted">{p.year}</span>
+                    </div>
+                    <p className="text-sm text-muted">
+                      {p.status === "em-curso" ? "Em desenvolvimento" : "Concluído"}
+                    </p>
+                    <ul className="flex flex-wrap gap-1.5" aria-label="Serviços">
+                      {p.services.map((s) => (
+                        <li key={s} className="rounded-full border border-border-strong px-2.5 py-1 text-sm">
+                          {s}
+                        </li>
+                      ))}
+                    </ul>
+                    <Link
+                      href={`/portfolio/${p.slug}`}
+                      className="mt-2 flex min-h-11 items-center justify-between border-t border-border pt-3 text-sm font-medium"
+                    >
+                      Explorar projeto <span aria-hidden>→</span>
+                    </Link>
+                  </div>
+                </article>
+              ))}
+            </Carril>
+          </div>
+          <InstagramLink className="mt-10 border-b border-border-strong pb-1" />
         </Container>
       </Section>
       <Curva forma="a" de="var(--bg-deep)" cor="var(--bg)" />
@@ -68,7 +126,7 @@ export default function PortfolioPage() {
                   qualquer utilidade do Tailwind (docs/10). */}
               <div className="flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-12">
                 <div>
-                  <h2 className="t-seccao font-display font-extrabold">
+                  <h2 className="t-seccao font-display font-titulo">
                     O próximo pode ser o teu.
                   </h2>
                   <p className="mt-2 max-w-md text-sm text-muted">

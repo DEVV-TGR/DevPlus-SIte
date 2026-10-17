@@ -13,6 +13,7 @@ import {
 } from "@/lib/motion";
 import { Button } from "@/components/ui/Button";
 import { services } from "@/lib/services";
+import { MaterialGround } from "@/components/atelier/MaterialGround";
 
 /**
  * Os serviços, **um de cada vez**: número enorme, figura num círculo, nome em
@@ -370,13 +371,17 @@ export function ServicosMostra() {
   return (
     <section
       ref={ref}
-      className="relative bg-bg"
+      className="relative"
       aria-labelledby="servicos-mostra"
     >
       <h2 id="servicos-mostra" className="sr-only">
         O que fazemos
       </h2>
-      <div data-palco className="relative h-[100svh] overflow-hidden">
+      <div data-palco className="relative isolate h-[100svh] overflow-hidden">
+        {/* O vidro vive no palco e não na secção: a secção mede o pin inteiro
+            (3,4 ecrãs), e os planos em percentagem dela ficavam do tamanho de
+            um prédio. No palco pinam com a cena. */}
+        <MaterialGround finish="glass" />
         {/* A roda vem **antes** das cenas no DOM, embora se desenhe por cima
             delas (`z-[4]`). É a ordem do padrão de separadores: Tab a partir
             do serviço escolhido entra na cena dele — o link do caso e o
@@ -506,7 +511,7 @@ export function ServicosMostra() {
               data-peca
               aria-hidden
               data-service-number
-              className="absolute left-[clamp(1.25rem,5vw,5.5rem)] top-[clamp(3.5rem,9vh,6rem)] font-display text-[clamp(4rem,13vw,11rem)] font-extrabold leading-[0.8] tracking-[-0.035em] tabular-nums text-primary"
+              className="absolute left-[clamp(1.25rem,5vw,5.5rem)] top-[clamp(3.5rem,9vh,6rem)] font-display text-[clamp(4rem,13vw,11rem)] font-titulo leading-[0.8] tracking-[-0.035em] tabular-nums text-acento"
             >
               {String(i + 1).padStart(2, "0")}
             </span>
@@ -516,13 +521,13 @@ export function ServicosMostra() {
               data-service-copy
               className="absolute bottom-[clamp(4.5rem,12vh,8rem)] left-[clamp(1.25rem,5vw,5.5rem)] max-w-[min(26rem,70vw)]"
             >
-              <h3 className="font-display text-[clamp(1.8rem,5vw,3.6rem)] font-extrabold leading-[0.98] tracking-[-0.04em]">
+              <h3 className="font-display text-[clamp(1.8rem,5vw,3.6rem)] font-titulo leading-[0.98] tracking-[-0.04em]">
                 {s.title}
               </h3>
-              <p className="mt-3 max-w-[34ch] text-sm text-forest-muted">{s.blurb}</p>
+              <p className="mt-3 max-w-[34ch] text-sm text-verde-muted">{s.blurb}</p>
               <Link
                 href={`/portfolio/${i === 0 ? "jsk" : i === 1 ? "imperio-auto-concept" : "cafe-preguica"}`}
-                className="mt-3 inline-flex min-h-11 items-center gap-2 text-sm text-primary"
+                className="mt-3 inline-flex min-h-11 items-center gap-2 text-sm text-acento"
               >
                 {i === 0
                   ? "Ver o trabalho da JSK"

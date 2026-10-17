@@ -7,7 +7,7 @@ import { ContactForm } from "@/components/ContactForm";
 import { MaterialSurface } from "@/components/atelier/MaterialSurface";
 import { atelierAssets } from "@/components/atelier/assets";
 import styles from "@/components/paginas/paginas.module.css";
-import { site, socials, team, telHref } from "@/lib/site";
+import { perfil, site, socials, team, telHref } from "@/lib/site";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
@@ -52,14 +52,14 @@ export default function ContactoPage() {
                 contactos — email, três telefones, disponibilidade e redes —
                 empurrava o formulário para lá do segundo ecrã. */}
             <div className="order-1 lg:order-none lg:col-span-5">
-              <p className="text-sm font-medium uppercase tracking-[0.18em] text-primary">
+              <p className="text-sm font-medium uppercase tracking-[0.18em] text-acento">
                 Contacto
               </p>
               {/* `t-capa` dá a família e o desenho; a escala é a da coluna
                   (ver `tituloContacto`): a 90px saía uma palavra por linha
                   e o formulário descia para lá do primeiro ecrã. */}
               <h1
-                className={`t-capa ${styles.tituloContacto} mt-4 max-w-[15ch] font-display font-extrabold`}
+                className={`t-capa ${styles.tituloContacto} mt-4 max-w-[15ch] font-display font-titulo`}
               >
                 Vamos falar sobre o teu projeto.
               </h1>
@@ -84,7 +84,7 @@ export default function ContactoPage() {
                   <dd>
                     <a
                       href={`mailto:${site.email}`}
-                      className="-mx-2 mt-1 flex min-h-11 items-center px-2 font-display text-xl transition-colors hover:text-primary"
+                      className="-mx-2 mt-1 flex min-h-11 items-center px-2 font-display text-xl transition-colors hover:text-acento"
                     >
                       {site.email}
                     </a>
@@ -98,7 +98,7 @@ export default function ContactoPage() {
                         <li key={m.phone}>
                           <a
                             href={`tel:${telHref(m.phone)}`}
-                            className="-mx-2 inline-flex min-h-11 items-center px-2 font-display text-xl transition-colors hover:text-primary"
+                            className="-mx-2 inline-flex min-h-11 items-center px-2 font-display text-xl transition-colors hover:text-acento"
                           >
                             {m.phone}
                           </a>
@@ -135,9 +135,10 @@ export default function ContactoPage() {
                               href={s.href}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="-mx-2 inline-flex min-h-11 items-center px-2 text-ink transition-colors hover:text-primary"
+                              className="-mx-2 inline-flex min-h-11 items-center px-2 text-ink transition-colors hover:text-acento"
                             >
                               {s.label}
+                              {perfil(s) ? ` · ${perfil(s)}` : ""}
                             </a>
                           ) : (
                             <span className="text-muted">{s.label}</span>

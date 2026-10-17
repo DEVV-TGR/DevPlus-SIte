@@ -9,7 +9,8 @@ import {
   MOVIMENTO,
   comPausa,
 } from "@/lib/motion";
-import { cn } from "@/lib/utils";
+import { MaterialGround } from "@/components/atelier/MaterialGround";
+import { MaterialSurface } from "@/components/atelier/MaterialSurface";
 
 /**
  * Os quatro passos, em cards que **chegam com o scroll e se acumulam** por
@@ -239,7 +240,7 @@ export function ComoTrabalhamos() {
   return (
     <section
       ref={ref}
-      className="relative bg-bg-deep"
+      className="capitulo-fundo relative"
       aria-labelledby="como-trabalhamos"
     >
       <div
@@ -248,8 +249,11 @@ export function ComoTrabalhamos() {
            (`overflow-hidden`), e com o conteúdo centrado era o topo do título
            que desaparecia. Em telemóvel o título encosta ao cimo e a fila
            ocupa o que sobra. */
-        className="relative flex min-h-[100svh] flex-col justify-start gap-6 overflow-hidden pb-10 pt-24 xl:grid xl:place-items-center xl:gap-0 xl:px-6 xl:py-0"
+        className="relative isolate flex min-h-[100svh] flex-col justify-start gap-6 overflow-hidden pb-10 pt-24 xl:grid xl:place-items-center xl:gap-0 xl:px-6 xl:py-0"
       >
+        {/* Cristal no palco, que é o que pina: na secção os planos mediam o
+            percurso inteiro. */}
+        <MaterialGround finish="crystal" />
         {/* O título tem lugar próprio no terço de cima, e os cards chegam por
             baixo dele. Estavam todos centrados no mesmo ponto: acumulavam-se
             uns por cima dos outros e tapavam o título por inteiro — o que fica
@@ -260,9 +264,9 @@ export function ComoTrabalhamos() {
         <div className="mx-auto w-full max-w-[46rem] shrink-0 px-6 text-center xl:absolute xl:inset-x-0 xl:top-[10svh]">
           <h2
             id="como-trabalhamos"
-            className="t-seccao font-display font-extrabold"
+            className="t-seccao font-display font-titulo"
           >
-            Como <em className="font-medium text-peach">trabalhamos.</em>
+            Como <em className="font-medium text-acento">trabalhamos.</em>
           </h2>
           <p className="mx-auto mt-4 max-w-[40ch] text-muted">
             Metade dos sites da tua rua saiu do mesmo template. O teu não sai:
@@ -277,7 +281,7 @@ export function ComoTrabalhamos() {
           data-fila
           className="flex w-max items-stretch gap-4 px-6 will-change-transform xl:contents"
         >
-          {PASSOS.map((p, i) => (
+          {PASSOS.map((p) => (
             <article
               key={p.n}
               data-passo
@@ -300,25 +304,31 @@ export function ComoTrabalhamos() {
                   "--pousa-r": `${p.pousa.r}deg`,
                 } as React.CSSProperties
               }
-              /* Peach e mint alternados: as versões claras do laranja e do verde,
-                 cada uma com a sua tinta — ver docs/02. Em tablet a largura
-                 fica limitada a 24rem; com 78vw um card chegava aos 800px. */
-              className={cn(
-                "grid min-h-[22rem] w-[min(78vw,24rem)] shrink-0 content-start gap-2 rounded-xl p-6 shadow-[0_30px_60px_-30px_rgb(0_0_0/0.7)] xl:absolute xl:w-[min(20rem,22vw)] xl:p-7 xl:[transform:translate(var(--pousa-x),var(--pousa-y))_rotate(var(--pousa-r))]",
-                i % 2 ? "bg-mint text-forest" : "bg-peach text-primary-ink",
-              )}
+              /* A coreografia escreve o `transform` no `article`; a superfície
+                 de material vai por dentro e inclina só a face dela — são dois
+                 donos, dois elementos. Grafite no escuro, cristal no claro
+                 (docs/10). Em tablet a largura fica em 24rem: com 78vw um card
+                 chegava aos 800px. */
+              className="w-[min(78vw,24rem)] shrink-0 xl:absolute xl:w-[min(20rem,22vw)] xl:[transform:translate(var(--pousa-x),var(--pousa-y))_rotate(var(--pousa-r))]"
             >
-              <span className="mb-4 font-display text-[4rem] font-medium leading-none tabular-nums">
-                {p.n}
-              </span>
-              <h3 className="font-display text-[1.7rem] font-semibold tracking-tight">
-                {p.t}
-              </h3>
-              <p className="text-sm">{p.d}</p>
-              <p className="mt-5 grid gap-1 border-t border-current pt-4">
-                <span className="text-sm">O que levamos daqui</span>
-                <strong className="font-semibold">{p.entrega}</strong>
-              </p>
+              <MaterialSurface
+                padding="none"
+                className="shadow-[0_30px_60px_-30px_rgb(0_0_0/0.55)]"
+              >
+                <div className="flex min-h-[22rem] flex-col p-6 xl:p-7">
+                  <span className="text-sm tabular-nums text-acento">{p.n}</span>
+                  <h3 className="mb-3 mt-7 font-display text-[1.8rem] font-semibold tracking-[-0.025em]">
+                    {p.t}
+                  </h3>
+                  <p className="text-[0.9375rem] leading-relaxed text-muted">
+                    {p.d}
+                  </p>
+                  <p className="mt-auto grid gap-1 pt-7">
+                    <span className="text-sm text-muted">O que levamos daqui</span>
+                    <strong className="font-semibold">{p.entrega}</strong>
+                  </p>
+                </div>
+              </MaterialSurface>
             </article>
           ))}
         </div>

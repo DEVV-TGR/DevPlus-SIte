@@ -103,6 +103,44 @@ Deslocação limitada a ±12px, com 14px extra de imagem por aresta. As arestas
 misturam-se com o token do fundo; o bitmap não é prometido como seamless.
 Não usar atrás de campos nem do texto legal com interatividade ligada.
 
+## MaterialGround
+
+```tsx
+<section className="capitulo-verde relative isolate">
+  <MaterialGround finish="glass" />
+  …conteúdo em fluxo…
+</section>
+```
+
+O fundo de um capítulo: a mesma luz (de cima, à direita) e o mesmo grão, cinco
+acabamentos — `crystal` (dois planos largos), `metal` (dobras finas
+maquinadas), `glass` (uma folha fundida com uma segunda aresta), `satin` (uma
+dobra macia) e `matte` (só grão e luz). Vem do estudo de fundos aprovado
+(v5): varia o material, não repete a mesma forma cristalina em todos os
+capítulos. Não tem cores próprias — lê `--ground` e `--fg` do capítulo (as
+classes `.capitulo-*` de `app/globals.css`, docs/02) e o `--creme` para os
+brilhos. Absoluto em `z-index: -1` dentro de um pai `relative isolate`;
+decorativo, `aria-hidden`, sem eventos. Cristal e vidro reagem ao ponteiro fino
+pelo `attachPointerMaterial`; com movimento reduzido ficam parados. Numa secção
+pinada vai **dentro do palco**, não na secção: na secção os planos mediam o
+percurso inteiro do pin.
+
+Na home: galeria `metal`, `NaMesa` `glass`, processo `crystal`, serviços
+`glass`, pacotes `satin`.
+
+## Os dois temas
+
+Os primitivos seguem o tema pelos tokens (docs/02). No tema claro, a
+`MaterialSurface` passa a **cristal**: face clara translúcida (`--surface` a
+72%), aresta luminosa, `backdrop-filter: blur(18px)` e reflexo creme; o
+acabamento `forest` passa a mint com tinta forest, que é o par do verde no
+claro. É a mesma placa nos dois temas — grafite no escuro, cristal no claro —,
+sem uma segunda implementação. O `backdrop-filter` nunca é animado.
+
+O `AtelierBackdrop` aceita `loading="eager"` para quando está acima da dobra:
+aí é a imagem LCP da página, e em `lazy` o browser só a pedia depois do resto.
+O `Ambiente` das interiores usa-o sempre, porque vive sempre no topo.
+
 ## Movimento, acesso e ciclo de vida
 
 `pointerMaterial.ts` atualiza as coordenadas num máximo de um rAF pendente por
@@ -130,3 +168,5 @@ a borda da placa usa CanvasText. Os defaults SSR já mostram todo o conteúdo.
 | materiais/camadas | atelier.module.css; rever tinta dos filhos e foco |
 | caminhos/bitmaps | assets.ts, hashes e manifestos; preservar originais |
 | registo no índice de docs | passar a alteração a Claude 1, dono de docs/README.md |
+| um acabamento do `MaterialGround` | confirma o texto por cima nos dois temas — o véu protege a coluna da esquerda, não a da direita |
+| a receita de cristal do tema claro | mede o contraste dos filhos sobre a face composta, nos dois acabamentos |

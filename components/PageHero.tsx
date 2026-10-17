@@ -16,7 +16,7 @@ export function PageHero({
       <Container className="pb-14 pt-14 sm:pb-20 sm:pt-20">
         {eyebrow ? (
           <Reveal>
-            <p className="text-sm font-medium text-primary">{eyebrow}</p>
+            <p className="text-sm font-medium text-acento">{eyebrow}</p>
           </Reveal>
         ) : null}
         <Reveal delay={0.05}>

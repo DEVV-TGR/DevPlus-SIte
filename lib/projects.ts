@@ -223,6 +223,152 @@ export const projects: Project[] = [
   },
 ];
 
+/**
+ * Os casos em tópicos curtos — "o que era preciso" e "o que fizemos" —, que é
+ * o que a página do caso mostra desde outubro de 2026, por pedido do
+ * utilizador. Resumem o `overview` e o `contribution` de cada projeto sem
+ * acrescentar nada: as pendências (painéis em desenvolvimento, sites em
+ * construção) continuam ditas. O texto longo fica no catálogo. Ver docs/06.
+ */
+export const notasDoCaso: Record<string, { preciso: string[]; feito: string[] }> = {
+  "cafe-preguica": {
+    preciso: [
+      "Levar a identidade da casa para o digital.",
+      "Dar autonomia à equipa para atualizar a carta.",
+    ],
+    feito: [
+      "Site em português e inglês.",
+      "Ementa digital e painel de gestão.",
+      "QR code e NFC nas mesas.",
+    ],
+  },
+  "cafe-avenida": {
+    preciso: [
+      "Apresentar o espaço e as sugestões da casa.",
+      "Facilitar o acesso à ementa antes e durante a visita.",
+    ],
+    feito: [
+      "Site com galeria, localização e horário.",
+      "Ementa em português, inglês e francês.",
+      "QR codes nas mesas.",
+    ],
+  },
+  "damira": {
+    preciso: [
+      "Mostrar a variedade da confeitaria.",
+      "Preparar encomendas online de forma simples.",
+    ],
+    feito: [
+      "Loja online em desenvolvimento.",
+      "Produtos em português e inglês.",
+      "Páginas de detalhe e cesto para preparar o pedido.",
+    ],
+  },
+  "taskuinha-do-pirata": {
+    preciso: [
+      "Trazer a decoração da taberna para o site.",
+      "Receber quem chega sem falar português.",
+    ],
+    feito: [
+      "Design inspirado na casa real.",
+      "Site e ementa em quatro línguas.",
+      "Ementa impressa; painel ainda em desenvolvimento.",
+    ],
+  },
+  "imperio-auto-concept": {
+    preciso: [
+      "Mostrar o stock num site próprio.",
+      "Dar uma página a cada viatura.",
+    ],
+    feito: [
+      "Pesquisa por marca, modelo e combustível.",
+      "Base de dados e páginas de viaturas.",
+      "Painel de gestão em desenvolvimento.",
+    ],
+  },
+  "mira-mar": {
+    preciso: [
+      "Apresentar o restaurante.",
+      "Substituir a ementa impressa.",
+    ],
+    feito: [
+      "Landing page em construção.",
+      "Ementas digitais e programação de menus.",
+      "QR codes na sala e na esplanada.",
+    ],
+  },
+  "a-barraquinha-nova": {
+    preciso: [
+      "Atualizar preços sem reimprimir a carta.",
+      "Mostrar a ementa no telemóvel e na sala.",
+    ],
+    feito: [
+      "Menu digital em implementação.",
+      "Televisão com a ementa em loop.",
+      "Um menu sincronizado nos dois suportes.",
+    ],
+  },
+  "jsk": {
+    preciso: [
+      "Organizar várias áreas de negócio.",
+      "Manter a navegação clara ao crescer.",
+    ],
+    feito: [
+      "Design e desenvolvimento de raiz.",
+      "Serviços com linguagem visual comum.",
+      "Preparado para velocidade e pesquisa.",
+    ],
+  },
+  "antonio-home-repair": {
+    preciso: [
+      "Criar presença online própria.",
+      "Facilitar contactos a partir do telemóvel.",
+    ],
+    feito: [
+      "Identidade, design e desenvolvimento.",
+      "Serviços organizados e contactos em destaque.",
+      "Otimização para mobile e pesquisa local.",
+    ],
+  },
+};
+
+export type Captura = { src: string; width: number; height: number };
+
+/**
+ * Capturas de página inteira dos sites publicados, em computador (1440px) e
+ * telemóvel (390px), servidas de `public/casos/`. **Não são sites vivos**: no
+ * caso de estudo percorrem-se por scroll dentro de uma moldura, e um clique
+ * abre o `url` original. Só existem para projetos com `url` — Damira, Mira Mar
+ * e Barraquinha ainda não têm endereço, e não se inventa captura. Sites com
+ * animações de entrada podem ter estados intermédios na captura. Ver docs/06.
+ */
+export const capturas: Record<string, { desktop: Captura; mobile: Captura }> = {
+  "cafe-preguica": {
+    desktop: { src: "/casos/cafe-preguica-desktop.webp", width: 1440, height: 14754 },
+    mobile: { src: "/casos/cafe-preguica-mobile.webp", width: 390, height: 12312 },
+  },
+  "cafe-avenida": {
+    desktop: { src: "/casos/cafe-avenida-desktop.webp", width: 1440, height: 5226 },
+    mobile: { src: "/casos/cafe-avenida-mobile.webp", width: 390, height: 5469 },
+  },
+  "taskuinha-do-pirata": {
+    desktop: { src: "/casos/taskuinha-do-pirata-desktop.webp", width: 1440, height: 7263 },
+    mobile: { src: "/casos/taskuinha-do-pirata-mobile.webp", width: 390, height: 8452 },
+  },
+  "imperio-auto-concept": {
+    desktop: { src: "/casos/imperio-auto-concept-desktop.webp", width: 1440, height: 4331 },
+    mobile: { src: "/casos/imperio-auto-concept-mobile.webp", width: 390, height: 5718 },
+  },
+  "jsk": {
+    desktop: { src: "/casos/jsk-desktop.webp", width: 1440, height: 4381 },
+    mobile: { src: "/casos/jsk-mobile.webp", width: 390, height: 7145 },
+  },
+  "antonio-home-repair": {
+    desktop: { src: "/casos/antonio-home-repair-desktop.webp", width: 1440, height: 3534 },
+    mobile: { src: "/casos/antonio-home-repair-mobile.webp", width: 390, height: 3739 },
+  },
+};
+
 export function getProject(slug: string): Project | undefined {
   return projects.find((p) => p.slug === slug);
 }

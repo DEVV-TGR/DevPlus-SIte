@@ -41,6 +41,9 @@ export function Ambiente({
         intensity={intensidade}
         interactive={Boolean(alvo)}
         targetId={alvo}
+        /* O ambiente vive sempre no topo da página (capas, caso, 404, erro,
+           privacidade): é a imagem LCP, e não pode esperar pelo `lazy`. */
+        loading="eager"
       />
     </div>
   );
