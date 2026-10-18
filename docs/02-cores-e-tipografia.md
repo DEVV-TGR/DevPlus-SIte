@@ -134,6 +134,15 @@ um bitmap não se revê num diff como se revê um hex.
 Se algum dia se realinharem com a paleta, é regerar os dois ficheiros a partir
 de um original nas cores certas. Ver `docs/03-simbolo-e-logotipo.md`.
 
+### Os retratos da equipa — a segunda exceção
+
+Os retratos planos do `/contacto` (`components/Avatar.tsx`) precisam de cor de
+pele e de cabelo, que nenhum token da marca tem. Vivem em `--avatar-*` no
+`:root` — `pele-clara`, `pele-morena`, `cabelo-loiro`, `cabelo-castanho`,
+`cabelo-preto` e `traco` (olhos e boca) —, não mudam com o tema e **não se
+usam em mais lado nenhum**. As camisolas são `--primary`, `--accent` e
+`--peach`. Quem é quem está em `team` (`lib/site.ts`), como cada um pediu.
+
 | Token OKLCH                        | Hex       |
 | ---------------------------------- | --------- |
 | `--primary` `oklch(0.72 0.188 50)` | `#F2762B` |
@@ -373,3 +382,19 @@ Os pacotes de `/servicos` também usam o papel quente. A capa Sobre usa
 `--verde`, `--verde-ink` e `--verde-muted`, portanto forest no escuro e mint
 no claro. As restantes capas usam o papel base com acabamentos distintos.
 Não foram acrescentadas cores nem invertidas imagens.
+
+## Alumínio escovado — 18 de outubro
+
+Quatro tokens novos, por tema, para o acabamento `aluminio` (docs/10): os
+cartões do processo e as colunas do acordeão da `/servicos`.
+
+| Token | Escuro (anodizado) | Claro (prata) |
+|---|---|---|
+| `--aluminio-alto` | `oklch(0.315 0.008 250)` | `oklch(0.955 0.003 250)` |
+| `--aluminio` | `oklch(0.285 0.008 250)` | `oklch(0.9 0.005 250)` |
+| `--aluminio-baixo` | `oklch(0.225 0.007 250)` | `oklch(0.85 0.006 250)` |
+| `--aluminio-muted` | `oklch(0.8 0.01 250)` | `oklch(0.4 0.012 250)` |
+
+São o único cinzento frio do site (matiz 250 em vez de 56–80): o alumínio
+lê-se pelo frio. Por cima do material, `--muted` passa a `--aluminio-muted`,
+medido para AA nas duas pontas do gradiente; a tinta principal é `--ink`.

@@ -7,6 +7,7 @@ import { useCallback, useRef } from "react";
 import { gsap, ScrollTrigger, useGSAP, comPausa } from "@/lib/motion";
 import { atelierAssets } from "@/components/atelier/assets";
 import { services } from "@/lib/services";
+import { contactoCom } from "@/lib/contacto";
 import { Button } from "@/components/ui/Button";
 import { Carril } from "./Carril";
 import styles from "./paginas.module.css";
@@ -155,30 +156,30 @@ export function ServicosAcordeao() {
                 manual.current = performance.now() + 2000;
                 abrir(i);
               }}
-              className={`${styles.coluna} group relative grid min-w-0 cursor-pointer content-end overflow-hidden rounded-2xl border border-border bg-surface p-4 text-left transition-[flex-grow,background-color,border-color] duration-[420ms] ease-out md:data-[aberta=true]:border-primary/45 md:data-[aberta=true]:bg-primary/10 md:basis-0 md:grow md:p-5 md:data-[aberta=true]:grow-[5]`}
+              className={`${styles.coluna} group relative grid min-w-0 cursor-pointer grid-rows-[minmax(0,1fr)_auto_auto] overflow-hidden rounded-2xl border p-4 text-left transition-[flex-grow,border-color] duration-[420ms] ease-out md:basis-0 md:grow md:p-5 md:data-[aberta=true]:grow-[5]`}
             >
               <span className="absolute left-4 top-4 text-sm font-titulo tabular-nums text-acento md:left-5 md:top-5">
                 {String(i + 1).padStart(2, "0")}
               </span>
 
-              {/* A figura é a peça da coluna aberta: grande, à direita, por
-                  cima da zona do texto e nunca por baixo dele. No telemóvel
-                  todas as linhas estão abertas, e a figura encolhe para o
-                  lado do título — seis esculturas a ocupar o ecrã inteiro
-                  eram seis ecrãs de scroll. Os 44px são a altura da linha
-                  do título: com 64px a figura já tapava o início do texto. */}
+              {/* A figura é a peça da coluna aberta e ocupa o espaço todo
+                  por cima do texto: é a primeira linha da grelha, com `1fr`,
+                  e a imagem entra contida (`object-contain`) — cresce com a
+                  coluna e nunca desce para cima do título. Antes era um
+                  quadrado de 24rem no canto, com meio ecrã vazio por cima do
+                  texto. A margem de cima deixa o número livre. Nas colunas
+                  fechadas a linha existe mas a figura está apagada. */}
               <span
                 aria-hidden
-                className="pointer-events-none absolute right-3 top-3 w-11 transition-[opacity,transform] duration-[420ms] ease-out md:right-[4%] md:top-[6%] md:w-[min(42%,24rem)] md:translate-y-2 md:opacity-0 md:group-data-[aberta=true]:translate-y-0 md:group-data-[aberta=true]:opacity-100"
+                className="pointer-events-none relative mb-5 mt-10 min-h-0 translate-y-2 opacity-0 transition-[opacity,transform] duration-[420ms] ease-out group-data-[aberta=true]:translate-y-0 group-data-[aberta=true]:opacity-100"
               >
                 <Image
                   src={fig.src}
                   alt=""
-                  width={fig.width}
-                  height={fig.height}
-                  sizes="(min-width: 768px) 24rem, 3rem"
+                  fill
+                  sizes="(min-width: 1280px) 40rem, 50vw"
                   loading="lazy"
-                  className="h-auto w-full"
+                  className="object-contain"
                 />
               </span>
 
@@ -238,7 +239,7 @@ export function ServicosAcordeao() {
                   </li>
                 ))}
               </ul>
-              <Button href="/contacto" variant="outline" className="mt-2 justify-self-start">
+              <Button href={contactoCom(s.title)} variant="outline" className="mt-2 justify-self-start">
                 Falar sobre isto
               </Button>
             </div>

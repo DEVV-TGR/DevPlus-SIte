@@ -2,20 +2,12 @@
 /** docs: docs/04-componentes-e-padroes.md · docs/06-projetos.md · docs/10-materiais-atelier.md */
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, type CSSProperties } from "react";
-import { useLenis } from "lenis/react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { MaterialGround } from "@/components/atelier/MaterialGround";
 import { homeProjects } from "@/lib/projects";
 import { distanceFrom, wrapIndex } from "@/lib/carrossel";
-import {
-  gsap,
-  ScrollTrigger,
-  useGSAP,
-  comPausa,
-  MOVIMENTO,
-} from "@/lib/motion";
 
 /**
  * O trabalho, num carrossel de vidro.
@@ -26,23 +18,28 @@ import {
  * centro e uma pista de cada lado. A volta é **circular**: depois do último
  * vem o primeiro.
  *
- * **Em desktop o scroll continua a conduzir.** O capítulo pina e cada troço de
- * scroll põe o projeto seguinte ao centro — é a imersão aprovada da galeria,
- * agora com o vidro. Setas, teclado, arrasto e um clique num vizinho fazem o
- * scroll ir até à posição desse projeto, em vez de o trocarem por baixo dele:
- * assim o que está ao centro e o sítio da página dizem sempre o mesmo. No
- * telemóvel e com movimento reduzido não há pin, e a escolha é só manual.
+ * **Anda sozinho e não prende o scroll.** A cada 2 s passa ao projeto
+ * seguinte. Para com o ponteiro em cima, com o foco do teclado lá dentro e com
+ * o botão de pausa (o hover não chega a quem usa o dedo — WCAG 2.2.2); para
+ * também fora do ecrã e com o separador escondido, e com movimento reduzido
+ * nem arranca. Setas, teclado, arrasto e um clique num vizinho continuam e
+ * recomeçam a contagem. O pin antigo obrigava a percorrer os sete projetos
+ * para chegar à secção seguinte; já não existe.
  *
- * **A seleção não é estado do React** — é a regra do `docs/04` para quem é
- * conduzido por um ScrollTrigger. O React desenha os sete cartões uma vez; a
- * função `aplicar` escreve no DOM as distâncias, a camada, o `aria-hidden` e o
- * contador. Só o cartão do centro tem elementos focáveis.
+ * **A seleção não é estado do React** — o React desenha os sete cartões uma
+ * vez e `aplicar` escreve no DOM as distâncias, a camada, o `aria-hidden` e o
+ * contador: o autoplay chama-a a cada passo, e re-renderizar sete cartões para
+ * isso não faz sentido. Só o cartão do centro tem elementos focáveis. A pausa
+ * é estado porque muda o rótulo do botão.
  *
- * Sem autoplay e sem ticker novo: as transições são CSS, e o desfoque do vidro
- * fica só no cartão do centro (docs/10).
+ * As transições são CSS e mexem tudo junto — posição, escala, transparência
+ * da capa e do texto, camada e desfoque — para a troca ser um movimento e não
+ * dois quadros. O cartão que dá a volta (do −3 para o +3) não atravessa o
+ * palco por trás dos outros: some de um lado e aparece do outro.
  */
 const N = homeProjects.length;
 const FADE = [1, 0.64, 0.32, 0.12];
+const PASSO_MS = 2000;
 
 /** As variáveis de um cartão a uma distância `d` do centro. */
 function pose(d: number) {
@@ -71,11 +68,14 @@ function Seta({ sentido }: { sentido: -1 | 1 }) {
 }
 
 export function ProvaCarrossel() {
-  const lenis = useLenis();
   const palco = useRef<HTMLDivElement>(null);
   const ativo = useRef(0);
-  const pin = useRef<ScrollTrigger | null>(null);
   const toque = useRef<{ x: number; y: number } | null>(null);
+  /** Quem pede pausa agora: ponteiro, foco, ecrã, separador, movimento. */
+  const motivos = useRef(new Set<string>());
+  const relogio = useRef<number | undefined>(undefined);
+  const [pausado, setPausado] = useState(false);
+  const pausadoRef = useRef(false);
 
   /** Escreve a seleção `i` no DOM: poses, camadas, foco e contador. */
   const aplicar = (i: number) => {
@@ -84,7 +84,12 @@ export function ProvaCarrossel() {
     ativo.current = i;
     raiz.querySelectorAll<HTMLElement>("[data-projeto]").forEach((card, j) => {
       const d = distanceFrom(j, i, N);
+      const antes = Number(card.style.getPropertyValue("--distance") || d);
       const atual = d === 0;
+      /* Deu a volta: troca de lado sem transição de posição, com a
+         transparência a fazer a passagem (`[data-volta]` no CSS). */
+      const volta = Math.abs(d - antes) > 1;
+      if (volta) card.dataset.volta = "true";
       Object.entries(pose(d)).forEach(([k, v]) => {
         if (k === "zIndex") card.style.zIndex = String(v);
         else card.style.setProperty(k, String(v));
@@ -95,6 +100,10 @@ export function ProvaCarrossel() {
       card
         .querySelectorAll<HTMLElement>("[data-foco-atual]")
         .forEach((el) => (el.tabIndex = atual ? 0 : -1));
+      if (volta) {
+        void card.offsetWidth;
+        requestAnimationFrame(() => delete card.dataset.volta);
+      }
     });
     const contador = raiz.querySelector("[data-contador]");
     if (contador) contador.textContent = String(i + 1).padStart(2, "0");
@@ -102,58 +111,62 @@ export function ProvaCarrossel() {
     if (nome) nome.textContent = homeProjects[i].name;
   };
 
-  /** Vai para o projeto `i` — pelo scroll quando há pin, direto quando não. */
-  const ir = (destino: number) => {
-    const i = wrapIndex(destino, N);
-    const st = pin.current;
-    if (!st) {
-      aplicar(i);
-      return;
-    }
-    const { fracao } = comPausa(st.end - st.start);
-    const progresso = fracao + (i / (N - 1)) * (1 - 2 * fracao);
-    const alvo = st.start + progresso * (st.end - st.start);
-    if (lenis) lenis.scrollTo(alvo, { duration: MOVIMENTO.hero });
-    else window.scrollTo({ top: alvo, behavior: "smooth" });
+  /** Arma o passo seguinte, se ninguém pedir pausa. */
+  const armar = () => {
+    window.clearTimeout(relogio.current);
+    relogio.current = undefined;
+    if (pausadoRef.current || motivos.current.size > 0) return;
+    relogio.current = window.setTimeout(() => {
+      aplicar(wrapIndex(ativo.current + 1, N));
+      armar();
+    }, PASSO_MS);
   };
 
-  useGSAP(
-    () => {
-      const raiz = palco.current;
-      const seccao = raiz?.closest("section");
-      if (!raiz || !seccao) return;
-      aplicar(ativo.current);
-      const mm = gsap.matchMedia();
-      mm.add(
-        "(min-width: 1024px) and (min-height: 720px) and (prefers-reduced-motion: no-preference)",
-        () => {
-          /* Pouco mais de meio ecrã por projeto: com seis trocas são ~3,3
-             ecrãs, mais as duas pausas do `comPausa`. A galeria horizontal
-             antiga gastava 8. */
-          const percurso = () => window.innerHeight * 0.55 * (N - 1);
-          const st = ScrollTrigger.create({
-            trigger: seccao,
-            start: "top top",
-            end: () => `+=${comPausa(percurso()).total}`,
-            pin: seccao.querySelector<HTMLElement>("[data-gallery-stage]"),
-            invalidateOnRefresh: true,
-            onUpdate: (self) => {
-              const p = comPausa(percurso()).progresso(self.progress);
-              const i = Math.round(p * (N - 1));
-              if (i !== ativo.current) aplicar(i);
-            },
-          });
-          pin.current = st;
-          return () => {
-            pin.current = null;
-            st.kill();
-          };
-        },
-      );
-      return () => mm.revert();
-    },
-    { scope: palco },
-  );
+  const pedirPausa = (motivo: string, sim: boolean) => {
+    if (sim) motivos.current.add(motivo);
+    else motivos.current.delete(motivo);
+    armar();
+  };
+
+  /** Vai para o projeto `i` e recomeça a contagem dos 2 s. */
+  const ir = (destino: number) => {
+    aplicar(wrapIndex(destino, N));
+    armar();
+  };
+
+  const alternarPausa = () => {
+    pausadoRef.current = !pausadoRef.current;
+    setPausado(pausadoRef.current);
+    armar();
+  };
+
+  useEffect(() => {
+    const raiz = palco.current;
+    if (!raiz) return;
+    aplicar(ativo.current);
+    const reduzido = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const movimento = () => pedirPausa("movimento", reduzido.matches);
+    const separador = () => pedirPausa("separador", document.hidden);
+    const visivel = new IntersectionObserver(
+      ([e]) => pedirPausa("ecra", !e.isIntersecting),
+      { threshold: 0.35 },
+    );
+    /* Até o observador responder, conta como fora do ecrã. */
+    motivos.current.add("ecra");
+    movimento();
+    separador();
+    visivel.observe(raiz);
+    reduzido.addEventListener("change", movimento);
+    document.addEventListener("visibilitychange", separador);
+    return () => {
+      window.clearTimeout(relogio.current);
+      visivel.disconnect();
+      reduzido.removeEventListener("change", movimento);
+      document.removeEventListener("visibilitychange", separador);
+    };
+    // Corre uma vez: `aplicar` e `pedirPausa` só leem refs.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Section
@@ -162,7 +175,7 @@ export function ProvaCarrossel() {
       bottom={false}
       className="capitulo-inverso relative isolate overflow-hidden"
     >
-      <div data-gallery-stage className="gallery-stage">
+      <div className="gallery-stage">
         <MaterialGround finish="metal" />
         <Container>
           <div className="gallery-head">
@@ -171,11 +184,28 @@ export function ProvaCarrossel() {
               <em className="font-medium text-acento-inverso">fala por nós.</em>
             </h2>
             <Link href="/portfolio" className="gallery-all">
-              Todo o portfólio <span aria-hidden>↗</span>
+              Todo o portfólio <span aria-hidden data-seta="diagonal">↗</span>
             </Link>
           </div>
         </Container>
-        <div ref={palco}>
+        <div
+          ref={palco}
+          onPointerEnter={(e) => {
+            if (e.pointerType === "mouse") pedirPausa("ponteiro", true);
+          }}
+          onPointerLeave={(e) => {
+            if (e.pointerType === "mouse") pedirPausa("ponteiro", false);
+          }}
+          /* Só o foco do teclado pausa: um clique numa seta também foca o
+             botão, e aí a volta tinha de esperar por um clique fora. */
+          onFocus={(e) => {
+            if (e.target.matches(":focus-visible")) pedirPausa("foco", true);
+          }}
+          onBlur={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget as Node | null))
+              pedirPausa("foco", false);
+          }}
+        >
           <div
             className="gallery-glass"
             role="region"
@@ -279,7 +309,13 @@ export function ProvaCarrossel() {
             >
               <Seta sentido={-1} />
             </button>
-            <p className="gallery-count" aria-live="polite" aria-atomic="true">
+            {/* Com a volta a andar, anunciar cada passo era uma voz a cada 2 s:
+                o contador só fala quando a pausa está ligada. */}
+            <p
+              className="gallery-count"
+              aria-live={pausado ? "polite" : "off"}
+              aria-atomic="true"
+            >
               <span data-contador>01</span>
               <span className="gallery-count-line" aria-hidden />
               <span>{String(N).padStart(2, "0")}</span>
@@ -294,6 +330,21 @@ export function ProvaCarrossel() {
               onClick={() => ir(ativo.current + 1)}
             >
               <Seta sentido={1} />
+            </button>
+            <button
+              type="button"
+              className="gallery-pause"
+              aria-pressed={pausado}
+              aria-label="Pausar a passagem automática"
+              onClick={alternarPausa}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+                {pausado ? (
+                  <path d="M8 5.5v13l10.5-6.5L8 5.5Z" fill="currentColor" />
+                ) : (
+                  <path d="M8.5 5.5v13M15.5 5.5v13" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+                )}
+              </svg>
             </button>
           </div>
         </div>

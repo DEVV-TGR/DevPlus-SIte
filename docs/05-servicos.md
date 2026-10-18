@@ -175,3 +175,18 @@ continua a ser a fonte do FAQ visível e dos dados estruturados.
 
 Os títulos seguem a escala partilhada de `docs/02`: principais com o mesmo
 tamanho da home, títulos de cartões a 24px. Sem escalas próprias por página.
+
+## A demo grátis e os atalhos do contacto — 18 de outubro
+
+**Compromisso comercial confirmado pela equipa:** a DevPlus faz uma **demo
+grátis** de qualquer serviço, **só da parte visual**. As funcionalidades
+discutem-se depois e fazem-se à medida. O formulário diz exatamente isto
+quando o atalho "Pedir demo grátis" está escolhido, e não se promete mais em
+lado nenhum. **Não há "orçamento grátis"** — foi considerado e não escolhido.
+
+Os atalhos do formulário (`GRUPOS_INTERESSE` em `lib/contacto.ts`) são a
+demo, os seis serviços de `lib/services.ts` e os três pacotes de
+`lib/packages.ts`, por esta ordem: um serviço ou pacote novo ganha atalho
+sozinho. O id é o nome sem acentos (`idInteresse`): `menus-ecras-digitais`,
+`landing-page`. Os botões "Pedir proposta" (pacotes) e "Falar sobre isto"
+(serviços) abrem o contacto com o assunto já escolhido (`contactoCom`).

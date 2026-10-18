@@ -5,6 +5,7 @@ import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Cruz, type Posto } from "@/components/home/Cruz";
 import { ContactForm } from "@/components/ContactForm";
+import { Avatar } from "@/components/Avatar";
 import { MaterialSurface } from "@/components/atelier/MaterialSurface";
 import { atelierAssets } from "@/components/atelier/assets";
 import styles from "@/components/paginas/paginas.module.css";
@@ -80,13 +81,17 @@ export default function ContactoPage() {
                   não headings de 14px — um leitor de ecrã anunciava "título
                   nível 2: Email" para o que é só o rótulo de um campo. */}
               <h2 className="sr-only">Como falar connosco</h2>
-              <dl className="flex flex-col gap-8">
+              {/* Compacto: o email numa linha, a equipa numa lista de três
+                  linhas com retrato, e a disponibilidade e as redes lado a
+                  lado. Antes eram quatro blocos empilhados com 2rem entre
+                  cada um, e a coluna descia muito abaixo do formulário. */}
+              <dl className="grid gap-6">
                 <div>
                   <dt className="text-sm font-medium text-muted">Email</dt>
                   <dd>
                     <a
                       href={`mailto:${site.email}`}
-                      className="-mx-2 mt-1 flex min-h-11 items-center px-2 font-display text-xl transition-colors hover:text-acento"
+                      className="-mx-2 flex min-h-11 items-center px-2 font-display text-xl transition-colors hover:text-acento"
                     >
                       {site.email}
                     </a>
@@ -95,64 +100,75 @@ export default function ContactoPage() {
                 <div>
                   <dt className="text-sm font-medium text-muted">Telefone</dt>
                   <dd>
-                    <ul className="mt-1 flex flex-col gap-2">
-                      {team.map((m) => (
+                    <ul className="mt-2 grid gap-1">
+                      {team.map((m, i) => (
                         <li key={m.phone}>
                           <a
                             href={`tel:${telHref(m.phone)}`}
-                            className="-mx-2 inline-flex min-h-11 items-center px-2 font-display text-xl transition-colors hover:text-acento"
+                            className="group -mx-2 flex min-h-14 items-center gap-3 rounded-xl px-2 py-1 transition-colors hover:bg-ink/5"
                           >
-                            {m.phone}
+                            <Avatar
+                              avatar={m.avatar}
+                              indice={i}
+                              className="size-11 shrink-0 rounded-full transition-transform duration-200 group-hover:-rotate-6 group-hover:scale-105"
+                            />
+                            <span className="grid leading-tight">
+                              <span className="text-sm text-muted">{m.name}</span>
+                              <span className="font-display text-lg transition-colors group-hover:text-acento">
+                                {m.phone}
+                              </span>
+                            </span>
                           </a>
-                          <span className="ml-2 text-sm text-muted">
-                            {m.name}
-                          </span>
                         </li>
                       ))}
                     </ul>
                   </dd>
                 </div>
-                <div>
-                  <dt className="text-sm font-medium text-muted">
-                    Disponibilidade
-                  </dt>
-                  <dd>
-                    <p className="mt-1 font-display text-xl">
-                      Resposta em 24–48h úteis
-                    </p>
-                    <p className="mt-1.5 text-sm text-muted">
-                      Estamos no {site.city} · trabalhamos com quem está mais
-                      longe
-                    </p>
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-muted">Redes</dt>
-                  <dd>
-                    <ul className="mt-1 flex flex-col">
-                      {socials.map((s) => (
-                        <li key={s.label}>
-                          {s.href ? (
-                            <a
-                              href={s.href}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="-mx-2 inline-flex min-h-11 items-center px-2 text-ink transition-colors hover:text-acento"
-                            >
-                              {s.label}
-                              {perfil(s) ? ` · ${perfil(s)}` : ""}
-                            </a>
-                          ) : (
-                            <span className="text-muted">{s.label}</span>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                    <p className="mt-2.5 text-sm text-muted">
-                      O WhatsApp ainda está a caminho. Para falar connosco hoje,
-                      o email é o caminho mais rápido.
-                    </p>
-                  </dd>
+                <div className="grid gap-x-5 gap-y-6 sm:grid-cols-2">
+                  <div>
+                    <dt className="text-sm font-medium text-muted">
+                      Disponibilidade
+                    </dt>
+                    <dd>
+                      <p className="mt-1 font-display text-base">
+                        Resposta em 24–48h úteis
+                      </p>
+                      <p className="mt-1 text-sm text-muted">
+                        Estamos no {site.city} · trabalhamos com quem está mais
+                        longe
+                      </p>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-muted">Redes</dt>
+                    <dd>
+                      <ul className="flex flex-wrap gap-x-4">
+                        {socials.map((s) => (
+                          <li key={s.label}>
+                            {s.href ? (
+                              <a
+                                href={s.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex min-h-11 items-center text-ink transition-colors hover:text-acento"
+                              >
+                                {s.label}
+                                {perfil(s) ? ` · ${perfil(s)}` : ""}
+                              </a>
+                            ) : (
+                              <span className="inline-flex min-h-11 items-center text-muted">
+                                {s.label}
+                              </span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                      <p className="text-sm text-muted">
+                        O WhatsApp ainda está a caminho. Para falar connosco
+                        hoje, o email é o caminho mais rápido.
+                      </p>
+                    </dd>
+                  </div>
                 </div>
               </dl>
             </div>

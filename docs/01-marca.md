@@ -109,6 +109,12 @@ esconder a única vantagem que tem sobre uma agência.
   escrevas o número em duas grafias: divergem à primeira correção.
 - Aparecem em `/contacto` e no `contactPoint` dos dados estruturados. Se
   entrarem no rodapé algum dia, saem do mesmo sítio.
+- No `/contacto` cada número leva um **retrato plano** (`components/Avatar.tsx`),
+  desenhado a partir do `avatar` de cada pessoa em `team`: Rodrigo — pele
+  clara, cabelo loiro liso; Gonçalo — pele clara, caracóis castanhos; Tomás —
+  pele morena, caracóis pretos. É uma ilustração, não uma fotografia, e é
+  decorativa: o nome está escrito ao lado. As cores são a exceção de paleta
+  do docs/02.
 
 ## Redes sociais
 

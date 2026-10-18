@@ -6,7 +6,7 @@ import { attachPointerMaterial } from "./pointerMaterial";
 import styles from "./atelier.module.css";
 
 export type MaterialSurfaceProps = HTMLAttributes<HTMLDivElement> & {
-  finish?: "graphite" | "silver" | "forest";
+  finish?: "graphite" | "silver" | "forest" | "aluminio";
   interactive?: boolean;
   padding?: "default" | "none";
   contentClassName?: string;

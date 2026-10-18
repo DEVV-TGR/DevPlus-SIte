@@ -50,7 +50,7 @@ import { MaterialSurface } from "@/components/atelier/MaterialSurface";
 
 | Prop | Default | Papel |
 |---|---|---|
-| `finish` | `graphite` | `graphite`, `silver` ou `forest`, com tinta emparelhada |
+| `finish` | `graphite` | `graphite`, `silver`, `forest` ou `aluminio`, com tinta emparelhada |
 | `interactive` | `true` | Autoriza tilt apenas com rato, desktop e movimento permitido |
 | `padding` | `default` | 24px; `none` entrega o espaçamento ao conteúdo existente |
 | `className` | — | Wrapper exterior: largura, altura e layout do consumidor |
@@ -185,3 +185,20 @@ volta das molduras e matte nos tópicos; contacto satin estático e privacidade
 matte. Estes acabamentos estáticos não inclinam formulários nem texto legal.
 A bancada partilhada `PackagePlates` usa os mesmos assets e `MaterialSurface`
 nas duas páginas; não existe uma segunda receita para Serviços.
+
+## Alumínio escovado — 18 de outubro
+
+`MaterialSurface finish="aluminio"` é uma chapa e não um vidro: anodizado
+escuro no tema escuro, **prata no claro** — não passa a cristal como os
+outros acabamentos, e não tem `backdrop-filter`. A face é um gradiente de
+`--aluminio-alto` a `--aluminio-baixo` (docs/02), o grão é o
+`metal-escovado-v1.webp` em mosaico com um fio horizontal repetido, em
+`soft-light`, e a aresta é um chanfro (luz em cima, sombra em baixo). A luz
+espalha-se numa faixa larga e baixa (`150% 45%`), nunca num ponto: é como o
+escovado a devolve, e pediu-se pouco foco de luz. A inclinação ao ponteiro é
+a mesma das outras faces.
+
+Dentro dele, `text-muted` funciona: o acabamento redefine `--muted` para
+`--aluminio-muted`. As colunas do acordeão da `/servicos` usam a mesma
+receita em `.coluna` (`paginas.module.css`), porque são `<button>` e não
+podem ser um `MaterialSurface`.

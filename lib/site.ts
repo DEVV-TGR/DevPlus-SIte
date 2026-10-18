@@ -36,7 +36,17 @@ export const site = {
 export type Social = { label: string; href?: string };
 
 /** Uma pessoa do estúdio e o telemóvel por onde atende. */
-export type Membro = { name: string; phone: string };
+export type Membro = {
+  name: string;
+  phone: string;
+  /** O retrato plano do `/contacto` (`components/Avatar.tsx`): tom de pele,
+   *  cor e forma do cabelo, como cada um pediu. Não é uma fotografia. */
+  avatar: {
+    pele: "clara" | "morena";
+    cabelo: "loiro" | "castanho" | "preto";
+    forma: "liso" | "caracois";
+  };
+};
 
 /**
  * Quem atende o telefone. São três, e é de propósito que aparecem com nome:
@@ -48,9 +58,21 @@ export type Membro = { name: string; phone: string };
  * do mesmo número a divergir.
  */
 export const team: Membro[] = [
-  { name: "Rodrigo Almeida", phone: "916 416 063" },
-  { name: "Gonçalo Silva", phone: "911 728 913" },
-  { name: "Tomás Sobral", phone: "916 064 815" },
+  {
+    name: "Rodrigo Almeida",
+    phone: "916 416 063",
+    avatar: { pele: "clara", cabelo: "loiro", forma: "liso" },
+  },
+  {
+    name: "Gonçalo Silva",
+    phone: "911 728 913",
+    avatar: { pele: "clara", cabelo: "castanho", forma: "caracois" },
+  },
+  {
+    name: "Tomás Sobral",
+    phone: "916 064 815",
+    avatar: { pele: "morena", cabelo: "preto", forma: "caracois" },
+  },
 ];
 
 /** `916 416 063` -> `+351916416063`. É o formato que o `tel:` e o schema.org

@@ -191,7 +191,8 @@ export function ComoTrabalhamos() {
          mesa, não a materializar-se no sítio.
 
          São dois tweens e não um: a posição leva o `easeCarta`, que passa do
-         destino e volta — é o encaixe que faz a leitura de carta a assentar —
+         destino por pouco mais de 1% e volta — sente-se a carta a assentar sem
+         se ver um ressalto —
          e a opacidade leva a curva normal, porque uma opacidade com overshoot
          passa de 1 e volta, o que é um `flash` e não um gesto. A escala
          assenta antes da posição, como em todo o site. */
@@ -249,7 +250,7 @@ export function ComoTrabalhamos() {
            (`overflow-hidden`), e com o conteúdo centrado era o topo do título
            que desaparecia. Em telemóvel o título encosta ao cimo e a fila
            ocupa o que sobra. */
-        className="relative isolate flex min-h-[100svh] flex-col justify-start gap-6 overflow-hidden pb-10 pt-24 xl:grid xl:place-items-center xl:gap-0 xl:px-6 xl:py-0"
+        className="relative isolate flex min-h-[100svh] flex-col justify-start gap-6 overflow-hidden pb-10 pt-[var(--abertura)] xl:grid xl:place-items-center xl:gap-0 xl:px-6 xl:py-0"
       >
         {/* Cristal no palco, que é o que pina: na secção os planos mediam o
             percurso inteiro. */}
@@ -261,7 +262,7 @@ export function ComoTrabalhamos() {
         {/* Em telemóvel o título fica preso no topo enquanto os cards passam
             por baixo dele — é o que a referência faz nesta secção. Em desktop
             continua no terço de cima, com os cards em leque por baixo. */}
-        <div data-process-heading className="mx-auto w-full max-w-[46rem] shrink-0 px-6 text-center xl:absolute xl:inset-x-0 xl:top-[10svh]">
+        <div data-process-heading className="mx-auto w-full max-w-[46rem] shrink-0 px-6 text-center xl:absolute xl:inset-x-0 xl:top-[var(--abertura)]">
           <h2
             id="como-trabalhamos"
             className="t-seccao font-display font-titulo"
@@ -306,15 +307,12 @@ export function ComoTrabalhamos() {
               }
               /* A coreografia escreve o `transform` no `article`; a superfície
                  de material vai por dentro e inclina só a face dela — são dois
-                 donos, dois elementos. Grafite no escuro, cristal no claro
-                 (docs/10). Em tablet a largura fica em 24rem: com 78vw um card
+                 donos, dois elementos. Alumínio escovado: anodizado escuro no
+                 tema escuro, prata no claro (docs/10). Em tablet a largura fica em 24rem: com 78vw um card
                  chegava aos 800px. */
               className="w-[min(78vw,24rem)] shrink-0 xl:absolute xl:w-[min(20rem,22vw)] xl:[transform:translate(var(--pousa-x),var(--pousa-y))_rotate(var(--pousa-r))]"
             >
-              <MaterialSurface
-                padding="none"
-                className="shadow-[0_30px_60px_-30px_rgb(0_0_0/0.55)]"
-              >
+              <MaterialSurface finish="aluminio" padding="none">
                 <div data-passo-conteudo className="flex min-h-[22rem] flex-col p-6 xl:p-7">
                   <span className="text-sm tabular-nums text-acento">{p.n}</span>
                   <h3 className="t-cartao mb-3 mt-7 font-display font-titulo">

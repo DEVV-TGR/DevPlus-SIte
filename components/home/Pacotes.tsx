@@ -26,8 +26,12 @@ import { MaterialGround } from "@/components/atelier/MaterialGround";
  * fundo de cetim.
  */
 export function Pacotes() {
+  /* `top={false}`: o capítulo abre com a `--abertura`, como os outros. */
   return (
-    <Section className="home-packages capitulo-quente relative isolate">
+    <Section
+      top={false}
+      className="home-packages capitulo-quente relative isolate pt-[var(--abertura)]"
+    >
       <MaterialGround finish="satin" />
       <Container>
         <h2 className="home-heading max-w-[19ch]">

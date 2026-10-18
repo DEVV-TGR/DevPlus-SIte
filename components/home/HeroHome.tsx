@@ -149,7 +149,7 @@ export function HeroHome() {
             href="#trabalho"
             className="inline-flex min-h-11 items-center gap-3"
           >
-            Continua a explorar <span aria-hidden>↓</span>
+            Continua a explorar <span aria-hidden data-seta="baixo">↓</span>
           </Link>
         </div>
       </Container>

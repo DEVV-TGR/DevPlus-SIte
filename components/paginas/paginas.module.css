@@ -37,8 +37,28 @@
 }
 
 /* ── Colunas do acordeão ─────────────────────────────────────────────────
-   Alumínio muito discreto atrás de um véu: a textura dá o material, o véu
-   garante a leitura. A aresta clara de cima é a espessura da placa. */
+   Alumínio escovado, como os cartões do processo (docs/10): anodizado escuro
+   no tema escuro, prata no claro. O grão do escovado vai por cima do
+   gradiente em `soft-light`, a aresta de cima é o chanfro da placa. A coluna
+   aberta sobe um tom e ganha um fio de acento na borda — nada de banho de
+   laranja, que tirava a leitura de metal. */
+.coluna {
+  --muted: var(--aluminio-muted);
+  isolation: isolate;
+  border-color: color-mix(in oklch, var(--aluminio-alto) 60%, var(--aluminio-baixo));
+  background: linear-gradient(
+    176deg,
+    var(--aluminio-alto),
+    var(--aluminio) 45%,
+    var(--aluminio-baixo)
+  );
+  color: var(--ink);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklch, var(--creme) 16%, transparent),
+    inset 0 -1px 0 color-mix(in oklch, var(--bg-deep) 50%, transparent),
+    0 14px 28px -16px color-mix(in oklch, var(--bg-deep) 80%, transparent);
+}
+
 .coluna::before {
   content: "";
   position: absolute;
@@ -46,23 +66,65 @@
   z-index: -1;
   pointer-events: none;
   border-radius: inherit;
-  background: url("/atelier/metal-escovado-v1.webp") center / cover no-repeat;
-  opacity: 0.05;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in oklch, var(--creme) 4%, transparent) 0 1px,
+      transparent 1px 3px
+    ),
+    url("/atelier/metal-escovado-v1.webp") center / 720px auto repeat;
+  mix-blend-mode: soft-light;
+  opacity: 0.55;
 }
 
-/* `isolate` prende o `z-index: -1` da textura à própria coluna: fica por
-   cima do fundo dela e por baixo do texto. */
-.coluna {
-  isolation: isolate;
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklch, var(--ink) 9%, transparent),
-    0 8px 16px color-mix(in oklch, var(--bg-deep) 40%, transparent);
+/* A luz do escovado: uma faixa larga e baixa no topo da coluna aberta. */
+.coluna::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(
+    150% 40% at 40% 0%,
+    color-mix(in oklch, var(--creme) 14%, transparent),
+    transparent 75%
+  );
+  opacity: 0;
+  transition: opacity 420ms ease-out;
 }
 
 .coluna[data-aberta="true"] {
+  border-color: color-mix(in oklch, var(--acento) 45%, var(--aluminio-baixo));
   box-shadow:
-    inset 0 1px 0 color-mix(in oklch, var(--primary) 30%, transparent),
-    0 12px 24px color-mix(in oklch, var(--bg-deep) 55%, transparent);
+    inset 0 1px 0 color-mix(in oklch, var(--creme) 22%, transparent),
+    inset 0 -1px 0 color-mix(in oklch, var(--bg-deep) 50%, transparent),
+    0 20px 36px -18px color-mix(in oklch, var(--bg-deep) 85%, transparent);
+}
+.coluna[data-aberta="true"]::after {
+  opacity: 1;
+}
+
+.coluna:hover:not([data-aberta="true"]) {
+  border-color: color-mix(in oklch, var(--aluminio-alto) 40%, var(--ink));
+}
+
+:global(html[data-theme="light"]:not([data-area="estudio"])) .coluna {
+  border-color: color-mix(in oklch, var(--aluminio-baixo) 80%, var(--ink));
+  box-shadow:
+    inset 0 1px 0 var(--creme),
+    inset 0 -1px 0 color-mix(in oklch, var(--aluminio-baixo) 70%, var(--ink)),
+    0 14px 28px -18px color-mix(in oklch, var(--ink) 30%, transparent);
+}
+:global(html[data-theme="light"]:not([data-area="estudio"])) .coluna[data-aberta="true"] {
+  border-color: color-mix(in oklch, var(--acento) 55%, var(--aluminio-baixo));
+}
+:global(html[data-theme="light"]:not([data-area="estudio"])) .coluna::after {
+  background: radial-gradient(
+    150% 40% at 40% 0%,
+    color-mix(in oklch, var(--creme) 70%, transparent),
+    transparent 75%
+  );
 }
 
 /* ── Réguas ──────────────────────────────────────────────────────────────
@@ -133,6 +195,14 @@
      come-a para o lado do intervalo entre colunas, onde não corta nada. */
   .moldura {
     margin-inline: -6% -10%;
+  }
+}
+
+/* Entre 1024 e 1279px a margem do contentor é estreita de mais para os 10%
+   da direita: a moldura saía 8px da página e dava scroll lateral. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .moldura {
+    margin-inline: -6% -4%;
   }
 }
 
@@ -320,6 +390,7 @@
 @media (forced-colors: active) {
   .ambiente,
   .coluna::before,
+  .coluna::after,
   .molduraMetal {
     display: none;
   }
@@ -333,12 +404,40 @@
 .vozNotas aside { border-top: 1px solid var(--border-strong); padding-top: 1rem; }
 .vozLinha:nth-child(even) > :first-child { order: 2; }
 .vozLinha:nth-child(even) { grid-template-columns: minmax(0, .75fr) minmax(0, 1.15fr); }
+/* A FAQ abre e fecha em altura, e a resposta desce e acende enquanto abre.
+   Só CSS, sobre o `<details>` nativo: o `::details-content` com
+   `interpolate-size` deixa animar até `auto`, e o `content-visibility` em
+   `allow-discrete` mantém o texto à vista enquanto fecha. Um browser sem
+   `::details-content` abre e fecha de uma vez, como antes — nada se perde. */
+.faq { interpolate-size: allow-keywords; }
 .faq details { border-top: 1px solid var(--border-strong); }
-.faq summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 64px; padding-block: 1.25rem; cursor: pointer; font-size: 1.125rem; font-weight: 600; list-style: none; }
+.faq summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 64px; padding-block: 1.25rem; cursor: pointer; font-size: 1.125rem; font-weight: 600; list-style: none; transition: color 200ms ease; }
 .faq summary::-webkit-details-marker { display: none; }
-.faq summary svg { flex-shrink: 0; transition: transform 180ms ease; }
+.faq summary:hover { color: var(--acento); }
+.faq summary svg { flex-shrink: 0; transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1); }
 .faq details[open] summary svg { transform: rotate(45deg); }
-.faq p { max-width: 65ch; padding-bottom: 1.75rem; color: var(--muted); }
+.faq details::details-content {
+  block-size: 0;
+  overflow-y: clip;
+  transition:
+    block-size 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    content-visibility 420ms allow-discrete;
+}
+.faq details[open]::details-content { block-size: auto; }
+.faq p {
+  max-width: 65ch;
+  padding-bottom: 1.75rem;
+  color: var(--muted);
+  opacity: 0;
+  translate: 0 -0.625rem;
+  transition:
+    opacity 320ms ease,
+    translate 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.faq details[open] p { opacity: 1; translate: 0 0; }
+@starting-style {
+  .faq details[open] p { opacity: 0; translate: 0 -0.625rem; }
+}
 .carril[data-glass] .carrilPista { padding-block: 1rem 1.75rem; }
 .carril[data-glass] .carrilCartao {
   border-color: color-mix(in oklch, var(--ink) 18%, transparent);

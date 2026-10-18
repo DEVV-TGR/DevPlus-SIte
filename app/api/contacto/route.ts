@@ -5,6 +5,7 @@ import { site } from "@/lib/site";
 import {
   CAMPOS,
   HONEYPOT,
+  INTERESSES,
   LIMITES,
   validarContacto,
   type Contacto,
@@ -266,7 +267,17 @@ export async function POST(request: Request) {
   const campo = (valor: unknown, maximo: number): string =>
     typeof valor === "string" ? valor.slice(0, maximo + 1) : "";
 
+  /* Os atalhos chegam como lista de ids. Só se aceitam textos, e no máximo
+     um a mais do que os que existem — o `validarContacto` recusa o resto. */
+  const interesses = Array.isArray(dados.interesses)
+    ? dados.interesses
+        .filter((v): v is string => typeof v === "string")
+        .slice(0, INTERESSES.length + 1)
+        .map((v) => v.slice(0, 40))
+    : [];
+
   const contacto: Contacto = {
+    interesses,
     name: campo(dados.name, LIMITES.name),
     email: campo(dados.email, LIMITES.email),
     message: campo(dados.message, LIMITES.message),
@@ -305,9 +316,16 @@ export async function POST(request: Request) {
     return Response.json({ error: "Serviço indisponível." }, { status: 500 });
   }
 
+  /* Os rótulos, não os ids: quem lê o email lê "Landing page". Vêm da lista
+     do servidor, por isso não há nada do visitante a escapar aqui. */
+  const interesse = INTERESSES.filter((i) => contacto.interesses.includes(i.id))
+    .map((i) => i.rotulo)
+    .join(", ");
+
   const texto = [
     `Nome: ${contacto.name}`,
     `Email: ${contacto.email}`,
+    ...(interesse ? [`Interesse: ${interesse}`] : []),
     "",
     contacto.message,
   ].join("\n");
@@ -315,6 +333,7 @@ export async function POST(request: Request) {
   const html = [
     `<p><strong>Nome:</strong> ${escaparHtml(contacto.name)}</p>`,
     `<p><strong>Email:</strong> ${escaparHtml(contacto.email)}</p>`,
+    interesse ? `<p><strong>Interesse:</strong> ${escaparHtml(interesse)}</p>` : "",
     `<p style="white-space:pre-wrap">${escaparHtml(contacto.message)}</p>`,
   ].join("");
 
@@ -324,7 +343,9 @@ export async function POST(request: Request) {
     /* O ponto todo: carregar em "Responder" na caixa responde ao visitante, e
        não a nós próprios. */
     replyTo: contacto.email,
-    subject: umaLinha(`Novo contacto de ${contacto.name}`),
+    subject: umaLinha(
+      `Novo contacto de ${contacto.name}${interesse ? ` · ${interesse}` : ""}`,
+    ),
     text: texto,
     html,
   });

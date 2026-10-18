@@ -66,6 +66,23 @@
   --grad: linear-gradient(100deg, var(--primary) 0%, var(--accent) 100%);
 
   --radius: 0.875rem; /* 14px — cards stay <=16px */
+  /* Alumínio escovado (docs/10): anodizado escuro neste tema, prata no claro.
+     O único cinzento frio do site — matiz 250 em vez dos 56–80 quentes —,
+     porque o alumínio lê-se pelo frio. O `-muted` é o texto secundário em
+     cima dele, medido para AA nas duas pontas do gradiente. */
+  --aluminio: oklch(0.285 0.008 250);
+  --aluminio-alto: oklch(0.315 0.008 250);
+  --aluminio-baixo: oklch(0.225 0.007 250);
+  --aluminio-muted: oklch(0.8 0.01 250);
+  /* Exceção documentada à paleta (docs/02): os tons dos retratos planos da
+     equipa no `/contacto`. São pele e cabelo de pessoas, não cor de marca,
+     e por isso não mudam com o tema nem se usam em mais lado nenhum. */
+  --avatar-pele-clara: oklch(0.87 0.045 62);
+  --avatar-pele-morena: oklch(0.6 0.08 52);
+  --avatar-cabelo-loiro: oklch(0.83 0.1 86);
+  --avatar-cabelo-castanho: oklch(0.42 0.07 52);
+  --avatar-cabelo-preto: oklch(0.21 0.012 60);
+  --avatar-traco: oklch(0.24 0.02 50);
 
   /* ── Papéis que o tema troca ─────────────────────────────────────────────
      Os componentes pedem um **papel**, não uma cor, e o tema decide a cor.
@@ -111,6 +128,10 @@ html[data-theme="light"]:not([data-area="estudio"]) {
   --bg-deep: oklch(0.915 0.011 76);
   --surface: oklch(0.975 0.006 80);
   --surface-2: oklch(0.925 0.01 78);
+  --aluminio: oklch(0.9 0.005 250);
+  --aluminio-alto: oklch(0.955 0.003 250);
+  --aluminio-baixo: oklch(0.85 0.006 250);
+  --aluminio-muted: oklch(0.4 0.012 250);
   --border: oklch(0.86 0.012 70);
   --border-strong: oklch(0.58 0.016 60);
   --ink: oklch(0.25 0.012 60);
@@ -261,6 +282,10 @@ html:has(.home-packages) {
 
 /* Escala única do site público — docs/02. */
 :root {
+  /* A abertura de um capítulo: do topo dele ao título. Folga o cabeçalho
+     flutuante (81px) e dá a mesma respiração em todos — o processo tinha o
+     título colado ao cabeçalho e a galeria tinha-o por baixo dele. */
+  --abertura: clamp(7rem, 5.5rem + 2.5vw, 8.5rem);
   --titulo-principal: clamp(2.25rem, 1.75rem + 2.5vw, 4rem);
   --titulo-hero: clamp(2.65rem, 2rem + 3.2vw, 5.3rem);
   --titulo-cartao: 1.5rem;
@@ -471,6 +496,25 @@ html.lenis body {
 }
 .lenis.lenis-smooth iframe {
   pointer-events: none;
+}
+
+/* Micro-movimento das ligações com seta (docs/04): a seta de uma ligação de
+   texto (`↗`, `→`) avança 2px no hover, como nos botões. Só as que levam a
+   marca `data-seta`, para uma seta `↓` não andar para o lado. */
+@layer base {
+  a [data-seta] {
+    display: inline-block;
+    transition: translate 200ms ease;
+  }
+  a:hover [data-seta="diagonal"] {
+    translate: 2px -2px;
+  }
+  a:hover [data-seta="baixo"] {
+    translate: 0 2px;
+  }
+  a:hover [data-seta="frente"] {
+    translate: 3px 0;
+  }
 }
 
 /* Respect reduced motion everywhere */
@@ -783,7 +827,7 @@ html.lenis body {
   position: relative;
   isolation: isolate;
   background: var(--paper);
-  padding-block: 4rem 3rem;
+  padding-block: var(--abertura) 3rem;
 }
 html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
   --vidro-fill: color-mix(in oklch, var(--paper) 78%, transparent);
@@ -816,6 +860,9 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
   font-size: 15px;
   white-space: nowrap;
 }
+.gallery-all:hover {
+  border-color: var(--paper-ink);
+}
 .gallery-glass {
   --card-width: clamp(300px, min(30vw, 43svh), 410px);
   --step: clamp(180px, 19vw, 270px);
@@ -842,17 +889,35 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
   transform: translateX(calc(var(--distance) * var(--step)))
     translateY(calc(abs(var(--distance)) * 12px)) rotateY(var(--turn)) scale(var(--scale));
   transform-origin: center;
+  /* Tudo na mesma curva e na mesma duração: posição, camada (o `z-index`
+     troca a meio), transparência e desfoque. Com tempos diferentes a troca
+     lia-se em dois quadros. */
   transition:
-    transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 420ms ease;
+    transform var(--troca) var(--troca-curva),
+    z-index var(--troca) steps(1, jump-both),
+    opacity var(--troca) var(--troca-curva),
+    backdrop-filter var(--troca) var(--troca-curva);
   user-select: none;
 }
-/* O desfoque custa: só o cartão do centro o leva (docs/10). */
+.gallery-glass {
+  --troca: 760ms;
+  --troca-curva: cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+/* O desfoque custa: só o cartão do centro o leva (docs/10). Os dois vizinhos
+   têm um desfoque nulo, para o vidro poder entrar e sair em transição. */
 .glass-card[data-current="true"] {
   backdrop-filter: blur(18px) saturate(110%);
 }
+.glass-card[data-depth="1"] {
+  backdrop-filter: blur(0px) saturate(100%);
+}
 .glass-card[data-depth="3"] {
   opacity: 0.4;
+}
+/* O cartão que dá a volta troca de lado de uma vez, invisível, e aparece. */
+.glass-card[data-volta] {
+  transition: none;
+  opacity: 0;
 }
 .glass-card-edge {
   position: absolute;
@@ -871,6 +936,7 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
 .glass-card-image img {
   opacity: var(--fade);
   pointer-events: none;
+  transition: opacity var(--troca) var(--troca-curva);
 }
 .glass-card-meta {
   position: relative;
@@ -880,6 +946,7 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
   border-radius: 0 0 10px 10px;
   background: var(--vidro-meta);
   opacity: var(--fade);
+  transition: opacity var(--troca) var(--troca-curva);
 }
 .glass-card-meta h3 {
   font-size: var(--titulo-cartao);
@@ -957,6 +1024,12 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
   background: var(--paper-ink);
   color: var(--paper);
 }
+.gallery-controls .gallery-pause {
+  width: 40px;
+  height: 40px;
+  margin-left: 0.25rem;
+  border-color: color-mix(in oklch, var(--paper-ink) 16%, transparent);
+}
 .gallery-count {
   display: flex;
   align-items: center;
@@ -969,34 +1042,9 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
   height: 1px;
   background: color-mix(in oklch, var(--paper-ink) 35%, transparent);
 }
-/* O pin começa nos 720px de altura e não nos 800px: 1366×768 é o portátil
-   de referência do briefing, e lá a galeria tem de continuar conduzida pelo
-   scroll. Abaixo de 800px o palco compacta-se — menos margem, cartão um pouco
-   mais estreito — para título, cartão e controlos caberem num ecrã pinado. */
-@media (min-width: 1024px) and (min-height: 720px) and (prefers-reduced-motion: no-preference) {
-  .gallery-stage {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100svh;
-    padding-block: 5.5rem 1.5rem;
-  }
+@media (min-width: 1024px) {
   .gallery-stage .home-heading {
     max-width: none;
-    font-size: var(--titulo-principal);
-  }
-}
-@media (min-width: 1024px) and (min-height: 720px) and (max-height: 799px) and (prefers-reduced-motion: no-preference) {
-  .gallery-stage {
-    padding-block: 5rem 0.75rem;
-  }
-  .gallery-glass {
-    --card-width: clamp(280px, min(30vw, 40svh), 410px);
-    padding-block: 0.75rem 1.25rem;
-    margin-top: 0.25rem;
-  }
-  .gallery-stage .glass-card-meta {
-    min-height: 0;
   }
 }
 @media (max-width: 600px) {
@@ -1024,8 +1072,12 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
 }
 @media (prefers-reduced-motion: reduce) {
   .glass-card {
-    transition: none;
     transform: translateX(calc(var(--distance) * var(--step))) scale(var(--scale));
+  }
+  .glass-card,
+  .glass-card-image img,
+  .glass-card-meta {
+    transition: none;
   }
 }
 @media (forced-colors: active) {

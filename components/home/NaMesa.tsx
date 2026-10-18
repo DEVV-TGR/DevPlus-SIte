@@ -83,7 +83,7 @@ export function NaMesa() {
                 <li>Ementa digital</li>
               </ul>
               <Link href="/portfolio/cafe-preguica" className="table-story-link">
-                Conhece o projeto do Preguiça <span aria-hidden>↗</span>
+                Conhece o projeto do Preguiça <span aria-hidden data-seta="diagonal">↗</span>
               </Link>
             </div>
             <div className="table-film-scene">

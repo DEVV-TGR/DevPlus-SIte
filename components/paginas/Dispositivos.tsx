@@ -45,7 +45,7 @@ export function Dispositivos({
             rel="noopener noreferrer"
             className="inline-flex min-h-11 items-center gap-2 border-b border-border-strong text-sm"
           >
-            Abrir site <span aria-hidden>↗</span>
+            Abrir site <span aria-hidden data-seta="diagonal">↗</span>
           </a>
         ) : null}
       </div>

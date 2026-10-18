@@ -14,8 +14,11 @@ type Props = {
 /* Sem `focus-visible:outline-none`: o contorno global de `app/globals.css` é o
    único indicador de foco que o site tem, e anulá-lo aqui apagava-o em todos os
    botões e CTAs de uma vez — ver docs/04, "Acessibilidade". */
+/* Micro-movimento: a seta (o `aria-hidden` de dentro) avança 2px na direção
+   para onde aponta o botão, e o clique encolhe 3%. Com movimento reduzido a
+   regra global de `globals.css` corta as durações. */
 const base =
-  "inline-flex h-11 items-center justify-center gap-2 rounded-full px-5 text-sm font-medium transition-[background-color,border-color,color,transform] duration-200 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50";
+  "inline-flex h-11 items-center justify-center gap-2 rounded-full px-5 text-sm font-medium transition-[background-color,border-color,color,transform,box-shadow] duration-200 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 [&_span[aria-hidden]]:inline-block [&_span[aria-hidden]]:transition-transform [&_span[aria-hidden]]:duration-200 hover:[&_span[aria-hidden]]:translate-x-0.5 hover:[&_span[aria-hidden]]:-translate-y-0.5";
 
 const variants: Record<Variant, string> = {
   primary: "bg-primary text-primary-ink hover:bg-primary-strong",

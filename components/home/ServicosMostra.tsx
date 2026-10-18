@@ -13,6 +13,7 @@ import {
 } from "@/lib/motion";
 import { Button } from "@/components/ui/Button";
 import { services } from "@/lib/services";
+import { contactoCom } from "@/lib/contacto";
 import { MaterialGround } from "@/components/atelier/MaterialGround";
 
 /**
@@ -539,10 +540,10 @@ export function ServicosMostra() {
                     : i === 2
                       ? "QR code e NFC no Café Preguiça"
                       : "O painel do Café Preguiça"}{" "}
-                <span aria-hidden>↗</span>
+                <span aria-hidden data-seta="diagonal">↗</span>
               </Link>
               <div className="mt-3">
-                <Button href="/contacto" variant="primary">
+                <Button href={contactoCom(s.title)} variant="primary">
                   Falar sobre isto
                 </Button>
               </div>

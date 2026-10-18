@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { MaterialSurface } from "@/components/atelier/MaterialSurface";
 import { atelierAssets } from "@/components/atelier/assets";
 import { packages } from "@/lib/packages";
+import { contactoCom } from "@/lib/contacto";
 
 const OBJETOS: Record<string, (typeof atelierAssets)[keyof typeof atelierAssets]> = {
   "Landing page": atelierAssets.landing,
@@ -46,7 +47,7 @@ export function PackagePlates() {
                   ))}
                 </ul>
                 <Button
-                  href="/contacto"
+                  href={contactoCom(p.name)}
                   variant={p.featured ? "primary" : "outline"}
                   className="package-cta"
                 >

@@ -105,7 +105,7 @@ export default function PortfolioPage() {
                       href={`/portfolio/${p.slug}`}
                       className="mt-2 flex min-h-11 items-center justify-between border-t border-border pt-3 text-sm font-medium"
                     >
-                      Explorar projeto <span aria-hidden>→</span>
+                      Explorar projeto <span aria-hidden data-seta="frente">→</span>
                     </Link>
                   </div>
                 </article>

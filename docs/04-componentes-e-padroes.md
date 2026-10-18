@@ -73,7 +73,7 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `home/Cruz`       | o "+" que atravessa uma página. `postos` muda o percurso                    | dar-lhe os mesmos postos em duas páginas — o que gasta o gesto é repeti-lo **igual**       |
 | `home/Curva`      | o corte entre dois capítulos                                               | pôr uma linha reta no lugar dela; e usá-la sem `de`, que deixa passar o fundo do `body`     |
 | `home/ComoTrabalhamos` | os quatro passos: cards que se acumulam em computador, fila horizontal no telemóvel | transformá-los numa grelha — a acumulação é o ponto; e dar-lhes a pilha no telemóvel, onde não cabe |
-| `home/ProvaCarrossel`  | o trabalho feito, em fila horizontal com a página presa                | usá-lo para hierarquia; lateral lê-se como alcance, não como ordem                          |
+| `home/ProvaCarrossel`  | o trabalho feito, num carrossel de vidro que anda sozinho a cada 2 s, sem prender a página | voltar a pinar a página a ele; tirar o botão de pausa (WCAG 2.2.2); usá-lo para hierarquia |
 | `home/ServicosMostra`  | os serviços um de cada vez, com a meia-roda à direita a escolher qual | catalogar aqui os seis — a página inicial apresenta, a `/servicos` cataloga; e trocar o hover pelo clique, em vez de o acrescentar |
 | `home/Pacotes`    | por onde um projeto começa                                                 | escrever preços; saem de proposta, ver `docs/05`. E distinguir o destacado só com a etiqueta |
 | `Fecho`           | o convite, e é a **cabeça do rodapé** — não uma secção antes dele           | usá-lo fora do `Footer`, ou pôr um segundo CTA neste bloco: é o defeito que ele veio corrigir |
@@ -796,6 +796,16 @@ O caminho de uma mensagem:
 `components/ContactForm.tsx` → `POST /api/contacto` → Resend → a caixa em
 `site.email`.
 
+O formulário abre com **atalhos** (`GRUPOS_INTERESSE` em `lib/contacto.ts`):
+"Pedir demo grátis", os seis serviços e os três pacotes, em caixas que se
+podem combinar. Chegam ao servidor como `interesses` (lista de ids), o
+`validarContacto` recusa ids que não existam, e o email leva-os por extenso
+na linha "Interesse" e no assunto. Os botões do site que sabem do que se vai
+falar usam `contactoCom(rotulo)` — o "Pedir proposta" da Landing page abre
+`/contacto?interesse=landing-page`, já escolhida. O formulário lê o `?interesse`
+depois de montar (não usa `useSearchParams`, para a página continuar
+estática). O que a demo inclui está no `docs/05`.
+
 Três ficheiros, cada um com um trabalho:
 
 | Ficheiro                    | Faz                                                                 |
@@ -1038,7 +1048,9 @@ e porquê:
 - **Carrossel glass dos projetos (`ProvaCarrossel`).** Um cartão ao centro com
   capa verdadeira, nome, estado e serviços; vizinhos a ±1, ±2 e ±3 em
   perspetiva, escala e transparência (`--distance`, `--scale`, `--fade`,
-  `--turn`). A volta é circular (`lib/carrossel.ts`). **O contrato com o
+  `--turn`). A volta é circular (`lib/carrossel.ts`). *(Substituído a 18 de
+  outubro: o pin saiu e o carrossel anda sozinho — ver "A galeria anda
+  sozinha", no fim.)* **O contrato com o
   scroll mudou:** em desktop o capítulo continua pinado, mas cada troço de
   0,55 ecrã põe o projeto seguinte ao centro, em vez de deslizar uma faixa — o
   pin passou de ~6500px para ~4000px. Setas, teclado (← → Home End), arrasto e
@@ -1210,3 +1222,55 @@ o objeto ocupa até 90% da largura e centra-se no mesmo eixo do conteúdo.
 capítulo QR/NFC seguem a assinatura da home descrita em `docs/02`. Nomes de
 clientes, títulos de cartões e títulos legais de navegação mantêm-se diretos.
 O fecho aplica itálico à segunda frase, preservando tinta escura sobre laranja.
+
+## A galeria anda sozinha, alumínio e atalhos — 18 de outubro
+
+Revisão pedida sobre a preview da Vercel.
+
+- **Galeria (`ProvaCarrossel`) sem pin.** Obrigar a percorrer os sete
+  projetos para chegar à secção seguinte custava ~4000px de scroll. Agora a
+  secção tem a altura do conteúdo e o carrossel **passa sozinho a cada 2 s**.
+  Para com o rato em cima, com foco de teclado lá dentro (`:focus-visible`, para
+  um clique numa seta não o deixar parado), com o botão de pausa
+  (`aria-pressed`; o hover não serve a quem usa o dedo — WCAG 2.2.2), fora do
+  ecrã (`IntersectionObserver`), com o separador escondido e com movimento
+  reduzido (aí nem arranca). Setas, ← → Home End, arrasto e clique num vizinho
+  continuam e recomeçam a contagem. O contador só é `aria-live` com a pausa
+  ligada — com a volta a andar seria uma voz a cada 2 s.
+- **A troca é um movimento, não dois quadros.** Posição, `z-index` (troca a
+  meio, `steps(1, jump-both)`), transparência da capa e do texto (`--fade`) e
+  desfoque correm na mesma curva e na mesma duração (`--troca`, 760ms). Os
+  vizinhos a ±1 têm `blur(0px)` para o vidro poder entrar em transição. O
+  cartão que dá a volta (−3 → +3) recebe `data-volta`: troca de lado sem
+  transição de posição, a partir de opacidade 0 — não atravessa o palco por
+  trás dos outros. O listener de 720px de altura saiu do `Providers`.
+- **Abertura dos capítulos (`--abertura`).** `clamp(7rem, 5.5rem + 2.5vw,
+  8.5rem)`: do topo do capítulo ao título, folgando o cabeçalho flutuante
+  (81px). Usam-na a galeria, o processo (palco no telemóvel e título absoluto
+  em desktop) e os pacotes (`Section top={false}` + `pt-[var(--abertura)]`).
+  Medido a 1440×900: títulos a 122–124px do topo; antes 62px (galeria, por
+  baixo do cabeçalho), 88px (processo) e 94px (pacotes). A âncora `#trabalho`
+  do herói deixa o título visível a 122px (1366) e 112px (390).
+- **Processo.** `easeCarta` passou de `back.out(1.4)` (~8% de ressalto) para
+  `back.out(0.6)` (~1,25%). Os cartões são `MaterialSurface finish="aluminio"`
+  (docs/10), com a mesma inclinação ao ponteiro.
+- **Acordeão da `/servicos`.** A figura é a primeira linha da grelha da coluna
+  (`grid-rows-[minmax(0,1fr)_auto_auto]`, imagem `fill` + `object-contain`) e
+  ocupa o espaço todo por cima do texto. As colunas são de alumínio escovado
+  (`.coluna` em `paginas.module.css`); a aberta sobe a sombra e ganha um fio de
+  acento na borda.
+- **FAQ animada.** `::details-content` com `interpolate-size: allow-keywords`
+  anima a altura até `auto`; a resposta desce 10px e acende (`@starting-style`).
+  Sem suporte, abre de uma vez como antes. Sem JavaScript.
+- **Micro-movimento.** A seta dos `Button` avança 2px no hover; as ligações de
+  texto com seta marcam-na com `data-seta="diagonal|frente|baixo"` e a regra em
+  `@layer base` move-a na direção certa. Campos com halo suave no foco,
+  atalhos do formulário com visto que entra, retratos da equipa que rodam 6°.
+  Tudo cortado pela regra global de movimento reduzido.
+- **Contacto compacto.** Email, equipa com retrato plano (`components/Avatar`,
+  docs/01 e docs/02) numa lista de três linhas em que a linha inteira é o
+  `tel:`, e disponibilidade e redes lado a lado a partir de `sm`.
+- **Destinos dos botões.** Rastreio de todas as ligações internas de `/`,
+  `/portfolio`, `/servicos`, `/sobre`, `/contacto`, `/privacidade` e um caso de
+  estudo: todas 200, todas as âncoras existem. "Pedir proposta" e "Falar sobre
+  isto" levam o assunto (`contactoCom`).

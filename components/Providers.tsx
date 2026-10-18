@@ -94,8 +94,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   /*
     **E a ordem conta.** O ScrollTrigger remede os triggers pela ordem em que
     foram criados, e cada pin empurra tudo o que está por baixo dele. Ao cruzar
-    768px, 1024px ou 1280px, o `gsap.matchMedia` da galeria, do processo e do
-    acordeão da `/servicos` recria os pins deles — e passam para o fim da
+    768px, 1024px ou 1280px, o `gsap.matchMedia` do processo e do acordeão da
+    `/servicos` recria os pins deles — e passam para o fim da
     lista, depois dos serviços, que não são recriados. Os serviços mediam-se
     então sem o pin de cima e ficavam com um início antigo: a 874px, depois de
     vir de 1366px, o capítulo inteiro era um ecrã vazio. O `sort()` repõe a ordem da página antes de medir; as duas
@@ -111,7 +111,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       window.matchMedia("(min-width: 768px)"),
       window.matchMedia("(min-width: 1024px)"),
       window.matchMedia("(min-width: 1280px)"),
-      window.matchMedia("(min-height: 720px)"),
     ];
     const afterLayout = () => {
       cancelAnimationFrame(frame);
