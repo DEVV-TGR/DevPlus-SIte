@@ -7,7 +7,8 @@ import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Reveal } from "@/components/Reveal";
 import { CaseStudyJsonLd } from "@/components/JsonLd";
-import { Ambiente } from "@/components/paginas/Ambiente";
+import { MaterialGround } from "@/components/atelier/MaterialGround";
+import styles from "@/components/paginas/paginas.module.css";
 import { MaterialSurface } from "@/components/atelier/MaterialSurface";
 import { Dispositivos } from "@/components/paginas/Dispositivos";
 import { projects, getProject, notasDoCaso, capturas } from "@/lib/projects";
@@ -92,9 +93,9 @@ export default async function CaseStudyPage({
           completo continua no catálogo. Ver docs/06. */}
       <section
         id="caso-capa"
-        className="relative overflow-hidden px-4 pb-4 pt-28 sm:px-8"
+        className="relative isolate capitulo-base overflow-hidden px-4 pb-10 pt-28 sm:px-8"
       >
-        <Ambiente corte="topo" alvo="caso-capa" />
+        <MaterialGround finish="metal" />
 
         <div className="relative z-[1] mx-auto w-full max-w-6xl">
           <Link
@@ -110,7 +111,7 @@ export default async function CaseStudyPage({
                   {project.category} · {project.year} ·{" "}
                   {project.status === "em-curso" ? "Em desenvolvimento" : "Concluído"}
                 </p>
-                <h1 className="t-capa mt-3 font-display font-titulo">
+                <h1 className="interior-heading mt-3 font-display font-titulo">
                   {project.name}
                 </h1>
               </div>
@@ -134,9 +135,10 @@ export default async function CaseStudyPage({
       </section>
 
       {notas ? (
-        <Section className="relative">
+        <Section className="relative isolate capitulo-base">
+          <MaterialGround finish="matte" />
           <Container>
-            <div className="grid gap-10 md:grid-cols-2 md:gap-14">
+            <div className={styles.casoNotas}>
               {(
                 [
                   ["O que era preciso", notas.preciso],
@@ -144,7 +146,7 @@ export default async function CaseStudyPage({
                 ] as const
               ).map(([titulo, itens]) => (
                 <Reveal key={titulo} className="border-t border-border-strong pt-6">
-                  <h2 className="font-display text-[clamp(1.5rem,3vw,2rem)] font-titulo tracking-[-0.03em]">
+                  <h2 className="t-cartao font-display font-titulo">
                     {titulo}
                   </h2>
                   <ul className="mt-4 grid gap-2.5 text-lg text-muted">
@@ -176,7 +178,7 @@ export default async function CaseStudyPage({
                   <h2 className="home-heading max-w-[16ch]">
                     A ementa está
                     <br />
-                    mesmo à mão.
+                    <em>mesmo à mão.</em>
                   </h2>
                   <p className="mt-5 max-w-[42ch] text-lg leading-relaxed text-muted">
                     Ler o QR code ou aproximar o telemóvel do NFC. Dois caminhos

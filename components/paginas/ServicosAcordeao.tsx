@@ -1,6 +1,7 @@
 "use client";
 /** docs: docs/04-componentes-e-padroes.md · docs/05-servicos.md · docs/10-materiais-atelier.md */
 
+import { MaterialGround } from "@/components/atelier/MaterialGround";
 import Image from "next/image";
 import { useCallback, useRef } from "react";
 import { gsap, ScrollTrigger, useGSAP, comPausa } from "@/lib/motion";
@@ -131,8 +132,9 @@ export function ServicosAcordeao() {
            seis secções de altura; lá os serviços vão no `Carril` abaixo, que
            ocupa a altura de um cartão. Em baixo, 5rem: o botão do tema vive
            no canto inferior esquerdo e ficava em cima da primeira coluna. */
-        className="hidden gap-1.5 px-6 pb-8 pt-24 sm:px-8 md:flex md:min-h-[100svh] md:flex-row md:overflow-hidden md:pb-20 md:pt-28"
+        className="relative isolate capitulo-fundo hidden gap-1.5 px-6 pb-8 pt-24 sm:px-8 md:flex md:min-h-[100svh] md:flex-row md:overflow-hidden md:pb-20 md:pt-28"
       >
+        <MaterialGround finish="glass" />
         {services.map((s, i) => {
           const fig = FIGURAS[i];
           return (
@@ -183,7 +185,7 @@ export function ServicosAcordeao() {
               {/* O nome roda quando a coluna está fechada e endireita-se ao
                   abrir: é o que torna seis colunas legíveis a 130px de largura.
                   No telemóvel nunca roda — lá as colunas são linhas. */}
-              <h3 className="m-0 pl-10 pr-14 font-display md:whitespace-nowrap md:pr-0 text-[1.35rem] font-titulo tracking-[-0.02em] md:pl-0 md:text-[clamp(1rem,1.5vw,1.35rem)] md:[writing-mode:vertical-rl] md:[transform:rotate(180deg)] md:group-data-[aberta=true]:text-[clamp(1.5rem,3vw,2.6rem)] md:group-data-[aberta=true]:[writing-mode:horizontal-tb] md:group-data-[aberta=true]:[transform:none]">
+              <h3 className="m-0 pl-10 pr-14 font-display md:whitespace-nowrap md:pr-0 text-[1.35rem] font-titulo tracking-[-0.02em] md:pl-0 md:text-[clamp(1rem,1.5vw,1.35rem)] md:[writing-mode:vertical-rl] md:[transform:rotate(180deg)] md:group-data-[aberta=true]:text-[length:var(--titulo-cartao)] md:group-data-[aberta=true]:[writing-mode:horizontal-tb] md:group-data-[aberta=true]:[transform:none]">
                 {s.title}
               </h3>
 
@@ -205,7 +207,8 @@ export function ServicosAcordeao() {
         })}
       </div>
 
-      <div className="px-6 pb-12 pt-20 md:hidden">
+      <div className="relative isolate capitulo-fundo px-6 pb-12 pt-20 md:hidden">
+        <MaterialGround finish="glass" />
         <Carril rotulo="Serviço">
           {services.map((s, i) => (
             <div key={s.title} className="grid h-full content-start gap-3 p-5">
@@ -221,7 +224,7 @@ export function ServicosAcordeao() {
               <span className="text-sm tabular-nums text-acento">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <h3 className="font-display text-[1.6rem] font-titulo leading-tight tracking-[-0.02em]">
+              <h3 className="t-cartao font-display font-titulo">
                 {s.title}
               </h3>
               <p className="text-muted">{s.blurb}</p>

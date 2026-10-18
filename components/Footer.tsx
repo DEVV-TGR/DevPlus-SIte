@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Curva } from "@/components/home/Curva";
 import { Fecho } from "@/components/Fecho";
+import { MaterialGround } from "@/components/atelier/MaterialGround";
+import styles from "./Footer.module.css";
 import { Logo } from "@/components/Logo";
 import { Reveal } from "@/components/Reveal";
 import { site, socials, perfil } from "@/lib/site";
@@ -55,7 +57,8 @@ export function Footer() {
           "+". Ver docs/04. */}
       {/* `ground-laranja`: o laranja não muda com o tema, e a classe repõe
           lá dentro as tintas de sempre — ver docs/02, "Temas". */}
-      <footer className="ground-laranja relative bg-primary text-primary-ink">
+      <footer className={`ground-laranja relative isolate bg-primary text-primary-ink ${styles.material}`}>
+        <MaterialGround finish="metal" />
         <Fecho />
 
         {/* Mais espaço em baixo do que em cima: o botão do tema fica no

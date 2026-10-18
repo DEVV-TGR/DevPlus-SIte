@@ -125,7 +125,7 @@ export function ProvaCarrossel() {
       aplicar(ativo.current);
       const mm = gsap.matchMedia();
       mm.add(
-        "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
+        "(min-width: 1024px) and (min-height: 720px) and (prefers-reduced-motion: no-preference)",
         () => {
           /* Pouco mais de meio ecrã por projeto: com seis trocas são ~3,3
              ecrãs, mais as duas pausas do `comPausa`. A galeria horizontal
@@ -162,8 +162,8 @@ export function ProvaCarrossel() {
       bottom={false}
       className="capitulo-inverso relative isolate overflow-hidden"
     >
-      <MaterialGround finish="metal" />
       <div data-gallery-stage className="gallery-stage">
+        <MaterialGround finish="metal" />
         <Container>
           <div className="gallery-head">
             <h2 className="home-heading">

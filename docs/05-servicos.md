@@ -166,9 +166,12 @@ No telemóvel, a `/servicos` mostra os seis serviços num carril
 (`components/paginas/Carril.tsx`): objeto, nome, texto, etiquetas e "Falar
 sobre isto", a mesma ação da home. O acordeão fica a partir de 768px.
 
-Na `/servicos` o acordeão passou às seis figuras da família, e "Por onde podemos
-começar" é uma bancada de três placas `MaterialSurface`
-(`components/paginas/PacotesBancada.tsx`), cada uma com um objeto pequeno: a
-landing é uma folha, o website a composição de camadas, a loja um expositor. Os
-dados, a etiqueta "Mais escolhido" e os botões são os mesmos; a etiqueta pousa
-na faixa do objeto para os três títulos alinharem.
+Na `/servicos` o acordeão usa as seis figuras da família. Os pacotes usam a
+mesma `PackagePlates` da home: objetos landing/development v3/commerce,
+Website em forest/mint, CTA cheio, sem alegação de popularidade. O percurso
+usa cristal, os pacotes cetim quente e a FAQ acabamento mate. As perguntas
+abrem individualmente por `details`, com a primeira aberta; o texto comercial
+continua a ser a fonte do FAQ visível e dos dados estruturados.
+
+Os títulos seguem a escala partilhada de `docs/02`: principais com o mesmo
+tamanho da home, títulos de cartões a 24px. Sem escalas próprias por página.

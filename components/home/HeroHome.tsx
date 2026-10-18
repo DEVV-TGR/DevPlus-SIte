@@ -29,11 +29,9 @@ export function HeroHome() {
       if (!root) return;
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        gsap.from("[data-hero-line]", {
-          y: 38,
-          rotate: 1.5,
+        gsap.from("#home-title", {
+          y: -12,
           duration: MOVIMENTO.hero,
-          stagger: MOVIMENTO.staggerHero,
           ease: MOVIMENTO.ease,
           clearProps: "transform",
         });

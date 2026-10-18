@@ -261,7 +261,7 @@ export function ComoTrabalhamos() {
         {/* Em telemóvel o título fica preso no topo enquanto os cards passam
             por baixo dele — é o que a referência faz nesta secção. Em desktop
             continua no terço de cima, com os cards em leque por baixo. */}
-        <div className="mx-auto w-full max-w-[46rem] shrink-0 px-6 text-center xl:absolute xl:inset-x-0 xl:top-[10svh]">
+        <div data-process-heading className="mx-auto w-full max-w-[46rem] shrink-0 px-6 text-center xl:absolute xl:inset-x-0 xl:top-[10svh]">
           <h2
             id="como-trabalhamos"
             className="t-seccao font-display font-titulo"
@@ -315,9 +315,9 @@ export function ComoTrabalhamos() {
                 padding="none"
                 className="shadow-[0_30px_60px_-30px_rgb(0_0_0/0.55)]"
               >
-                <div className="flex min-h-[22rem] flex-col p-6 xl:p-7">
+                <div data-passo-conteudo className="flex min-h-[22rem] flex-col p-6 xl:p-7">
                   <span className="text-sm tabular-nums text-acento">{p.n}</span>
-                  <h3 className="mb-3 mt-7 font-display text-[1.8rem] font-semibold tracking-[-0.025em]">
+                  <h3 className="t-cartao mb-3 mt-7 font-display font-titulo">
                     {p.t}
                   </h3>
                   <p className="text-[0.9375rem] leading-relaxed text-muted">

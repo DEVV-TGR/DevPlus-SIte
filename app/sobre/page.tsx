@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
+import { MaterialGround } from "@/components/atelier/MaterialGround";
 import { Reveal } from "@/components/Reveal";
 import { Capa } from "@/components/paginas/Capa";
 import { Cruz, POSTOS_PAGINA } from "@/components/home/Cruz";
@@ -61,48 +62,12 @@ const beliefs: [string, string][] = [
   ],
 ];
 
-/**
- * As notas que vão habitar as margens do texto.
- *
- * São os mesmos `values` e `differentiators` de antes — o que mudou não foi o
- * conteúdo, foi o sítio. Estavam em duas secções próprias, uma coluna e um
- * painel; passam a viver **ao lado** da voz do estúdio, alternadamente à
- * esquerda e à direita, para o olho não cair sempre do mesmo lado.
- *
- * O `topo` é a classe da posição vertical, e só conta a partir dos 1024px:
- * abaixo disso não há margem para habitar, e as notas entram na coluna, que é
- * onde cabem. Está escrita por extenso e não montada a partir de um número
- * porque o Tailwind só gera o que consegue **ler no ficheiro** — uma classe
- * construída em runtime não chega a existir no CSS.
- */
-const notas: { lado: "e" | "d"; topo: string; par: [string, string] }[] = [
-  { lado: "e", topo: "lg:top-[6%]", par: values[0] },
-  { lado: "d", topo: "lg:top-[22%]", par: values[1] },
-  { lado: "e", topo: "lg:top-[44%]", par: differentiators[0] },
-  { lado: "d", topo: "lg:top-[62%]", par: differentiators[1] },
-  { lado: "e", topo: "lg:top-[80%]", par: differentiators[2] },
+const prose = [
+  "Somos um estúdio pequeno de web design e desenvolvimento. Trabalhamos sobretudo com negócios que já fazem bem aquilo que fazem e só precisam que a internet o mostre — restaurantes, stands, empresas de serviços.",
+  "Quem fala contigo é quem desenha e quem escreve o código. Não há intermediários pelo meio nem modelos prontos a preencher.",
+  "E não te deixamos sozinho quando o site fica no ar: o alojamento e o suporte ficam connosco. Se alguma coisa falhar, não tens de andar à procura de quem resolve.",
 ];
-
-/** Uma nota à margem: aparte no telemóvel, margem habitada no computador. */
-function Nota({ nota }: { nota: (typeof notas)[number] }) {
-  const [titulo, texto] = nota.par;
-  return (
-    <Reveal
-      className={`block lg:absolute lg:max-w-[22rem] ${
-        nota.lado === "e"
-          ? "lg:left-[max(1.5rem,6vw)]"
-          : "lg:right-[max(1.5rem,6vw)]"
-      } ${nota.topo}`}
-    >
-      <aside className="border-l-2 border-primary pl-4">
-        <h2 className="font-display text-lg font-titulo tracking-[-0.02em]">
-          {titulo}
-        </h2>
-        <p className="mt-1.5 text-sm text-muted">{texto}</p>
-      </aside>
-    </Reveal>
-  );
-}
+const notes = [...values, ...differentiators];
 
 export default function SobrePage() {
   return (
@@ -113,62 +78,35 @@ export default function SobrePage() {
         id="sobre-capa"
         ambiente="espelho"
         eyebrow="Sobre"
-        title="Estúdio pequeno, projetos poucos, atenção toda."
+        title={<>Estúdio pequeno, projetos poucos, <em>atenção toda.</em></>}
         intro={`A ${site.name} nasceu de uma ideia simples: a maior parte dos sites podia ser bem melhor. Existimos para acrescentar o que lhes falta.`}
       />
-      <Curva forma="a" de="var(--bg)" cor="var(--bg-deep)" />
+      <Curva forma="a" de="var(--verde)" cor="var(--bg-deep)" ground="verde" />
 
-      {/* A VOZ, E AS MARGENS
-          O texto ao meio, estreito, e as notas à volta. Um estúdio pequeno a
-          falar de si não precisa de secções — precisa de uma voz e de notas à
-          margem que não a interrompam. Antes eram dois blocos próprios: uma
-          coluna de valores e um painel "Porquê a DevPlus". Diziam o mesmo, mas
-          obrigavam a lê-los como capítulos. */}
-      <section className="relative bg-bg-deep py-24 sm:py-32 lg:py-40">
-        {/* **As notas vivem dentro da coluna, e não antes dela.** Estavam num
-            `map` próprio acima do texto: acima dos 1024px isso não se via,
-            porque saem do fluxo para as margens, mas num telemóvel caíam pela
-            ordem do JSX e quem abria a página lia cinco notas seguidas antes de
-            chegar à primeira frase sobre o estúdio. Agora estão intercaladas —
-            no telemóvel são apartes entre parágrafos, no computador continuam a
-            ir para as margens. */}
-        <div className="mx-auto grid max-w-[34rem] gap-6 px-6 sm:px-8">
-          <Reveal>
-            <p className="text-[clamp(1.05rem,1.6vw,1.4rem)] leading-[1.55]">
-              Somos um estúdio pequeno de web design e desenvolvimento.
-              Trabalhamos sobretudo com negócios que já fazem bem aquilo que
-              fazem e só precisam que a internet o mostre — restaurantes,
-              stands, empresas de serviços.
-            </p>
-          </Reveal>
-
-          <Nota nota={notas[0]} />
-          <Nota nota={notas[1]} />
-
-          <Reveal delay={0.06}>
-            <p className="text-[clamp(1.05rem,1.6vw,1.4rem)] leading-[1.55]">
-              Quem fala contigo é quem desenha e quem escreve o código. Não há
-              intermediários pelo meio nem modelos prontos a preencher.
-            </p>
-          </Reveal>
-
-          <Nota nota={notas[2]} />
-          <Nota nota={notas[3]} />
-
-          <Reveal delay={0.12}>
-            <p className="text-[clamp(1.05rem,1.6vw,1.4rem)] leading-[1.55] text-muted">
-              E não te deixamos sozinho quando o site fica no ar: o alojamento e
-              o suporte ficam connosco. Se alguma coisa falhar, não tens de andar
-              à procura de quem resolve.
-            </p>
-          </Reveal>
-
-          <Nota nota={notas[4]} />
-        </div>
-      </section>
+      <Section className="relative isolate capitulo-fundo">
+        <MaterialGround finish="satin" />
+        <Container>
+          <div className={styles.voz}>
+            {prose.map((text, i) => (
+              <div className={styles.vozLinha} key={text}>
+                <Reveal><p className={styles.vozTexto}>{text}</p></Reveal>
+                <div className={styles.vozNotas}>
+                  {notes.slice(i * 2, i * 2 + 2).map(([title, body]) => (
+                    <aside key={title}>
+                      <h2 className="t-cartao font-display">{title}</h2>
+                      <p className="mt-2 text-sm text-muted">{body}</p>
+                    </aside>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Container>
+      </Section>
       <Curva forma="b" de="var(--bg-deep)" cor="var(--bg)" />
 
-      <Section className="relative">
+      <Section className="relative isolate capitulo-base">
+        <MaterialGround finish="metal" />
         <Container>
           {/* O INTERVALO
               A peça de precisão vive aqui, entre a voz e as crenças, e não na
@@ -176,23 +114,23 @@ export default function SobrePage() {
               título é o gesto da página inicial. Fica à esquerda, o título
               assenta à direita — a única página interior com o objeto desse
               lado. É ilustração, não uma fotografia do estúdio. */}
-          <div className="grid grid-cols-[minmax(0,1fr)] items-end gap-6 lg:grid-cols-12 lg:gap-10">
+          <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-6 lg:grid-cols-12 lg:gap-10">
             <Reveal className="lg:col-span-6">
-              <div aria-hidden className="w-[min(78%,26rem)] pr-[6%] lg:w-full">
+              <div aria-hidden className="mx-auto w-[min(90%,26rem)] lg:mx-0 lg:w-full lg:pr-[6%]">
                 <Image
                   src={atelierAssets.precision.src}
                   alt=""
                   width={atelierAssets.precision.width}
                   height={atelierAssets.precision.height}
-                  sizes="(min-width: 1024px) 34rem, 78vw"
+                  sizes="(min-width: 1024px) 34rem, 90vw"
                   loading="lazy"
                   className="h-auto w-full"
                 />
               </div>
             </Reveal>
-            <Reveal className="lg:col-span-5 lg:col-start-8 lg:pb-10">
-              <h2 className="t-seccao max-w-[14ch] font-display font-titulo">
-                Em que acreditamos
+            <Reveal className="lg:col-span-5 lg:col-start-8">
+              <h2 className="interior-heading max-w-[14ch] font-display font-titulo">
+                Em que <em>acreditamos</em>
               </h2>
             </Reveal>
           </div>

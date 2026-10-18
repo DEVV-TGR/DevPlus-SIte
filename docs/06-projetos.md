@@ -258,3 +258,17 @@ projeto.
 | --- | --- |
 | um projeto passar a ter `url` | recolhe as duas capturas (1440 e 390px), põe-nas em `public/casos/` e acrescenta-as a `capturas` |
 | o texto de um caso | revê os tópicos em `notasDoCaso` — são o que a página mostra |
+
+### Refinamento das molduras e do carril
+
+O ecrã percorrível de `Dispositivos` declara `data-lenis-prevent`: roda e
+trackpad ficam no scroll da captura, mesmo com o Lenis ativo. As proporções
+1440/900 e 390/844 mantêm-se. Os dois grupos de tópicos têm snap horizontal
+em mobile e duas colunas em desktop, preservando o texto curto aprovado.
+O carril mobile do portfólio destaca visualmente o cartão ativo com aresta,
+reflexo e escala; a opacidade plena regressa também ao receber foco. O índice
+desktop mantém a sua função de escolha. Fundos: cetim na capa, metal no
+índice, vidro no convite e metal em torno dos dispositivos dos casos.
+
+Os títulos seguem a escala partilhada de `docs/02`: principais com o mesmo
+tamanho da home, títulos de cartões a 24px. Sem escalas próprias por página.

@@ -59,7 +59,10 @@ badges e botões.
 Herdadas do design original e ainda em vigor:
 
 1. **Sem gradient-text.** O gradiente é para superfícies e linhas.
-2. **Sem glass por defeito.** `backdrop-blur` só onde já existe (chips sobre capas).
+2. **Glass apenas nas superfícies aprovadas.** Além dos materiais atelier e
+   do carrossel, o header e o menu usam vidro translúcido por pedido explícito.
+   Header: `bg` a 58%, blur 18px/saturação 160%, reflexo diagonal `creme`; menu: `bg` a 82%, blur 28px, reflexo `creme`
+   e aresta. Fallback opaco sem suporte; forced-colors usa Canvas.
 3. **Hierarquia, não contraste.** `ink` para o que se lê primeiro, `muted` para o
    apoio. Isto é uma regra de hierarquia visual — **não** é um problema de
    legibilidade, como se explica já a seguir.
@@ -173,25 +176,29 @@ abaixo disso as letras tocam-se).
 
 ### A escala dos títulos vive no `globals.css`
 
-Setembro de 2026. Os `clamp()` estavam escritos um a um nos componentes, e todos
-com **mínimos pensados em computador**: `clamp(2.2rem, 5.6vw, 4.6rem)` dá 35px
-num iPhone. Medido lado a lado com o site de referência no mesmo ecrã de 390px,
-os títulos dele iam de **79 a 113px** — os nossos eram um terço, e a página
-lia-se como a versão de computador encolhida.
+Uma medida única para os títulos principais do site público: capas, títulos de secção, casos, contacto, privacidade e fecho. As classes
+`t-capa`, `t-seccao`, `home-heading` e `interior-heading` leem
+`--titulo-principal: clamp(2.25rem, 1.75rem + 2.5vw, 4rem)`.
+A única exceção, aprovada pelo utilizador, é o hero da home: `home-title`
+usa `--titulo-hero: clamp(2.65rem, 2rem + 3.2vw, 5.3rem)`.
+Não há outras escalas próprias por página.
 
-O que mudou não foi o teto: foi **qual dos três termos manda**. O `vw` domina no
-telemóvel e o máximo serve o computador.
-
-| Utilidade | Papel | A 390px | A 1440px |
+| Papel | A 320px | A 390px | A 1440px |
 | --- | --- | --- | --- |
-| `t-capa` | o `h1` de uma capa | **74px** | 90px |
-| `t-seccao` | o título de um capítulo | **62px** | 74px |
-| `t-obra` | o nome de um projeto no índice | **51px** | 64px |
+| Hero da home | 42,4px | 44,48px | 78,08px |
+| Título principal | 36px | 37,75px | 64px |
+| Cartão / subtítulo (`t-cartao`, `t-obra`) | 24px | 24px | 24px |
 
-São `@utility` em `app/globals.css`, e é lá que se mexem — como o espaçamento
-vive no `Section` e por a mesma razão: doze `clamp()` espalhados divergem ao
-segundo mês. Um título que precise de medida própria (o do rodapé, que não é um
-capítulo) escreve o seu `clamp` e diz porquê.
+Bricolage, peso 650 e tracking −0,035em em ambos. Entrelinha 1,06 nos
+principais e 1,15 nos cartões. Os títulos editoriais partilham uma assinatura:
+frase principal a 650, destaque em `em` itálico a 500 e `--acento` do capítulo.
+A regra vive em `globals.css` e abrange `t-capa`, `t-seccao`, `home-heading` e
+`interior-heading`. A Bricolage mantém-se como família única; o contraste vem
+do desenho inclinado e do peso. O fecho sobre laranja usa `--primary-ink` no
+itálico para preservar o contraste. Não acrescentar itálicos aos nomes de
+clientes ou a cada pequeno subtítulo.
+Rótulos de navegação, controlos e colunas fechadas do acordeão continuam
+compactos; não são títulos editoriais. O Estúdio interno tem a sua escala.
 
 ### E o corpo, no telemóvel
 
@@ -250,16 +257,9 @@ tokens e não dois.
 
 ## Home de outubro de 2026
 
-A identidade e os tokens mantêm-se. `home-title` é `clamp(3.2rem, 6.2vw,
-5.3rem)`, peso 700, entrelinha 1 e tracking −0,035em; entre 768 e 1023px
-`clamp(2.8rem, 5.7vw, 3.7rem)`; em mobile 11,7vw entre 2,55rem e 4,5rem. O teto
-é 5,3rem porque a coluna do texto pára nos 565px e "ao teu negócio." pede
-6,52em: a 6rem partia-se em quatro linhas a partir de 1440px. As três linhas
-não levam `nowrap` — com o texto a 200% têm de poder quebrar, senão o
-`overflow-hidden` do hero cortava-as. `home-heading` vai de 2,6rem a 4,4rem
-(mobile: 2,4–3,8rem).
-A medida própria evita voltar a sobrepor texto e asset no hero. As utilidades
-`t-capa`, `t-seccao` e `t-obra` deixam de usar tracking abaixo de −0,04em.
+A identidade e os tokens mantêm-se. A escala da home foi unificada com os
+restantes títulos em 17 de outubro: ver a tabela acima. As linhas do hero
+não levam `nowrap`, para o texto continuar a quebrar com zoom.
 A home, as órbitas, as etiquetas e os controlos não acrescentam cores: usam
 os tokens existentes, com a tinta do ground correspondente.
 
@@ -362,3 +362,14 @@ Os títulos usam o peso **650** das previews aprovadas, pela utilidade
 | um papel (`--verde`, `--quente`, `--acento*`) | as classes `.capitulo-*` e a tabela acima |
 | a chave do tema | `lib/tema.ts`; o script do `app/layout.tsx` lê-a de lá |
 | o sítio do botão do tema | confirma que não fica por cima de um CTA das cenas pinadas nem dos links legais do rodapé |
+
+### Escala das interiores — revisão das previews
+
+As interiores partilham a escala principal da tabela acima. A capa mantém
+20ch de medida e quebra equilibrada; contacto e casos já não têm tamanho
+próprio. Alterar o token atualiza todos os títulos principais em conjunto.
+
+Os pacotes de `/servicos` também usam o papel quente. A capa Sobre usa
+`--verde`, `--verde-ink` e `--verde-muted`, portanto forest no escuro e mint
+no claro. As restantes capas usam o papel base com acabamentos distintos.
+Não foram acrescentadas cores nem invertidas imagens.

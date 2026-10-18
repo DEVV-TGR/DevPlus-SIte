@@ -89,3 +89,10 @@ e o caso de estudo com capturas. Os estudos de fundos serviram só para a
 sequência de cores e materiais; não substituíram nenhuma peça aprovada. O que
 mudou e como foi verificado está no docs/04 ("Conjunto final") e no docs/02
 ("Temas").
+
+Na revisão da integração, a entrada tipográfica do hero passou a deslocar o
+bloco completo desde -12px, sem rotação ou stagger das linhas. Mantém as três
+linhas e o itálico; evita atravessar a introdução durante a entrada em mobile.
+
+A escala partilhada dos títulos tem uma única exceção aprovada: o hero da
+home pode ser maior (`--titulo-hero`, docs/02).

@@ -65,7 +65,7 @@ const POEIRA = [
  */
 const TITULO = [
   { id: "convite", node: <><span className="whitespace-nowrap">Conta-nos</span> o que </> },
-  { id: "mente", node: "tens em mente." },
+  { id: "mente", node: <em className="[--titulo-acento:var(--primary-ink)]">tens em mente.</em> },
 ];
 
 export function Fecho() {

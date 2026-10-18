@@ -39,14 +39,15 @@ export function Nav() {
     };
   }, [open]);
   return (
-    <header className="site-header sticky top-0 z-50 bg-bg">
+    <>
+    <header className="site-header sticky top-0 z-50">
       <Container>
         <nav
           aria-label="Principal"
           className="flex h-20 items-center justify-between gap-4"
         >
           <Wordmark />
-          <ul className="hidden items-center gap-1 rounded-full bg-surface px-2 py-1 md:flex">
+          <ul className="nav-glass-links hidden items-center gap-1 rounded-full px-2 py-1 md:flex">
             {links.map((l) => (
               <li key={l.href}>
                 <Link
@@ -86,6 +87,7 @@ export function Nav() {
           </button>
         </nav>
       </Container>
+    </header>
       <dialog
         id="mobile-navigation"
         ref={dialog}
@@ -141,6 +143,6 @@ export function Nav() {
           </a>
         </p>
       </dialog>
-    </header>
+    </>
   );
 }

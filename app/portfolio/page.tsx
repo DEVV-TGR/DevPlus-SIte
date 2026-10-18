@@ -1,4 +1,5 @@
 /** docs: docs/06-projetos.md · docs/04-componentes-e-padroes.md · docs/10-materiais-atelier.md */
+import { MaterialGround } from "@/components/atelier/MaterialGround";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Capa } from "@/components/paginas/Capa";
@@ -44,7 +45,7 @@ export default function PortfolioPage() {
         id="portfolio-capa"
         ambiente="margens"
         eyebrow="Portfólio"
-        title="O trabalho, com nome e ano."
+        title={<>O trabalho, com <em>nome e ano.</em></>}
         intro="Restaurantes, um stand, serviços ao domicílio e uma plataforma. Todos começaram da mesma maneira: uma folha em branco e uma conversa."
         contas={[
           { n: String(projects.length).padStart(2, "0"), label: "projetos" },
@@ -53,12 +54,13 @@ export default function PortfolioPage() {
       />
       <Curva forma="c" de="var(--bg)" cor="var(--bg-deep)" />
 
-      <Section className="relative bg-bg-deep">
+      <Section className="relative isolate capitulo-fundo">
+        <MaterialGround finish="metal" />
         <Container>
           <h2 className="sr-only">Os projetos</h2>
           <PortfolioIndice />
           <div className="md:hidden">
-            <Carril rotulo="Projeto">
+            <Carril rotulo="Projeto" glass>
               {projects.map((p) => (
                 <article key={p.slug} className="grid h-full content-start">
                   <Link
@@ -84,7 +86,7 @@ export default function PortfolioPage() {
                   </Link>
                   <div className="grid gap-3 p-5 pt-4">
                     <div className="flex items-baseline justify-between gap-4">
-                      <h3 className="font-display text-[1.6rem] font-titulo leading-tight tracking-[-0.025em]">
+                      <h3 className="t-cartao font-display font-titulo">
                         <Link href={`/portfolio/${p.slug}`}>{p.name}</Link>
                       </h3>
                       <span className="text-sm tabular-nums text-muted">{p.year}</span>
@@ -115,7 +117,8 @@ export default function PortfolioPage() {
       </Section>
       <Curva forma="a" de="var(--bg-deep)" cor="var(--bg)" />
 
-      <Section className="relative">
+      <Section className="relative isolate capitulo-base">
+        <MaterialGround finish="glass" />
         <Container>
           {/* O convite ganha vidro verde: é a única placa da página que não
               é trabalho, e a cor separa-a das capas sem mais um laranja. */}
@@ -127,7 +130,7 @@ export default function PortfolioPage() {
               <div className="flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-12">
                 <div>
                   <h2 className="t-seccao font-display font-titulo">
-                    O próximo pode ser o teu.
+                    O próximo pode ser <em>o teu.</em>
                   </h2>
                   <p className="mt-2 max-w-md text-sm text-muted">
                     Conta-nos o que tens em mente. Não precisas de ter tudo

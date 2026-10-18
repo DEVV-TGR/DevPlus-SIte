@@ -128,6 +128,10 @@ percurso inteiro do pin.
 Na home: galeria `metal`, `NaMesa` `glass`, processo `crystal`, serviços
 `glass`, pacotes `satin`.
 
+O `Footer` partilhado usa `metal` sobre `--primary`, com `--primary-ink` como
+tinta. Uma camada local de reflexos claros em `Footer.module.css` prolonga o
+acabamento pelo convite e pela navegação, nos dois temas, sem movimento novo.
+
 ## Os dois temas
 
 Os primitivos seguem o tema pelos tokens (docs/02). No tema claro, a
@@ -170,3 +174,14 @@ a borda da placa usa CanvasText. Os defaults SSR já mostram todo o conteúdo.
 | registo no índice de docs | passar a alteração a Claude 1, dono de docs/README.md |
 | um acabamento do `MaterialGround` | confirma o texto por cima nos dois temas — o véu protege a coluna da esquerda, não a da direita |
 | a receita de cristal do tema claro | mede o contraste dos filhos sobre a face composta, nos dois acabamentos |
+
+### Cobertura das páginas interiores
+
+O material já não está limitado à home: capas usam glass (Sobre), crystal
+(Serviços) e satin (Portfólio); a voz de Sobre usa satin e as crenças metal;
+catálogo de serviços usa glass dentro do palco, percurso crystal, pacotes
+satin, FAQ matte; índice do portfólio metal, convite glass; casos metal à
+volta das molduras e matte nos tópicos; contacto satin estático e privacidade
+matte. Estes acabamentos estáticos não inclinam formulários nem texto legal.
+A bancada partilhada `PackagePlates` usa os mesmos assets e `MaterialSurface`
+nas duas páginas; não existe uma segunda receita para Serviços.

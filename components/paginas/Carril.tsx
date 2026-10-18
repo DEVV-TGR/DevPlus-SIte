@@ -21,10 +21,12 @@ import styles from "./paginas.module.css";
 export function Carril({
   rotulo,
   children,
+  glass = false,
 }: {
   /** O nome do que se percorre, no singular: "Projeto", "Serviço". */
   rotulo: string;
   children: ReactNode;
+  glass?: boolean;
 }) {
   const pista = useRef<HTMLDivElement>(null);
   const [ativo, setAtivo] = useState(0);
@@ -69,7 +71,7 @@ export function Carril({
   };
 
   return (
-    <div className={styles.carril}>
+    <div className={styles.carril} data-glass={glass || undefined}>
       <div className={styles.carrilControlos}>
         <span aria-live="polite" className="tabular-nums">
           {String(ativo + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
@@ -110,6 +112,7 @@ export function Carril({
         {Children.map(children, (filho, i) => (
           <div
             className={styles.carrilCartao}
+            data-active={i === ativo}
             role="group"
             aria-roledescription="cartão"
             aria-label={`${i + 1} de ${total}`}

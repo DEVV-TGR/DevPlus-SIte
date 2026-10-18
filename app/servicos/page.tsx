@@ -1,4 +1,6 @@
 /** docs: docs/05-servicos.md · docs/04-componentes-e-padroes.md · docs/10-materiais-atelier.md */
+import { MaterialGround } from "@/components/atelier/MaterialGround";
+import styles from "@/components/paginas/paginas.module.css";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
@@ -84,7 +86,7 @@ export default function ServicosPage() {
       <Capa
         id="servicos-capa"
         eyebrow="Serviços"
-        title="Design, código e as chaves na tua mão."
+        title={<>Design, código e as chaves <em>na tua mão.</em></>}
         intro="Fazemos tudo o que o teu site precisa, da primeira ideia ao dia em que fica no ar. E deixamos-te o painel para seres tu a mandar nele a partir daí."
         contas={[
           { n: String(services.length).padStart(2, "0"), label: "serviços" },
@@ -101,11 +103,12 @@ export default function ServicosPage() {
           propósito, **não** na mesma forma: ali acumulam-se em cards inclinados
           sobre o título, aqui correm numa linha com os números pousados nela.
           Mesma informação, forma diferente. É a regra do docs/04. */}
-      <Section className="relative">
+      <Section className="relative isolate capitulo-base">
+        <MaterialGround finish="crystal" />
         <Container>
           <Reveal>
-            <h2 className="t-seccao max-w-[18ch] font-display font-titulo">
-              Como um projeto corre.
+            <h2 className="interior-heading max-w-[18ch] font-display font-titulo">
+              Como um projeto <em>corre.</em>
             </h2>
             <p className="mt-3 max-w-[52ch] text-muted">
               Quatro passos, sempre os mesmos. Sabes onde estás em cada momento.
@@ -124,7 +127,7 @@ export default function ServicosPage() {
                   <span className="relative z-[1] grid h-9 w-9 place-items-center rounded-full bg-primary text-sm font-titulo tabular-nums text-primary-ink">
                     {n}
                   </span>
-                  <h3 className="mt-2 font-display text-xl font-titulo tracking-[-0.02em]">
+                  <h3 className="t-cartao mt-2 font-display font-titulo">
                     {t}
                   </h3>
                   <p className="text-sm text-muted">{d}</p>
@@ -136,11 +139,12 @@ export default function ServicosPage() {
       </Section>
 
       {/* PACKAGES */}
-      <Section top={false} className="relative">
+      <Section className="relative isolate capitulo-quente">
+        <MaterialGround finish="satin" />
         <Container>
           <Reveal>
-            <h2 className="t-seccao font-display font-titulo">
-              Por onde podemos começar
+            <h2 className="interior-heading font-display font-titulo">
+              Por onde podemos <em>começar</em>
             </h2>
             <p className="mt-3 max-w-xl text-muted">
               Cada projeto é diferente, mas costuma partir de um destes pontos.
@@ -163,12 +167,13 @@ export default function ServicosPage() {
       </Section>
 
       {/* FAQ */}
-      <Section top={false} className="relative">
+      <Section className="relative isolate capitulo-base">
+        <MaterialGround finish="matte" />
         <Container>
           <div className="grid gap-10 lg:grid-cols-12">
             <Reveal className="lg:col-span-4">
-              <h2 className="t-seccao font-display font-titulo">
-                Perguntas frequentes
+              <h2 className="interior-heading font-display font-titulo">
+                Perguntas <em>frequentes</em>
               </h2>
               <p className="mt-3 text-muted">
                 Ficaste com outra dúvida?{" "}
@@ -181,16 +186,14 @@ export default function ServicosPage() {
               </p>
             </Reveal>
             <div className="lg:col-span-8">
-              <dl className="flex flex-col divide-y divide-border">
+              <div className={styles.faq}>
                 {faqs.map(([q, a], i) => (
-                  <Reveal key={q} delay={i * 0.04}>
-                    <div className="py-6 first:pt-0">
-                      <dt className="font-display text-lg">{q}</dt>
-                      <dd className="mt-2 text-muted">{a}</dd>
-                    </div>
-                  </Reveal>
+                  <details key={q} name="perguntas" open={i === 0}>
+                    <summary>{q}<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden><path d="M4 12h16M12 4v16" /></svg></summary>
+                    <p>{a}</p>
+                  </details>
                 ))}
-              </dl>
+              </div>
             </div>
           </div>
         </Container>

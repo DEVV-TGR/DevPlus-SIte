@@ -106,13 +106,12 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       ScrollTrigger.sort();
       ScrollTrigger.refresh();
     };
-    if (document.readyState === "complete") refrescar();
-    else window.addEventListener("load", refrescar, { once: true });
     let frame = 0;
     const media = [
       window.matchMedia("(min-width: 768px)"),
       window.matchMedia("(min-width: 1024px)"),
       window.matchMedia("(min-width: 1280px)"),
+      window.matchMedia("(min-height: 720px)"),
     ];
     const afterLayout = () => {
       cancelAnimationFrame(frame);
@@ -120,15 +119,17 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         frame = requestAnimationFrame(refrescar);
       });
     };
+    if (document.readyState === "complete") afterLayout();
+    else window.addEventListener("load", afterLayout, { once: true });
     media.forEach((query) => query.addEventListener("change", afterLayout));
     return () => {
-      window.removeEventListener("load", refrescar);
+      window.removeEventListener("load", afterLayout);
       media.forEach((query) =>
         query.removeEventListener("change", afterLayout),
       );
       cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [pathname]);
 
   /* **O Estúdio não leva scroll suave**, e não é questão de gosto.
 

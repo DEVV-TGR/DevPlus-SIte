@@ -49,7 +49,7 @@ export default function Error({
           className="mb-6 h-auto w-40 opacity-90"
         />
         <p className="font-display text-sm font-medium text-acento">Erro</p>
-        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+        <h1 className="mt-3 t-capa font-display font-titulo">
           Alguma coisa correu mal
         </h1>
         <p className="mt-4 max-w-sm text-muted">

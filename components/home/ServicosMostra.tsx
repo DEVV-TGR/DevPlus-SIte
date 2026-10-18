@@ -392,7 +392,7 @@ export function ServicosMostra() {
           aria-label="Serviços"
           aria-orientation="vertical"
           style={{ "--roda": "clamp(7.5rem, 22vw, 15rem)" } as CSSProperties}
-          className="absolute right-[clamp(0.25rem,1.5vw,1.5rem)] top-1/2 z-[4] h-[calc(var(--roda)*2)] w-[var(--roda)] -translate-y-1/2"
+          className="absolute right-[clamp(0.25rem,1.5vw,1.5rem)] top-1/2 z-[4] h-[calc(var(--roda)*2)] w-[var(--roda)] md:-translate-y-1/2"
           onPointerEnter={(e) => {
             if (rato(e)) sobreRoda.current = true;
           }}
@@ -467,7 +467,7 @@ export function ServicosMostra() {
                   data-marca
                   aria-hidden
                   style={{ left: `${meio.x}%`, top: `${meio.y}%` }}
-                  className="absolute grid h-10 w-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full text-sm font-semibold tabular-nums text-muted transition-colors duration-300 group-hover:text-ink group-aria-selected:text-primary-ink group-focus-visible:outline-2 group-focus-visible:outline-offset-2 group-focus-visible:outline-ink"
+                  className="absolute grid h-10 w-10 md:-translate-x-1/2 md:-translate-y-1/2 place-items-center rounded-full text-sm font-semibold tabular-nums text-muted transition-colors duration-300 group-hover:text-ink group-aria-selected:text-primary-ink group-focus-visible:outline-2 group-focus-visible:outline-offset-2 group-focus-visible:outline-ink"
                 >
                   {String(i + 1).padStart(2, "0")}
                 </span>
@@ -501,7 +501,7 @@ export function ServicosMostra() {
                   width={760}
                   height={760}
                   loading="lazy"
-                  sizes="(min-width: 1280px) 37vw, (min-width: 768px) 32vw, 60vw"
+                  sizes="(min-width: 1280px) 37vw, (min-width: 768px) 32vw, 86vw"
                   className="w-full object-contain"
                 />
               </div>
@@ -521,7 +521,10 @@ export function ServicosMostra() {
               data-service-copy
               className="absolute bottom-[clamp(4.5rem,12vh,8rem)] left-[clamp(1.25rem,5vw,5.5rem)] max-w-[min(26rem,70vw)]"
             >
-              <h3 className="font-display text-[clamp(1.8rem,5vw,3.6rem)] font-titulo leading-[0.98] tracking-[-0.04em]">
+              {/* Título de cartão no telemóvel; a partir de 768px é o título
+                  da cena, ao lado de um número de 11rem, e volta à medida
+                  principal — a 24px lia-se como uma legenda. */}
+              <h3 className="t-cartao font-display font-titulo md:text-[length:var(--titulo-principal)] md:leading-[var(--titulo-entrelinha)]">
                 {s.title}
               </h3>
               <p className="mt-3 max-w-[34ch] text-sm text-verde-muted">{s.blurb}</p>

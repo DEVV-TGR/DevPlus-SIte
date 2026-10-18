@@ -1,0 +1,69 @@
+/* docs: docs/04-componentes-e-padroes.md — acabamento contínuo do fecho. */
+.material {
+  --ground: var(--primary);
+  --fg: var(--primary-ink);
+}
+
+.material > [data-finish="metal"] {
+  --fg: var(--peach);
+  --material-shadow: transparent;
+  mask-image: linear-gradient(to bottom, transparent, var(--primary) 7rem);
+}
+
+/* Fica o grão escovado do metal; saem as dobras. Em laranja, as arestas das
+   quatro dobras liam-se como riscas diagonais e puxavam o olho para elas, em
+   vez de para o convite. */
+.material > [data-finish="metal"] i {
+  display: none;
+}
+
+/* O lustro de uma chapa laranja polida, **sem arestas**: quatro camadas largas
+   e de transição longa, para a luz se espalhar pela chapa em vez de se juntar
+   em dois traços.
+
+   1. Um reflexo difuso à direita, onde a chapa apanha a luz.
+   2. Luz de cima, larga — é o que dá a leitura de metal curvo.
+   3. Um lustro diagonal suave, com mais de metade da largura e pico baixo.
+   4. A base recua para o `--primary-strong`, que dá volume.
+
+   Só tons do próprio laranja (`--peach`, `--creme`, `--primary-strong`):
+   a tinta `primary-ink` mantém o contraste medido no docs/02 sobre todas as
+   zonas. A máscara deixa a ligação à `Curva` no laranja de origem. */
+.material::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      55% 40% at 80% 34%,
+      color-mix(in oklch, var(--creme) 20%, transparent),
+      transparent 100%
+    ),
+    radial-gradient(
+      140% 70% at 30% -10%,
+      color-mix(in oklch, var(--creme) 32%, transparent),
+      transparent 62%
+    ),
+    linear-gradient(
+      118deg,
+      transparent 16%,
+      color-mix(in oklch, var(--peach) 20%, transparent) 38%,
+      color-mix(in oklch, var(--creme) 16%, transparent) 50%,
+      color-mix(in oklch, var(--peach) 12%, transparent) 62%,
+      transparent 84%
+    ),
+    radial-gradient(
+      120% 60% at 72% 115%,
+      color-mix(in oklch, var(--primary-strong) 65%, transparent),
+      transparent 70%
+    );
+  mask-image: linear-gradient(to bottom, transparent, var(--primary) 7rem);
+}
+
+@media (forced-colors: active) {
+  .material::after {
+    display: none;
+  }
+}

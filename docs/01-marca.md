@@ -379,3 +379,10 @@ Outubro de 2026. Onde o site identifica a conta — navegação (a partir de
 como "Instagram · @devplus.pt". O perfil sai do próprio `href` em `socials`
 (`perfil()` em `lib/site.ts`), e o link é o `components/InstagramLink.tsx`.
 Nunca se escreve o endereço nem o nome à mão.
+
+### Revisão visual das interiores
+
+A política mantém integralmente texto, contactos e data; recebeu apenas
+índice de âncoras para navegação e acabamento mate estático. O contacto mantém
+`ContactForm`, validação e envio reais; o fundo acetinado é decorativo e não
+recebe interatividade. Os dados continuam todos em `lib/site.ts`.

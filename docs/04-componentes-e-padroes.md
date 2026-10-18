@@ -12,6 +12,7 @@ controla:
   - components/ui/ProjectCard.tsx
   - components/Reveal.tsx
   - components/Fecho.tsx
+  - components/Footer.module.css
   - components/Marquee.tsx
   - components/ProjectsMarquee.tsx
   - components/PageHero.tsx
@@ -27,6 +28,7 @@ controla:
   - lib/carrossel.ts
   - components/Providers.tsx
   - components/Nav.tsx
+  - components/PackagePlates.tsx
   - components/ContactForm.tsx
   - lib/contacto.ts
   - app/api/contacto/route.ts
@@ -227,6 +229,19 @@ Hoje é **um bloco só**, e é o mesmo nas seis páginas: a `Curva` para o laran
 o convite (`components/Fecho.tsx`) e, **no mesmo ground**, a navegação, as redes
 e o legal. O corte entre o laranja e o rodapé deixou de se ver porque deixou de
 haver dois grounds — não é uma emenda melhor feita, é uma emenda que não existe.
+
+O bloco partilha agora um acabamento de metal laranja polido: um único
+`MaterialGround finish="metal"` atravessa convite, navegação e legal, **só com
+o grão escovado** — as dobras do metal saem, porque em laranja as arestas se
+liam como riscas diagonais. O `Footer.module.css` dá o lustro com quatro
+camadas largas e de transição longa, sem arestas: um reflexo difuso à
+direita, luz de cima, um lustro diagonal suave e a base a recuar para o
+`--primary-strong`. A primeira versão tinha dois feixes estreitos e intensos,
+que puxavam o olho para as riscas e não para o convite. Sem novas cores nem
+animações. A luz desvanece no topo para ligar à `Curva`
+no laranja original; a poeira e o CTA conservam o comportamento existente.
+O fundo continua opaco e igual nos dois temas. Em cores forçadas, as camadas
+decorativas desaparecem.
 
 | | |
 | --- | --- |
@@ -920,9 +935,8 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 ### Adaptação dos capítulos imersivos
 
 O leque do processo começa em 1280px; abaixo disso usa a fila por scroll, para
-não cortar os cards nos tablets. Nos serviços mobile, o número fica abaixo da
-navegação, a figura ocupa a área superior esquerda, a roda a superior direita,
-e o texto tem uma área própria em baixo. A indicação QR/NFC e o CTA continuam
+não cortar os cards nos tablets. Nos serviços mobile, os quatro seletores ficam abaixo da navegação, a figura
+fica centrada e o texto tem uma área própria em baixo. A indicação QR/NFC e o CTA continuam
 visíveis sem se sobrepor à figura. A galeria desktop limita a altura da capa
 pelo viewport, para as setas caberem também em portáteis de 768px de altura.
 
@@ -979,8 +993,8 @@ página e os mesmos pins que um carregamento a frio na largura final.
 - **Serviços.** A roda vem **antes** das cenas no DOM (desenha-se por cima com
   `z-[4]`): Tab a partir do serviço escolhido entra na cena dele e só depois
   sai da secção. A figura mede 32vw em tablet (com 34vw tocava na roda),
-  `min(60vw, 27svh)` no telemóvel e `min(40vw, 22svh)` em ecrãs com menos de
-  700px de altura, abaixo do número.
+  `min(72vw, 31svh)` no telemóvel e `min(60vw, 24svh)` em ecrãs até
+  700px de altura, centrada abaixo da fila de seletores.
 - **O "+" e os pacotes.** Os pacotes não têm fundo opaco, e o "+" que antes
   passava escondido atrás dos cartões ficava por baixo do texto. Os postos da
   home acabam as travessias dentro dos serviços e encolhem o "+" até zero antes
@@ -1089,3 +1103,110 @@ Não verificado: dispositivos físicos, Safari e Firefox, leitor de ecrã,
 Lighthouse, Core Web Vitals e o custo real do `backdrop-filter` em telemóveis
 modestos (está no cartão do centro, nos controlos, no botão do tema e, só no
 tema claro, nas placas de material).
+
+## Revisão da integração contra as previews — 17 de outubro
+
+Esta passagem completa diferenças entre a integração e os estudos 3032/3042/3043:
+
+- `PackagePlates` é a implementação única da bancada aprovada, usada na home
+  e em `/servicos` através de `PacotesBancada`. Os três objetos são landing,
+  development v3 e commerce; Website leva forest/mint e CTA cheio. Substitui
+  a bancada antiga de três colunas e a sua etiqueta de popularidade.
+- As capas interiores usam `MaterialGround`: vidro verde em Sobre, cristal
+  em Serviços e cetim no Portfólio. A escala `interior-cover` segue os estudos
+  sem os títulos de 74px que alongavam as capas mobile. O rótulo da página
+  continua disponível a leitores de ecrã, visualmente o título lidera.
+- Sobre usa três linhas em grelha, com texto e notas associados, alternadas
+  em desktop e em fluxo em mobile. As notas absolutas foram removidas: a
+  larguras intermédias sobrepunham-se ao texto central.
+- `/servicos`: percurso em cristal, pacotes em cetim quente e FAQ mate. A
+  FAQ usa disclosures HTML (`details`/`summary`), primeira aberta, grupo
+  exclusivo, teclado nativo. Respostas e JSON-LD mantêm o mesmo conteúdo.
+- Portfólio mobile mantém a capa, nome, estado e tags juntos; o cartão ativo
+  ganha aresta/reflexo, escala e opacidade próprias. O vizinho anuncia a
+  continuação. Sem autoplay e sem blur adicional. O índice desktop permanece.
+- Privacidade inclui índice de âncoras (lateral sticky em desktop, horizontal
+  em mobile), como na preview. O conteúdo legal e a data não mudam.
+- Galeria: o fundo metálico vive agora dentro do palco pinado. Os cartões
+  partilham a mesma célula de grid, que reserva a altura real do conteúdo:
+  tags longas não colidem com as setas. O pin desktop só existe a partir de
+  1024×800; em portáteis mais baixos a galeria é manual e a página segue em
+  fluxo, para título, cartão e controlos nunca ficarem cortados.
+
+Esta revisão é visual e funcional; não altera catálogo, estados de projetos,
+contactos, preços ou compromissos comerciais.
+
+A camada fixa de `Cruz` corta apenas a decoração no limite do viewport
+(`overflow-clip`), evitando os 7px de scroll horizontal observados a 320px.
+A entrada do título do hero desloca o título inteiro 12px de cima para baixo;
+a entrada anterior das linhas a partir de +38px cruzava temporariamente a
+introdução no telemóvel. O texto continua visível por omissão e o movimento
+reduzido mantém a pose final.
+
+### Afinação do header, menu e asset mobile
+
+O header usa vidro nos dois temas e a cápsula desktop tem aresta/reflexo.
+O menu mobile é um `dialog` na top layer, irmão do header, com margem de 12px,
+vidro e fundo da página visível. Assim o blur do header não o contém.
+Foco modal, Escape, links e reposição do scroll mantêm o comportamento nativo.
+
+Na home mobile, os quatro seletores passam a uma fila acima da escultura,
+que fica centrada em 50% da largura. A meia-roda mantém-se desde 768px.
+O número decorativo grande desaparece em mobile, pois já está no seletor.
+A figura ocupa a linha flexível entre os seletores e o texto, centrada nos
+dois eixos. Mede até 86vw/40svh, reduzindo-se à altura realmente disponível,
+com contain; o texto permanece em fluxo na linha inferior.
+
+`Reveal` usa `toggleActions: play none none none` em vez de `once`: mantém
+o trigger até ao unmount, sem repetir a animação nem remover triggers durante
+o refresh síncrono de um pin posterior. Essa remoção podia invalidar a lista
+interna do GSAP e falhar ao ler `end`. `Providers` remede após duas frames
+também em navegação de cliente e ao cruzar 720px de altura.
+
+A galeria pina a partir de **1024px de largura e 720px de altura**, e não de
+800px: 1366×768 é o portátil de referência e lá a galeria tem de continuar
+conduzida pelo scroll. Entre 720 e 799px o palco compacta-se (menos margem,
+cartão a `min(30vw, 40svh)`). Medido com o projeto ao centro a meio do pin:
+título abaixo do cabeçalho e controlos dentro do ecrã a 1024×720, 1024×768,
+1280×720, 1366×768, 1440×900 e 1920×1080. A 1024×700 o título passava 4px por
+baixo do cabeçalho — por isso o limite é 720, e abaixo dele a galeria é
+manual.
+
+### Consistência dos títulos
+
+À exceção do hero da home, títulos principais, interiores e fecho usam o mesmo token de tamanho
+e entrelinha (`docs/02`), incluindo a galeria pinada e QR/NFC. Cartões do
+processo, serviços, pacotes, projetos e subtítulos usam 24px/peso 650.
+A exceção é o nome do serviço nas cenas da home a partir de 768px: ao lado
+de um número de 11rem é o título da cena, e volta à medida principal (a 24px
+lia-se como legenda). Entre 1024 e 1279px fica em 3rem, com o bloco a 38vw,
+para não chegar à figura — medido nas quatro cenas a 1024, 1180 e 1279px.
+Não alterar o tamanho de um capítulo isoladamente; ajustar o token partilhado.
+
+### Centragem mobile e header — 18 de outubro
+
+O carril do processo usa margens simétricas calculadas pela largura do card
+(84vw, máximo 24rem). Primeiro e último cartões ficam centrados; a fila
+forma um grupo com título e introdução, centrado verticalmente no palco,
+com intervalo de 2,5rem (1rem em ecrãs até 700px). Cards até 26rem de altura,
+com adaptação a ecrãs de 700px ou menos. A grelha tem coluna `minmax(0, 1fr)`
+para a largura do carril não alargar o título nem o palco.
+O header usa a receita de vidro reforçada documentada em `docs/02`.
+
+### Ritmo das secções e destaques editoriais — 18 de outubro
+
+`Section` usa margens internas simétricas de 48px / 80px / 96px (mobile / sm /
+lg); `top` e `bottom` continuam a desligar cada metade. O título, introdução e
+conteúdo formam um conjunto: não prender o título ao topo de um palco enquanto
+os cartões ficam centrados numa área independente.
+
+As capas interiores usam altura mínima `min(680px, 78svh)` e padding simétrico
+`clamp(4rem, 7vw, 6rem)`; em mobile, altura natural e 4rem por lado. Na secção
+“Em que acreditamos”, objeto e título alinham pelo centro em desktop; em mobile
+o objeto ocupa até 90% da largura e centra-se no mesmo eixo do conteúdo.
+
+`Capa` e `PageHero` aceitam `ReactNode` para destacar uma parte do título com
+`em`, sem alterar o texto. Serviços, Sobre, Portfólio, Contacto, Privacidade e
+capítulo QR/NFC seguem a assinatura da home descrita em `docs/02`. Nomes de
+clientes, títulos de cartões e títulos legais de navegação mantêm-se diretos.
+O fecho aplica itálico à segunda frase, preservando tinta escura sobre laranja.

@@ -96,13 +96,10 @@
   background: var(--primary);
 }
 
-/* ── Título do contacto ─────────────────────────────────────────────────
-   O `t-capa` é a escala de um título que ocupa um ecrã sozinho. Aqui
-   divide o ecrã com o formulário, numa coluna de cinco: a 90px saía uma
-   palavra por linha. Mesma família e peso, escala da coluna. */
+/* Contacto partilha a escala principal, mesmo na coluna do formulário. */
 .tituloContacto {
-  font-size: clamp(2.9rem, 13.5vw, 4.4rem);
-  line-height: 0.95;
+  font-size: var(--titulo-principal);
+  line-height: var(--titulo-entrelinha);
 }
 
 /* ── Moldura do portfólio ───────────────────────────────────────────────
@@ -326,4 +323,52 @@
   .molduraMetal {
     display: none;
   }
+}
+
+/* A voz e as notas pertencem à mesma linha; nunca sobrepor texto absoluto. */
+.voz { display: grid; gap: clamp(3rem, 6vw, 6rem); }
+.vozLinha { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .75fr); gap: clamp(2rem, 7vw, 7rem); align-items: start; }
+.vozTexto { max-width: 34ch; font-size: clamp(1.45rem, 2.5vw, 2.15rem); line-height: 1.4; letter-spacing: -.02em; }
+.vozNotas { display: grid; gap: 2rem; }
+.vozNotas aside { border-top: 1px solid var(--border-strong); padding-top: 1rem; }
+.vozLinha:nth-child(even) > :first-child { order: 2; }
+.vozLinha:nth-child(even) { grid-template-columns: minmax(0, .75fr) minmax(0, 1.15fr); }
+.faq details { border-top: 1px solid var(--border-strong); }
+.faq summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 64px; padding-block: 1.25rem; cursor: pointer; font-size: 1.125rem; font-weight: 600; list-style: none; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary svg { flex-shrink: 0; transition: transform 180ms ease; }
+.faq details[open] summary svg { transform: rotate(45deg); }
+.faq p { max-width: 65ch; padding-bottom: 1.75rem; color: var(--muted); }
+.carril[data-glass] .carrilPista { padding-block: 1rem 1.75rem; }
+.carril[data-glass] .carrilCartao {
+  border-color: color-mix(in oklch, var(--ink) 18%, transparent);
+  background: linear-gradient(135deg, color-mix(in oklch, var(--creme) 12%, transparent), transparent 45%), color-mix(in oklch, var(--surface) 88%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in oklch, var(--creme) 45%, transparent), 0 20px 30px -22px color-mix(in oklch, var(--forest) 50%, transparent);
+  transform: scale(.96);
+  transform-origin: left center;
+  transition: transform 220ms ease, opacity 220ms ease;
+  opacity: .68;
+}
+.carril[data-glass] .carrilCartao[data-active="true"],
+.carril[data-glass] .carrilCartao:focus-within { transform: none; opacity: 1; }
+.casoNotas { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5rem; }
+@media (max-width: 767px) {
+  .vozLinha, .vozLinha:nth-child(even) { grid-template-columns: 1fr; gap: 1.75rem; }
+  .vozLinha:nth-child(even) > :first-child { order: 0; }
+  .vozNotas { gap: 1.5rem; }
+  .casoNotas { display: flex; gap: 1.5rem; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 1rem; }
+  .casoNotas > * { flex: 0 0 88%; scroll-snap-align: start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .carril[data-glass] .carrilCartao, .faq summary svg { transition: none; }
+}
+
+.politica { display: grid; grid-template-columns: minmax(12rem, .65fr) minmax(0, 1.6fr); gap: clamp(2rem, 6vw, 6rem); }
+.politica nav { position: sticky; top: 7rem; align-self: start; display: grid; }
+.politica nav a { display: flex; align-items: center; min-height: 44px; padding-block: .5rem; color: var(--muted); border-bottom: 1px solid var(--border); font-size: .875rem; }
+.politica nav a:hover { color: var(--ink); }
+@media (max-width: 767px) {
+  .politica { grid-template-columns: 1fr; }
+  .politica nav { position: static; display: flex; gap: .75rem; overflow-x: auto; padding-bottom: .5rem; }
+  .politica nav a { flex: 0 0 auto; border: 1px solid var(--border-strong); border-radius: 999px; padding-inline: 1rem; }
 }

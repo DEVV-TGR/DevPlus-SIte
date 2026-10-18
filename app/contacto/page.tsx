@@ -1,4 +1,5 @@
 /** docs: docs/01-marca.md — o email, os telefones e as redes vêm de lib/site.ts. · docs/04-componentes-e-padroes.md · docs/10-materiais-atelier.md */
+import { MaterialGround } from "@/components/atelier/MaterialGround";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
@@ -43,7 +44,8 @@ export default function ContactoPage() {
     <>
       <Cruz postos={POSTOS_CONTACTO} />
 
-      <Section className="relative">
+      <Section className="relative isolate capitulo-base">
+        <MaterialGround finish="satin" />
         <Container>
           <div className="grid items-start gap-10 lg:min-h-[76svh] lg:grid-cols-12 lg:items-center lg:gap-12">
             {/* Três blocos, e no telemóvel a ordem é outra: o título diz onde
@@ -61,7 +63,7 @@ export default function ContactoPage() {
               <h1
                 className={`t-capa ${styles.tituloContacto} mt-4 max-w-[15ch] font-display font-titulo`}
               >
-                Vamos falar sobre o teu projeto.
+                Vamos falar sobre <em>o teu projeto.</em>
               </h1>
               <p className="mt-5 max-w-[44ch] text-lg text-muted">
                 Conta-nos o que tens em mente. Pode ser um projeto pronto a

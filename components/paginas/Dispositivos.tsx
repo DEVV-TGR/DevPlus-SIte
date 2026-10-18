@@ -109,6 +109,7 @@ function Ecra({
       </div>
       <div
         ref={ecra}
+        data-lenis-prevent
         className={styles.dispositivoEcra}
         role="region"
         tabIndex={0}

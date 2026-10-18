@@ -229,7 +229,7 @@ export function Cruz({
       /* O `scripts/verificar-scroll.mjs` procura-o por aqui, para confirmar que
          o gesto anda até ao fim da página. */
       data-cruz
-      className="pointer-events-none fixed inset-0 z-0 grid place-items-center"
+      className="pointer-events-none fixed inset-0 z-0 overflow-clip grid place-items-center"
     >
       <Logo className="h-[22vmin] w-[22vmin] overflow-visible [transform-origin:50%_50%] [transform:translate3d(var(--cx,44vw),var(--cy,-26vh),0)_rotate(var(--cr,0deg))_scale(var(--cs,1.45))] [&_path]:fill-[var(--cfill,var(--primary))] [&_path]:transition-[fill] [&_path]:duration-500" />
     </div>

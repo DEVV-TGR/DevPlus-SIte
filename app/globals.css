@@ -204,6 +204,9 @@ html[data-theme="light"]:not([data-area="estudio"]) .ground-laranja {
 .capitulo-inverso {
   --ground: var(--paper);
   --fg: var(--paper-ink);
+  /* Os destaques em itálico dos títulos leem `--titulo-acento`: num capítulo
+     inverso o acento também é o inverso (docs/02, "Temas"). */
+  --titulo-acento: var(--acento-inverso);
 }
 .capitulo-verde {
   --ground: var(--verde);
@@ -256,36 +259,34 @@ html:has(.home-packages) {
   --curva-fim-ganho: var(--curva-quente-ganho);
 }
 
-/* ── A escala dos títulos ───────────────────────────────────────────────
-   Setembro de 2026. Os `clamp()` estavam escritos um a um nos componentes,
-   com mínimos pensados em desktop: `clamp(2.2rem, 5.6vw, 4.6rem)` dá **35px
-   num iPhone**. Medido lado a lado com o site de referência no mesmo ecrã de
-   390px, os títulos dele iam de 79 a 113px — os nossos eram um terço, e a
-   página lia-se como a versão de computador encolhida.
-
-   O que muda é qual dos três termos manda: o **vw domina no telemóvel** e o
-   teto serve o desktop. E vivem aqui, num sítio, pela mesma razão que o
-   espaçamento vive no `Section` — doze `clamp()` espalhados divergem ao
-   segundo mês. Ver `docs/02`. */
+/* Escala única do site público — docs/02. */
+:root {
+  --titulo-principal: clamp(2.25rem, 1.75rem + 2.5vw, 4rem);
+  --titulo-hero: clamp(2.65rem, 2rem + 3.2vw, 5.3rem);
+  --titulo-cartao: 1.5rem;
+  --titulo-entrelinha: 1.06;
+  --titulo-tracking: -0.035em;
+}
 @utility t-capa {
-  /* O título de uma capa: 74px a 390px, 90px a 1440px. */
-  font-size: clamp(3rem, 19vw, 5.6rem);
-  line-height: 0.92;
-  letter-spacing: -0.035em;
+  font-size: var(--titulo-principal);
+  line-height: var(--titulo-entrelinha);
+  letter-spacing: var(--titulo-tracking);
 }
-
 @utility t-seccao {
-  /* O título de uma secção: 62px a 390px, 74px a 1440px. */
-  font-size: clamp(2.4rem, 16vw, 4.6rem);
-  line-height: 0.95;
-  letter-spacing: -0.035em;
+  font-size: var(--titulo-principal);
+  line-height: var(--titulo-entrelinha);
+  letter-spacing: var(--titulo-tracking);
 }
-
 @utility t-obra {
-  /* O nome de um projeto no índice: 51px a 390px, 64px a 1440px. */
-  font-size: clamp(2.2rem, 13vw, 4rem);
-  line-height: 0.95;
-  letter-spacing: -0.035em;
+  font-size: var(--titulo-cartao);
+  line-height: 1.15;
+  letter-spacing: var(--titulo-tracking);
+}
+@utility t-cartao {
+  font-size: var(--titulo-cartao);
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: var(--titulo-tracking);
 }
 
 /* ── E o corpo, no telemóvel ────────────────────────────────────────────
@@ -501,12 +502,10 @@ html.lenis body {
    docs: docs/02-cores-e-tipografia.md · docs/04-componentes-e-padroes.md ·
    docs/09-direcao-atelier.md. Só tokens; as medidas vêm do briefing de
    17 de outubro e estão explicadas no docs/09. */
-/* O teto é 5,3rem e não 6rem: o contentor pára nos 1152px, a coluna do texto
-   nos 565px, e "ao teu negócio." pede 6,52em — a 89px (6,2vw a 1440px)
-   partia-se em quatro linhas. Até 1366px o tamanho é o mesmo de antes. */
+/* Só o hero pode exceder a escala dos capítulos — docs/02. */
 .home-title {
-  font-size: clamp(3.2rem, 6.2vw, 5.3rem);
-  line-height: 1;
+  font-size: var(--titulo-hero);
+  line-height: var(--titulo-entrelinha);
   letter-spacing: -0.035em;
   font-weight: 650;
 }
@@ -521,8 +520,8 @@ html.lenis body {
   color: var(--acento);
 }
 .home-heading {
-  font-size: clamp(2.6rem, 4.6vw, 4.4rem);
-  line-height: 1.04;
+  font-size: var(--titulo-principal);
+  line-height: var(--titulo-entrelinha);
   letter-spacing: -0.035em;
   font-weight: 650;
   text-wrap: balance;
@@ -587,11 +586,7 @@ html.lenis body {
   color: var(--acento);
   padding-inline: 0.6rem;
 }
-@media (min-width: 768px) and (max-width: 1023px) {
-  .home-title {
-    font-size: clamp(2.8rem, 5.7vw, 3.7rem);
-  }
-}
+
 @media (max-width: 767px) {
   /* No telemóvel o hero tapa o "+" da página: a escultura já ocupa a largura
      toda, e o símbolo em escala de capa ficava por cima dela. */
@@ -602,9 +597,6 @@ html.lenis body {
     grid-template-columns: 1fr;
     min-height: 0;
     padding-block: 2rem 1rem;
-  }
-  .home-title {
-    font-size: clamp(2.55rem, 11.7vw, 4.5rem);
   }
   .home-hero-intro {
     max-width: 36ch;
@@ -618,9 +610,6 @@ html.lenis body {
   }
   .home-hero-disc {
     inset: 8%;
-  }
-  .home-heading {
-    font-size: clamp(2.4rem, 10.4vw, 3.8rem);
   }
   .home-hero-bottom {
     flex-wrap: wrap;
@@ -639,7 +628,21 @@ html.lenis body {
 }
 
 .site-header {
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid color-mix(in oklch, var(--creme) 28%, var(--border));
+  background: linear-gradient(115deg,
+    color-mix(in oklch, var(--creme) 12%, transparent),
+    transparent 40%, color-mix(in oklch, var(--creme) 5%, transparent)),
+    color-mix(in oklch, var(--bg) 58%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  box-shadow: inset 0 1px color-mix(in oklch, var(--creme) 35%, transparent),
+    inset 0 -1px color-mix(in oklch, var(--creme) 8%, transparent),
+    0 8px 28px color-mix(in oklch, var(--bg-deep) 8%, transparent);
+}
+.nav-glass-links {
+  border: 1px solid var(--border);
+  background: color-mix(in oklch, var(--surface) 55%, transparent);
+  box-shadow: inset 0 1px color-mix(in oklch, var(--creme) 18%, transparent);
 }
 .nav-link {
   display: flex;
@@ -663,13 +666,21 @@ html.lenis body {
 .mobile-navigation {
   position: fixed;
   inset: 0;
-  width: 100%;
+  margin: 0.75rem;
+  width: calc(100% - 1.5rem);
   max-width: none;
-  height: 100dvh;
+  height: calc(100dvh - 1.5rem);
   max-height: none;
-  padding: 1.25rem 1.5rem;
-  border: 0;
-  background: var(--bg);
+  padding: max(1rem, env(safe-area-inset-top)) 1.25rem max(1rem, env(safe-area-inset-bottom));
+  border: 1px solid color-mix(in oklch, var(--ink) 18%, transparent);
+  border-radius: 1rem;
+  background: linear-gradient(135deg,
+    color-mix(in oklch, var(--creme) 12%, transparent), transparent 45%),
+    color-mix(in oklch, var(--bg) 82%, transparent);
+  -webkit-backdrop-filter: blur(28px) saturate(145%);
+  backdrop-filter: blur(28px) saturate(145%);
+  box-shadow: inset 0 1px color-mix(in oklch, var(--creme) 55%, transparent),
+    0 24px 80px color-mix(in oklch, var(--bg-deep) 30%, transparent);
   color: var(--ink);
 }
 .mobile-navigation[open] {
@@ -726,7 +737,18 @@ html.lenis body {
   }
 }
 .mobile-navigation::backdrop {
-  background: var(--bg);
+  background: color-mix(in oklch, var(--bg-deep) 12%, transparent);
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .site-header, .mobile-navigation { background: var(--bg); }
+}
+@media (forced-colors: active) {
+  .site-header, .mobile-navigation, .nav-glass-links {
+    background: Canvas;
+    color: CanvasText;
+    border-color: CanvasText;
+    backdrop-filter: none;
+  }
 }
 @media (prefers-reduced-motion: no-preference) {
   .mobile-navigation[open] {
@@ -759,6 +781,8 @@ html.lenis body {
     0 22px 45px color-mix(in oklch, var(--forest) 12%, transparent);
   --vidro-meta: transparent;
   position: relative;
+  isolation: isolate;
+  background: var(--paper);
   padding-block: 4rem 3rem;
 }
 html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
@@ -793,19 +817,21 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
   white-space: nowrap;
 }
 .gallery-glass {
-  --card-width: clamp(300px, min(30vw, 50svh), 410px);
+  --card-width: clamp(300px, min(30vw, 43svh), 410px);
   --step: clamp(180px, 19vw, 270px);
   position: relative;
-  height: clamp(400px, 60svh, 490px);
+  display: grid;
+  padding-block: 1.5rem 2.5rem;
   margin-top: 0.75rem;
   perspective: 1600px;
   touch-action: pan-y;
   outline-offset: -8px;
 }
 .glass-card {
-  position: absolute;
-  left: 50%;
-  top: 50%;
+  position: relative;
+  grid-area: 1 / 1;
+  align-self: center;
+  justify-self: center;
   width: var(--card-width);
   padding: 14px;
   border: 1px solid var(--vidro-edge);
@@ -813,7 +839,7 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
   background: var(--vidro-fill);
   box-shadow: var(--vidro-shadow);
   color: var(--paper-ink);
-  transform: translate(-50%, -50%) translateX(calc(var(--distance) * var(--step)))
+  transform: translateX(calc(var(--distance) * var(--step)))
     translateY(calc(abs(var(--distance)) * 12px)) rotateY(var(--turn)) scale(var(--scale));
   transform-origin: center;
   transition:
@@ -840,7 +866,7 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
   aspect-ratio: 1.35;
   overflow: hidden;
   border-radius: 10px;
-  background: var(--forest);
+  background: var(--paper);
 }
 .glass-card-image img {
   opacity: var(--fade);
@@ -856,10 +882,10 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
   opacity: var(--fade);
 }
 .glass-card-meta h3 {
-  font-size: clamp(1.4rem, 2.1vw, 1.8rem);
+  font-size: var(--titulo-cartao);
   font-weight: 650;
-  letter-spacing: -0.025em;
-  line-height: 1.1;
+  letter-spacing: var(--titulo-tracking);
+  line-height: 1.15;
 }
 .glass-card-state {
   margin-top: 0.5rem;
@@ -943,7 +969,11 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
   height: 1px;
   background: color-mix(in oklch, var(--paper-ink) 35%, transparent);
 }
-@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+/* O pin começa nos 720px de altura e não nos 800px: 1366×768 é o portátil
+   de referência do briefing, e lá a galeria tem de continuar conduzida pelo
+   scroll. Abaixo de 800px o palco compacta-se — menos margem, cartão um pouco
+   mais estreito — para título, cartão e controlos caberem num ecrã pinado. */
+@media (min-width: 1024px) and (min-height: 720px) and (prefers-reduced-motion: no-preference) {
   .gallery-stage {
     display: flex;
     flex-direction: column;
@@ -953,19 +983,32 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
   }
   .gallery-stage .home-heading {
     max-width: none;
-    font-size: clamp(2.2rem, 3.6vw, 3.4rem);
+    font-size: var(--titulo-principal);
+  }
+}
+@media (min-width: 1024px) and (min-height: 720px) and (max-height: 799px) and (prefers-reduced-motion: no-preference) {
+  .gallery-stage {
+    padding-block: 5rem 0.75rem;
+  }
+  .gallery-glass {
+    --card-width: clamp(280px, min(30vw, 40svh), 410px);
+    padding-block: 0.75rem 1.25rem;
+    margin-top: 0.25rem;
+  }
+  .gallery-stage .glass-card-meta {
+    min-height: 0;
   }
 }
 @media (max-width: 600px) {
   .gallery-glass {
     --card-width: calc(100vw - 64px);
     --step: 73vw;
-    height: 450px;
+    padding-block: 1.5rem 2rem;
   }
   .glass-card {
     padding: 10px;
     border-radius: 16px;
-    transform: translate(-50%, -50%) translateX(calc(var(--distance) * var(--step))) scale(var(--scale));
+    transform: translateX(calc(var(--distance) * var(--step))) scale(var(--scale));
   }
   .glass-card-image {
     aspect-ratio: 1.4;
@@ -982,7 +1025,7 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
 @media (prefers-reduced-motion: reduce) {
   .glass-card {
     transition: none;
-    transform: translate(-50%, -50%) translateX(calc(var(--distance) * var(--step))) scale(var(--scale));
+    transform: translateX(calc(var(--distance) * var(--step))) scale(var(--scale));
   }
 }
 @media (forced-colors: active) {
@@ -1008,7 +1051,7 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
   gap: 6rem;
 }
 .table-story-title {
-  font-size: clamp(2.8rem, 4.8vw, 4.8rem);
+  font-size: var(--titulo-principal);
 }
 .table-story-title em {
   font-weight: 500;
@@ -1086,9 +1129,6 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
     grid-template-columns: 1fr;
     gap: 3.5rem;
   }
-  .table-story-title {
-    font-size: clamp(2.5rem, 11vw, 3.8rem);
-  }
   .table-story-intro {
     margin-top: 1.25rem;
   }
@@ -1105,6 +1145,19 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
    `data-tone` é escrito pelo `ServicosMostra` na troca, não pelo React. São
    papéis, e o tema decide as cores (forest/bg no escuro, mint/creme no claro);
    `--ground` e `--fg` servem também o vidro do `MaterialGround`. */
+/* Entre 1024 e 1279px a figura começa a 44% da largura: com o título da cena
+   à medida principal, o texto de "Menus & Ecrãs Digitais" chegava-lhe. Aqui o
+   bloco fica em 38vw e o título em 3rem, o que ainda cabe "Desenvolvimento"
+   numa linha. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  [data-service-copy] {
+    max-width: 38vw;
+  }
+  [data-service-copy] h3 {
+    font-size: 3rem;
+  }
+}
+
 [aria-labelledby="servicos-mostra"] {
   --ground: var(--verde);
   --fg: var(--verde-ink);
@@ -1120,54 +1173,78 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
   --ground: var(--bg-deep);
   --fg: var(--ink);
 }
-/* A roda continua em mobile; figura, título e texto recebem áreas próprias. */
+/* No telemóvel, a seleção ocupa uma linha e deixa o objeto centrado. */
 @media (max-width: 767px) {
+  [aria-labelledby="servicos-mostra"] [data-cena] {
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 1.5rem;
+    padding: 10rem 1.25rem 5.5rem;
+  }
   [data-service-figure-wrap] {
-    position: absolute;
-    top: 20svh;
-    left: 1.25rem;
+    position: relative;
+    inset: auto;
+    transform: none;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+  }
+  [data-service-figure-wrap] [data-figura] {
+    width: min(86vw, 40svh);
+    height: 100%;
+    max-height: 40svh;
+    min-height: 0;
+  }
+  [data-service-figure-wrap] img {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    object-fit: contain;
+  }
+  [data-service-number] { display: none; }
+  [aria-labelledby="servicos-mostra"] [role="tablist"] {
+    top: 6.5rem;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    width: auto;
+    height: auto;
+  }
+  [aria-labelledby="servicos-mostra"] [role="tablist"] > span { display: none; }
+  [aria-labelledby="servicos-mostra"] [data-segmento] {
+    position: relative;
+    inset: auto;
+    width: 48px;
+    height: 44px;
+    clip-path: none !important;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+  }
+  [aria-labelledby="servicos-mostra"] [data-marca] {
+    inset: 0 !important;
+    width: 100%;
+    height: 100%;
+    translate: none;
     transform: none;
   }
-  /* ~228px a 390×844: a figura chega perto da roda sem lhe tocar (a roda
-     começa a 264px) e o vazio entre ela e o título desce de 170 para 135px. */
-  [data-service-figure-wrap] [data-figura] {
-    width: min(60vw, 27svh);
-  }
-  [data-service-number] {
-    top: 6.5rem;
-  }
-  [aria-labelledby="servicos-mostra"] [role="tablist"] {
-    top: 35%;
-  }
-  /* 5,5rem e não 3rem: o botão do tema vive no canto inferior esquerdo
-     (48px a 16px da aresta), e o "Falar sobre isto" ficava-lhe por baixo. */
   [data-service-copy] {
-    bottom: 5.5rem;
-    max-width: calc(100% - 2.5rem);
+    position: relative;
+    inset: auto;
+    width: 100%;
+    max-width: none;
   }
-  [data-service-copy] h3 {
-    max-width: 16ch;
-  }
+  [data-service-copy] h3 { max-width: 16ch; }
 }
 @media (max-width: 767px) and (max-height: 700px) {
-  /* 10rem e não 8rem: o número acaba perto dos 9,7rem, e a 320×700 a figura
-     subia-lhe para cima. */
-  [data-service-figure-wrap] {
-    top: 10rem;
+  [aria-labelledby="servicos-mostra"] [data-cena] {
+    padding-top: 9.75rem;
+    padding-bottom: 4.75rem;
+    gap: 1rem;
   }
-  [data-service-figure-wrap] [data-figura] {
-    width: min(40vw, 22svh);
-  }
-  [aria-labelledby="servicos-mostra"] [role="tablist"] {
-    top: 26%;
-    --roda: 6.25rem !important;
-  }
-  [data-service-copy] {
-    bottom: 4.75rem;
-  }
-  [data-service-copy] p {
-    font-size: 14px;
-  }
+  [data-service-copy] p { font-size: 14px; }
 }
 /* Em tablet a figura fica entre o texto e a roda: 32vw acaba antes de a roda
    começar (a 768px e a 1024px sobram 4 e 26px), com 34vw tocava-lhe. */
@@ -1232,9 +1309,10 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
   filter: drop-shadow(0 10px 14px color-mix(in oklch, var(--bg-deep) 30%, transparent));
 }
 .package-copy h3 {
-  font-size: clamp(1.5rem, 2.2vw, 1.75rem);
-  font-weight: 600;
-  letter-spacing: -0.025em;
+  line-height: 1.15;
+  font-size: var(--titulo-cartao);
+  font-weight: 650;
+  letter-spacing: var(--titulo-tracking);
 }
 .package-copy p {
   max-width: 35ch;
@@ -1314,7 +1392,7 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
     height: 100px;
   }
   .package-copy h3 {
-    font-size: 1.5rem;
+    font-size: var(--titulo-cartao);
   }
   .package-copy p {
     font-size: 14px;
@@ -1330,4 +1408,69 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
     grid-row: 3;
     justify-content: center;
   }
+}
+
+/* Interiores: a escala dos estudos, com materiais específicos por capítulo. */
+.interior-cover {
+  --cover-muted: var(--muted);
+  min-height: min(680px, 78svh);
+  padding-block: clamp(4rem, 7vw, 6rem);
+}
+.interior-cover.capitulo-verde { --cover-muted: var(--verde-muted); }
+.interior-cover .t-capa {
+  font-size: var(--titulo-principal);
+  line-height: var(--titulo-entrelinha);
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+.interior-heading { font-size: var(--titulo-principal); line-height: var(--titulo-entrelinha); letter-spacing: -0.035em; text-wrap: balance; }
+@media (max-width: 767px) {
+  .interior-cover { min-height: auto; padding-block: 4rem; }
+}
+
+/* O processo ocupa o centro da área livre; primeiro e último card alinham
+   ao mesmo eixo, sem terminar com meio cartão cortado na margem. */
+@media (max-width: 767px) {
+  [aria-labelledby="como-trabalhamos"] [data-palco] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    align-content: center;
+    gap: 2.5rem;
+    padding-top: 6.5rem;
+    padding-bottom: 5.5rem;
+  }
+  [aria-labelledby="como-trabalhamos"] [data-fila] {
+    align-self: center;
+    padding-inline: calc((100vw - min(84vw, 24rem)) / 2);
+  }
+  [aria-labelledby="como-trabalhamos"] [data-passo] {
+    width: min(84vw, 24rem);
+  }
+  [aria-labelledby="como-trabalhamos"] [data-passo-conteudo] {
+    min-height: clamp(22rem, 43svh, 26rem);
+  }
+}
+
+@media (max-width: 767px) and (max-height: 700px) {
+  [aria-labelledby="como-trabalhamos"] [data-palco] {
+    padding-block: 6rem 4.75rem;
+    gap: 1rem;
+  }
+  [aria-labelledby="como-trabalhamos"] [data-process-heading] p {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  [aria-labelledby="como-trabalhamos"] [data-passo-conteudo] {
+    min-height: 20rem;
+    padding: 1.25rem;
+  }
+}
+
+/* Uma assinatura editorial, partilhada pelas capas e títulos de secção.
+   O acento acompanha o capítulo e o tema; o fecho laranja preserva tinta escura. */
+:is(.t-capa, .t-seccao, .home-heading, .interior-heading) em {
+  font-style: italic;
+  font-weight: 500;
+  color: var(--titulo-acento, var(--acento));
 }

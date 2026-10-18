@@ -95,7 +95,7 @@ export function ContactForm() {
         role="status"
         className="rounded-2xl border border-accent/40 bg-surface p-8"
       >
-        <h2 className="font-display text-xl">Recebida, obrigado.</h2>
+        <h2 className="t-cartao font-display">Recebida, obrigado.</h2>
         <p className="mt-2 text-muted">
           Vamos ler com calma e damos-te notícias em 24 a 48 horas úteis.
         </p>
