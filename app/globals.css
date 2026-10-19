@@ -517,6 +517,88 @@ html.lenis body {
   }
 }
 
+/* O loader (`components/Carregador.tsx`, docs/04). Uma cortina no fundo da
+   página com o "D+": o "+" roda um quarto de volta e assenta, a barra enche.
+   Ao sair, a cortina abre para cima (`clip-path`) e o logótipo sobe e apaga
+   primeiro. Sem a classe `js` não existe; com ela, uma animação de segurança
+   esconde-a aos 4 s se o React nunca a chegar a abrir. */
+.carregador {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  color: var(--ink);
+  clip-path: inset(0 0 0 0);
+  animation: carregador-seguranca 0.3s ease 4s forwards;
+}
+html:not(.js) .carregador {
+  display: none;
+}
+.carregador-conteudo {
+  display: grid;
+  justify-items: center;
+  gap: 1.5rem;
+}
+.carregador-marca {
+  width: clamp(72px, 14vw, 96px);
+  height: auto;
+}
+.carregador-mais {
+  fill: var(--primary);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: carregador-gira 1.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+.carregador-barra {
+  position: relative;
+  width: 96px;
+  height: 2px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: color-mix(in oklch, var(--ink) 14%, transparent);
+}
+.carregador-barra::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--primary);
+  transform-origin: left;
+  animation: carregador-enche 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.carregador[data-fase="sai"] {
+  animation: carregador-abre 0.7s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+}
+.carregador[data-fase="sai"] .carregador-conteudo {
+  animation: carregador-conteudo-sai 0.35s ease-in forwards;
+}
+.carregador[data-fase="sai"] .carregador-barra::after {
+  animation: none;
+  transform: scaleX(1);
+}
+@keyframes carregador-gira {
+  0%, 15% { transform: rotate(0deg); }
+  60%, 100% { transform: rotate(90deg); }
+}
+@keyframes carregador-enche {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(0.85); }
+}
+@keyframes carregador-abre {
+  from { clip-path: inset(0 0 0 0); }
+  to { clip-path: inset(0 0 100% 0); }
+}
+@keyframes carregador-conteudo-sai {
+  to { opacity: 0; transform: translateY(-14px); }
+}
+@keyframes carregador-seguranca {
+  to { opacity: 0; visibility: hidden; }
+}
+@media (forced-colors: active) {
+  .carregador { background: Canvas; color: CanvasText; }
+}
+
 /* Respect reduced motion everywhere */
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -707,15 +789,20 @@ html.lenis body {
   background: var(--surface-2);
   color: var(--ink);
 }
+/* O menu do telemóvel é um painel que desce do topo com a altura do que tem
+   — cinco ligações, o Instagram e o email —, e não uma folha do ecrã
+   inteiro com metade vazia. Se o ecrã for baixo de mais, rola por dentro. */
 .mobile-navigation {
   position: fixed;
-  inset: 0;
-  margin: 0.75rem;
+  inset: 0 0 auto;
+  margin: max(0.75rem, env(safe-area-inset-top)) 0.75rem 0;
   width: calc(100% - 1.5rem);
   max-width: none;
-  height: calc(100dvh - 1.5rem);
-  max-height: none;
-  padding: max(1rem, env(safe-area-inset-top)) 1.25rem max(1rem, env(safe-area-inset-bottom));
+  height: auto;
+  max-height: calc(100dvh - 1.5rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1rem 1.25rem 1.25rem;
   border: 1px solid color-mix(in oklch, var(--ink) 18%, transparent);
   border-radius: 1rem;
   background: linear-gradient(135deg,
@@ -780,8 +867,12 @@ html.lenis body {
     backdrop-filter: none;
   }
 }
+/* Com o painel só do tamanho do conteúdo, a página fica à vista por baixo:
+   escurece-se e desfoca-se um pouco, para o menu ser a única coisa a ler. */
 .mobile-navigation::backdrop {
-  background: color-mix(in oklch, var(--bg-deep) 12%, transparent);
+  background: color-mix(in oklch, var(--bg-deep) 50%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
 }
 @supports not (backdrop-filter: blur(1px)) {
   .site-header, .mobile-navigation { background: var(--bg); }
@@ -796,12 +887,13 @@ html.lenis body {
 }
 @media (prefers-reduced-motion: no-preference) {
   .mobile-navigation[open] {
-    animation: menu-open 0.28s ease-out;
+    transform-origin: top center;
+    animation: menu-open 0.32s cubic-bezier(0.22, 1, 0.36, 1);
   }
   @keyframes menu-open {
     from {
       opacity: 0;
-      transform: translateY(-8px);
+      transform: translateY(-12px) scale(0.98);
     }
     to {
       opacity: 1;
@@ -1166,10 +1258,32 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
 }
 .table-story-mark {
   position: absolute;
-  width: 140%;
-  height: 100%;
-  left: -20%;
+  top: 46%;
+  left: 50%;
+  width: min(100%, 26rem);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at 30% 24%,
+      color-mix(in oklch, var(--creme) 18%, transparent),
+      transparent 55%
+    ),
+    color-mix(in oklch, var(--accent) 26%, var(--ground, var(--verde)));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklch, var(--creme) 28%, transparent),
+    inset 0 0 0 1px color-mix(in oklch, var(--creme) 10%, transparent);
+}
+.table-story-mark-plus {
+  position: absolute;
+  width: 74%;
+  height: 74%;
+  left: 40%;
+  top: 38%;
   color: var(--accent);
+  opacity: 0.5;
 }
 @media (min-width: 768px) and (max-width: 1023px) {
   .table-story-grid {
@@ -1188,8 +1302,7 @@ html[data-theme="light"]:not([data-area="estudio"]) .gallery-stage {
     width: 240px;
   }
   .table-story-mark {
-    width: 110%;
-    left: -5%;
+    width: min(100%, 22rem);
   }
 }
 

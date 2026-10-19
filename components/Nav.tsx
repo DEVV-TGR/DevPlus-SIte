@@ -113,7 +113,7 @@ export function Nav() {
             </span>
           </button>
         </div>
-        <nav aria-label="Navegação mobile" className="my-auto py-10">
+        <nav aria-label="Navegação mobile" className="py-4">
           <ul>
             {links.map((l, i) => (
               <li key={l.href} className="border-b border-border">
@@ -121,7 +121,7 @@ export function Nav() {
                   href={l.href}
                   onClick={close}
                   aria-current={active(l.href) ? "page" : undefined}
-                  className={`flex min-h-16 items-center justify-between gap-4 py-4 font-display text-3xl font-semibold tracking-tight ${active(l.href) ? "text-acento" : "text-ink"}`}
+                  className={`flex min-h-14 items-center justify-between gap-4 py-3 font-display text-[1.75rem] font-semibold tracking-tight ${active(l.href) ? "text-acento" : "text-ink"}`}
                 >
                   {l.label}
                   <span aria-hidden className="text-sm text-muted">

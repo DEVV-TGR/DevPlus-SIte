@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Nav } from "@/components/Nav";
 import { SeletorTema } from "@/components/SeletorTema";
+import { Carregador } from "@/components/Carregador";
 import { noEstudio } from "@/lib/estudio/rotas";
 
 /**
@@ -54,6 +55,7 @@ export function CascaDoSite({
       {noEstudioAgora ? null : rodape}
       {noEstudioAgora ? null : <SeletorTema />}
       {noEstudioAgora ? null : <div className="grain-overlay" aria-hidden />}
+      {noEstudioAgora ? null : <Carregador />}
     </>
   );
 }

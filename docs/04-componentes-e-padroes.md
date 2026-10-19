@@ -1274,3 +1274,27 @@ Revisão pedida sobre a preview da Vercel.
   `/portfolio`, `/servicos`, `/sobre`, `/contacto`, `/privacidade` e um caso de
   estudo: todas 200, todas as âncoras existem. "Pedir proposta" e "Falar sobre
   isto" levam o assunto (`contactoCom`).
+
+## O loader, o menu e o disco do NFC — 19 de outubro
+
+- **O loader (`components/Carregador.tsx`).** Cortina no `--bg` com o "D+":
+  o "+" roda um quarto de volta e assenta, e uma barra fina enche. Montado
+  pela `CascaDoSite`, por isso existe em todas as páginas do site público e
+  nunca no Estúdio. Na **primeira entrada** vem do servidor e cobre desde o
+  primeiro paint; sai depois do `load` e das fontes, nunca antes de 700 ms
+  nem depois de 2,5 s. Em **cada navegação** volta a cobrir num
+  `useLayoutEffect` (antes do paint) e abre aos 350 ms. A saída é a cortina a
+  abrir para cima (`clip-path`, 0,7 s) com o logótipo a subir e a apagar.
+  Sem JavaScript não aparece (`html:not(.js)`); se a hidratação falhar, uma
+  animação de segurança esconde-o aos 4 s. Com movimento reduzido o "+" não
+  roda e a cortina sai de uma vez (medido: 365 ms na primeira carga). É
+  `aria-hidden`. Testes que fotografam a página têm de esperar que
+  `.carregador` desapareça do DOM.
+- **Menu do telemóvel.** Deixou de ser uma folha do ecrã inteiro com metade
+  vazia: é um painel que desce do topo com a altura do conteúdo (553px a
+  390×844), rola por dentro num ecrã baixo e tem por trás a página escurecida e
+  desfocada (`::backdrop`).
+- **O "+" do vídeo NFC (`NaMesa`).** O "+" esticado a 140% lia-se como duas
+  barras verdes a sair dos lados do vídeo. Passou a disco de vidro verde
+  (`--accent` misturado no `--ground`) com o "+" recortado lá dentro, a mesma
+  figura do disco cobre do herói. Continua a mexer-se com o scroll em desktop.

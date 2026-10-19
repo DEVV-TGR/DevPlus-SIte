@@ -87,8 +87,12 @@ export function NaMesa() {
               </Link>
             </div>
             <div className="table-film-scene">
+              {/* Um disco verde com o "+" recortado lá dentro, por trás do
+                  vídeo — a mesma figura do herói (disco cobre e "+" laranja),
+                  no verde deste capítulo. O "+" esticado a 140% da largura
+                  lia-se como duas barras verdes a sair dos lados do vídeo. */}
               <div data-table-mark className="table-story-mark" aria-hidden>
-                <Logo className="h-full w-full" />
+                <Logo className="table-story-mark-plus" />
               </div>
               <figure data-table-film className="table-film">
                 <video
