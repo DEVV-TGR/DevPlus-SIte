@@ -130,7 +130,7 @@ export default function SobrePage() {
             </Reveal>
             <Reveal className="lg:col-span-5 lg:col-start-8">
               <h2 className="interior-heading max-w-[14ch] font-display font-titulo">
-                Em que <em>acreditamos</em>
+                Em que <em>acreditamos.</em>
               </h2>
             </Reveal>
           </div>

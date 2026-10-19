@@ -8,6 +8,7 @@ import {
   CAMPOS,
   GRUPOS_INTERESSE,
   HONEYPOT,
+  idInteresse,
   limparInteresses,
   validarContacto,
   type ErrosContacto,
@@ -153,64 +154,61 @@ export function ContactForm() {
       </div>
 
       {/* Os atalhos: um toque diz do que se vai falar. Caixas e não rádios —
-          dá para pedir a demo **e** dizer que é uma landing page. A nota da
-          demo só aparece quando ela está escolhida, e diz exatamente o que a
-          equipa oferece (docs/05). */}
+          dá para pedir a demo **e** dizer que é uma landing page.
+          Cada grupo tem o rótulo por cima e os atalhos numa grelha de cartões
+          da mesma largura: antes eram cápsulas do tamanho do texto, com o
+          rótulo à esquerda, e os serviços partiam-se em linhas tortas. No
+          telemóvel fluem em linha, do tamanho do texto: duas colunas não
+          davam para "Desenvolvimento" e o visto saía do cartão. A demo
+          vem sozinha numa linha e diz lá dentro o que inclui — só a parte
+          visual (docs/05). */}
       <fieldset
         aria-describedby={errors.interesses ? "interesses-error" : undefined}
       >
-        <legend className="mb-3 text-sm font-medium">
-          Do que queres falar? <span className="text-muted">(opcional)</span>
+        <legend className="mb-4 flex w-full flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <span className="text-sm font-medium">Do que queres falar?</span>
+          <span className="text-xs text-muted">
+            Opcional · podes escolher vários
+          </span>
         </legend>
-        <div className="grid gap-3">
-          {GRUPOS_INTERESSE.map((g) => (
-            <div key={g.titulo} className="flex flex-wrap items-center gap-2">
-              <span className="w-full whitespace-nowrap text-xs uppercase tracking-[0.14em] text-muted sm:w-[7.5rem] sm:shrink-0">
-                {g.titulo}
-              </span>
-              {g.itens.map((it) => {
-                const ativo = interesses.includes(it.id);
-                return (
-                  <label
-                    key={it.id}
-                    className={`inline-flex min-h-9 cursor-pointer select-none items-center gap-1.5 rounded-full border px-3.5 text-sm transition-[background-color,border-color,color,transform] duration-200 active:scale-[0.96] has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--foco)] ${
-                      ativo
-                        ? "border-primary bg-primary text-primary-ink"
-                        : "border-border-strong text-ink hover:border-ink/50 hover:bg-ink/5"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      name="interesses"
-                      value={it.id}
-                      checked={ativo}
+        <div className="grid gap-5">
+          {GRUPOS_INTERESSE.map((g) => {
+            const destaque = g.itens.length === 1;
+            const grupoId = `grupo-${idInteresse(g.titulo)}`;
+            return (
+              <div key={g.titulo} role="group" aria-labelledby={grupoId}>
+                <p
+                  id={grupoId}
+                  className="mb-2 text-xs uppercase tracking-[0.14em] text-muted"
+                >
+                  {g.titulo}
+                </p>
+                <div
+                  className={
+                    destaque
+                      ? "grid"
+                      : "flex flex-wrap gap-2 sm:grid sm:grid-cols-3"
+                  }
+                >
+                  {g.itens.map((it) => (
+                    <Atalho
+                      key={it.id}
+                      rotulo={it.rotulo}
+                      nota={
+                        it.id === "demo"
+                          ? "Mostramos a parte visual do teu projeto. As funcionalidades combinam-se depois, à medida."
+                          : undefined
+                      }
+                      ativo={interesses.includes(it.id)}
+                      valor={it.id}
                       onChange={() => alternar(it.id)}
-                      className="sr-only"
                     />
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      aria-hidden
-                      className={`transition-[width,opacity] duration-200 ${ativo ? "w-3.5 opacity-100" : "w-0 opacity-0"}`}
-                    >
-                      <path d="m5 12.5 4.5 4.5L19 7.5" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                    {it.rotulo}
-                  </label>
-                );
-              })}
-            </div>
-          ))}
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
-        {interesses.includes("demo") ? (
-          <p className="mt-3 rounded-lg border border-border bg-ink/5 px-3.5 py-2.5 text-sm text-muted">
-            A demo é grátis e mostra a parte visual do teu projeto. As
-            funcionalidades vêm depois: discutimo-las contigo e fazemo-las à
-            medida.
-          </p>
-        ) : null}
         {errors.interesses ? (
           <p
             id="interesses-error"
@@ -310,5 +308,72 @@ export function ContactForm() {
         ) : null}
       </div>
     </form>
+  );
+}
+
+/**
+ * Um atalho: um cartão que se liga e desliga, com o visto num círculo à
+ * direita. No telemóvel o círculo vazio não aparece — ocupava a largura que
+ * faz dois atalhos caberem lado a lado — e só entra no que está escolhido. Ligado, ganha a aresta laranja e um véu do mesmo tom — o texto
+ * continua `ink`, que o laranja cheio por trás de letra pequena não passa.
+ */
+function Atalho({
+  rotulo,
+  nota,
+  ativo,
+  valor,
+  onChange,
+}: {
+  rotulo: string;
+  nota?: string;
+  ativo: boolean;
+  valor: string;
+  onChange: () => void;
+}) {
+  return (
+    <label
+      className={`flex min-h-11 cursor-pointer select-none items-center justify-between gap-2 rounded-xl border px-3 py-2 sm:min-h-12 sm:gap-3 sm:px-3.5 sm:py-2.5 text-sm leading-snug transition-[background-color,border-color] duration-200 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--foco)] ${
+        ativo
+          ? "border-primary bg-primary/10"
+          : "border-border-strong hover:border-ink/40 hover:bg-ink/5"
+      }`}
+    >
+      <input
+        type="checkbox"
+        name="interesses"
+        value={valor}
+        checked={ativo}
+        onChange={onChange}
+        className="sr-only"
+      />
+      <span className="grid gap-0.5">
+        <span className={nota ? "font-medium" : undefined}>{rotulo}</span>
+        {nota ? <span className="text-muted">{nota}</span> : null}
+      </span>
+      <span
+        aria-hidden
+        className={`size-5 shrink-0 place-items-center rounded-full border transition-colors duration-200 ${
+          ativo
+            ? "grid border-primary bg-primary text-primary-ink"
+            : "hidden border-border-strong sm:grid"
+        }`}
+      >
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          className={`transition-[opacity,scale] duration-200 ${ativo ? "scale-100 opacity-100" : "scale-50 opacity-0"}`}
+        >
+          <path
+            d="m5 12.5 4.5 4.5L19 7.5"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </span>
+    </label>
   );
 }

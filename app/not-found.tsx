@@ -1,9 +1,17 @@
 /** docs: docs/04-componentes-e-padroes.md · docs/10-materiais-atelier.md */
+import type { Metadata } from "next";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { Ambiente } from "@/components/paginas/Ambiente";
 import { atelierAssets } from "@/components/atelier/assets";
+
+/* Sem isto o 404 herdava o <title> da home, e o separador dizia que se
+   estava na página inicial. `noindex` porque não é uma página. */
+export const metadata: Metadata = {
+  title: "Página não encontrada",
+  robots: { index: false },
+};
 
 /**
  * O 404. A mensagem e a saída são as de sempre; à volta, o ambiente do atelier

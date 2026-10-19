@@ -140,8 +140,12 @@ estruturados, que é o que diz ao Google que estas contas e o site são a mesma
 entidade. Um `href` errado é pior do que `href` nenhum — abre-o no browser antes
 de o escrever.
 
+Uma rede sem `href` aparece no rodapé como "WhatsApp · em breve": sem o
+aviso, lia-se como um link que não abria nada.
+
 **Quando o WhatsApp existir:** acrescenta o `href` e reescreve o parágrafo em
-`app/contacto/page.tsx`, que hoje diz que só ele falta.
+`app/contacto/page.tsx`, que hoje diz que só ele falta (o "em breve" do rodapé
+sai sozinho).
 
 ## Tom de voz
 

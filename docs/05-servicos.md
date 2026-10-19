@@ -180,9 +180,8 @@ tamanho da home, títulos de cartões a 24px. Sem escalas próprias por página.
 
 **Compromisso comercial confirmado pela equipa:** a DevPlus faz uma **demo
 grátis** de qualquer serviço, **só da parte visual**. As funcionalidades
-discutem-se depois e fazem-se à medida. O formulário diz exatamente isto
-quando o atalho "Pedir demo grátis" está escolhido, e não se promete mais em
-lado nenhum. **Não há "orçamento grátis"** — foi considerado e não escolhido.
+discutem-se depois e fazem-se à medida. O próprio atalho "Pedir demo grátis"
+diz exatamente isto, por baixo do nome, e não se promete mais em lado nenhum. **Não há "orçamento grátis"** — foi considerado e não escolhido.
 
 Os atalhos do formulário (`GRUPOS_INTERESSE` em `lib/contacto.ts`) são a
 demo, os seis serviços de `lib/services.ts` e os três pacotes de

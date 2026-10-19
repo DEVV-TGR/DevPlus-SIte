@@ -9,6 +9,9 @@ controla:
   - app/portfolio/page.tsx
   - app/portfolio/[slug]/page.tsx
   - components/paginas/Dispositivos.tsx
+  - components/paginas/Pecas.tsx
+  - scripts/desenhar-damira.mjs
+  - public/projetos/damira/
   - public/casos/
   - app/page.tsx#projetos
   - public/capas/
@@ -30,7 +33,8 @@ continua a alimentar o índice, as rotas estáticas e o próximo projeto.
 
 Entraram Café Preguiça e Café Avenida, concluídos por confirmação do Gonçalo,
 e Damira, loja online em desenvolvimento. Os outros repositórios da organização
-não entram por omissão. As capas dos três são capturas dos sites reais.
+não entram por omissão. As capas do Preguiça e do Avenida são capturas dos
+sites reais; a da Damira é um desenho (ver "A Damira desenhada").
 
 O Café Preguiça inclui ementa, painel e suportes de mesa com QR codes e NFC.
 O caso de estudo mostra o vídeo fornecido pelo Gonçalo: reprodução manual,
@@ -84,7 +88,7 @@ para usos existentes, mas já não é a galeria da home.
 ## Capas
 
 O campo `image` aponta para um ficheiro em `public/capas/`
-(ex.: `/capas/mira-mar.jpg`). Sem `image`, o card cai na forma sólida gerada em
+(ex.: `/capas/jsk.jpg`). Sem `image`, o card cai na forma sólida gerada em
 CSS, tingida pelo `accent` — que continua a ser um fallback legítimo, não um erro.
 
 A pasta chama-se `capas/` e não `portfolio/` só por clareza — `public/` tem
@@ -154,20 +158,15 @@ Isto é trabalho conhecido em falta. Apaga a linha quando estiver feita.
 - [ ] **Painel de gestão da Taskuinha** — o card já anuncia o serviço e o
       `contribution` diz que está em desenvolvimento. Quando estiver entregue,
       tira a última frase do `contribution`.
-- [ ] **A Barraquinha Nova** — sem capa. Falta a **foto da televisão no espaço a
-      passar a ementa** — é o que torna este projeto legível num relance, porque
-      metade da entrega é física. Instagram: `@a_barraquinha_nova`. Morada:
-      Esplanada Fernando Ermida, 5, Praia da Granja, São Félix da Marinha.
 - [ ] **Painel de gestão do Império** — o site já está no ar e o projeto passou a
       `"concluido"`, mas o painel ainda não foi entregue. O `contribution` diz
       isso na última frase; quando estiver entregue, tira-a.
-- [ ] **URLs** do Mira Mar e da Barraquinha — nenhum está no ar. Acrescentar
-      `url` quando estiverem.
-- [ ] **Estado** desses dois — passar a `"concluido"` e virar o texto para o
-      passado quando forem entregues.
+- [ ] **Damira no ar** — quando a loja tiver endereço: `url`, as duas
+      capturas em `capturas`, `status: "concluido"` e o texto no passado. As
+      `pecasDoCaso` deixam de aparecer sozinhas (a página prefere as capturas).
 
-Já resolvido: as capas do Império Auto Concept, do Mira Mar, da JSK, da António
-Home Repair e da Taskuinha do Pirata.
+Já resolvido: as capas do Império Auto Concept, da JSK, da António Home Repair
+e da Taskuinha do Pirata.
 
 > A capa da Taskuinha saiu da receita headless acima sem truque nenhum. O site
 > abre com uma cortina (`Chegada.tsx`) que tapa a página, mas o
@@ -191,8 +190,8 @@ Duas consequências para quem acrescenta um projeto:
 - **o nome carrega a página.** Numa grelha, um nome fraco escondia-se atrás da
   capa; num índice o nome é o que se lê primeiro e a capa é a confirmação;
 - **um projeto sem capa não fica com um buraco nem com a capa de outro** — fica
-  com o nome sobre um ground da marca. É o caso d'`A Barraquinha Nova`, e é por
-  isso que a lacuna está registada aqui e não disfarçada no código.
+  com o nome sobre um ground da marca — um fallback legítimo, que hoje nenhum
+  projeto usa.
 
 O caso de estudo mudou duas vezes. Em setembro a capa passou a sangrar num ecrã
 só (o nome aparecia duas vezes, no cabeçalho e por cima da imagem). Em outubro
@@ -242,9 +241,9 @@ projeto.
   arrasto de mais de 8px não conta como clique. As molduras têm a proporção da
   janela que tirou a captura (1440/900 e 390/844), com o scroll por dentro.
   As capturas são verificadas até ao rodapé, sem estados intermédios de entrada.
-- **Sem endereço, sem captura.** Damira, Mira Mar e Barraquinha não têm `url`:
-  mostra-se a capa real quando há, e um aviso no ecrã do telemóvel — nunca uma
-  captura ou um URL inventados.
+- **Sem endereço, sem captura.** A Damira não tem `url`: mostra-se o que vai
+  ter, em desenho (`pecasDoCaso`, ver abaixo) — nunca uma captura ou um URL
+  inventados. Um projeto sem `url` e sem peças cai no aviso de `Dispositivos`.
 - **Tópicos curtos** em `notasDoCaso` ("o que era preciso", "o que fizemos"),
   resumidos do `overview` e do `contribution` sem acrescentar nada; as
   pendências (painéis em desenvolvimento, sites em construção) continuam
@@ -290,3 +289,34 @@ do cliente nem conteúdo inventado para preencher as imagens.
 
 Os nomes dos ficheiros incluem a data da recolha para invalidar as capturas
 antigas na cache de imagens sem depender de parâmetros de query.
+
+## Saíram do portfólio — 19 de outubro
+
+O **Mira Mar** e **A Barraquinha Nova** saíram do catálogo, por pedido do
+utilizador. Estavam publicados e indexados, por isso `/portfolio/mira-mar` e
+`/portfolio/a-barraquinha-nova` redirecionam (308) para `/portfolio`
+(`redirects` em `next.config.ts`). A capa do Mira Mar foi apagada. Os nomes
+que ainda aparecem no Estúdio (`/estudio`) são dados de clientes, não do
+portfólio — não se mexe lá por isto.
+
+## A Damira desenhada — 19 de outubro
+
+A Damira está em desenvolvimento e **não mostra fotografias nem capturas** —
+nem a capa antiga, que era uma pré-visualização. Mostra o que vai ter, em
+desenho: a loja online no telemóvel, o painel do balcão no tablet e o painel
+da gerência no portátil.
+
+- **Os desenhos saem de `scripts/desenhar-damira.mjs`** (Node). Lê os tokens
+  do `:root` de `app/globals.css`, converte-os de OKLCH para hex e escreve três
+  SVG em `public/projetos/damira/` e a capa em JPG (as três peças juntas, 16:10)
+  em `public/capas/`. Sem texto dentro dos desenhos — as palavras estão no HTML.
+  Mudou um token? `node scripts/desenhar-damira.mjs`.
+- **A capa tem a data no nome** (`damira-20261019.jpg`), como as capturas: a
+  cache do otimizador de imagens servia a fotografia antiga com o nome velho.
+- **No caso de estudo**, `pecasDoCaso` em `lib/projects.ts` substitui as
+  molduras de `Dispositivos`: `components/paginas/Pecas.tsx` mostra três
+  cartões de grafite (desenho, título, **uma frase**). O telemóvel ocupa a
+  coluna da esquerda; os painéis empilham-se à direita. Sem "o que era preciso"
+  nem "o que fizemos": um trabalho por entregar não se explica em parágrafos.
+- O texto do catálogo diz o mesmo, no presente: loja online, painel do balcão,
+  painel da gerência, e que ainda não está no ar.

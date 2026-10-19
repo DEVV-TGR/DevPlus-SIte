@@ -118,6 +118,16 @@ const nextConfig: NextConfig = {
     position: "bottom-right",
   },
 
+  /* Casos que saíram do portfólio em outubro de 2026 (docs/06). Estavam
+     publicados e indexados; um 404 deitava fora quem chegasse por pesquisa. */
+  async redirects() {
+    return ["mira-mar", "a-barraquinha-nova"].map((slug) => ({
+      source: `/portfolio/${slug}`,
+      destination: "/portfolio",
+      permanent: true,
+    }));
+  },
+
   /** Cabeçalhos de segurança em todas as rotas. Ver o comentário da `csp`. */
   async headers() {
     return [

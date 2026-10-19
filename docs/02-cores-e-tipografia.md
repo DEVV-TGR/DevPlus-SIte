@@ -126,7 +126,8 @@ os pixels, que ninguém consegue rever num diff.
 ### Os ícones estão fora da paleta — de propósito
 
 Os bitmaps de agosto de 2026 **não usam os tokens**: o fundo é `#000000` em vez
-de `--bg` `#1a1613`, e o "+" é `#FF780A` em vez de `--primary` `#F2762B`. Foi
+de `--bg` `#0f0a07`, e o "+" é `#FF780A` em vez de `--primary` `#fe790a`
+(hoje quase iguais: o `--primary` do remake aproximou-se do laranja do ícone). Foi
 uma decisão explícita do Gonçalo ao adotar o desenho, não um lapso — fica aqui
 registada porque é a única exceção viva à regra de não inventar cores, e porque
 um bitmap não se revê num diff como se revê um hex.
@@ -145,13 +146,19 @@ usam em mais lado nenhum**. As camisolas são `--primary`, `--accent` e
 
 | Token OKLCH                        | Hex       |
 | ---------------------------------- | --------- |
-| `--primary` `oklch(0.72 0.188 50)` | `#F2762B` |
-| `--bg` `oklch(0.15 0.011 56)`      | `#1a1613` |
-| `--ink` `oklch(0.97 0.006 80)`     | `#f7f2ec` |
-| `--muted` `oklch(0.77 0.012 80)`   | `#c8bdb0` |
+| `--primary` `oklch(0.72 0.188 50)` | `#fe790a` |
+| `--bg` `oklch(0.15 0.011 56)`      | `#0f0a07` |
+| `--ink` `oklch(0.97 0.006 80)`     | `#f7f5f1` |
+| `--muted` `oklch(0.77 0.012 80)`   | `#b8b3ac` |
 
 Esta é a **única duplicação de cor autorizada**. Se mudares um token, atualiza os
-dois sítios ou o cartão social passa a ter uma cor diferente do site.
+dois sítios ou o cartão social passa a ter uma cor diferente do site. Aconteceu:
+os tokens mudaram no remake de outubro e o `BRAND_HEX` ficou com os valores de
+agosto até 19 de outubro. Os hex acima são a conversão exata (OKLCH → sRGB).
+
+Os **desenhos da Damira** (`scripts/desenhar-damira.mjs`) não duplicam cor
+nenhuma: leem os tokens do `:root` e convertem-nos na hora. Mas são ficheiros
+gerados — mudou um token, corre o script outra vez (docs/06).
 
 ## Tipografia
 

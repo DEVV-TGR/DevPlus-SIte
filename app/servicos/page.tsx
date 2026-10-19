@@ -146,7 +146,7 @@ export default function ServicosPage() {
         <Container>
           <Reveal>
             <h2 className="interior-heading font-display font-titulo">
-              Por onde podemos <em>começar</em>
+              Por onde podemos <em>começar.</em>
             </h2>
             <p className="mt-3 max-w-xl text-muted">
               Cada projeto é diferente, mas costuma partir de um destes pontos.
@@ -177,7 +177,7 @@ export default function ServicosPage() {
           <div className="grid gap-10 lg:grid-cols-12">
             <Reveal className="lg:col-span-4">
               <h2 className="interior-heading font-display font-titulo">
-                Perguntas <em>frequentes</em>
+                Perguntas <em>frequentes.</em>
               </h2>
               <p className="mt-3 text-muted">
                 Ficaste com outra dúvida?{" "}

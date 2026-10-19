@@ -86,19 +86,20 @@ export const projects: Project[] = [
     client: "Confeitaria Damira",
     category: "Loja online · Confeitaria",
     year: "2026",
-    updatedAt: "2026-10-16",
+    updatedAt: "2026-10-19",
     status: "em-curso",
-    image: "/capas/damira.jpg",
+    // Desenho, não fotografia: a loja ainda não está no ar (docs/06).
+    image: "/capas/damira-20261019.jpg",
     imageAlt:
-      "Pré-visualização do site da Confeitaria Damira, com os produtos e a identidade da marca.",
+      "Desenho da loja online da Confeitaria Damira num telemóvel, ao lado do painel do balcão num tablet e do painel da gerência num portátil.",
     summary:
-      "Uma loja online em desenvolvimento para levar os produtos da confeitaria até ao pedido, com uma experiência à medida da casa.",
-    services: ["Web Design", "Desenvolvimento"],
+      "Uma loja online para encomendar, com um painel para o balcão preparar os pedidos e outro para a gerência gerir a casa.",
+    services: ["Web Design", "Desenvolvimento", "Painel de Gestão"],
     accent: "primary",
     overview:
-      "A Confeitaria Damira, em Ermesinde, junta pastelaria, padaria e cozinha. O projeto precisa de apresentar essa variedade com clareza e dar aos clientes uma forma simples de escolher produtos e preparar encomendas online.",
+      "A Confeitaria Damira, em Ermesinde, junta pastelaria, padaria e cozinha. Quer receber encomendas online sem perder o fio no balcão, e ter num só sítio os produtos, os preços e o que se vende.",
     contribution:
-      "Estamos a desenvolver a loja online e a organizar a carta, os produtos por encomenda e os kits de festa. O trabalho já inclui a apresentação dos produtos em português e inglês, páginas de detalhe e um cesto para preparar o pedido. A loja continua em desenvolvimento; as funcionalidades previstas para o lançamento não são apresentadas como já entregues.",
+      "Estamos a desenvolver três peças ligadas entre si: a loja online, onde o cliente escolhe e encomenda; o painel do balcão, onde cada pedido entra e se acompanha até ser levantado; e o painel da gerência, para mudar produtos e preços e ver as vendas. Ainda não está no ar."
   },
   {
     slug: "taskuinha-do-pirata",
@@ -144,42 +145,6 @@ export const projects: Project[] = [
       "O Império Auto Concept vende automóveis e queria deixar de depender dos portais de classificados para mostrar o stock. O desafio era ter um site próprio, onde cada viatura tem a sua página, e que a equipa conseguisse manter atualizado sem nos ligar de cada vez que entra ou sai um carro.",
     contribution:
       "Desenhámos e desenvolvemos o site de raiz, com base de dados própria: cada viatura tem a sua página, e quem chega filtra o stock por marca, modelo e combustível sem sair da página inicial. O painel de gestão, que deixa a equipa publicar novos anúncios, editar os que já existem, gerir as fotografias de cada viatura e retirar do site o que já foi vendido — tudo sem tocar em código —, está em desenvolvimento.",
-  },
-  {
-    slug: "mira-mar",
-    name: "Mira Mar",
-    client: "Mira Mar",
-    category: "Restaurante",
-    year: "2026",
-    status: "em-curso",
-    image: "/capas/mira-mar.jpg",
-    imageAlt:
-      "Página inicial do Mira Mar, com o nome do restaurante sobre uma fotografia da praia e acessos rápidos à ementa, take away e pool bar.",
-    summary:
-      "Uma página que apresenta o restaurante e ementas digitais que a equipa muda e programa sozinha, com QR codes na sala e na explanada.",
-    services: ["Landing Page", "Menu Digital", "Painel de Gestão", "QR Code"],
-    accent: "accent",
-    overview:
-      "O Mira Mar, em Angeiras, queria uma presença online que fizesse duas coisas ao mesmo tempo: apresentar o restaurante a quem ainda não o conhece e substituir a ementa impressa por uma versão digital sempre atualizada.",
-    contribution:
-      "Estamos a construir uma landing page com todas as secções numa só página — sobre, fotos, localização e as avaliações do Google — com acesso direto à ementa, ao take away e ao pool bar, e disponível em mais do que um idioma. Numa área separada ficam as ementas: a do dia, os menus e a da explanada. O painel de gestão permite à equipa criar, editar, apagar e programar os menus diários com antecedência. Os QR codes, em suportes na sala e colados nas mesas da explanada, levam o cliente diretamente à ementa digital.",
-  },
-  {
-    slug: "a-barraquinha-nova",
-    name: "A Barraquinha Nova",
-    client: "A Barraquinha Nova",
-    category: "Restauração",
-    year: "2026",
-    status: "em-curso",
-    // Falta a capa: foto da televisão no espaço a passar a ementa (ver docs/06).
-    summary:
-      "A ementa no telemóvel por QR code e numa televisão dentro do espaço, em loop. Muda-se uma vez e muda nas duas, sem reimprimir nada.",
-    services: ["Menu Digital", "Ecrã Digital"],
-    accent: "primary",
-    overview:
-      "A Barraquinha Nova, na Praia da Granja, servia a ementa em papel e reimprimia-a sempre que mudava um preço ou faltava um prato. Queria uma ementa digital fácil de manter e visível também para quem já está sentado à mesa.",
-    contribution:
-      "Estamos a implementar o menu digital e a instalar uma televisão dentro do espaço a passar a ementa em loop, sincronizada com o mesmo menu. Uma alteração feita uma vez chega ao telemóvel do cliente e ao ecrã da sala ao mesmo tempo.",
   },
   {
     slug: "jsk",
@@ -253,17 +218,6 @@ export const notasDoCaso: Record<string, { preciso: string[]; feito: string[] }>
       "QR codes nas mesas.",
     ],
   },
-  "damira": {
-    preciso: [
-      "Mostrar a variedade da confeitaria.",
-      "Preparar encomendas online de forma simples.",
-    ],
-    feito: [
-      "Loja online em desenvolvimento.",
-      "Produtos em português e inglês.",
-      "Páginas de detalhe e cesto para preparar o pedido.",
-    ],
-  },
   "taskuinha-do-pirata": {
     preciso: [
       "Trazer a decoração da taberna para o site.",
@@ -284,28 +238,6 @@ export const notasDoCaso: Record<string, { preciso: string[]; feito: string[] }>
       "Pesquisa por marca, modelo e combustível.",
       "Base de dados e páginas de viaturas.",
       "Painel de gestão em desenvolvimento.",
-    ],
-  },
-  "mira-mar": {
-    preciso: [
-      "Apresentar o restaurante.",
-      "Substituir a ementa impressa.",
-    ],
-    feito: [
-      "Landing page em construção.",
-      "Ementas digitais e programação de menus.",
-      "QR codes na sala e na esplanada.",
-    ],
-  },
-  "a-barraquinha-nova": {
-    preciso: [
-      "Atualizar preços sem reimprimir a carta.",
-      "Mostrar a ementa no telemóvel e na sala.",
-    ],
-    feito: [
-      "Menu digital em implementação.",
-      "Televisão com a ementa em loop.",
-      "Um menu sincronizado nos dois suportes.",
     ],
   },
   "jsk": {
@@ -332,14 +264,41 @@ export const notasDoCaso: Record<string, { preciso: string[]; feito: string[] }>
   },
 };
 
+/**
+ * O que um projeto **ainda em desenvolvimento** vai ter, em desenhos — para
+ * quem não tem endereço nem captura, e não pode mostrar fotografias. Uma frase
+ * por peça, sem mais: um trabalho por entregar não se explica em parágrafos.
+ * Os desenhos saem de `scripts/desenhar-damira.mjs`. Ver docs/06.
+ */
+export type Peca = { titulo: string; texto: string; desenho: { src: string; width: number; height: number } };
+export const pecasDoCaso: Record<string, Peca[]> = {
+  "damira": [
+    {
+      titulo: "Loja online",
+      texto: "O cliente escolhe, junta ao cesto e encomenda, do telemóvel ou do computador.",
+      desenho: { src: "/projetos/damira/loja.svg", width: 380, height: 680 },
+    },
+    {
+      titulo: "Painel do balcão",
+      texto: "Cada pedido entra na hora e passa de “por preparar” a “pronto” com um toque.",
+      desenho: { src: "/projetos/damira/balcao.svg", width: 840, height: 620 },
+    },
+    {
+      titulo: "Painel da gerência",
+      texto: "Produtos, preços e horários num só sítio, com as vendas à vista.",
+      desenho: { src: "/projetos/damira/gerencia.svg", width: 980, height: 640 },
+    },
+  ],
+};
+
 export type Captura = { src: string; width: number; height: number };
 
 /**
  * Capturas de página inteira dos sites publicados, em computador (1440px) e
  * telemóvel (390px), servidas de `public/casos/`. **Não são sites vivos**: no
  * caso de estudo percorrem-se por scroll dentro de uma moldura, e um clique
- * abre o `url` original. Só existem para projetos com `url` — Damira, Mira Mar
- * e Barraquinha ainda não têm endereço, e não se inventa captura.
+ * abre o `url` original. Só existem para projetos com `url` — a Damira ainda
+ * não tem endereço, e não se inventa captura.
  * As capturas são verificadas até ao rodapé; páginas com animações usam
  * a apresentação estática original quando disponível. Ver docs/06.
  */

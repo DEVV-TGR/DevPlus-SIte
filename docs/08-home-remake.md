@@ -36,7 +36,7 @@ O vídeo de QR/NFC foi fornecido pelo Gonçalo e está só no caso do Preguiça,
 com controlos, poster e `preload="none"`. A derivada 720px sem áudio tem ~2 MB;
 o original fica intacto na pasta do cliente. Não há autoplay.
 
-As capas novas foram capturadas nos sites públicos do Preguiça, Avenida e Damira.
+As capas novas foram capturadas nos sites públicos do Preguiça, Avenida e Damira. (A da Damira foi trocada por um desenho a 19 de outubro — docs/06.)
 O domínio do Avenida apresentou erro de certificado, pelo que o link usa a
 versão Vercel verificada. A pré-visualização Damira não é apresentada como loja
 lançada. Não são publicados outros clientes ou demonstrações sem confirmação.

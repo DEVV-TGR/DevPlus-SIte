@@ -40,7 +40,7 @@ export type Interesse = { id: string; rotulo: string };
  *
  * A **demo grátis** é um compromisso comercial confirmado pela equipa: é de
  * qualquer serviço, mas **só da parte visual** — as funcionalidades
- * discutem-se e personalizam-se depois. A nota do formulário diz isto mesmo,
+ * discutem-se e personalizam-se depois. O atalho da demo diz isto mesmo,
  * e não se promete mais do que isto em lado nenhum. Não há "orçamento grátis".
  *
  * Os serviços e os pacotes vêm das listas de `lib/services.ts` e

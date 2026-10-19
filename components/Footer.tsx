@@ -120,11 +120,12 @@ export function Footer() {
                       </a>
                     ) : (
                       /* Sem link é uma conta que ainda não existe — ver
-                         `lib/site.ts`. Fica em `paper-ink`, que é o tom de
+                         `lib/site.ts`. Diz "em breve": sem isso lia-se como
+                         um link que não abria nada. Fica em `paper-ink`, que é o tom de
                          apoio sobre o laranja (6.07:1, docs/02): mais claro do
                          que isso não se lê. */
                       <span className="flex min-h-11 items-center text-sm text-paper-ink">
-                        {s.label}
+                        {s.label} · em breve
                       </span>
                     )}
                   </li>

@@ -798,7 +798,13 @@ O caminho de uma mensagem:
 
 O formulário abre com **atalhos** (`GRUPOS_INTERESSE` em `lib/contacto.ts`):
 "Pedir demo grátis", os seis serviços e os três pacotes, em caixas que se
-podem combinar. Chegam ao servidor como `interesses` (lista de ids), o
+podem combinar. Cada grupo tem o rótulo **por cima** e os atalhos são cartões
+da mesma largura numa grelha de três colunas (a partir de 640px), com o visto
+num círculo à direita; escolhido, o cartão ganha aresta `primary` e véu
+`primary/10`, com o texto em `ink`. A demo vem sozinha numa linha e diz lá
+dentro o que inclui. No telemóvel os atalhos fluem em linha, do tamanho do
+texto, e o círculo só aparece no escolhido — em duas colunas,
+"Desenvolvimento" não cabia e o visto saía do cartão. Chegam ao servidor como `interesses` (lista de ids), o
 `validarContacto` recusa ids que não existam, e o email leva-os por extenso
 na linha "Interesse" e no assunto. Os botões do site que sabem do que se vai
 falar usam `contactoCom(rotulo)` — o "Pedir proposta" da Landing page abre
@@ -1326,3 +1332,14 @@ preferência de movimento terminam a animação. Movimento reduzido é imediato.
 Sem JavaScript, os disclosures nativos continuam funcionais. O refresh de
 ScrollTrigger ocorre após a altura assentar, não a cada frame. Esta receita
 substitui a anterior dependência de interpolate-size e ::details-content.
+
+## Revisão antes de publicar — 19 de outubro
+
+- **Os títulos de secção acabam em ponto**, com ou sem acento em itálico.
+  "Por onde podemos começar", "Perguntas frequentes" e "Em que acreditamos"
+  eram os únicos sem ele (o mesmo "Por onde podemos começar." da home tinha).
+- **O título do contacto** tem o acento só em "projeto." e cola-o a "o teu"
+  com espaços inseparáveis: o itálico laranja já não fica sozinho numa linha.
+- **O 404 tem `<title>` próprio** ("Página não encontrada") e `noindex`;
+  herdava o da home.
+- **Uma rede sem `href` diz "em breve" no rodapé** (docs/01).

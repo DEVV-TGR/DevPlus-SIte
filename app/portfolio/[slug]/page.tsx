@@ -11,7 +11,8 @@ import { MaterialGround } from "@/components/atelier/MaterialGround";
 import styles from "@/components/paginas/paginas.module.css";
 import { MaterialSurface } from "@/components/atelier/MaterialSurface";
 import { Dispositivos } from "@/components/paginas/Dispositivos";
-import { projects, getProject, notasDoCaso, capturas } from "@/lib/projects";
+import { Pecas } from "@/components/paginas/Pecas";
+import { projects, getProject, notasDoCaso, capturas, pecasDoCaso } from "@/lib/projects";
 import { pageMetadata } from "@/lib/seo";
 
 export function generateStaticParams() {
@@ -60,6 +61,7 @@ export default async function CaseStudyPage({
   const idx = projects.findIndex((p) => p.slug === slug);
   const next = projects[(idx + 1) % projects.length];
   const notas = notasDoCaso[project.slug];
+  const pecas = pecasDoCaso[project.slug];
 
   return (
     <>
@@ -128,8 +130,14 @@ export default async function CaseStudyPage({
             </div>
           </Reveal>
 
+          {/* Sem site no ar, mostra-se o que vai ter, em desenho (Pecas);
+              com site, o próprio site em duas molduras (Dispositivos). */}
           <div className="mt-10">
-            <Dispositivos projeto={project} captura={capturas[project.slug]} />
+            {pecas && !capturas[project.slug] ? (
+              <Pecas pecas={pecas} />
+            ) : (
+              <Dispositivos projeto={project} captura={capturas[project.slug]} />
+            )}
           </div>
         </div>
       </section>

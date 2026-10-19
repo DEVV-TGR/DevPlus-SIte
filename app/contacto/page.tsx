@@ -61,10 +61,14 @@ export default function ContactoPage() {
               {/* `t-capa` dá a família e o desenho; a escala é a da coluna
                   (ver `tituloContacto`): a 90px saía uma palavra por linha
                   e o formulário descia para lá do primeiro ecrã. */}
+              {/* O acento é só "projeto." e anda colado a "o teu" (espaços
+                  inseparáveis): com "o teu projeto." todo em itálico, a
+                  quebra deixava a parte laranja sozinha numa linha, ou um
+                  "o" pendurado no fim da anterior. */}
               <h1
-                className={`t-capa ${styles.tituloContacto} mt-4 max-w-[15ch] font-display font-titulo`}
+                className={`t-capa ${styles.tituloContacto} mt-4 max-w-[16ch] font-display font-titulo`}
               >
-                Vamos falar sobre <em>o teu projeto.</em>
+                Vamos falar sobre o{"\u00a0"}teu{"\u00a0"}<em>projeto.</em>
               </h1>
               <p className="mt-5 max-w-[44ch] text-lg text-muted">
                 Conta-nos o que tens em mente. Pode ser um projeto pronto a

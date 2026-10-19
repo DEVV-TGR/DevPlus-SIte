@@ -162,6 +162,7 @@
 .tituloContacto {
   font-size: var(--titulo-principal);
   line-height: var(--titulo-entrelinha);
+  text-wrap: balance;
 }
 
 /* ── Moldura do portfólio ───────────────────────────────────────────────
