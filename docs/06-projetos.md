@@ -11,7 +11,7 @@ controla:
   - components/paginas/Dispositivos.tsx
   - components/paginas/Pecas.tsx
   - scripts/desenhar-damira.mjs
-  - public/projetos/damira/
+  - public/projetos/
   - public/casos/
   - app/page.tsx#projetos
   - public/capas/
@@ -155,18 +155,13 @@ centro.
 
 Isto é trabalho conhecido em falta. Apaga a linha quando estiver feita.
 
-- [ ] **Painel de gestão da Taskuinha** — o card já anuncia o serviço e o
-      `contribution` diz que está em desenvolvimento. Quando estiver entregue,
-      tira a última frase do `contribution`.
-- [ ] **Painel de gestão do Império** — o site já está no ar e o projeto passou a
-      `"concluido"`, mas o painel ainda não foi entregue. O `contribution` diz
-      isso na última frase; quando estiver entregue, tira-a.
 - [ ] **Damira no ar** — quando a loja tiver endereço: `url`, as duas
       capturas em `capturas`, `status: "concluido"` e o texto no passado. As
       `pecasDoCaso` deixam de aparecer sozinhas (a página prefere as capturas).
 
 Já resolvido: as capas do Império Auto Concept, da JSK, da António Home Repair
-e da Taskuinha do Pirata.
+e da Taskuinha do Pirata; os painéis de gestão da Taskuinha e do Império
+(entregues, com prints no caso — ver "O painel por dentro").
 
 > A capa da Taskuinha saiu da receita headless acima sem truque nenhum. O site
 > abre com uma cortina (`Chegada.tsx`) que tapa a página, mas o
@@ -314,9 +309,31 @@ da gerência no portátil.
 - **A capa tem a data no nome** (`damira-20261019.jpg`), como as capturas: a
   cache do otimizador de imagens servia a fotografia antiga com o nome velho.
 - **No caso de estudo**, `pecasDoCaso` em `lib/projects.ts` substitui as
-  molduras de `Dispositivos`: `components/paginas/Pecas.tsx` mostra três
-  cartões de grafite (desenho, título, **uma frase**). O telemóvel ocupa a
+  molduras de `Dispositivos`: `components/paginas/Pecas.tsx` (variante
+  `planta`) mostra três cartões de grafite (desenho, título, **uma frase**). O telemóvel ocupa a
   coluna da esquerda; os painéis empilham-se à direita. Sem "o que era preciso"
   nem "o que fizemos": um trabalho por entregar não se explica em parágrafos.
 - O texto do catálogo diz o mesmo, no presente: loja online, painel do balcão,
   painel da gerência, e que ainda não está no ar.
+
+## O painel por dentro — 19 de outubro
+
+Os casos com painel de gestão entregue — **Preguiça, Taskuinha e Império** —
+mostram-no por dentro, numa secção depois dos tópicos: "O painel por dentro."
+Os dados estão em `painelDoCaso` (`lib/projects.ts`) e o desenho é o mesmo das
+peças da Damira (`Pecas`, variante `janelas`): cartão de grafite, print,
+título e uma frase. Duas colunas; quando são três, a primeira vai a toda a
+largura.
+
+- **São prints reais**, tirados a 19 de outubro com a conta da DevPlus, no
+  browser a 1440×900 e ampliados 2× para ficarem nítidos. Os ficheiros estão
+  em `public/projetos/<slug>/painel-*.webp`, já cortados e com os cantos
+  arredondados no próprio ficheiro. O CSS não corta nada.
+- **Nada de pessoas nos prints.** O painel do Preguiça tem uma lista de
+  sessões e outra de quem tem acesso, com nomes: ficaram fora do corte. O
+  único email visível é o da DevPlus.
+- **Novo painel entregue?** Mesma receita: prints sem nomes, cortes à mão,
+  `painelDoCaso[slug]` com duas ou três peças, e o `contribution` e os
+  tópicos a dizerem que está entregue (com `updatedAt`).
+- Com os painéis entregues, o texto da Taskuinha e do Império deixou de dizer
+  "em desenvolvimento" (`updatedAt: 2026-10-19`).

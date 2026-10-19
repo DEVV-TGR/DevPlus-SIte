@@ -12,7 +12,7 @@ import styles from "@/components/paginas/paginas.module.css";
 import { MaterialSurface } from "@/components/atelier/MaterialSurface";
 import { Dispositivos } from "@/components/paginas/Dispositivos";
 import { Pecas } from "@/components/paginas/Pecas";
-import { projects, getProject, notasDoCaso, capturas, pecasDoCaso } from "@/lib/projects";
+import { projects, getProject, notasDoCaso, capturas, pecasDoCaso, painelDoCaso } from "@/lib/projects";
 import { pageMetadata } from "@/lib/seo";
 
 export function generateStaticParams() {
@@ -62,6 +62,7 @@ export default async function CaseStudyPage({
   const next = projects[(idx + 1) % projects.length];
   const notas = notasDoCaso[project.slug];
   const pecas = pecasDoCaso[project.slug];
+  const painel = painelDoCaso[project.slug];
 
   return (
     <>
@@ -134,7 +135,11 @@ export default async function CaseStudyPage({
               com site, o próprio site em duas molduras (Dispositivos). */}
           <div className="mt-10">
             {pecas && !capturas[project.slug] ? (
-              <Pecas pecas={pecas} />
+              <Pecas
+                pecas={pecas}
+                variante="planta"
+                intro="Ainda não está no ar. Isto é o que vai ter:"
+              />
             ) : (
               <Dispositivos projeto={project} captura={capturas[project.slug]} />
             )}
@@ -169,6 +174,27 @@ export default async function CaseStudyPage({
                   </ul>
                 </Reveal>
               ))}
+            </div>
+          </Container>
+        </Section>
+      ) : null}
+
+      {/* O PAINEL POR DENTRO
+          Prints reais do painel de gestão, no mesmo cartão das peças da
+          Damira. Só para quem tem painel entregue (`painelDoCaso`). */}
+      {painel ? (
+        <Section top={false} className="relative">
+          <Container>
+            <Reveal>
+              <h2 className="home-heading">
+                O painel <em>por dentro.</em>
+              </h2>
+              <p className="mt-4 max-w-[48ch] text-lg text-muted">
+                O que a equipa usa para mudar o site sem nos ligar.
+              </p>
+            </Reveal>
+            <div className="mt-10">
+              <Pecas pecas={painel} variante="janelas" />
             </div>
           </Container>
         </Section>

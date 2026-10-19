@@ -27,7 +27,7 @@ Se um doc e o código discordarem, é um bug, não uma questão de gosto.
 | `lib/tema.ts`, `components/SeletorTema.tsx` (o tema claro/escuro)                                         | 02                       |
 | `lib/carrossel.ts`, `components/paginas/Carril.tsx`                                                       | 04                       |
 | `components/paginas/Dispositivos.tsx`, `public/casos/`                                                    | 06                       |
-| `components/paginas/Pecas.tsx`, `scripts/desenhar-damira.mjs`, `public/projetos/damira/`                 | 06                       |
+| `components/paginas/Pecas.tsx`, `scripts/desenhar-damira.mjs`, `public/projetos/`                        | 06                       |
 | `app/layout.tsx`, `app/sitemap.ts`, `app/robots.ts`                                                       | 01                       |
 | `app/globals.css`                                                                                         | 02                       |
 | `lib/brand.ts`, `components/Logo.tsx`, `components/Lockup.tsx`, `components/Wordmark.tsx`                 | 03                       |

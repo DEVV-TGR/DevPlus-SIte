@@ -107,6 +107,7 @@ export const projects: Project[] = [
     client: "Rumoceano — Taskuinha",
     category: "Taberna de petiscos",
     year: "2026",
+    updatedAt: "2026-10-19",
     status: "concluido",
     url: "https://taskuinhapirata.pt",
     image: "/capas/taskuinha-do-pirata.jpg",
@@ -124,7 +125,7 @@ export const projects: Project[] = [
     overview:
       "A Taskuinha do Pirata é uma taberna à beira-mar em Vila Chã, decorada de alto a baixo: barris na fachada a soletrar o nome, tecto de tábuas turquesa com um mural de nau em tempestade e um esqueleto pirata sentado à porta. O pedido do dono foi só um, e não era sobre design — o site não podia parecer uma coisa à parte do restaurante. Quem entrasse tinha de sentir que já estava dentro da casa. E como a porta dá para o Caminho de Santiago, metade de quem chega no Verão não fala português.",
     contribution:
-      "Desenhámos e desenvolvemos o site de raiz, com a casa real como referência: madeira, pergaminho e letra de tabuleta, num tema nocturno único, com fotografias do espaço por trás de cada secção. A ementa completa vive numa página só, e o site inteiro fala quatro línguas — português, inglês, francês e espanhol — cada uma com o seu endereço, para se poder enviar a um amigo. Do mesmo desenho saiu a ementa impressa, pronta a entregar na gráfica. O painel de gestão, para a casa mudar pratos e preços sem nos ligar, está em desenvolvimento.",
+      "Desenhámos e desenvolvemos o site de raiz, com a casa real como referência: madeira, pergaminho e letra de tabuleta, num tema nocturno único, com fotografias do espaço por trás de cada secção. A ementa completa vive numa página só, e o site inteiro fala quatro línguas — português, inglês, francês e espanhol — cada uma com o seu endereço, para se poder enviar a um amigo. Do mesmo desenho saiu a ementa impressa, pronta a entregar na gráfica. Criámos também o painel de gestão, onde a casa muda pratos, preços e horário sem nos ligar.",
   },
   {
     slug: "imperio-auto-concept",
@@ -132,6 +133,7 @@ export const projects: Project[] = [
     client: "Império Auto Concept",
     category: "Stand automóvel",
     year: "2026",
+    updatedAt: "2026-10-19",
     status: "concluido",
     url: "https://www.imperioautoconcept.com",
     image: "/capas/imperio-auto-concept.jpg",
@@ -144,7 +146,7 @@ export const projects: Project[] = [
     overview:
       "O Império Auto Concept vende automóveis e queria deixar de depender dos portais de classificados para mostrar o stock. O desafio era ter um site próprio, onde cada viatura tem a sua página, e que a equipa conseguisse manter atualizado sem nos ligar de cada vez que entra ou sai um carro.",
     contribution:
-      "Desenhámos e desenvolvemos o site de raiz, com base de dados própria: cada viatura tem a sua página, e quem chega filtra o stock por marca, modelo e combustível sem sair da página inicial. O painel de gestão, que deixa a equipa publicar novos anúncios, editar os que já existem, gerir as fotografias de cada viatura e retirar do site o que já foi vendido — tudo sem tocar em código —, está em desenvolvimento.",
+      "Desenhámos e desenvolvemos o site de raiz, com base de dados própria: cada viatura tem a sua página, e quem chega filtra o stock por marca, modelo e combustível sem sair da página inicial. O painel de gestão deixa a equipa publicar novos anúncios, editar os que já existem, gerir as fotografias de cada viatura e marcar o que já foi vendido — tudo sem tocar em código.",
   },
   {
     slug: "jsk",
@@ -192,7 +194,7 @@ export const projects: Project[] = [
  * Os casos em tópicos curtos — "o que era preciso" e "o que fizemos" —, que é
  * o que a página do caso mostra desde outubro de 2026, por pedido do
  * utilizador. Resumem o `overview` e o `contribution` de cada projeto sem
- * acrescentar nada: as pendências (painéis em desenvolvimento, sites em
+ * acrescentar nada: as pendências (sites em
  * construção) continuam ditas. O texto longo fica no catálogo. Ver docs/06.
  */
 export const notasDoCaso: Record<string, { preciso: string[]; feito: string[] }> = {
@@ -226,7 +228,7 @@ export const notasDoCaso: Record<string, { preciso: string[]; feito: string[] }>
     feito: [
       "Design inspirado na casa real.",
       "Site e ementa em quatro línguas.",
-      "Ementa impressa; painel ainda em desenvolvimento.",
+      "Ementa impressa e painel de gestão.",
     ],
   },
   "imperio-auto-concept": {
@@ -237,7 +239,7 @@ export const notasDoCaso: Record<string, { preciso: string[]; feito: string[] }>
     feito: [
       "Pesquisa por marca, modelo e combustível.",
       "Base de dados e páginas de viaturas.",
-      "Painel de gestão em desenvolvimento.",
+      "Painel de gestão para o stock e as fotos.",
     ],
   },
   "jsk": {
@@ -265,28 +267,104 @@ export const notasDoCaso: Record<string, { preciso: string[]; feito: string[] }>
 };
 
 /**
- * O que um projeto **ainda em desenvolvimento** vai ter, em desenhos — para
- * quem não tem endereço nem captura, e não pode mostrar fotografias. Uma frase
- * por peça, sem mais: um trabalho por entregar não se explica em parágrafos.
- * Os desenhos saem de `scripts/desenhar-damira.mjs`. Ver docs/06.
+ * Uma peça mostrada em cartão no caso de estudo: imagem, título e **uma frase**.
+ * `desenho` é um plano (SVG, sem fundo), `captura` é um print real. Ver docs/06.
  */
-export type Peca = { titulo: string; texto: string; desenho: { src: string; width: number; height: number } };
+export type Peca = {
+  titulo: string;
+  texto: string;
+  tipo: "desenho" | "captura";
+  imagem: { src: string; width: number; height: number };
+};
+
+/**
+ * O que um projeto **ainda em desenvolvimento** vai ter, em desenhos — para
+ * quem não tem endereço nem captura, e não pode mostrar fotografias. Um
+ * trabalho por entregar não se explica em parágrafos. Os desenhos saem de
+ * `scripts/desenhar-damira.mjs`.
+ */
 export const pecasDoCaso: Record<string, Peca[]> = {
   "damira": [
     {
       titulo: "Loja online",
       texto: "O cliente escolhe, junta ao cesto e encomenda, do telemóvel ou do computador.",
-      desenho: { src: "/projetos/damira/loja.svg", width: 380, height: 680 },
+      tipo: "desenho",
+      imagem: { src: "/projetos/damira/loja.svg", width: 380, height: 680 },
     },
     {
       titulo: "Painel do balcão",
       texto: "Cada pedido entra na hora e passa de “por preparar” a “pronto” com um toque.",
-      desenho: { src: "/projetos/damira/balcao.svg", width: 840, height: 620 },
+      tipo: "desenho",
+      imagem: { src: "/projetos/damira/balcao.svg", width: 840, height: 620 },
     },
     {
       titulo: "Painel da gerência",
       texto: "Produtos, preços e horários num só sítio, com as vendas à vista.",
-      desenho: { src: "/projetos/damira/gerencia.svg", width: 980, height: 640 },
+      tipo: "desenho",
+      imagem: { src: "/projetos/damira/gerencia.svg", width: 980, height: 640 },
+    },
+  ],
+};
+
+/**
+ * O painel de gestão por dentro: prints reais, tirados em 19 de outubro de
+ * 2026 com a conta da DevPlus, cortados sem nomes de pessoas nem sessões.
+ * Servidos de `public/projetos/<slug>/`. A primeira peça vai a toda a largura
+ * quando são três. Ver docs/06.
+ */
+export const painelDoCaso: Record<string, Peca[]> = {
+  "cafe-preguica": [
+    {
+      titulo: "O painel da casa",
+      texto: "A carta, as leituras das mesas e a newsletter, à vista assim que se entra.",
+      tipo: "captura",
+      imagem: { src: "/projetos/cafe-preguica/painel-inicio.webp", width: 1400, height: 712 },
+    },
+    {
+      titulo: "A ementa",
+      texto: "Preços, pratos novos e o que acabou, mudados pela equipa sem nos ligar.",
+      tipo: "captura",
+      imagem: { src: "/projetos/cafe-preguica/painel-ementa.webp", width: 1400, height: 1000 },
+    },
+    {
+      titulo: "As mesas",
+      texto: "Quantas vezes cada mesa abriu a carta por QR ou NFC, e a que horas.",
+      tipo: "captura",
+      imagem: { src: "/projetos/cafe-preguica/painel-mesas.webp", width: 1380, height: 812 },
+    },
+  ],
+  "taskuinha-do-pirata": [
+    {
+      titulo: "A ementa",
+      texto: "Pratos e preços mudam-se aqui, categoria a categoria.",
+      tipo: "captura",
+      imagem: { src: "/projetos/taskuinha-do-pirata/painel-ementa.webp", width: 880, height: 770 },
+    },
+    {
+      titulo: "A casa",
+      texto: "Horário, telefone e morada atualizados pela casa, sem tocar em código.",
+      tipo: "captura",
+      imagem: { src: "/projetos/taskuinha-do-pirata/painel-horario.webp", width: 880, height: 595 },
+    },
+  ],
+  "imperio-auto-concept": [
+    {
+      titulo: "As viaturas",
+      texto: "Todo o stock numa lista, com o estado e o preço de cada carro.",
+      tipo: "captura",
+      imagem: { src: "/projetos/imperio-auto-concept/painel-viaturas.webp", width: 1124, height: 580 },
+    },
+    {
+      titulo: "As fotos",
+      texto: "Carregam-se, ordenam-se e escolhe-se a capa de cada anúncio.",
+      tipo: "captura",
+      imagem: { src: "/projetos/imperio-auto-concept/painel-fotos.webp", width: 840, height: 600 },
+    },
+    {
+      titulo: "A ficha",
+      texto: "Marca, preço, quilómetros e o resto da ficha, num formulário só.",
+      tipo: "captura",
+      imagem: { src: "/projetos/imperio-auto-concept/painel-ficha.webp", width: 840, height: 600 },
     },
   ],
 };
