@@ -404,3 +404,70 @@ create table if not exists entradas (
 );
 
 create index if not exists entradas_quando_idx on entradas (quando desc);
+
+-- 2026-10-19 · a divisão: quanto da margem dos projetos é de cada um.
+--
+-- Pedido do Gonçalo. O estúdio é de três pessoas, e a margem dos projetos
+-- divide-se entre elas — por defeito em partes iguais, com exceções por projeto
+-- (um trabalho em que uma das três não entrou) e com uma comissão para quem
+-- arranjou o cliente. Só conta o trabalho feito uma vez: alojamentos e domínios
+-- ficam de fora, para toda a gente. Ver "A divisão" no docs/07.
+--
+-- `socios` e não `utilizadores`: quem divide não é quem entra. Há quem esteja
+-- na divisão e nunca tenha aberto o Estúdio, e a lista de quem entra vive no
+-- ambiente (`ESTUDIO_LOGINS`) e não aqui.
+create table if not exists socios (
+  id         bigint generated always as identity primary key,
+  nome       text not null,
+  criado_em  timestamptz not null default now()
+);
+
+create unique index if not exists socios_nome_idx on socios (lower(nome));
+
+-- As partes de um projeto **que foge à regra**. Um projeto sem linhas aqui
+-- divide-se em partes iguais por todos os sócios — é o caso normal, e não se
+-- escreve. As que lá estão somam 100, e quem as escreve é o `guardarDivisao`.
+create table if not exists partes (
+  projeto_id   bigint not null references projetos(id) on delete cascade,
+  socio_id     bigint not null references socios(id) on delete cascade,
+  percentagem  numeric(5, 2) not null
+               constraint partes_percentagem_check
+               check (percentagem >= 0 and percentagem <= 100),
+  primary key (projeto_id, socio_id)
+);
+
+-- A comissão de quem arranjou o cliente. Sai da margem do projeto **antes** das
+-- partes: na Confeitaria Damira são 15 % para quem a trouxe, e o resto
+-- divide-se pelas partes. As duas colunas andam juntas — ou as duas, ou
+-- nenhuma.
+alter table projetos add column if not exists comissao_socio_id bigint;
+alter table projetos add column if not exists comissao_pct numeric(5, 2);
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'projetos_comissao_socio_fk') then
+    alter table projetos add constraint projetos_comissao_socio_fk
+      foreign key (comissao_socio_id) references socios(id) on delete set null;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'projetos_comissao_check') then
+    alter table projetos add constraint projetos_comissao_check
+      check (comissao_pct is null or (comissao_pct > 0 and comissao_pct < 100));
+  end if;
+end $$;
+
+-- O que já se pagou a cada sócio. Sem isto a página dizia para sempre o total
+-- que cada um ganhou, e ninguém sabia o que ainda lhe falta receber.
+--
+-- `restrict` no sócio: apagar alguém não pode apagar o dinheiro que já se lhe
+-- deu. Para o tirar da divisão, apagam-se primeiro estas linhas, à mão.
+create table if not exists levantamentos (
+  id         bigint generated always as identity primary key,
+  socio_id   bigint not null references socios(id) on delete restrict,
+  -- Sem IVA, como tudo o resto.
+  valor      numeric(10, 2) not null check (valor > 0),
+  data       date not null,
+  notas      text,
+  criado_em  timestamptz not null default now()
+);
+
+create index if not exists levantamentos_socio_idx on levantamentos (socio_id);

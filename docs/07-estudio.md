@@ -160,21 +160,22 @@ sessão aberta**, cada um com Terminar sessão; **a última entrada de cada um**
 ## O dinheiro
 
 `/estudio` é o resumo; a lista de projetos vive em `/estudio/projetos`; e o
-dinheiro tem casa própria em **`/estudio/financas`**, com duas sub-páginas:
+dinheiro tem casa própria em **`/estudio/financas`**, com três sub-páginas:
 
 | Endereço                     | O quê                                              |
 | ---------------------------- | -------------------------------------------------- |
 | `/estudio/financas`          | redireciona para as receitas                        |
 | `/estudio/financas/receitas` | o que está contratado, e tudo o que já entrou       |
 | `/estudio/financas/gastos`   | o custo fixo do estúdio, e tudo o que já saiu       |
+| `/estudio/financas/divisao`  | de quem é a margem dos projetos, e o que já se pagou a cada um |
 | `/estudio/gastos`            | redireciona — era aqui que os gastos viviam         |
 
 Os gastos estiveram em `/estudio/gastos` e o endereço ficou a redirecionar, não
 a dar 404: era um sítio onde se ia todos os dias, e está em marcadores.
 
-A sub-navegação entre as duas é o `components/estudio/SubNavegacao.tsx`, que
+A sub-navegação entre elas é o `components/estudio/SubNavegacao.tsx`, que
 **recebe o separador ativo por prop**. Descobri-lo com o `usePathname` obrigava
-a `"use client"` numa barra de dois links que o servidor já sabe desenhar — é o
+a `"use client"` numa barra de três links que o servidor já sabe desenhar — é o
 mesmo arranjo do `SeletorDePeriodo`. Tem o desenho dos `Separadores` do topo em
 pequeno, mas a escolhida acende a `surface-2` e não a laranja: duas pastilhas
 laranja seguidas diriam "estás aqui" duas vezes.
@@ -318,6 +319,55 @@ pequena e mais apagada, o que fazia a lista parecer baralhada quando nunca
 esteve. Quem parte a lista é o `agruparPorMes()` de `tipos.ts`, que preserva a
 ordem que recebe de propósito — se um dia a consulta vier baralhada, quer-se que
 isso apareça, não que seja escondido a caminho do ecrã.
+
+### A divisão: de quem é a margem
+
+Pedido do Gonçalo a 2026-10-19: o estúdio é de três pessoas, e a página
+**Finanças › Divisão** diz quanto da margem dos projetos é de cada uma e quanto
+falta pagar-lhe. As regras, todas do pedido:
+
+- **Só conta o trabalho feito uma vez.** A margem de um projeto é o que o
+  cliente pagou **pelo projeto** (`pagamentos`) menos os gastos do projeto que
+  se pagam **uma vez** (`unica`, sem `origem_id`). Alojamentos, domínios e
+  mensalidades ficam de fora — os recebimentos e os gastos que se repetem, dos
+  dois lados, porque um domínio que se revende ao cliente é um gasto do projeto
+  que volta a entrar pela receita de domínio, e contar só um dos lados fazia o
+  projeto parecer pior do que é.
+- **Por defeito, partes iguais por todos os sócios**, e isso não se escreve: um
+  projeto sem linhas em `partes` segue a regra. Só se escrevem as exceções, na
+  aba Dinheiro da ficha ("à medida") — o café Avenida, por exemplo, divide-se
+  só entre o Gonçalo e o Sobral.
+- **A comissão de quem arranjou o cliente sai primeiro**, e o resto divide-se
+  pelas partes. Na Confeitaria Damira são 15 % para o Rodas e o resto a meias.
+  É uma comissão, e não uma parte de 15 %, porque é assim que se fala dela: "este
+  projeto tem comissão para quem o trouxe".
+- **Os custos do estúdio saem em partes iguais por todos** — a Vercel, os
+  domínios, as placas são da empresa inteira. Só se abatem ao que está fechado:
+  tirá-los também de uma estimativa descontava-os duas vezes no dia em que o
+  projeto fechasse. Contam até hoje; uma linha com data no futuro ainda não saiu
+  da conta.
+- **Só os projetos entregues contam para o "falta pagar".** Os outros aparecem
+  à parte, marcados como estimativa, com o que já entrou e o que fica se o
+  cliente pagar tudo. O dinheiro pode já estar na conta, mas o trabalho ainda
+  pode custar mais e o resto pode não vir.
+- **O que já se pagou a cada um vive em `levantamentos`.** Sem isso, a página
+  dizia para sempre o total ganho, e ninguém sabia o que ainda lhe faltava.
+
+**Os sócios são uma tabela à parte de `utilizadores`.** Quem divide não é quem
+entra: há quem esteja na divisão e nunca tenha aberto o Estúdio. E a ordem em
+que entram na tabela é a ordem das colunas da página.
+
+**Reparte-se em cêntimos, pelo maior resto** (`repartir()` em `tipos.ts`). Cada
+parte arredondada por si dava 33,33 € três vezes de 100 €, e um cêntimo
+desaparecia. As somas continuam em SQL; o que se faz em JavaScript é só a
+multiplicação, sobre valores já somados.
+
+**As partes escritas normalizam-se** em vez de se confiar que somam 100 (o
+`pesosDoProjeto()`). Tirar um sócio apaga as partes dele em cascata, e os
+outros ficam com o que sobra em vez de esse dinheiro desaparecer da conta.
+
+**Continua a não se chamar lucro.** É antes de impostos e de ordenados — é
+margem, como no resto do Estúdio.
 
 ### As somas fazem-se todas em SQL
 
@@ -889,7 +939,9 @@ Três decisões que valem a leitura:
    outra vez **sempre que a secção "Ajustes" do `schema.sql` mudar, antes do
    deploy** — o código novo conta com as colunas novas. O de 2026-10-14 (as
    Sessões) é o caso: sem ele, o `abrirSessao` tenta gravar o `aparelho` numa
-   coluna que não existe e **ninguém entra**.
+   coluna que não existe e **ninguém entra**. O de 2026-10-19 (a divisão) é
+   outro: sem ele, a aba Dinheiro de **todos** os projetos parte, porque lê as
+   tabelas `socios` e `partes`.
 3. **OAuth App** em <https://github.com/settings/developers>, separador
    **OAuth Apps** (não **GitHub Apps**, que são outra coisa). Os endereços de
    retorno registam-se na secção **Redirect URIs**, e o GitHub aceita até dez por
@@ -978,6 +1030,9 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | um fragmento `CAMPOS_*` de `dados.ts`  | qualifica-o com o alias e dá esse alias à tabela — o primeiro `join` que o use sem isso rebenta  |
 | para onde vai quem sai                 | `app/api/estudio/auth/sair/route.ts` — é `/`, o site, e o `303` mantém-se                        |
 | o cálculo dos vencimentos              | `vencimentosAte()` em `tipos.ts`; testa fevereiro, um mês de 30 e um `desde` a dia 31           |
+| o que entra na margem de um projeto    | `projetosADividir()` em `dados.ts` — os `pagamentos` e os gastos `unica` sem `origem_id`; nada de recebimentos |
+| como se reparte a divisão              | `pesosDoProjeto()`, `repartir()` e `contasDaDivisao()` em `tipos.ts`; as partes somam sempre o total ao cêntimo |
+| como se dividem os custos do estúdio   | `contasDaDivisao()` em `tipos.ts`, e a frase do topo de `financas/divisao/page.tsx` que o explica |
 | o que conta como dinheiro que entrou   | `resumoDoMes()`, o `case 'recebido'` de `listarObjetivos()`, `entradasDoPeriodo()` **e** `listarEntradas()` — todos somam as duas tabelas |
 | uma rota dentro de `/estudio/financas` | a `SubNavegacao`, o `revalidatePath` das ações do dinheiro **e** o teste de fumo do CI |
 | onde vivem os gastos                   | o `/estudio/gastos` fica a redirecionar — está em marcadores de quem lá ia todos os dias |

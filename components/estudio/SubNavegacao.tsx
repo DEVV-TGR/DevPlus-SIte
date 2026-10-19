@@ -4,11 +4,11 @@ import { Icone, type NomeDoIcone } from "@/components/estudio/Icone";
 import { cn } from "@/lib/utils";
 
 /**
- * Os dois lados das Finanças: o que entra e o que sai.
+ * Os separadores das Finanças: o que entra, o que sai, e de quem é o que sobra.
  *
  * **Recebe o separador ativo por prop** em vez de o descobrir com o
  * `usePathname`. Descobri-lo obrigava a `"use client"`, e isto é uma barra de
- * dois links que o servidor já sabe desenhar. Os `Separadores` do topo não
+ * três links que o servidor já sabe desenhar. Os `Separadores` do topo não
  * conseguem fazer o mesmo — vivem num layout, que não volta a correr ao navegar
  * — mas esta barra vive na página, e a página sabe onde está.
  *
@@ -24,9 +24,10 @@ const SECCOES: {
 }[] = [
   { chave: "receitas", href: "/estudio/financas/receitas", rotulo: "Receitas", icone: "entra" },
   { chave: "gastos", href: "/estudio/financas/gastos", rotulo: "Gastos", icone: "sai" },
+  { chave: "divisao", href: "/estudio/financas/divisao", rotulo: "Divisão", icone: "camadas" },
 ];
 
-export type SeccaoFinanceira = "receitas" | "gastos";
+export type SeccaoFinanceira = "receitas" | "gastos" | "divisao";
 
 export function SubNavegacao({ atual }: { atual: SeccaoFinanceira }) {
   return (

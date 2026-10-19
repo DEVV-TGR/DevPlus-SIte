@@ -9,17 +9,20 @@ import type {
   EntradaNaPorta,
   Estado,
   Gasto,
+  Levantamento,
   Metrica,
   Objetivo,
   Pagamento,
   Periodicidade,
   Periodo,
   Projeto,
+  ProjetoADividir,
   ProjetoLeve,
   Recebimento,
   Receita,
   Reparticao,
   SessaoAberta,
+  Socio,
   Tarefa,
   TipoReceita,
   Utilizador,
@@ -1216,5 +1219,132 @@ export async function sessoesAbertas(): Promise<SessaoAberta[]> {
     aparelho: l.aparelho,
     criadaEm: l.criada_em.getTime(),
     expiraEm: l.expira_em.getTime(),
+  }));
+}
+
+/* --------------------------------------------------------------------------
+   A divisão
+
+   As somas fazem-se aqui, em SQL, como todas; repartir é em `tipos.ts`. Ver
+   "A divisão" no docs/07.
+   -------------------------------------------------------------------------- */
+
+/** Pela ordem em que entraram na divisão — é a ordem das colunas da página. */
+export async function listarSocios(): Promise<Socio[]> {
+  const linhas = await consulta<{ id: string; nome: string }>(
+    `select id, nome from socios order by id asc`,
+  );
+  return linhas.map((l) => ({ id: Number(l.id), nome: l.nome }));
+}
+
+/**
+ * Os projetos que entram na divisão: os que têm valor combinado ou algum
+ * pagamento. Um projeto sem um nem outro não tem margem para dividir.
+ *
+ * Com `projetoId`, só esse — e mesmo que ainda não tenha dinheiro nenhum, que
+ * é o caso da ficha de um projeto novo.
+ *
+ * Os gastos são só os que se pagam **uma vez** (`unica` e sem `origem_id`). Um
+ * domínio que se revende ao cliente é um gasto do projeto que se repete, e
+ * volta a entrar pela receita de domínio — que também fica de fora. Contar um
+ * sem o outro fazia o projeto parecer pior do que é.
+ */
+export async function projetosADividir(
+  projetoId?: number,
+): Promise<ProjetoADividir[]> {
+  const linhas = await consulta<{
+    id: string;
+    nome: string;
+    cliente_nome: string | null;
+    estado: Estado;
+    valor: string | null;
+    recebido: string;
+    gastos: string;
+    comissao_socio_id: string | null;
+    comissao_pct: string | null;
+    partes: { socioId: number; pct: number }[] | null;
+  }>(
+    `select p.id, p.nome, c.nome as cliente_nome, p.estado, p.valor,
+            coalesce((select sum(pg.valor) from pagamentos pg
+                       where pg.projeto_id = p.id), 0) as recebido,
+            coalesce((select sum(g.valor) from gastos g
+                       where g.projeto_id = p.id
+                         and g.periodicidade = 'unica'
+                         and g.origem_id is null), 0) as gastos,
+            p.comissao_socio_id, p.comissao_pct,
+            (select json_agg(json_build_object('socioId', pt.socio_id,
+                                               'pct', pt.percentagem)
+                             order by pt.socio_id)
+               from partes pt where pt.projeto_id = p.id) as partes
+       from projetos p
+       left join clientes c on c.id = p.cliente_id
+      where case when $1::bigint is null
+                 then p.valor is not null
+                      or exists (select 1 from pagamentos pg
+                                  where pg.projeto_id = p.id)
+                 else p.id = $1::bigint end
+      order by (p.estado = 'entregue') desc, p.nome asc`,
+    [projetoId ?? null],
+  );
+
+  return linhas.map((l) => ({
+    id: Number(l.id),
+    nome: l.nome,
+    clienteNome: l.cliente_nome,
+    estado: l.estado,
+    combinado: l.valor === null ? null : Number(l.valor),
+    recebido: Number(l.recebido),
+    gastos: Number(l.gastos),
+    comissao:
+      l.comissao_socio_id !== null && l.comissao_pct !== null
+        ? { socioId: Number(l.comissao_socio_id), pct: Number(l.comissao_pct) }
+        : null,
+    partes:
+      l.partes?.map((x) => ({
+        socioId: Number(x.socioId),
+        pct: Number(x.pct),
+      })) ?? null,
+  }));
+}
+
+/**
+ * Tudo o que o estúdio já pagou sem ser por um projeto: a Vercel, os
+ * domínios, as placas. Até hoje — uma linha com data no futuro ainda não saiu
+ * da conta.
+ */
+export async function custosDoEstudio(hoje: string): Promise<number> {
+  const linha = await consultaUma<{ total: string }>(
+    `select coalesce(sum(valor), 0) as total
+       from gastos
+      where projeto_id is null and data <= $1::date`,
+    [hoje],
+  );
+  return Number(linha?.total ?? 0);
+}
+
+/** O que já se pagou a cada sócio, do mais recente para o mais antigo. */
+export async function listarLevantamentos(): Promise<Levantamento[]> {
+  const linhas = await consulta<{
+    id: string;
+    socio_id: string;
+    socio_nome: string;
+    valor: string;
+    data: string;
+    notas: string | null;
+  }>(
+    `select l.id, l.socio_id, s.nome as socio_nome, l.valor,
+            to_char(l.data, 'YYYY-MM-DD') as data, l.notas
+       from levantamentos l
+       join socios s on s.id = l.socio_id
+      order by l.data desc, l.id desc`,
+  );
+
+  return linhas.map((l) => ({
+    id: Number(l.id),
+    socioId: Number(l.socio_id),
+    socioNome: l.socio_nome,
+    valor: Number(l.valor),
+    data: l.data,
+    notas: l.notas,
   }));
 }
