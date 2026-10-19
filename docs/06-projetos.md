@@ -337,3 +337,16 @@ largura.
   tópicos a dizerem que está entregue (com `updatedAt`).
 - Com os painéis entregues, o texto da Taskuinha e do Império deixou de dizer
   "em desenvolvimento" (`updatedAt: 2026-10-19`).
+
+## Projetos ocultos — 19 de outubro
+
+Um projeto pode sair do site **sem sair do catálogo**: `oculto: true` em
+`lib/projects.ts`. Fica tudo guardado (texto, capa, capturas, tópicos), mas
+`projects` — o que o portfólio, o sitemap, as rotas e o "próximo projeto"
+leem — já vem sem ele, a home salta-o em `HOME_PROJECT_SLUGS`, e o endereço
+redireciona para `/portfolio` com **307** (`slugsOcultos` em
+`next.config.ts`): temporário, porque pode voltar. Tirar o campo devolve-o a
+todo o lado.
+
+O **Café Avenida** está oculto desde 19 de outubro, por pedido do utilizador.
+Os contadores do portfólio ("projetos", "no ar") contam só os visíveis.

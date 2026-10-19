@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { site } from "./lib/site";
+import { slugsOcultos } from "./lib/projects";
 
 const emDesenvolvimento = process.env.NODE_ENV === "development";
 
@@ -121,11 +122,19 @@ const nextConfig: NextConfig = {
   /* Casos que saíram do portfólio em outubro de 2026 (docs/06). Estavam
      publicados e indexados; um 404 deitava fora quem chegasse por pesquisa. */
   async redirects() {
-    return ["mira-mar", "a-barraquinha-nova"].map((slug) => ({
+    const sairam = ["mira-mar", "a-barraquinha-nova"].map((slug) => ({
       source: `/portfolio/${slug}`,
       destination: "/portfolio",
       permanent: true,
     }));
+    /* Os ocultos (`oculto: true` em lib/projects.ts) podem voltar: 307, para
+       o Google e os browsers não guardarem o desvio para sempre. */
+    const ocultos = slugsOcultos.map((slug) => ({
+      source: `/portfolio/${slug}`,
+      destination: "/portfolio",
+      permanent: false,
+    }));
+    return [...sairam, ...ocultos];
   },
 
   /** Cabeçalhos de segurança em todas as rotas. Ver o comentário da `csp`. */

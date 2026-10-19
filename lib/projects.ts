@@ -18,6 +18,10 @@ export type Project = {
   services: string[];
   /** Qual das cores da marca tinge a capa deste projeto. */
   accent: "primary" | "accent";
+  /** Fora do site sem sair do catálogo: some do portfólio, da home, do
+   *  sitemap e do "próximo projeto", e o endereço redireciona para
+   *  `/portfolio` (`next.config.ts`). Tirar o campo devolve-o. Ver docs/06. */
+  oculto?: boolean;
   /** "em-curso" mostra a etiqueta no card e no caso de estudo. */
   status: "em-curso" | "concluido";
   /** Capa do card, em /public/capas. Sem imagem, cai na forma gerada em CSS. */
@@ -32,7 +36,7 @@ export type Project = {
  * O catálogo alimenta o portfólio; a seleção da home vive em HOME_PROJECT_SLUGS.
  * A cor de capa alterna entre `primary` e `accent` — ver docs/06.
  */
-export const projects: Project[] = [
+const catalogo: Project[] = [
   {
     slug: "cafe-preguica",
     name: "Café Preguiça",
@@ -62,6 +66,8 @@ export const projects: Project[] = [
   {
     slug: "cafe-avenida",
     name: "Café Avenida",
+    // Oculto a 19 de outubro, por pedido do utilizador (docs/06).
+    oculto: true,
     client: "Café Avenida",
     category: "Café & restauração",
     year: "2026",
@@ -407,6 +413,11 @@ export const capturas: Record<string, { desktop: Captura; mobile: Captura }> = {
   },
 };
 
+/** O que o site mostra: o catálogo sem os projetos ocultos. */
+export const projects: Project[] = catalogo.filter((p) => !p.oculto);
+/** Os slugs ocultos: `next.config.ts` redireciona-os, temporariamente, para `/portfolio`. */
+export const slugsOcultos: string[] = catalogo.filter((p) => p.oculto).map((p) => p.slug);
+
 export function getProject(slug: string): Project | undefined {
   return projects.find((p) => p.slug === slug);
 }
@@ -421,8 +432,8 @@ export const HOME_PROJECT_SLUGS = [
   "taskuinha-do-pirata",
   "damira",
 ] as const;
-export const homeProjects: Project[] = HOME_PROJECT_SLUGS.map((slug) => {
-  const project = getProject(slug);
+export const homeProjects: Project[] = HOME_PROJECT_SLUGS.flatMap((slug) => {
+  const project = catalogo.find((p) => p.slug === slug);
   if (!project) throw new Error(`Projeto da home inexistente: ${slug}`);
-  return project;
+  return project.oculto ? [] : [project];
 });
