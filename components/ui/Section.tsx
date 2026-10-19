@@ -13,8 +13,8 @@ import { cn } from "@/lib/utils";
  * se afinasse no `className` o corrigia. Usa `top={false}` / `bottom={false}`.
  */
 const ESPACO = {
-  top: "pt-16 sm:pt-24 lg:pt-32",
-  bottom: "pb-16 sm:pb-24 lg:pb-32",
+  top: "pt-12 sm:pt-20 lg:pt-24",
+  bottom: "pb-12 sm:pb-20 lg:pb-24",
 } as const;
 
 export function Section({

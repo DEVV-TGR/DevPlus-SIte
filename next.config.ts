@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { site } from "./lib/site";
+import { slugsOcultos } from "./lib/projects";
 
 const emDesenvolvimento = process.env.NODE_ENV === "development";
 
@@ -110,6 +111,31 @@ const nextConfig: NextConfig = {
      Não protege nada mantê-lo, e dizer a versão da framework que se corre é
      dizer a quem procura alvos que avisos lhe há de experimentar. */
   poweredByHeader: false,
+
+  /* Só em desenvolvimento. O indicador do Next nasce no canto inferior
+     esquerdo, que é o canto do botão sol/lua do tema (docs/02, "Temas"): em
+     dev os dois sobrepunham-se e o indicador ficava com os cliques. */
+  devIndicators: {
+    position: "bottom-right",
+  },
+
+  /* Casos que saíram do portfólio em outubro de 2026 (docs/06). Estavam
+     publicados e indexados; um 404 deitava fora quem chegasse por pesquisa. */
+  async redirects() {
+    const sairam = ["mira-mar", "a-barraquinha-nova"].map((slug) => ({
+      source: `/portfolio/${slug}`,
+      destination: "/portfolio",
+      permanent: true,
+    }));
+    /* Os ocultos (`oculto: true` em lib/projects.ts) podem voltar: 307, para
+       o Google e os browsers não guardarem o desvio para sempre. */
+    const ocultos = slugsOcultos.map((slug) => ({
+      source: `/portfolio/${slug}`,
+      destination: "/portfolio",
+      permanent: false,
+    }));
+    return [...sairam, ...ocultos];
+  },
 
   /** Cabeçalhos de segurança em todas as rotas. Ver o comentário da `csp`. */
   async headers() {

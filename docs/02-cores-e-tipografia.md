@@ -3,6 +3,9 @@ doc: cores-e-tipografia
 fonte-de-verdade: doc
 controla:
   - app/globals.css
+  - lib/tema.ts
+  - components/SeletorTema.tsx
+  - app/layout.tsx#tema
   - lib/brand.ts#hex
   - app/icon.png#cores
   - app/favicon.ico#cores
@@ -56,7 +59,10 @@ badges e botões.
 Herdadas do design original e ainda em vigor:
 
 1. **Sem gradient-text.** O gradiente é para superfícies e linhas.
-2. **Sem glass por defeito.** `backdrop-blur` só onde já existe (chips sobre capas).
+2. **Glass apenas nas superfícies aprovadas.** Além dos materiais atelier e
+   do carrossel, o header e o menu usam vidro translúcido por pedido explícito.
+   Header: `bg` a 58%, blur 18px/saturação 160%, reflexo diagonal `creme`; menu: `bg` a 82%, blur 28px, reflexo `creme`
+   e aresta. Fallback opaco sem suporte; forced-colors usa Canvas.
 3. **Hierarquia, não contraste.** `ink` para o que se lê primeiro, `muted` para o
    apoio. Isto é uma regra de hierarquia visual — **não** é um problema de
    legibilidade, como se explica já a seguir.
@@ -120,7 +126,8 @@ os pixels, que ninguém consegue rever num diff.
 ### Os ícones estão fora da paleta — de propósito
 
 Os bitmaps de agosto de 2026 **não usam os tokens**: o fundo é `#000000` em vez
-de `--bg` `#1a1613`, e o "+" é `#FF780A` em vez de `--primary` `#F2762B`. Foi
+de `--bg` `#0f0a07`, e o "+" é `#FF780A` em vez de `--primary` `#fe790a`
+(hoje quase iguais: o `--primary` do remake aproximou-se do laranja do ícone). Foi
 uma decisão explícita do Gonçalo ao adotar o desenho, não um lapso — fica aqui
 registada porque é a única exceção viva à regra de não inventar cores, e porque
 um bitmap não se revê num diff como se revê um hex.
@@ -128,15 +135,30 @@ um bitmap não se revê num diff como se revê um hex.
 Se algum dia se realinharem com a paleta, é regerar os dois ficheiros a partir
 de um original nas cores certas. Ver `docs/03-simbolo-e-logotipo.md`.
 
+### Os retratos da equipa — a segunda exceção
+
+Os retratos planos do `/contacto` (`components/Avatar.tsx`) precisam de cor de
+pele e de cabelo, que nenhum token da marca tem. Vivem em `--avatar-*` no
+`:root` — `pele-clara`, `pele-morena`, `cabelo-loiro`, `cabelo-castanho`,
+`cabelo-preto` e `traco` (olhos e boca) —, não mudam com o tema e **não se
+usam em mais lado nenhum**. As camisolas são `--primary`, `--accent` e
+`--peach`. Quem é quem está em `team` (`lib/site.ts`), como cada um pediu.
+
 | Token OKLCH                        | Hex       |
 | ---------------------------------- | --------- |
-| `--primary` `oklch(0.72 0.188 50)` | `#F2762B` |
-| `--bg` `oklch(0.15 0.011 56)`      | `#1a1613` |
-| `--ink` `oklch(0.97 0.006 80)`     | `#f7f2ec` |
-| `--muted` `oklch(0.77 0.012 80)`   | `#c8bdb0` |
+| `--primary` `oklch(0.72 0.188 50)` | `#fe790a` |
+| `--bg` `oklch(0.15 0.011 56)`      | `#0f0a07` |
+| `--ink` `oklch(0.97 0.006 80)`     | `#f7f5f1` |
+| `--muted` `oklch(0.77 0.012 80)`   | `#b8b3ac` |
 
 Esta é a **única duplicação de cor autorizada**. Se mudares um token, atualiza os
-dois sítios ou o cartão social passa a ter uma cor diferente do site.
+dois sítios ou o cartão social passa a ter uma cor diferente do site. Aconteceu:
+os tokens mudaram no remake de outubro e o `BRAND_HEX` ficou com os valores de
+agosto até 19 de outubro. Os hex acima são a conversão exata (OKLCH → sRGB).
+
+Os **desenhos da Damira** (`scripts/desenhar-damira.mjs`) não duplicam cor
+nenhuma: leem os tokens do `:root` e convertem-nos na hora. Mas são ficheiros
+gerados — mudou um token, corre o script outra vez (docs/06).
 
 ## Tipografia
 
@@ -170,25 +192,29 @@ abaixo disso as letras tocam-se).
 
 ### A escala dos títulos vive no `globals.css`
 
-Setembro de 2026. Os `clamp()` estavam escritos um a um nos componentes, e todos
-com **mínimos pensados em computador**: `clamp(2.2rem, 5.6vw, 4.6rem)` dá 35px
-num iPhone. Medido lado a lado com o site de referência no mesmo ecrã de 390px,
-os títulos dele iam de **79 a 113px** — os nossos eram um terço, e a página
-lia-se como a versão de computador encolhida.
+Uma medida única para os títulos principais do site público: capas, títulos de secção, casos, contacto, privacidade e fecho. As classes
+`t-capa`, `t-seccao`, `home-heading` e `interior-heading` leem
+`--titulo-principal: clamp(2.25rem, 1.75rem + 2.5vw, 4rem)`.
+A única exceção, aprovada pelo utilizador, é o hero da home: `home-title`
+usa `--titulo-hero: clamp(2.65rem, 2rem + 3.2vw, 5.3rem)`.
+Não há outras escalas próprias por página.
 
-O que mudou não foi o teto: foi **qual dos três termos manda**. O `vw` domina no
-telemóvel e o máximo serve o computador.
-
-| Utilidade | Papel | A 390px | A 1440px |
+| Papel | A 320px | A 390px | A 1440px |
 | --- | --- | --- | --- |
-| `t-capa` | o `h1` de uma capa | **74px** | 90px |
-| `t-seccao` | o título de um capítulo | **62px** | 74px |
-| `t-obra` | o nome de um projeto no índice | **51px** | 64px |
+| Hero da home | 42,4px | 44,48px | 78,08px |
+| Título principal | 36px | 37,75px | 64px |
+| Cartão / subtítulo (`t-cartao`, `t-obra`) | 24px | 24px | 24px |
 
-São `@utility` em `app/globals.css`, e é lá que se mexem — como o espaçamento
-vive no `Section` e por a mesma razão: doze `clamp()` espalhados divergem ao
-segundo mês. Um título que precise de medida própria (o do rodapé, que não é um
-capítulo) escreve o seu `clamp` e diz porquê.
+Bricolage, peso 650 e tracking −0,035em em ambos. Entrelinha 1,06 nos
+principais e 1,15 nos cartões. Os títulos editoriais partilham uma assinatura:
+frase principal a 650, destaque em `em` itálico a 500 e `--acento` do capítulo.
+A regra vive em `globals.css` e abrange `t-capa`, `t-seccao`, `home-heading` e
+`interior-heading`. A Bricolage mantém-se como família única; o contraste vem
+do desenho inclinado e do peso. O fecho sobre laranja usa `--primary-ink` no
+itálico para preservar o contraste. Não acrescentar itálicos aos nomes de
+clientes ou a cada pequeno subtítulo.
+Rótulos de navegação, controlos e colunas fechadas do acordeão continuam
+compactos; não são títulos editoriais. O Estúdio interno tem a sua escala.
 
 ### E o corpo, no telemóvel
 
@@ -219,6 +245,11 @@ suavidade que essa estrutura existe para recusar. Ver `docs/04`.
 | `--paper-ink` | texto sobre `--paper` | 12.6:1 |
 | `--paper-muted` | apoio sobre `--paper` | 6.1:1 |
 | `--primary` | o fecho, que é o rodapé inteiro | O último ground do site, e o único quente. Ver `docs/01` |
+| `--mint` | o capítulo QR/NFC (`NaMesa`), os cards pares do processo, uma das molduras das capas | Verde claro para a prova à mesa. Leva `--forest`: 11,71:1 |
+| `--forest` | as cenas 01 e 03 dos serviços, uma das molduras das capas, tinta sobre `--mint` | Verde fundo, a profundidade dos serviços. `--ink` sobre ele: 15,10:1; `--primary`: 6,23:1 |
+| `--forest-muted` | apoio nos serviços, sobre `--forest`, `--bg` e `--bg-deep` | 8,06:1 / 9,64:1 / 9,98:1 |
+| `--peach` | os cards ímpares do processo, uma das molduras das capas | Laranja claro. Leva `--primary-ink`: 13,18:1 |
+| `--copper` | o itálico sobre `--paper` ("fala por nós.") | O laranja não se lê no creme; o cobre dá 7,35:1 |
 
 **`--paper` nunca se usa sozinho.** Sobre creme, o `--ink` é invisível: quem
 usa o fundo usa também a tinta que lhe pertence. É por isso que são quatro
@@ -239,3 +270,138 @@ tokens e não dois.
 | `--primary` (o ground do rodapé)   | volta a medir as duas tintas sobre ele **e** o pior caso com a poeira do `Fecho` por baixo — a secção "O ground laranja tem duas tintas" tem os números |
 | a medida de um título              | `t-capa` / `t-seccao` / `t-obra` em `app/globals.css`, e a tabela acima — não escrevas um `clamp` novo num componente sem dizer porquê |
 | a escala do corpo em telemóvel     | o bloco `@media (max-width: 767px)` de `app/globals.css`; e corre o verificador em `--mobile`, que falha abaixo de 14px |
+
+## Home de outubro de 2026
+
+A identidade e os tokens mantêm-se. A escala da home foi unificada com os
+restantes títulos em 17 de outubro: ver a tabela acima. As linhas do hero
+não levam `nowrap`, para o texto continuar a quebrar com zoom.
+A home, as órbitas, as etiquetas e os controlos não acrescentam cores: usam
+os tokens existentes, com a tinta do ground correspondente.
+
+## Extensão atelier — 17 de outubro
+
+Por pedido explícito do utilizador, a home acrescenta cinco tokens, sem alterar
+os valores originais. `copper` é o acento legível no papel; `peach` é uma
+superfície clara quente; `forest` dá profundidade aos serviços; `mint` sustenta
+a demonstração real e cartões; `forest-muted` serve o texto secundário no
+escuro. Valores em `:root`, espelhados em `@theme inline`, junto dos tokens
+originais e não num bloco à parte. As combinações usadas e os contrastes medidos
+estão na tabela "Os grounds dos capítulos", acima.
+A tipografia mantém Bricolage: itálico de peso médio em soma, fala por nós,
+à mesa, trabalhamos e começar. A direção e os assets estão em docs/09.
+
+## Temas — claro e escuro
+
+Outubro de 2026. O site público tem dois temas. **O escuro é o site de
+sempre**; o claro troca base e papel. Quem decide no primeiro desenho é o
+script do `<head>` em `app/layout.tsx`: lê a escolha guardada em
+`localStorage` (chave `devplus-tema`, em `lib/tema.ts`) ou, sem escolha, o
+`prefers-color-scheme`, e escreve `data-theme` no `<html>` antes de pintar —
+sem salto de escuro para claro. O botão sol/lua (`components/SeletorTema.tsx`)
+vive no canto inferior esquerdo, com 48px, nome fixo "Modo escuro" e
+`aria-pressed`; a dica diz a ação seguinte. Sem escolha, acompanha o sistema em
+direto; com escolha, a escolha manda. O Estúdio fica sempre escuro: o `<html>`
+leva `data-area="estudio"` e o CSS do claro ignora-o.
+
+**A inversão faz-se nos tokens, não nos componentes.** O bloco
+`html[data-theme="light"]` de `app/globals.css` redefine os tokens, e a
+navegação, o rodapé, os formulários e as interiores seguem sem uma segunda
+implementação. Os componentes pedem **papéis**:
+
+| Papel | Escuro | Claro | Usado em |
+| --- | --- | --- | --- |
+| base (`--bg`, `--ink`, `--muted`) | grafite, creme | creme, grafite | hero, pacotes de `/servicos`, interiores |
+| fundo (`--bg-deep`) | `oklch(0.115 …)` | `oklch(0.915 0.011 76)` | processo, índice do portfólio |
+| inverso (`--paper*`) | creme | grafite | galeria da home |
+| verde (`--verde*`) | forest, tinta creme | mint, tinta forest | `NaMesa`, serviços da home |
+| quente (`--quente*`) | cobre a 18% sobre `--bg-deep` | peach, tinta `primary-ink` | pacotes da home |
+| laranja | `--primary` | `--primary` | rodapé (`.ground-laranja`) |
+
+As classes `.capitulo-base`, `-fundo`, `-inverso`, `-verde`, `-quente` e
+`-laranja` pintam o capítulo e definem `--ground` e `--fg`, que o
+`MaterialGround` lê (docs/10).
+
+Papéis que não são cores de fundo:
+
+- `--acento` — o laranja **quando é texto**: `--primary` no escuro, `--copper`
+  no claro, porque o laranja sobre creme dá 2,30:1. Utilidade `text-acento`.
+  Como fundo de botão, o `--primary` é o mesmo nos dois temas.
+- `--acento-inverso` — o acento dentro de um capítulo inverso: cobre sobre o
+  creme no escuro (7,35:1), laranja sobre o grafite no claro (7,45:1).
+- `--foco` — o contorno de foco: o verde no escuro, forest no claro (o verde
+  sobre creme dá 1,6:1).
+- `--creme` — nunca troca. É a tinta de superfícies escuras nos dois temas (o
+  botão `contraste` do fecho) e o brilho dos materiais.
+
+Valores novos do claro (os restantes são tokens de sempre trocados), medidos:
+
+| Token no claro | Valor | Medida |
+| --- | --- | --- |
+| `--bg-deep` | `oklch(0.915 0.011 76)` | `paper-muted` 6,06:1, `paper-ink` 12,45:1 |
+| `--surface` | `oklch(0.975 0.006 80)` | placas e campos |
+| `--surface-2` | `oklch(0.925 0.01 78)` | `paper-muted` 6,25:1 |
+| `--border` | `oklch(0.86 0.012 70)` | separadores (1,33:1, como o escuro) |
+| `--border-strong` | `oklch(0.58 0.016 60)` | 3,74:1 sobre `--bg`, 4,00:1 sobre `--surface` |
+| `--danger` | `oklch(0.5 0.19 25)` | 5,76:1 sobre `--bg`, 6,17:1 sobre `--surface` |
+
+Contraste do site inteiro medido por script nos dois temas, a 1366 e 390px,
+texto a texto contra o fundo composto (Playwright, build de produção): zero
+falhas AA, incluindo navegação, rodapé e o formulário em erro (6,19:1 no claro,
+5,89:1 no escuro).
+
+Não se inverte nenhuma fotografia nem captura de cliente: as imagens ficam
+como são, e só o que está à volta muda.
+
+### As camadas do CSS
+
+Duas regras de `app/globals.css` estavam **fora de camada** — o `*` que dá a
+cor de borda por omissão e o `h1–h4` com `letter-spacing: -0.02em`. No Tailwind
+v4 as utilidades vivem em `@layer utilities`, e uma regra sem camada ganha a
+qualquer camada, seja qual for a especificidade: nenhum `border-border-strong`,
+`border-primary/45` ou `tracking-*` de título se aplicava (os campos do
+formulário tinham borda de 1,4:1). As duas passaram para `@layer base`. **Uma
+regra global nova que toque numa propriedade que as utilidades também
+escrevem vai em `@layer base`.**
+
+### Tipografia — o peso e o tracking dos títulos
+
+Os títulos usam o peso **650** das previews aprovadas, pela utilidade
+`font-titulo` (`--font-weight-titulo` no `@theme`): substituiu os
+`font-extrabold`/`font-bold` soltos. `home-title` e `home-heading` também a
+650. O tracking dos títulos é −0,035em (`t-capa`, `t-seccao`, `t-obra`,
+`home-*`). Itálico de peso 500 só em palavras escolhidas, no acento do papel.
+
+| Se mudares… | Faz também |
+| --- | --- |
+| um token do escuro | o par dele no bloco `html[data-theme="light"]`, e mede os dois |
+| um papel (`--verde`, `--quente`, `--acento*`) | as classes `.capitulo-*` e a tabela acima |
+| a chave do tema | `lib/tema.ts`; o script do `app/layout.tsx` lê-a de lá |
+| o sítio do botão do tema | confirma que não fica por cima de um CTA das cenas pinadas nem dos links legais do rodapé |
+
+### Escala das interiores — revisão das previews
+
+As interiores partilham a escala principal da tabela acima. A capa mantém
+20ch de medida e quebra equilibrada; contacto e casos já não têm tamanho
+próprio. Alterar o token atualiza todos os títulos principais em conjunto.
+
+Os pacotes de `/servicos` também usam o papel quente. A capa Sobre usa
+`--verde`, `--verde-ink` e `--verde-muted`, portanto forest no escuro e mint
+no claro. As restantes capas usam o papel base com acabamentos distintos.
+Não foram acrescentadas cores nem invertidas imagens.
+
+## Alumínio escovado — 18 de outubro
+
+Quatro tokens novos, por tema, para o acabamento `aluminio` (docs/10): os
+cartões do processo e as colunas do acordeão da `/servicos`.
+
+| Token | Escuro (anodizado) | Claro (prata) |
+|---|---|---|
+| `--aluminio-alto` | `oklch(0.315 0.008 250)` | `oklch(0.955 0.003 250)` |
+| `--aluminio` | `oklch(0.285 0.008 250)` | `oklch(0.9 0.005 250)` |
+| `--aluminio-baixo` | `oklch(0.225 0.007 250)` | `oklch(0.85 0.006 250)` |
+| `--aluminio-muted` | `oklch(0.8 0.01 250)` | `oklch(0.4 0.012 250)` |
+
+São o único cinzento frio do site (matiz 250 em vez de 56–80): o alumínio
+lê-se pelo frio. Por cima do material, `--muted` passa a `--aluminio-muted`,
+medido para AA nas duas pontas do gradiente; a tinta principal é `--ink`.

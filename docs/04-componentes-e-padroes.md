@@ -12,14 +12,23 @@ controla:
   - components/ui/ProjectCard.tsx
   - components/Reveal.tsx
   - components/Fecho.tsx
+  - components/Footer.module.css
   - components/Marquee.tsx
   - components/ProjectsMarquee.tsx
   - components/PageHero.tsx
   - components/paginas/Capa.tsx
   - components/paginas/ServicosAcordeao.tsx
   - components/paginas/PortfolioIndice.tsx
+  - components/paginas/Ambiente.tsx
+  - components/paginas/PacotesBancada.tsx
+  - components/paginas/Carril.tsx
+  - components/paginas/paginas.module.css
+  - components/home/Pacotes.tsx
+  - components/home/NaMesa.tsx
+  - lib/carrossel.ts
   - components/Providers.tsx
   - components/Nav.tsx
+  - components/PackagePlates.tsx
   - components/ContactForm.tsx
   - lib/contacto.ts
   - app/api/contacto/route.ts
@@ -55,14 +64,16 @@ Uma `<section>` com padding próprio ou um `<div class="max-w-6xl mx-auto">` nov
 | `Marquee`         | faixa horizontal infinita, decorativa                                      | pôr lá conteúdo que importe — é `aria-hidden`                                              |
 | `ProjectsMarquee` | a faixa de projetos da página inicial: conteúdo real, focável e arrastável | usá-lo para decoração — para isso é o `Marquee`; e pôr `gap` no track, que parte o ciclo   |
 | `PageHero`        | cabeçalho da `/privacidade` — texto que não precisa de composição           | usá-lo nas quatro páginas que ganharam capa própria; para essas é o `paginas/Capa`         |
-| `paginas/Capa`    | a capa de uma página interior: um ecrã só, com o título a ocupá-lo          | pôr-lhe uma figura — a figura é o pico da inicial e repeti-la em cinco capas gasta-a       |
+| `paginas/Capa`    | a capa de uma página interior: um ecrã só, com o título a ocupá-lo, e o ambiente do atelier por trás (`ambiente`: `pleno`, `margens`, `espelho`) | pôr-lhe uma figura — a figura é o pico da inicial e repeti-la em cinco capas gasta-a. O ambiente é profundidade, não figura |
 | `paginas/ServicosAcordeao` | os seis serviços, em colunas que abrem uma de cada vez             | usá-lo na inicial: lá os serviços apresentam-se um a um, aqui catalogam-se                  |
 | `paginas/PortfolioIndice`  | o trabalho em índice, com a capa do ativo numa moldura fixa        | voltar a pôr aqui a grelha de `ProjectCard` — diz o mesmo que a fila da página inicial      |
+| `paginas/Ambiente` | o `AtelierBackdrop` (docs/10) numa camada negativa, por baixo do "+" do `Cruz` | usá-lo numa secção com `bg-*` próprio (fica tapado pelo fundo dela); ligar-lhe o rato (`alvo`) por trás de campos ou de texto legal |
+| `paginas/PacotesBancada` | "Por onde podemos começar" na `/servicos`: três placas `MaterialSurface` com um objeto pequeno cada | pôr o objeto a mandar na leitura, esconder texto atrás de hover, ou desalinhar os títulos das três placas |
 | `home/HeroHome`   | a capa da página inicial                                                   | reutilizar noutro sítio; e pôr o título em dois elementos — ver abaixo                    |
 | `home/Cruz`       | o "+" que atravessa uma página. `postos` muda o percurso                    | dar-lhe os mesmos postos em duas páginas — o que gasta o gesto é repeti-lo **igual**       |
 | `home/Curva`      | o corte entre dois capítulos                                               | pôr uma linha reta no lugar dela; e usá-la sem `de`, que deixa passar o fundo do `body`     |
 | `home/ComoTrabalhamos` | os quatro passos: cards que se acumulam em computador, fila horizontal no telemóvel | transformá-los numa grelha — a acumulação é o ponto; e dar-lhes a pilha no telemóvel, onde não cabe |
-| `home/ProvaCarrossel`  | o trabalho feito, em fila horizontal com a página presa                | usá-lo para hierarquia; lateral lê-se como alcance, não como ordem                          |
+| `home/ProvaCarrossel`  | o trabalho feito, num carrossel de vidro que anda sozinho a cada 2 s, sem prender a página | voltar a pinar a página a ele; tirar o botão de pausa (WCAG 2.2.2); usá-lo para hierarquia |
 | `home/ServicosMostra`  | os serviços um de cada vez, com a meia-roda à direita a escolher qual | catalogar aqui os seis — a página inicial apresenta, a `/servicos` cataloga; e trocar o hover pelo clique, em vez de o acrescentar |
 | `home/Pacotes`    | por onde um projeto começa                                                 | escrever preços; saem de proposta, ver `docs/05`. E distinguir o destacado só com a etiqueta |
 | `Fecho`           | o convite, e é a **cabeça do rodapé** — não uma secção antes dele           | usá-lo fora do `Footer`, ou pôr um segundo CTA neste bloco: é o defeito que ele veio corrigir |
@@ -88,31 +99,32 @@ de projetos à lista de clientes.
 
 ## A homepage conta uma história
 
-Setembro de 2026, segunda escrita. A versão anterior tinha sete secções que
-eram **todas a mesma forma**: título grande, texto, uma coisa por baixo. Mudava
-a cor e o conteúdo, mas o molde não mudava — e uma página assim lê-se como uma
-lista, não como um percurso. O Gonçalo disse-o em três palavras: *"todas as
-secções seguem o mesmo padrão"*.
+Outubro de 2026. A home preserva o que distingue o remake: a coreografia
+conduzida pelo scroll, o leque de cards do processo e a meia-roda dos serviços.
+A melhoria não os substitui por uma página estática. A ordem passa a:
 
-A resposta não foi mais movimento. Foi **cada capítulo ter uma forma
-diferente**, e é essa a regra que agora governa esta página:
+| # | Capítulo | Forma |
+| --- | --- | --- |
+| 0 | Capa | Um h1 visível e oficina digital em profundidade, com dois CTAs |
+| 1 | Trabalho | Sete projetos, galeria horizontal conduzida pelo scroll em desktop |
+| 2 | Processo | Cards que entram, rodam e se acumulam; fila conduzida pelo scroll em mobile |
+| 3 | Serviços | Meia-roda interativa, cenas pinadas, troca por scroll, hover, clique e teclado |
+| 4 | Pacotes | Três pontos de partida e uma saída para todos os serviços |
 
-| # | Capítulo | A forma | Porque esta |
-| - | --- | --- | --- |
-| 0 | Capa | Tipografia partida pelas duas margens, figura no vão | É o pico da página, e um pico precisa de composição, não de um cabeçalho |
-| 1 | Como trabalhamos | Quatro cards inclinados que chegam com o scroll e se **acumulam** sobre o título | No fim vê-se o processo todo de uma vez. Quatro caixas lado a lado diziam o mesmo e não se lembravam |
-| 2 | A prova | Fila horizontal, com a página presa | Lateral lê-se como **alcance**; vertical lê-se como argumento. Aqui não se argumenta |
-| 3 | Serviços | Um de cada vez, número enorme, meia-roda à direita | Uma lista lê-se; isto **opera-se**, e quem procura um serviço passa-lhe o rato por cima |
-| 4 | Por onde começar | Grelha de pacotes: três e um caminho | O quarto não é um card, é a saída para quem não se revê nos três |
+A galeria preserva setas, contador e progresso. Em desktop ≥1024px tem pin com
+pausas `comPausa`; escolher uma seta ou usar as teclas move o scroll vertical
+para a posição correspondente. Abaixo desse breakpoint e com movimento reduzido,
+o percurso é horizontal nativo com snap, sem pin. Não se repetem projetos.
+O catálogo e os sete slugs selecionados na home são independentes.
 
-**Cinco formas, zero repetidas.** Se acrescentares um capítulo, ele traz uma
-forma nova ou não entra.
+A oficina é um asset ImageGen com alfa e versões WebP. O h1 é um elemento
+visível só: o título e a imagem têm áreas próprias, sem sobreposição. O símbolo
+não foi gerado: continua a ser o `Logo`. O prompt e os ficheiros estão em
+`docs/08-home-remake.md`.
 
-O convite era o capítulo 5 desta tabela e **deixou de viver aqui**: é hoje o
-rodapé inteiro, igual nas seis páginas. Ver "O fim do site é um bloco só".
-
-Os grounds mudam por capítulo com cortes duros, separados por `Curva` — ver os
-tokens em `docs/02`. O `Cruz` é a única coisa que atravessa todos.
+O convite continua integrado no rodapé, igual nas páginas públicas. Os grounds
+alternam com `Curva`: bg → paper → bg-deep → bg. O “+” acompanha o percurso
+inteiro; nenhuma animação é exigida a quem pede movimento reduzido.
 
 ### O percurso do "+" mede-se de zero a `"max"`
 
@@ -218,6 +230,19 @@ o convite (`components/Fecho.tsx`) e, **no mesmo ground**, a navegação, as red
 e o legal. O corte entre o laranja e o rodapé deixou de se ver porque deixou de
 haver dois grounds — não é uma emenda melhor feita, é uma emenda que não existe.
 
+O bloco partilha agora um acabamento de metal laranja polido: um único
+`MaterialGround finish="metal"` atravessa convite, navegação e legal, **só com
+o grão escovado** — as dobras do metal saem, porque em laranja as arestas se
+liam como riscas diagonais. O `Footer.module.css` dá o lustro com quatro
+camadas largas e de transição longa, sem arestas: um reflexo difuso à
+direita, luz de cima, um lustro diagonal suave e a base a recuar para o
+`--primary-strong`. A primeira versão tinha dois feixes estreitos e intensos,
+que puxavam o olho para as riscas e não para o convite. Sem novas cores nem
+animações. A luz desvanece no topo para ligar à `Curva`
+no laranja original; a poeira e o CTA conservam o comportamento existente.
+O fundo continua opaco e igual nos dois temas. Em cores forçadas, as camadas
+decorativas desaparecem.
+
 | | |
 | --- | --- |
 | Onde vive | `components/Footer.tsx`, montado uma vez em `app/layout.tsx` |
@@ -303,11 +328,11 @@ que distribuída por ficheiros.
 | Página | A forma | Porque esta |
 | - | --- | --- |
 | `/servicos` | Acordeão de seis colunas verticais, uma aberta de cada vez | Aqui quem chega já sabe o que procura. A inicial **apresenta** quatro serviços um a um; esta **cataloga** os seis, e catalogar quer dizer vê-los todos ao mesmo tempo |
-| `/portfolio` | Índice tipográfico, com a capa do ativo numa moldura que não se mexe | A inicial já mostra o trabalho a passar de lado. Uma grelha de capas aqui era a mesma coisa outra vez — e um índice é a forma de quem procura, não de quem passeia |
-| `/portfolio/[slug]` | Capa a sangrar, e uma ficha técnica que fica presa ao lado do texto | Numa leitura longa a ficha fixa é o que impede que se perca de quem é o projeto a meio do segundo parágrafo |
-| `/sobre` | Coluna central estreita, com as margens habitadas pelas notas | Um estúdio pequeno a falar de si não precisa de secções: precisa de uma voz, e de notas à margem que não a interrompam |
-| `/contacto` | Duas colunas num ecrã, sem percurso | É onde se age. Um formulário que obriga a rolar para se ver inteiro perde gente a meio |
-| `/privacidade` | `PageHero` e texto | É a exceção, e é deliberada: um documento legal não leva composição |
+| `/portfolio` | Índice tipográfico, com a capa real do ativo dentro de uma moldura de alumínio que não se mexe | A inicial já mostra o trabalho a passar de lado. A moldura é um render com a abertura transparente; a captura do cliente fica por baixo, em HTML — enquadra o trabalho, nunca o substitui |
+| `/portfolio/[slug]` | Nome sobre o ambiente, a captura real logo a seguir numa placa 8:5 sem véu, e uma ficha-placa presa ao lado do texto | A sangrar, o nome ficava por cima da captura, e a captura tem os seus próprios títulos ("Que viatura procura?" atravessado por "Império Auto Concept"). Exposta, lê-se inteira |
+| `/sobre` | Coluna central estreita, com as margens habitadas pelas notas; a peça de precisão no intervalo antes de "Em que acreditamos", à esquerda do título | Uma voz, notas à margem, e o único objeto da página num intervalo — não na capa, que é o gesto da inicial |
+| `/contacto` | Duas colunas num ecrã, sem percurso; o título à escala da coluna, painel do formulário em grafite parado, peça de sinal pousada na aresta do painel (só desktop) | É onde se age. A 90px o título ia uma palavra por linha e empurrava o formulário |
+| `/privacidade` | `PageHero` e texto, com o ambiente parado nas margens do cabeçalho | É a exceção, e é deliberada: um documento legal não leva composição — o ambiente não toca no texto da política |
 
 **O "+" deixou de ser só da inicial.** A regra anterior dizia para não o repetir
 noutra página. Estava certa enquanto a homepage era a única com esta gramática;
@@ -329,6 +354,20 @@ as secções levam `relative`**. A camada do "+" é `fixed z-0`, e uma secção 
 baixo dele. Na página inicial nunca se viu porque lá todas as secções já são
 `relative`; na `/contacto` o "+" apareceu por cima do formulário, a tapar os
 campos.
+
+E uma quarta, que veio com os materiais de outubro: **o ambiente vive por baixo
+do "+"**. O `AtelierBackdrop` pinta o seu próprio ground; dentro de uma secção
+`isolate`, como o docs/10 descreve, ele ficava por cima da camada `fixed z-0` do
+`Cruz` e apagava o primeiro tramo do gesto nas capas. O `paginas/Ambiente` põe-no
+numa camada `z-index: -10`, por cima só do fundo do `body`. Isso só funciona em
+secções **sem** `bg-*` próprio — numa secção com fundo, a camada negativa fica
+por baixo dele e não se vê.
+
+Duas notas de `MaterialSurface` que custaram uma volta: o `padding="none"` é
+CSS sem camada e **ganha a qualquer utilidade do Tailwind** passada no
+`contentClassName` (um `p-6` ali não faz nada) — o padding vai num `div`
+interior; e o material ocupa `height: 100%` do pai, por isso um `sticky` vai num
+invólucro próprio, nunca na `className` do material.
 
 ### O telemóvel não é o computador estreitado
 
@@ -665,44 +704,22 @@ animam para lá. O `Flip` do GSAP fazia o mesmo com menos código, **mas é plug
 do Club**: se um dia o projeto tiver licença, é aqui que se usa. Para um risco de
 2 px não se pediu.
 
-### O que a página inicial nova custou a aprender
+### O hero e a navegação da home
 
-- **O título da capa é um `h1` só.** Esteve partido em dois elementos, e o
-  Google e um leitor de ecrã recebiam duas frases soltas. Agora o `h1` é
-  `sr-only` com a frase inteira e as duas metades visíveis são `aria-hidden` —
-  quem vê tem a composição, quem lê tem a frase.
-- **As duas metades posicionam-se em absoluto, não em linhas de grelha.** Com
-  grelha, a segunda caía na faixa do meio, aterrava por cima da ilustração e
-  por cima da primeira: lia-se "tetunegócio".
-- **A figura da capa não fica ao centro.** Ao centro, o creme da ilustração
-  cruzava o creme do título e o contraste local caía a 1.5:1. Está à esquerda,
-  e o título tem um scrim próprio.
-- **Um `scrim` de página inteira resolve o contraste e mata a ilustração.** O
-  que se usa é um gradiente radial invertido: escuro na moldura, onde o texto
-  vive, transparente no meio.
-- **Nas cenas dos serviços usa-se `hidden`, não `opacity: 0`.** Uma cena a zero
-  de opacidade continua tabulável e continua a ser lida, o que punha quatro
-  botões "Falar sobre isto" na ordem de teclado, três deles invisíveis. E o
-  `[hidden]` precisa de regra explícita quando há um `display` declarado, senão
-  não faz nada. **Mas um elemento com `hidden` não anima**, portanto quem sai só
-  o recebe no fim da saída — até lá fica `inert`, que tira do teclado e do leitor
-  de ecrã sem tirar do ecrã.
-- **Os cards do processo acumulam-se, e por isso não levam `stagger`.** Cada um
-  tem a sua fatia do percurso e **fica**; um stagger fá-los-ia suceder-se.
-- **E são atirados para a mesa, não acesos no sítio.** Cada card entra de fora
-  do palco — os das pontas pelo lado, os do meio de baixo — rodado a mais do que
-  a inclinação em que acaba, e assenta nela com o `easeCarta`. O
-  `overflow-hidden` do palco corta-os à entrada, e é isso que se quer ver: uma
-  carta a aparecer pela borda da mesa. Um `fade` com escala, que era o que havia,
-  materializava o card exatamente onde ele já estava.
-- **As poses do leque são dados, não classes.** Vivem no array `PASSOS` de
-  `components/home/ComoTrabalhamos.tsx` (`pousa` e `atira`, em `vw`/`svh`/graus),
-  porque o GSAP tem de animar de uma para a outra e o `transform` inline dele
-  ganha sempre a uma classe. Chegam ao CSS por custom properties no `style` do
-  card, que um `md:[transform:…]` lê — é o que põe o leque de pé antes da
-  hidratação, sem JavaScript e com `prefers-reduced-motion`. Por isso o ramo de
-  movimento reduzido **acende os cards e mais nada**: um `scale: 1` inline
-  bastava para o GSAP tomar conta do `transform` e apagar o leque.
+O hero usa um único h1 visível, com tracking −0,035em. A oficina fica à direita
+em desktop e abaixo do texto em mobile. A entrada anima a posição e a escala;
+a profundidade acompanha o scroll. A transição de página não esconde a árvore
+inteira antes de hidratar.
+
+O menu mobile usa `dialog.showModal()`: foco contido, Escape nativo e regresso
+ao botão de abertura. Fecha ao escolher destino e ao passar para desktop.
+O scroll do fundo fica bloqueado só enquanto o diálogo está aberto. A
+navegação desktop indica a página ativa com fundo e `aria-current`.
+
+O processo mantém as poses de chegada e de repouso, e o mobile mantém o
+percurso horizontal pinado. A roda conserva a sua geometria, a trégua da escolha
+manual e as teclas direcionais. Cada serviço ganha um caso real; os de menus e
+painel ligam ao Café Preguiça, com QR code e NFC mencionados no exemplo.
 
 ### A meia-roda dos serviços
 
@@ -778,6 +795,22 @@ O caminho de uma mensagem:
 
 `components/ContactForm.tsx` → `POST /api/contacto` → Resend → a caixa em
 `site.email`.
+
+O formulário abre com **atalhos** (`GRUPOS_INTERESSE` em `lib/contacto.ts`):
+"Pedir demo grátis", os seis serviços e os três pacotes, em caixas que se
+podem combinar. Cada grupo tem o rótulo **por cima** e os atalhos são cartões
+da mesma largura numa grelha de três colunas (a partir de 640px), com o visto
+num círculo à direita; escolhido, o cartão ganha aresta `primary` e véu
+`primary/10`, com o texto em `ink`. A demo vem sozinha numa linha e diz lá
+dentro o que inclui. No telemóvel os atalhos fluem em linha, do tamanho do
+texto, e o círculo só aparece no escolhido — em duas colunas,
+"Desenvolvimento" não cabia e o visto saía do cartão. Chegam ao servidor como `interesses` (lista de ids), o
+`validarContacto` recusa ids que não existam, e o email leva-os por extenso
+na linha "Interesse" e no assunto. Os botões do site que sabem do que se vai
+falar usam `contactoCom(rotulo)` — o "Pedir proposta" da Landing page abre
+`/contacto?interesse=landing-page`, já escolhida. O formulário lê o `?interesse`
+depois de montar (não usa `useSearchParams`, para a página continuar
+estática). O que a demo inclui está no `docs/05`.
 
 Três ficheiros, cada um com um trabalho:
 
@@ -890,17 +923,21 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | um elemento que só chega a meio do scroll | marca-o `data-scroll-item`, não `data-reveal-item` — ver "Chegar não é o mesmo que aparecer" |
 | a forma da roda dos serviços      | a geometria sai das constantes `ARCO` / `FOLGA` / `R_DENTRO` do `ServicosMostra.tsx`, e o sector, o anel de fundo e a posição do número das mesmas funções — não escrevas um `polygon()` à mão |
 | a forma de uma página interior    | a tabela em "As páginas interiores também têm forma própria" — uma forma repetida é o defeito que ela existe para travar |
+| o ambiente de uma página interior | confirma que a secção não tem `bg-*` próprio e que o "+" continua por cima dele — o `Ambiente` é uma camada negativa |
+| o recorte da moldura do portfólio | a abertura do bitmap foi medida (x 143–854, y 109–523 em 1000×667); se a moldura mudar, mede outra vez e atualiza `.molduraJanela` em `components/paginas/paginas.module.css` |
 | os postos do `Cruz` numa página   | confirma que o gesto continua a "andar até ao fim" no `verificar-scroll.mjs`, e que a meio da página não passa de 0,6 de escala |
 | acrescentares uma secção a uma página com `Cruz` | dá-lhe `relative` — sem isso o "+" é pintado por cima dela |
 | qualquer coisa que se veja no telemóvel | corre o verificador em `--mobile`: ele mede ecrãs de scroll, alvos de toque, texto miúdo e o "+" por cima de texto, e nenhuma dessas quatro coisas era apanhada antes |
-| os postos do `Cruz`              | são **dois** conjuntos: `POSTOS_PAGINA` e `POSTOS_MOBILE`. Em `vw`, o mesmo número é margem num ecrã de 1440 e centro num de 390 |
+| os postos do `Cruz`              | são **dois** conjuntos por página: `POSTOS_PAGINA` e `POSTOS_MOBILE` nas interiores, `POSTOS_HOME` e `POSTOS_HOME_MOBILE` na home. Em `vw`, o mesmo número é margem num ecrã de 1440 e centro num de 390 |
+| um pin criado dentro de um `gsap.matchMedia` | nada: o `Providers` chama `ScrollTrigger.sort()` antes de cada `refresh` de breakpoint. Sem isso o pin recriado passa para o fim da lista e os de baixo medem-se sem ele — ver "Evolução atelier" |
+| uma timeline que escreve `transform` e é revertida por breakpoint | limpa o `transform` à entrada do ramo seguinte (`clearProps`); o revert do GSAP pode deixar a pose do CSS composta inline |
 | o ground de um card, ou o pacote destacado | confirma o contraste do título, do texto de apoio **e** do "+" da lista: são três, e o que se esquece é sempre o terceiro |
 | um hover que desloca               | mete o deslocamento atrás de `motion-safe:` — a regra global corta a duração, não o `translate`, e sem a variante ele continua a acontecer |
 | recolheres um testemunho          | `lib/testimonials.ts`; a secção aparece sozinha assim que o array deixar de estar vazio                  |
 | a duração ou o easing             | **`lib/motion.ts`** e a tabela de valores acima — os componentes leem de lá, não têm números próprios      |
 | a pausa de uma secção pinada      | `MOVIMENTO.pausa` / `pausaMovel` em **`lib/motion.ts`**, e nada nos componentes: eles chamam `comPausa`. Depois corre o verificador em `--mobile` — a pausa conta duas vezes por secção e a homepage tem teto |
 | acrescentares uma secção pinada nova | dá-lhe a pausa com `comPausa`, como as outras quatro. Uma secção que arranca no primeiro pixel do pin volta a colar-se à anterior |
-| o percurso de uma secção pinada   | volta a medir onde caem as fronteiras dos capítulos e confirma que os postos do `Cruz` não mudaram de capítulo — sobretudo o de `--paper-muted`, que só se lê sobre o creme |
+| o percurso de uma secção pinada   | volta a medir onde caem as fronteiras dos capítulos e confirma que os postos do `Cruz` não mudaram de capítulo — nas interiores sobretudo o de `--paper-muted`, que só se lê sobre o creme; na home, que nenhuma travessia nem nenhum "+" visível cai nos pacotes, que não têm fundo |
 | introduzires um componente que anima | verifica `prefers-reduced-motion` dentro dele: o GSAP não o faz por ti                                   |
 | o espaçamento vertical            | `components/ui/Section.tsx`, não as páginas                                                               |
 | a largura máxima                  | `components/ui/Container.tsx`, não as páginas                                                             |
@@ -910,3 +947,399 @@ endpoint devolve `500` e regista o erro — **nunca** finge que enviou. Ver
 | o plano do Resend                 | o `TETO_DIARIO` em `app/api/contacto/route.ts`, que existe para ficar abaixo da quota desse plano         |
 | o que o `Providers` monta         | confirma o que acontece em `/estudio` — o Lenis está lá desligado de propósito, e não por esquecimento |
 | onde vive o `.grain-overlay`      | é textura do site público e mora na `CascaDoSite`; a regra CSS continua em `app/globals.css` (docs/02) |
+
+### Adaptação dos capítulos imersivos
+
+O leque do processo começa em 1280px; abaixo disso usa a fila por scroll, para
+não cortar os cards nos tablets. Nos serviços mobile, os quatro seletores ficam abaixo da navegação, a figura
+fica centrada e o texto tem uma área própria em baixo. A indicação QR/NFC e o CTA continuam
+visíveis sem se sobrepor à figura. A galeria desktop limita a altura da capa
+pelo viewport, para as setas caberem também em portáteis de 768px de altura.
+
+Com movimento reduzido, o `Providers` desmonta também o Lenis e usa o scroll
+nativo. A galeria deixa de ter pin; no processo, a fila mobile/tablet ganha
+overflow horizontal nativo, para os quatro passos continuarem acessíveis. A
+roda dos serviços mantém escolha manual, sem animação nem pin.
+
+O processo recria a sua coreografia com `gsap.matchMedia()` quando a janela
+atravessa os 1280px, revertendo os transforms e pins anteriores. Não exige
+recarregar a página depois de rodar um dispositivo ou redimensionar a janela.
+
+## Evolução atelier — 17 de outubro
+
+O percurso atual é hero → projetos → prova QR/NFC → processo → serviços →
+pacotes → rodapé. `NaMesa` usa o vídeo real, com controlos nativos e sem autoplay;
+a figura acompanha o scroll apenas em desktop e sem movimento reduzido.
+O hero mantém conteúdo visível por defeito; entrada por linhas, profundidade
+por scroll e inclinação ao ponteiro fino usam wrappers diferentes e matchMedia.
+A galeria usa enquadramentos forest/peach/mint. O leque conserva a coreografia,
+mas os cards passam a ser tipográficos, com a entrega de cada etapa. Os serviços
+partilham a família de assets do hero, com fundo por cena e recomposição quando
+a preferência de movimento muda. Os pacotes passam a linhas comparáveis.
+Ver docs/09 para o contrato visual, referências, prompts e âmbito.
+
+### Redimensionar não pode deixar um capítulo vazio
+
+Após mudança dos breakpoints 1024/1280, o `Providers` espera duas frames, chama
+`ScrollTrigger.sort()` e só depois `refresh()`. O `sort` é a parte que faltava:
+a galeria e o processo recriam os pins no seu `gsap.matchMedia`, os pins novos
+vão para o fim da lista do ScrollTrigger, e os serviços — que não são recriados
+— mediam-se antes deles. Reproduzido: carregar a 1366px, ir aos serviços,
+estreitar para 874px, e o capítulo inteiro era um ecrã vazio (a cena ficava
+2244, 1320 e 396px abaixo do topo a 15%, 50% e 85% do pin). Com o `sort`,
+fica a 0 nos três pontos.
+
+O processo, ao sair do leque, limpa o `transform` dos cards (`clearProps`): o
+revert da timeline compunha-lhes a pose do CSS com o `scale` de partida, e a
+fila horizontal ficava 400px mais larga do que num carregamento a frio. Depois
+das duas correções, oito sequências de resize (1440→1024, 1024→1440, 1280→1279,
+1279→1300, 390→1440, 1440→390, 768→1366, 1366→768→1366) dão a mesma altura de
+página e os mesmos pins que um carregamento a frio na largura final.
+
+### Atelier — o que mudou na composição
+
+- **Hero.** Três `span` em bloco sem `nowrap` (ver docs/02 para a medida). A
+  escultura fica quadrada até `min(620px, 46vw, 74svh)` a partir de 1280px, e
+  `min(100%, 74svh)` abaixo disso.
+- **Galeria.** Substituída pelo carrossel glass — ver "Conjunto final", abaixo.
+- **Processo.** Cards de material (`MaterialSurface`, grafite no escuro,
+  cristal no claro), com a entrega de cada passo em `PASSOS`. Em tablet a
+  largura é `min(78vw, 24rem)`; com 78vw um card chegava aos 800px a 1024. Em
+  desktop continua `min(20rem, 22vw)`.
+- **Serviços.** A roda vem **antes** das cenas no DOM (desenha-se por cima com
+  `z-[4]`): Tab a partir do serviço escolhido entra na cena dele e só depois
+  sai da secção. A figura mede 32vw em tablet (com 34vw tocava na roda),
+  `min(72vw, 31svh)` no telemóvel e `min(60vw, 24svh)` em ecrãs até
+  700px de altura, centrada abaixo da fila de seletores.
+- **O "+" e os pacotes.** Os pacotes não têm fundo opaco, e o "+" que antes
+  passava escondido atrás dos cartões ficava por baixo do texto. Os postos da
+  home acabam as travessias dentro dos serviços e encolhem o "+" até zero antes
+  dos pacotes; só volta no último ecrã, por baixo do rodapé. Os da home em
+  telemóvel são próprios (`POSTOS_HOME_MOBILE`), pela mesma razão.
+- **`NaMesa`.** Sem `<track>`: a derivada não tem áudio (docs/06).
+
+### O que foi verificado — 17 de outubro
+
+Contra a build de produção (`next build --webpack`, `next start`), com
+Playwright e o Chromium headless da cache local, e o browser integrado para o
+vídeo (o Chromium headless não traz H.264):
+
+- matriz 320×700, 360×780, 390×844, 768×1024, 1024×768, 1366×768 e 1440×900,
+  com capturas de hero, galeria (início, meio, fim), `NaMesa`, processo (início,
+  meio, fim), as quatro cenas dos serviços, pacotes e rodapé: zero overflow
+  horizontal e zero erros de consola;
+- movimento reduzido a 390 e 1366: sem pins nem Lenis, nenhum texto com
+  opacidade 0, leque estático pelo CSS, fila e galeria com scroll nativo,
+  escolha manual dos serviços;
+- teclado: setas, Home e End da galeria com contador, progresso e setas
+  sincronizados; setas, Home e End da roda; Tab e Shift+Tab entre roda e cena;
+  foco visível; nenhum elemento oculto continua focável;
+- toque emulado: menu mobile abre e fecha com Escape, toque na roda, gesto
+  horizontal na galeria, gesto vertical continua a rolar a página;
+- navegar para um caso de estudo e voltar, duas vezes: três pins, sem
+  duplicados;
+- vídeo: `preload="none"` respeitado até ao clique; depois do clique reproduz
+  (0 → 2,4 s em 2,5 s), sem erros;
+- texto a 200% (raiz a 32px): o título quebra dentro da coluna.
+
+Não verificado: dispositivos físicos (toque e Safari iOS reais), Lighthouse e
+Core Web Vitals. O pin do `ServicosAcordeao` que não se desfazia ao estreitar
+abaixo de 768px foi resolvido na passagem seguinte (`gsap.matchMedia`).
+
+## Conjunto final — cristal, temas e carris (17 de outubro, noite)
+
+A entrega consolidada juntou as previews aprovadas no site real. O que ficou
+e porquê:
+
+- **Carrossel glass dos projetos (`ProvaCarrossel`).** Um cartão ao centro com
+  capa verdadeira, nome, estado e serviços; vizinhos a ±1, ±2 e ±3 em
+  perspetiva, escala e transparência (`--distance`, `--scale`, `--fade`,
+  `--turn`). A volta é circular (`lib/carrossel.ts`). *(Substituído a 18 de
+  outubro: o pin saiu e o carrossel anda sozinho — ver "A galeria anda
+  sozinha", no fim.)* **O contrato com o
+  scroll mudou:** em desktop o capítulo continua pinado, mas cada troço de
+  0,55 ecrã põe o projeto seguinte ao centro, em vez de deslizar uma faixa — o
+  pin passou de ~6500px para ~4000px. Setas, teclado (← → Home End), arrasto e
+  clique num vizinho movem o **scroll** para a posição desse projeto, para o
+  centro e a página dizerem sempre o mesmo. Sem pin no telemóvel e com
+  movimento reduzido: aí é só manual. A seleção vive no DOM (`aplicar`), não no
+  React, pela regra do GSAP acima; só o cartão do centro tem elementos
+  focáveis. O desfoque do vidro está só no cartão do centro. O capítulo é
+  **inverso**: vidro claro sobre creme no escuro, vidro escuro sobre grafite no
+  claro, com fundo de metal.
+- **Materiais por capítulo** (`MaterialGround`, docs/10): galeria metal,
+  `NaMesa` vidro, processo cristal, serviços vidro (no palco pinado, não na
+  secção), pacotes cetim. As junções continuam a ser as `Curva`, agora por
+  papel (`ground="base|papel|verde|quente|fim"`); o rodapé lê `--fim-ground`, e
+  a home troca-o com `html:has(.home-packages)`.
+- **Pacotes da home.** Três placas `MaterialSurface` (grafite no escuro,
+  cristal no claro, Website em forest/mint) com o objeto de cada pacote —
+  folha, camadas, expositor — e as colunas comparáveis. Capítulo quente.
+- **Tema** (docs/02): botão sol/lua fixo no canto inferior esquerdo. Por causa
+  dele, o texto dos serviços em telemóvel subiu para `bottom: 5.5rem`, o
+  acordeão de `/servicos` ganhou `md:pb-20` e o rodapé `pb-24`: nenhum controlo
+  das cenas pinadas nem do fim da página fica por baixo do botão (medido em
+  seis larguras). O indicador de desenvolvimento do Next passou para a direita
+  (`devIndicators` em `next.config.ts`).
+- **Carris no telemóvel** (`components/paginas/Carril.tsx`): portfólio (capa,
+  nome, ano, estado, serviços e "Explorar projeto" no mesmo cartão) e serviços
+  (objeto, nome, texto, etiquetas e "Falar sobre isto"). Scroll nativo com
+  snap, contador, setas e ← →, sem autoplay. O índice e o acordeão continuam a
+  partir de 768px. O acordeão monta e desmonta o pin com `gsap.matchMedia`, e o
+  `Providers` reordena os pins também aos 768px.
+- **Caso de estudo** (docs/06): `Dispositivos.tsx` e `notasDoCaso`.
+- **Instagram** com o perfil (`InstagramLink`, `perfil()` em `lib/site.ts`) na
+  navegação a partir de 1280px, no menu, no portfólio, no contacto e no rodapé.
+
+### O que foi verificado — conjunto final
+
+Build de produção (`next build --webpack` + `next start`), Playwright com o
+Chromium headless da cache local, nos dois temas:
+
+- tema: segue o sistema já no primeiro desenho (no `DOMContentLoaded`); a
+  escolha manual vence o sistema, sobrevive a navegação de cliente e a
+  recarregar; sem escolha, acompanha o sistema em direto; Enter no botão
+  troca, dica visível ao foco, alvo de 48px; o Estúdio fica escuro com claro
+  guardado;
+- resize em oito sequências entre 390 e 1440px, nos dois temas, e em
+  `/servicos` (1366→390→1366, 390→1366): pins e altura iguais aos de um
+  carregamento a frio;
+- carrossel: → End, seguinte no último (volta ao primeiro), anterior, scroll a
+  50% do pin (projeto 04), clique num vizinho, Tab entra no link do centro;
+  nenhum vizinho focável; ir a um caso e voltar mantém três pins;
+- telemóvel com toque emulado: gesto horizontal troca o projeto, o vertical
+  continua a rolar a página; carris do portfólio e dos serviços avançam; no
+  caso, a vista Telemóvel tem proporção 0,462 e o scroll fica dentro do ecrã;
+- movimento reduzido nos dois temas: sem pins nem Lenis, nada escondido,
+  cartões sem transição, carrossel e roda manuais;
+- contraste AA de todo o texto visível (incluindo navegação, rodapé e o
+  formulário em erro), 1366 e 390px, nos dois temas: zero falhas;
+- matriz 320, 390, 768, 1024, 1366 e 1440 na home e oito rotas interiores, nos
+  dois temas: zero overflow, zero imagens partidas, zero erros de consola.
+
+Não verificado: dispositivos físicos, Safari e Firefox, leitor de ecrã,
+Lighthouse, Core Web Vitals e o custo real do `backdrop-filter` em telemóveis
+modestos (está no cartão do centro, nos controlos, no botão do tema e, só no
+tema claro, nas placas de material).
+
+## Revisão da integração contra as previews — 17 de outubro
+
+Esta passagem completa diferenças entre a integração e os estudos 3032/3042/3043:
+
+- `PackagePlates` é a implementação única da bancada aprovada, usada na home
+  e em `/servicos` através de `PacotesBancada`. Os três objetos são landing,
+  development v3 e commerce; Website leva forest/mint e CTA cheio. Substitui
+  a bancada antiga de três colunas e a sua etiqueta de popularidade.
+- As capas interiores usam `MaterialGround`: vidro verde em Sobre, cristal
+  em Serviços e cetim no Portfólio. A escala `interior-cover` segue os estudos
+  sem os títulos de 74px que alongavam as capas mobile. O rótulo da página
+  continua disponível a leitores de ecrã, visualmente o título lidera.
+- Sobre usa três linhas em grelha, com texto e notas associados, alternadas
+  em desktop e em fluxo em mobile. As notas absolutas foram removidas: a
+  larguras intermédias sobrepunham-se ao texto central.
+- `/servicos`: percurso em cristal, pacotes em cetim quente e FAQ mate. A
+  FAQ usa disclosures HTML (`details`/`summary`), primeira aberta, grupo
+  exclusivo, teclado nativo. Respostas e JSON-LD mantêm o mesmo conteúdo.
+- Portfólio mobile mantém a capa, nome, estado e tags juntos; o cartão ativo
+  ganha aresta/reflexo, escala e opacidade próprias. O vizinho anuncia a
+  continuação. Sem autoplay e sem blur adicional. O índice desktop permanece.
+- Privacidade inclui índice de âncoras (lateral sticky em desktop, horizontal
+  em mobile), como na preview. O conteúdo legal e a data não mudam.
+- Galeria: o fundo metálico vive agora dentro do palco pinado. Os cartões
+  partilham a mesma célula de grid, que reserva a altura real do conteúdo:
+  tags longas não colidem com as setas. O pin desktop só existe a partir de
+  1024×800; em portáteis mais baixos a galeria é manual e a página segue em
+  fluxo, para título, cartão e controlos nunca ficarem cortados.
+
+Esta revisão é visual e funcional; não altera catálogo, estados de projetos,
+contactos, preços ou compromissos comerciais.
+
+A camada fixa de `Cruz` corta apenas a decoração no limite do viewport
+(`overflow-clip`), evitando os 7px de scroll horizontal observados a 320px.
+A entrada do título do hero desloca o título inteiro 12px de cima para baixo;
+a entrada anterior das linhas a partir de +38px cruzava temporariamente a
+introdução no telemóvel. O texto continua visível por omissão e o movimento
+reduzido mantém a pose final.
+
+### Afinação do header, menu e asset mobile
+
+O header usa vidro nos dois temas e a cápsula desktop tem aresta/reflexo.
+O menu mobile é um `dialog` na top layer, irmão do header, com margem de 12px,
+vidro e fundo da página visível. Assim o blur do header não o contém.
+Foco modal, Escape, links e reposição do scroll mantêm o comportamento nativo.
+
+Na home mobile, os quatro seletores passam a uma fila acima da escultura,
+que fica centrada em 50% da largura. A meia-roda mantém-se desde 768px.
+O número decorativo grande desaparece em mobile, pois já está no seletor.
+A figura ocupa a linha flexível entre os seletores e o texto, centrada nos
+dois eixos. Mede até 86vw/40svh, reduzindo-se à altura realmente disponível,
+com contain; o texto permanece em fluxo na linha inferior.
+
+`Reveal` usa `toggleActions: play none none none` em vez de `once`: mantém
+o trigger até ao unmount, sem repetir a animação nem remover triggers durante
+o refresh síncrono de um pin posterior. Essa remoção podia invalidar a lista
+interna do GSAP e falhar ao ler `end`. `Providers` remede após duas frames
+também em navegação de cliente e ao cruzar 720px de altura.
+
+A galeria pina a partir de **1024px de largura e 720px de altura**, e não de
+800px: 1366×768 é o portátil de referência e lá a galeria tem de continuar
+conduzida pelo scroll. Entre 720 e 799px o palco compacta-se (menos margem,
+cartão a `min(30vw, 40svh)`). Medido com o projeto ao centro a meio do pin:
+título abaixo do cabeçalho e controlos dentro do ecrã a 1024×720, 1024×768,
+1280×720, 1366×768, 1440×900 e 1920×1080. A 1024×700 o título passava 4px por
+baixo do cabeçalho — por isso o limite é 720, e abaixo dele a galeria é
+manual.
+
+### Consistência dos títulos
+
+À exceção do hero da home, títulos principais, interiores e fecho usam o mesmo token de tamanho
+e entrelinha (`docs/02`), incluindo a galeria pinada e QR/NFC. Cartões do
+processo, serviços, pacotes, projetos e subtítulos usam 24px/peso 650.
+A exceção é o nome do serviço nas cenas da home a partir de 768px: ao lado
+de um número de 11rem é o título da cena, e volta à medida principal (a 24px
+lia-se como legenda). Entre 1024 e 1279px fica em 3rem, com o bloco a 38vw,
+para não chegar à figura — medido nas quatro cenas a 1024, 1180 e 1279px.
+Não alterar o tamanho de um capítulo isoladamente; ajustar o token partilhado.
+
+### Centragem mobile e header — 18 de outubro
+
+O carril do processo usa margens simétricas calculadas pela largura do card
+(84vw, máximo 24rem). Primeiro e último cartões ficam centrados; a fila
+forma um grupo com título e introdução, centrado verticalmente no palco,
+com intervalo de 2,5rem (1rem em ecrãs até 700px). Cards até 26rem de altura,
+com adaptação a ecrãs de 700px ou menos. A grelha tem coluna `minmax(0, 1fr)`
+para a largura do carril não alargar o título nem o palco.
+O header usa a receita de vidro reforçada documentada em `docs/02`.
+
+### Ritmo das secções e destaques editoriais — 18 de outubro
+
+`Section` usa margens internas simétricas de 48px / 80px / 96px (mobile / sm /
+lg); `top` e `bottom` continuam a desligar cada metade. O título, introdução e
+conteúdo formam um conjunto: não prender o título ao topo de um palco enquanto
+os cartões ficam centrados numa área independente.
+
+As capas interiores usam altura mínima `min(680px, 78svh)` e padding simétrico
+`clamp(4rem, 7vw, 6rem)`; em mobile, altura natural e 4rem por lado. Na secção
+“Em que acreditamos”, objeto e título alinham pelo centro em desktop; em mobile
+o objeto ocupa até 90% da largura e centra-se no mesmo eixo do conteúdo.
+
+`Capa` e `PageHero` aceitam `ReactNode` para destacar uma parte do título com
+`em`, sem alterar o texto. Serviços, Sobre, Portfólio, Contacto, Privacidade e
+capítulo QR/NFC seguem a assinatura da home descrita em `docs/02`. Nomes de
+clientes, títulos de cartões e títulos legais de navegação mantêm-se diretos.
+O fecho aplica itálico à segunda frase, preservando tinta escura sobre laranja.
+
+## A galeria anda sozinha, alumínio e atalhos — 18 de outubro
+
+Revisão pedida sobre a preview da Vercel.
+
+- **Galeria (`ProvaCarrossel`) sem pin.** Obrigar a percorrer os sete
+  projetos para chegar à secção seguinte custava ~4000px de scroll. Agora a
+  secção tem a altura do conteúdo e o carrossel **passa sozinho a cada 2 s**.
+  Para com o rato em cima, com foco de teclado lá dentro (`:focus-visible`, para
+  um clique numa seta não o deixar parado), com o botão de pausa
+  (`aria-pressed`; o hover não serve a quem usa o dedo — WCAG 2.2.2), fora do
+  ecrã (`IntersectionObserver`), com o separador escondido e com movimento
+  reduzido (aí nem arranca). Setas, ← → Home End, arrasto e clique num vizinho
+  continuam e recomeçam a contagem. O contador só é `aria-live` com a pausa
+  ligada — com a volta a andar seria uma voz a cada 2 s.
+- **A troca é um movimento, não dois quadros.** Posição, `z-index` (troca a
+  meio, `steps(1, jump-both)`), transparência da capa e do texto (`--fade`) e
+  desfoque correm na mesma curva e na mesma duração (`--troca`, 760ms). Os
+  vizinhos a ±1 têm `blur(0px)` para o vidro poder entrar em transição. O
+  cartão que dá a volta (−3 → +3) recebe `data-volta`: troca de lado sem
+  transição de posição, a partir de opacidade 0 — não atravessa o palco por
+  trás dos outros. O listener de 720px de altura saiu do `Providers`.
+- **Abertura dos capítulos (`--abertura`).** `clamp(7rem, 5.5rem + 2.5vw,
+  8.5rem)`: do topo do capítulo ao título, folgando o cabeçalho flutuante
+  (81px). Usam-na a galeria, o processo (palco no telemóvel e título absoluto
+  em desktop) e os pacotes (`Section top={false}` + `pt-[var(--abertura)]`).
+  Medido a 1440×900: títulos a 122–124px do topo; antes 62px (galeria, por
+  baixo do cabeçalho), 88px (processo) e 94px (pacotes). A âncora `#trabalho`
+  do herói deixa o título visível a 122px (1366) e 112px (390).
+- **Processo.** `easeCarta` passou de `back.out(1.4)` (~8% de ressalto) para
+  `back.out(0.6)` (~1,25%). Os cartões são `MaterialSurface finish="aluminio"`
+  (docs/10), com a mesma inclinação ao ponteiro.
+- **Acordeão da `/servicos`.** A figura é a primeira linha da grelha da coluna
+  (`grid-rows-[minmax(0,1fr)_auto_auto]`, imagem `fill` + `object-contain`) e
+  ocupa o espaço todo por cima do texto. As colunas são de alumínio escovado
+  (`.coluna` em `paginas.module.css`); a aberta sobe a sombra e ganha um fio de
+  acento na borda.
+- **FAQ animada.** `::details-content` com `interpolate-size: allow-keywords`
+  anima a altura até `auto`; a resposta desce 10px e acende (`@starting-style`).
+  Sem suporte, abre de uma vez como antes. Sem JavaScript.
+- **Micro-movimento.** A seta dos `Button` avança 2px no hover; as ligações de
+  texto com seta marcam-na com `data-seta="diagonal|frente|baixo"` e a regra em
+  `@layer base` move-a na direção certa. Campos com halo suave no foco,
+  atalhos do formulário com visto que entra, retratos da equipa que rodam 6°.
+  Tudo cortado pela regra global de movimento reduzido.
+- **Contacto compacto.** Email, equipa com retrato plano (`components/Avatar`,
+  docs/01 e docs/02) numa lista de três linhas em que a linha inteira é o
+  `tel:`, e disponibilidade e redes lado a lado a partir de `sm`.
+- **Destinos dos botões.** Rastreio de todas as ligações internas de `/`,
+  `/portfolio`, `/servicos`, `/sobre`, `/contacto`, `/privacidade` e um caso de
+  estudo: todas 200, todas as âncoras existem. "Pedir proposta" e "Falar sobre
+  isto" levam o assunto (`contactoCom`).
+
+## O loader, o menu e o disco do NFC — 19 de outubro
+
+- **O loader (`components/Carregador.tsx`).** Cortina no `--bg` com o "D+":
+  o "+" roda um quarto de volta e assenta, e uma barra fina enche. Montado
+  pela `CascaDoSite`, por isso existe em todas as páginas do site público e
+  nunca no Estúdio. Na **primeira entrada** vem do servidor e cobre desde o
+  primeiro paint; sai depois do `load` e das fontes, nunca antes de 700 ms
+  nem depois de 2,5 s. Em **cada navegação** volta a cobrir num
+  `useLayoutEffect` (antes do paint) e abre aos 350 ms. A saída é a cortina a
+  abrir para cima (`clip-path`, 0,7 s) com o logótipo a subir e a apagar.
+  Sem JavaScript não aparece (`html:not(.js)`); se a hidratação falhar, uma
+  animação de segurança esconde-o aos 4 s. Com movimento reduzido o "+" não
+  roda e a cortina sai de uma vez (medido: 365 ms na primeira carga). É
+  `aria-hidden`. Testes que fotografam a página têm de esperar que
+  `.carregador` desapareça do DOM.
+- **Menu do telemóvel.** Deixou de ser uma folha do ecrã inteiro com metade
+  vazia: é um painel que desce do topo com a altura do conteúdo (553px a
+  390×844), rola por dentro num ecrã baixo e tem por trás a página escurecida e
+  desfocada (`::backdrop`).
+- **O "+" do vídeo NFC (`NaMesa`).** O "+" esticado a 140% lia-se como duas
+  barras verdes a sair dos lados do vídeo. Passou a disco de vidro verde
+  (`--accent` misturado no `--ground`) com o "+" recortado lá dentro, a mesma
+  figura do disco cobre do herói. Continua a mexer-se com o scroll em desktop.
+
+## Fluidez do processo — 19 de outubro
+
+A translação da fila até 1279px usa um tween ligado ao ScrollTrigger, com
+`scrub: 0.35` e interpolação linear. A medição do percurso ocorre apenas na
+criação/refresh, sem leituras de largura e `gsap.set` a cada atualização.
+O ramo anterior tinha `scrub` sem animação associada: os saltos do scroll
+passavam diretamente à posição. A fila já não tem troços mortos nos extremos.
+Em desktop, o leque conserva as poses e os quatro passos, com 1,4 ecrãs de
+movimento e pausas de 0,12 ecrã; antes consumia 2,5 ecrãs no total, agora 1,64.
+Movimento reduzido mantém a fila nativa e o leque estático.
+
+## Junções e perguntas sem saltos — 19 de outubro
+
+As camadas de MaterialGround desvanecem nos 7rem das extremidades (no máximo
+18% da altura) até ao ground sólido, igual ao token da Curva. A textura e os
+planos deixam de terminar numa aresta reta visível. Serviços ganha Curva nas
+passagens base → quente → base em torno dos pacotes.
+
+A FAQ usa `Perguntas.tsx`: mantém details/summary nativos e as respostas do
+array da página, mas anima a altura medida com Web Animations durante 360ms.
+O conteúdo só fecha no fim da animação; não tem fade nem starting-style.
+A pergunta anterior recolhe enquanto a nova expande. Cliques repetidos
+interrompem a animação a partir da altura visível; resize e mudança da
+preferência de movimento terminam a animação. Movimento reduzido é imediato.
+Sem JavaScript, os disclosures nativos continuam funcionais. O refresh de
+ScrollTrigger ocorre após a altura assentar, não a cada frame. Esta receita
+substitui a anterior dependência de interpolate-size e ::details-content.
+
+## Revisão antes de publicar — 19 de outubro
+
+- **Os títulos de secção acabam em ponto**, com ou sem acento em itálico.
+  "Por onde podemos começar", "Perguntas frequentes" e "Em que acreditamos"
+  eram os únicos sem ele (o mesmo "Por onde podemos começar." da home tinha).
+- **O título do contacto** tem o acento só em "projeto." e cola-o a "o teu"
+  com espaços inseparáveis: o itálico laranja já não fica sozinho numa linha.
+- **O 404 tem `<title>` próprio** ("Página não encontrada") e `noindex`;
+  herdava o da home.
+- **Uma rede sem `href` diz "em breve" no rodapé** (docs/01).

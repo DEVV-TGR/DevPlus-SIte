@@ -1,4 +1,5 @@
 /** docs: docs/04-componentes-e-padroes.md */
+import type { ReactNode } from "react";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/Reveal";
 
@@ -8,7 +9,7 @@ export function PageHero({
   intro,
 }: {
   eyebrow?: string;
-  title: string;
+  title: ReactNode;
   intro?: string;
 }) {
   return (
@@ -16,11 +17,11 @@ export function PageHero({
       <Container className="pb-14 pt-14 sm:pb-20 sm:pt-20">
         {eyebrow ? (
           <Reveal>
-            <p className="text-sm font-medium text-primary">{eyebrow}</p>
+            <p className="text-sm font-medium text-acento">{eyebrow}</p>
           </Reveal>
         ) : null}
         <Reveal delay={0.05}>
-          <h1 className="mt-3 max-w-3xl font-display text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
+          <h1 className="mt-3 max-w-3xl t-capa font-display font-titulo">
             {title}
           </h1>
         </Reveal>

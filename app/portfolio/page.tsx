@@ -1,12 +1,18 @@
-/** docs: docs/06-projetos.md */
+/** docs: docs/06-projetos.md · docs/04-componentes-e-padroes.md · docs/10-materiais-atelier.md */
+import { MaterialGround } from "@/components/atelier/MaterialGround";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Capa } from "@/components/paginas/Capa";
 import { Cruz, POSTOS_PAGINA } from "@/components/home/Cruz";
 import { Curva } from "@/components/home/Curva";
+import Image from "next/image";
+import Link from "next/link";
 import { PortfolioIndice } from "@/components/paginas/PortfolioIndice";
+import { Carril } from "@/components/paginas/Carril";
+import { InstagramLink } from "@/components/InstagramLink";
 import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/Reveal";
+import { MaterialSurface } from "@/components/atelier/MaterialSurface";
 import { projects } from "@/lib/projects";
 import { site } from "@/lib/site";
 import { pageMetadata } from "@/lib/seo";
@@ -36,8 +42,10 @@ export default function PortfolioPage() {
       <Cruz postos={POSTOS_PAGINA} />
 
       <Capa
+        id="portfolio-capa"
+        ambiente="margens"
         eyebrow="Portfólio"
-        title="O trabalho, com nome e ano."
+        title={<>O trabalho, com <em>nome e ano.</em></>}
         intro="Restaurantes, um stand, serviços ao domicílio e uma plataforma. Todos começaram da mesma maneira: uma folha em branco e uma conversa."
         contas={[
           { n: String(projects.length).padStart(2, "0"), label: "projetos" },
@@ -46,31 +54,94 @@ export default function PortfolioPage() {
       />
       <Curva forma="c" de="var(--bg)" cor="var(--bg-deep)" />
 
-      <Section className="relative bg-bg-deep">
+      <Section className="relative isolate capitulo-fundo">
+        <MaterialGround finish="metal" />
         <Container>
           <h2 className="sr-only">Os projetos</h2>
           <PortfolioIndice />
+          <div className="md:hidden">
+            <Carril rotulo="Projeto" glass>
+              {projects.map((p) => (
+                <article key={p.slug} className="grid h-full content-start">
+                  <Link
+                    href={`/portfolio/${p.slug}`}
+                    tabIndex={-1}
+                    aria-hidden
+                    className="relative m-3 mb-0 block aspect-[1.35] overflow-hidden rounded-[10px] bg-forest"
+                  >
+                    {p.image ? (
+                      <Image
+                        src={p.image}
+                        alt=""
+                        fill
+                        sizes="84vw"
+                        className="object-cover object-top"
+                      />
+                    ) : (
+                      /* Sem capa não se põe a de outro: fica o nome — ver docs/06. */
+                      <span className="grid h-full place-items-center px-6 text-center font-display text-2xl font-titulo text-creme">
+                        {p.name}
+                      </span>
+                    )}
+                  </Link>
+                  <div className="grid gap-3 p-5 pt-4">
+                    <div className="flex items-baseline justify-between gap-4">
+                      <h3 className="t-cartao font-display font-titulo">
+                        <Link href={`/portfolio/${p.slug}`}>{p.name}</Link>
+                      </h3>
+                      <span className="text-sm tabular-nums text-muted">{p.year}</span>
+                    </div>
+                    <p className="text-sm text-muted">
+                      {p.status === "em-curso" ? "Em desenvolvimento" : "Concluído"}
+                    </p>
+                    <ul className="flex flex-wrap gap-1.5" aria-label="Serviços">
+                      {p.services.map((s) => (
+                        <li key={s} className="rounded-full border border-border-strong px-2.5 py-1 text-sm">
+                          {s}
+                        </li>
+                      ))}
+                    </ul>
+                    <Link
+                      href={`/portfolio/${p.slug}`}
+                      className="mt-2 flex min-h-11 items-center justify-between border-t border-border pt-3 text-sm font-medium"
+                    >
+                      Explorar projeto <span aria-hidden data-seta="frente">→</span>
+                    </Link>
+                  </div>
+                </article>
+              ))}
+            </Carril>
+          </div>
+          <InstagramLink className="mt-10 border-b border-border-strong pb-1" />
         </Container>
       </Section>
       <Curva forma="a" de="var(--bg-deep)" cor="var(--bg)" />
 
-      <Section className="relative">
+      <Section className="relative isolate capitulo-base">
+        <MaterialGround finish="glass" />
         <Container>
+          {/* O convite ganha vidro verde: é a única placa da página que não
+              é trabalho, e a cor separa-a das capas sem mais um laranja. */}
           <Reveal>
-            <div className="flex flex-col gap-6 rounded-2xl border border-border bg-surface p-8 sm:flex-row sm:items-center sm:justify-between sm:p-12">
-              <div>
-                <h2 className="t-seccao font-display font-extrabold">
-                  O próximo pode ser o teu.
-                </h2>
-                <p className="mt-2 max-w-md text-sm text-muted">
-                  Conta-nos o que tens em mente. Não precisas de ter tudo
-                  decidido para nos falares.
-                </p>
+            <MaterialSurface finish="forest" padding="none">
+              {/* O padding vive aqui e não no `contentClassName`: o
+                  `padding="none"` do material é CSS sem camada e ganha a
+                  qualquer utilidade do Tailwind (docs/10). */}
+              <div className="flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-12">
+                <div>
+                  <h2 className="t-seccao font-display font-titulo">
+                    O próximo pode ser <em>o teu.</em>
+                  </h2>
+                  <p className="mt-2 max-w-md text-sm text-muted">
+                    Conta-nos o que tens em mente. Não precisas de ter tudo
+                    decidido para nos falares.
+                  </p>
+                </div>
+                <Button href="/contacto" variant="primary" className="shrink-0">
+                  Vamos a isso
+                </Button>
               </div>
-              <Button href="/contacto" variant="primary" className="shrink-0">
-                Vamos a isso
-              </Button>
-            </div>
+            </MaterialSurface>
           </Reveal>
         </Container>
       </Section>

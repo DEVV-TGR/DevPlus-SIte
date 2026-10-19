@@ -21,11 +21,12 @@ São **6**. Aparecem em dois sítios, ambos a ler do mesmo array:
   `components/paginas/ServicosAcordeao.tsx` (aguenta qualquer número: as colunas
   repartem a largura entre si). **No telemóvel o acordeão deita-se e perde o
   pin** — seis linhas abertas que se lêem de uma vez; com pin, cobrava 3,4 ecrãs
-  de scroll para mostrar o que já estava no ecrã. Há ilustração para quatro; o **Branding** e o
-  **Motion & Interação** ficam com o "+" em marca-d'água em vez de uma figura
-  emprestada de outro serviço — se forem geradas, é com o preâmbulo do
-  `scrollcraft/builds/devplus/PLANO-V3.md`, que é o que mantém as nove atuais no
-  mesmo estilo;
+  de scroll para mostrar o que já estava no ecrã. **Os seis têm figura**, todas
+  da família do atelier (acrílico laranja, vidro verde, alumínio), lidas de
+  `atelierAssets` em `components/atelier/assets.ts` (docs/10): Web Design,
+  Desenvolvimento v3, menus/NFC, painel, e as esculturas novas de **Branding**
+  e **Motion & Interação**. No telemóvel a figura encolhe para 44px ao lado do
+  título;
 - `app/page.tsx` — os **quatro primeiros**, um de cada vez, na
   `components/home/ServicosMostra.tsx`: número enorme, figura num círculo e uma
   meia-roda à direita para escolher qual. Vem **depois** do trabalho
@@ -133,8 +134,65 @@ não uma etiqueta".
 | a lista de serviços                 | `lib/services.ts`; segue a checklist acima toda                |
 | uma resposta da FAQ sobre dinheiro  | pergunta **antes** de mexer — ver "A FAQ não é copy"           |
 | o número de serviços                | verifica a meia-roda da página inicial (ver acima: o arco reparte-se) **e** o acordeão da `/servicos`: acima de sete colunas, as fechadas deixam de se ler |
-| acrescentares um serviço com figura | põe-na em `public/ilustra/` e acrescenta-a aos **dois** `FIGURAS` — `components/paginas/ServicosAcordeao.tsx` e `components/home/ServicosMostra.tsx`; a ordem é a de `lib/services.ts`, e é o segundo que decide quantos a página inicial mostra |
+| acrescentares um serviço com figura | o bitmap entra pelo catálogo do docs/10 (`components/atelier/assets.ts` e `public/atelier/`) e a chave vai para os **dois** `FIGURAS` — `components/paginas/ServicosAcordeao.tsx` e `components/home/ServicosMostra.tsx`; a ordem é a de `lib/services.ts`, e é o segundo que decide quantos a página inicial mostra |
 | um `title`                          | procura esse nome nas `services` de `lib/projects.ts` e alinha |
 | as regras de escrita (blurb, items) | revê os 6 serviços existentes de uma vez                       |
 
 | acrescentares ou mudares um pacote | `lib/packages.ts` — a página inicial e a `/servicos` leem ambas de lá        |
+
+## Home de outubro de 2026
+
+A meia-roda e a escolha por scroll, hover, clique e teclado são preservadas.
+Cada cena liga a um trabalho real: JSK, Império Auto Concept ou Café Preguiça.
+Os menus do Preguiça incluem QR code e NFC; o painel é um exemplo separado.
+Os pacotes mantêm o conteúdo comercial; a etiqueta do Website passa a
+"Website completo", sem alegar popularidade sem dados.
+
+## Apresentação atelier — 17 de outubro
+
+Na home, a meia-roda mantém quatro serviços. As quatro figuras são esculturas
+da mesma família — acrílico laranja, vidro verde e alumínio — e o `alt` de cada
+uma diz que é uma ilustração conceptual. Desenvolvimento usa
+`desenvolvimento-digital-v3.webp`, um browser montado por camadas, por decisão
+do utilizador; a prova real continua no link "Ver o Império Auto Concept" e no
+caso de estudo. Os pacotes da home são três placas comparáveis, cada uma com o
+objeto do seu pacote (folha, camadas, expositor — docs/10); o Website destaca-se
+pela placa forest/mint **e** pelo botão cheio em vez de contorno (o sinal não
+pode ser só cor), sem etiqueta, sem alegações de popularidade e sem mudanças
+aos compromissos comerciais. A etiqueta "Website completo" descrita acima
+deixou de existir na home.
+
+No telemóvel, a `/servicos` mostra os seis serviços num carril
+(`components/paginas/Carril.tsx`): objeto, nome, texto, etiquetas e "Falar
+sobre isto", a mesma ação da home. O acordeão fica a partir de 768px.
+
+Na `/servicos` o acordeão usa as seis figuras da família. Os pacotes usam a
+mesma `PackagePlates` da home: objetos landing/development v3/commerce,
+Website em forest/mint, CTA cheio, sem alegação de popularidade. O percurso
+usa cristal, os pacotes cetim quente e a FAQ acabamento mate. As perguntas
+abrem individualmente por `details`, com a primeira aberta; o texto comercial
+continua a ser a fonte do FAQ visível e dos dados estruturados.
+
+Os títulos seguem a escala partilhada de `docs/02`: principais com o mesmo
+tamanho da home, títulos de cartões a 24px. Sem escalas próprias por página.
+
+## A demo grátis e os atalhos do contacto — 18 de outubro
+
+**Compromisso comercial confirmado pela equipa:** a DevPlus faz uma **demo
+grátis** de qualquer serviço, **só da parte visual**. As funcionalidades
+discutem-se depois e fazem-se à medida. O próprio atalho "Pedir demo grátis"
+diz exatamente isto, por baixo do nome, e não se promete mais em lado nenhum. **Não há "orçamento grátis"** — foi considerado e não escolhido.
+
+Os atalhos do formulário (`GRUPOS_INTERESSE` em `lib/contacto.ts`) são a
+demo, os seis serviços de `lib/services.ts` e os três pacotes de
+`lib/packages.ts`, por esta ordem: um serviço ou pacote novo ganha atalho
+sozinho. O id é o nome sem acentos (`idInteresse`): `menus-ecras-digitais`,
+`landing-page`. Os botões "Pedir proposta" (pacotes) e "Falar sobre isto"
+(serviços) abrem o contacto com o assunto já escolhido (`contactoCom`).
+
+### Apresentação das perguntas
+
+`Perguntas.tsx` recebe o mesmo array usado pelo FaqJsonLd; o texto e os
+compromissos comerciais mantêm-se. A abertura e o fecho animam a altura,
+incluindo no Safari, conforme docs/04. As mudanças de ground à entrada e
+saída dos pacotes usam Curva, em continuidade com os materiais das secções.

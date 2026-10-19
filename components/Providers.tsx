@@ -3,7 +3,7 @@
 
 import { ReactLenis, useLenis } from "lenis/react";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { gsap, ScrollTrigger } from "@/lib/motion";
 import { noEstudio } from "@/lib/estudio/rotas";
 
@@ -60,8 +60,22 @@ function LigarAoTicker() {
   return null;
 }
 
+const reducedMotionQuery = "(prefers-reduced-motion: reduce)";
+function subscribeMotion(callback: () => void) {
+  const media = window.matchMedia(reducedMotionQuery);
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+}
+const readMotion = () => window.matchMedia(reducedMotionQuery).matches;
+const serverMotion = () => false;
+
 export default function Providers({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const reducedMotion = useSyncExternalStore(
+    subscribeMotion,
+    readMotion,
+    serverMotion,
+  );
 
   /*
     As posições de arranque do ScrollTrigger são medidas antes de as imagens
@@ -77,12 +91,44 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     O ScrollTrigger já ouve o `resize` da janela sozinho; para as imagens, o
     `load` chega.
   */
+  /*
+    **E a ordem conta.** O ScrollTrigger remede os triggers pela ordem em que
+    foram criados, e cada pin empurra tudo o que está por baixo dele. Ao cruzar
+    768px, 1024px ou 1280px, o `gsap.matchMedia` do processo e do acordeão da
+    `/servicos` recria os pins deles — e passam para o fim da
+    lista, depois dos serviços, que não são recriados. Os serviços mediam-se
+    então sem o pin de cima e ficavam com um início antigo: a 874px, depois de
+    vir de 1366px, o capítulo inteiro era um ecrã vazio. O `sort()` repõe a ordem da página antes de medir; as duas
+    frames deixam assentar todos os `matchMedia` primeiro.
+  */
   useEffect(() => {
-    const refrescar = () => ScrollTrigger.refresh();
-    if (document.readyState === "complete") refrescar();
-    else window.addEventListener("load", refrescar, { once: true });
-    return () => window.removeEventListener("load", refrescar);
-  }, []);
+    const refrescar = () => {
+      ScrollTrigger.sort();
+      ScrollTrigger.refresh();
+    };
+    let frame = 0;
+    const media = [
+      window.matchMedia("(min-width: 768px)"),
+      window.matchMedia("(min-width: 1024px)"),
+      window.matchMedia("(min-width: 1280px)"),
+    ];
+    const afterLayout = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        frame = requestAnimationFrame(refrescar);
+      });
+    };
+    if (document.readyState === "complete") afterLayout();
+    else window.addEventListener("load", afterLayout, { once: true });
+    media.forEach((query) => query.addEventListener("change", afterLayout));
+    return () => {
+      window.removeEventListener("load", afterLayout);
+      media.forEach((query) =>
+        query.removeEventListener("change", afterLayout),
+      );
+      cancelAnimationFrame(frame);
+    };
+  }, [pathname]);
 
   /* **O Estúdio não leva scroll suave**, e não é questão de gosto.
 
@@ -103,7 +149,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
      lacuna "Raiz própria" em docs/07 — quando os PR #54 e #65 fundirem, isto
      resolve-se melhor com `app/(site)` e `app/(estudio)`, e esta verificação
      desaparece com a `CascaDoSite`. */
-  if (noEstudio(pathname)) {
+  if (noEstudio(pathname) || reducedMotion) {
     return <>{children}</>;
   }
 

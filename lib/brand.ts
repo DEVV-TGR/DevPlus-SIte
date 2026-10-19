@@ -53,8 +53,8 @@ export const LOCKUP = {
  * **não** usam estes valores, ver docs/02 → "Os ícones estão fora da paleta".
  */
 export const BRAND_HEX = {
-  primary: "#F2762B", // ≈ --primary  oklch(0.72 0.188 50)
-  bg: "#1a1613", // ≈ --bg       oklch(0.15 0.011 56)
-  ink: "#f7f2ec", // ≈ --ink      oklch(0.97 0.006 80)
-  muted: "#c8bdb0", // ≈ --muted    oklch(0.77 0.012 80)
+  primary: "#fe790a", // ≈ --primary  oklch(0.72 0.188 50)
+  bg: "#0f0a07", // ≈ --bg       oklch(0.15 0.011 56)
+  ink: "#f7f5f1", // ≈ --ink      oklch(0.97 0.006 80)
+  muted: "#b8b3ac", // ≈ --muted    oklch(0.77 0.012 80)
 } as const;

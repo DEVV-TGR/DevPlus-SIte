@@ -65,7 +65,7 @@ const POEIRA = [
  */
 const TITULO = [
   { id: "convite", node: <><span className="whitespace-nowrap">Conta-nos</span> o que </> },
-  { id: "mente", node: "tens em mente." },
+  { id: "mente", node: <em className="[--titulo-acento:var(--primary-ink)]">tens em mente.</em> },
 ];
 
 export function Fecho() {
@@ -255,7 +255,7 @@ export function Fecho() {
         </div>
 
         <Container className="relative">
-          <h2 className="t-seccao mx-auto max-w-[15ch] font-display font-extrabold text-primary-ink">
+          <h2 className="home-heading mx-auto max-w-[15ch] text-primary-ink">
             {TITULO.map((l) => (
               /* Uma máscara por linha, e o `h2` continua a ser **um elemento
                  só**: quem lê com leitor de ecrã recebe a frase inteira. O

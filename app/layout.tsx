@@ -8,6 +8,7 @@ import { Footer } from "@/components/Footer";
 import { OrganizationJsonLd } from "@/components/JsonLd";
 import { site } from "@/lib/site";
 import { fullTitle, titleTemplate } from "@/lib/seo";
+import { CHAVE_TEMA } from "@/lib/tema";
 
 /**
  * Uma família só, a fazer títulos e corpo — o contraste faz-se por peso e pelo
@@ -80,12 +81,14 @@ export default function RootLayout({
     <html
       lang={site.lang}
       className={bricolage.variable}
+      data-theme="dark"
       /* Duas coisas mexem no `class` deste elemento antes de o React hidratar,
          e ambas são de propósito: o script aqui abaixo, que lhe acrescenta
          `js`, e o Lenis, que lhe põe `lenis lenis-smooth` ao arrancar. O
          servidor manda `class="…__variable"`, o browser já tem
          `class="…__variable js lenis lenis-smooth"` — e é essa diferença que o
-         React reporta como erro de hidratação.
+         React reporta como erro de hidratação. O mesmo script troca também o
+         `data-theme` e, no Estúdio, acrescenta `data-area`.
 
          Isto silencia o aviso **só neste elemento e só nos seus atributos**;
          tudo o que está por baixo continua a ser verificado. É a solução que o
@@ -94,12 +97,20 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* Marca que há JavaScript antes do primeiro paint. Sem esta classe,
-            `globals.css` mostra tudo o que está à espera de animar — ver
-            docs/04, "Movimento". Não mexer sem ler essa secção. */}
+        {/* Duas coisas antes do primeiro paint, no mesmo script:
+
+            1. A classe `js`. Sem ela, `globals.css` mostra tudo o que está à
+               espera de animar — ver docs/04, "Movimento". Não mexer sem ler
+               essa secção.
+            2. O tema. O servidor manda sempre `data-theme="dark"`; aqui troca
+               para a escolha guardada ou, sem escolha, para a do sistema.
+               Feito depois da hidratação, a página pintava escura e saltava
+               para clara. O Estúdio marca-se com `data-area` e fica escuro.
+               Ver docs/02, "Temas", e o guia do Next "Preventing flash before
+               hydration". */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `document.documentElement.classList.add("js")`,
+            __html: `(function(){var d=document.documentElement;d.classList.add("js");var t;try{t=localStorage.getItem("${CHAVE_TEMA}")}catch(e){}if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";d.setAttribute("data-theme",t);if(location.pathname.indexOf("/estudio")===0)d.setAttribute("data-area","estudio")})()`,
           }}
         />
       </head>

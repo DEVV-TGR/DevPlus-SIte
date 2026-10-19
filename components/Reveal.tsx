@@ -65,7 +65,9 @@ export function Reveal({
           /* 90% da altura do ecrã: o bloco começa a entrar assim que assoma,
              não quando já está a meio da vista. */
           start: "top 90%",
-          once: true,
+          // Mantém o trigger até ao unmount: `once` removia-o durante o
+          // refresh de um pin posterior, invalidando a lista que o GSAP percorre.
+          toggleActions: "play none none none",
         },
       });
 

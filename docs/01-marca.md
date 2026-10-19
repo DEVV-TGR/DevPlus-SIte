@@ -12,6 +12,7 @@ controla:
   - app/privacidade/page.tsx
   - components/Footer.tsx
   - app/contacto/page.tsx
+  - components/InstagramLink.tsx
 relacionado:
   - docs/03-simbolo-e-logotipo.md
 ---
@@ -108,6 +109,12 @@ esconder a única vantagem que tem sobre uma agência.
   escrevas o número em duas grafias: divergem à primeira correção.
 - Aparecem em `/contacto` e no `contactPoint` dos dados estruturados. Se
   entrarem no rodapé algum dia, saem do mesmo sítio.
+- No `/contacto` cada número leva um **retrato plano** (`components/Avatar.tsx`),
+  desenhado a partir do `avatar` de cada pessoa em `team`: Rodrigo — pele
+  clara, cabelo loiro liso; Gonçalo — pele clara, caracóis castanhos; Tomás —
+  pele morena, caracóis pretos. É uma ilustração, não uma fotografia, e é
+  decorativa: o nome está escrito ao lado. As cores são a exceção de paleta
+  do docs/02.
 
 ## Redes sociais
 
@@ -133,8 +140,12 @@ estruturados, que é o que diz ao Google que estas contas e o site são a mesma
 entidade. Um `href` errado é pior do que `href` nenhum — abre-o no browser antes
 de o escrever.
 
+Uma rede sem `href` aparece no rodapé como "WhatsApp · em breve": sem o
+aviso, lia-se como um link que não abria nada.
+
 **Quando o WhatsApp existir:** acrescenta o `href` e reescreve o parágrafo em
-`app/contacto/page.tsx`, que hoje diz que só ele falta.
+`app/contacto/page.tsx`, que hoje diz que só ele falta (o "em breve" do rodapé
+sai sozinho).
 
 ## Tom de voz
 
@@ -363,3 +374,25 @@ a partir do `layout`), as perguntas frequentes (em `/servicos`) e, em cada caso 
 estudo, o trabalho mais o rasto de navegação. Todos os campos vêm de `lib/site.ts`
 e de `lib/projects.ts` — **não escrevas valores à mão neste ficheiro**, é a mesma
 regra do resto do doc. Depois de mexer, passa o output pelo Rich Results Test.
+
+## Home de outubro de 2026
+
+O hero mantém "Web design que soma ao teu negócio" num único h1 visível. A
+navegação passa a destacar o destino ativo e usa "Vamos conversar" no CTA. O
+convite do rodapé mantém texto e destino, com a escala `home-heading` e uma
+régua a separar os contactos, sem criar outro fecho.
+
+## O Instagram com o perfil
+
+Outubro de 2026. Onde o site identifica a conta — navegação (a partir de
+1280px), menu do telemóvel, portfólio, contacto e rodapé — o Instagram aparece
+como "Instagram · @devplus.pt". O perfil sai do próprio `href` em `socials`
+(`perfil()` em `lib/site.ts`), e o link é o `components/InstagramLink.tsx`.
+Nunca se escreve o endereço nem o nome à mão.
+
+### Revisão visual das interiores
+
+A política mantém integralmente texto, contactos e data; recebeu apenas
+índice de âncoras para navegação e acabamento mate estático. O contacto mantém
+`ContactForm`, validação e envio reais; o fundo acetinado é decorativo e não
+recebe interatividade. Os dados continuam todos em `lib/site.ts`.
