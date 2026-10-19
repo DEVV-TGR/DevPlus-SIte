@@ -1,7 +1,9 @@
-/** docs: docs/01-marca.md — o nome e o email vêm de lib/site.ts. */
+/** docs: docs/01-marca.md — o nome e o email vêm de lib/site.ts. · docs/04-componentes-e-padroes.md · docs/10-materiais-atelier.md */
+import { MaterialGround } from "@/components/atelier/MaterialGround";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { PageHero } from "@/components/PageHero";
+import styles from "@/components/paginas/paginas.module.css";
 import { site } from "@/lib/site";
 import { pageMetadata } from "@/lib/seo";
 
@@ -82,24 +84,34 @@ const sections: [string, React.ReactNode][] = [
 export default function PrivacidadePage() {
   return (
     <>
-      <PageHero
-        eyebrow="Legal"
-        title="Política de Privacidade"
-        intro="Como tratamos os teus dados quando usas este site ou nos contactas."
-      />
+      {/* Acabamento estático; a leitura e os campos nunca recebem tilt. */}
+      <div className="relative isolate capitulo-base">
+        <MaterialGround finish="matte" />
+        <PageHero
+          eyebrow="Legal"
+          title={<>Política de <em>Privacidade</em></>}
+          intro="Como tratamos os teus dados quando usas este site ou nos contactas."
+        />
+      </div>
 
-      <Section>
+      <Section className="relative isolate capitulo-base">
+        <MaterialGround finish="matte" />
         <Container>
+          <div className={styles.politica}>
+          <nav aria-label="Secções da política">
+            {sections.map(([title], i) => <a key={title} href={`#politica-${i}`}>{title}</a>)}
+          </nav>
           <div className="max-w-2xl space-y-10">
-            {sections.map(([title, body]) => (
-              <div key={title}>
-                <h2 className="font-display text-xl tracking-tight">{title}</h2>
+            {sections.map(([title, body], i) => (
+              <div key={title} id={`politica-${i}`} className="scroll-mt-28">
+                <h2 className="t-cartao font-display">{title}</h2>
                 <p className="mt-3 text-muted">{body}</p>
               </div>
             ))}
             <p className="border-t border-border pt-6 text-sm text-muted">
               Última atualização: 14 de outubro de 2026.
             </p>
+          </div>
           </div>
         </Container>
       </Section>

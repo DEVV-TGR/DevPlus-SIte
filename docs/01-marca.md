@@ -12,6 +12,7 @@ controla:
   - app/privacidade/page.tsx
   - components/Footer.tsx
   - app/contacto/page.tsx
+  - components/InstagramLink.tsx
 relacionado:
   - docs/03-simbolo-e-logotipo.md
 ---
@@ -28,9 +29,14 @@ texto corrido**: páginas, metadata, emails, propostas.
 Errado, sempre: ~~Dev Plus~~, ~~devplus~~, ~~DEV+~~, ~~Devplus~~, ~~D+~~.
 
 O "+" não é decoração: significa o que acrescentamos a cada projeto. É de onde vem
-a linha do rodapé ("Vamos somar ao teu próximo projeto") e o destaque do h1
-("Web design que **soma** ao teu negócio"). Copy nova pode jogar com _somar_,
-_acrescentar_, _mais_ — mas sem forçar. Uma piada de "+" por página é o limite.
+o destaque do h1 ("Web design que **soma** ao teu negócio"). Copy nova pode jogar
+com _somar_, _acrescentar_, _mais_ — mas sem forçar. Uma piada de "+" por página
+é o limite.
+
+> A linha "Vamos somar ao teu próximo projeto" era o segundo exemplo disto e
+> **saiu em setembro de 2026**: era o título do rodapé, e ficava a três centímetros
+> de outro convite com outro CTA para o mesmo sítio. O site passou a ter um
+> convite só — ver "O rodapé é o fecho do site", abaixo.
 
 ## Os dados
 
@@ -103,6 +109,12 @@ esconder a única vantagem que tem sobre uma agência.
   escrevas o número em duas grafias: divergem à primeira correção.
 - Aparecem em `/contacto` e no `contactPoint` dos dados estruturados. Se
   entrarem no rodapé algum dia, saem do mesmo sítio.
+- No `/contacto` cada número leva um **retrato plano** (`components/Avatar.tsx`),
+  desenhado a partir do `avatar` de cada pessoa em `team`: Rodrigo — pele
+  clara, cabelo loiro liso; Gonçalo — pele clara, caracóis castanhos; Tomás —
+  pele morena, caracóis pretos. É uma ilustração, não uma fotografia, e é
+  decorativa: o nome está escrito ao lado. As cores são a exceção de paleta
+  do docs/02.
 
 ## Redes sociais
 
@@ -128,8 +140,12 @@ estruturados, que é o que diz ao Google que estas contas e o site são a mesma
 entidade. Um `href` errado é pior do que `href` nenhum — abre-o no browser antes
 de o escrever.
 
+Uma rede sem `href` aparece no rodapé como "WhatsApp · em breve": sem o
+aviso, lia-se como um link que não abria nada.
+
 **Quando o WhatsApp existir:** acrescenta o `href` e reescreve o parágrafo em
-`app/contacto/page.tsx`, que hoje diz que só ele falta.
+`app/contacto/page.tsx`, que hoje diz que só ele falta (o "em breve" do rodapé
+sai sozinho).
 
 ## Tom de voz
 
@@ -171,7 +187,7 @@ uma destas, procura no repositório quantas vezes já lá está:
 | -------------------------- | -------------------------------------------- |
 | "de raiz" / "sem templates" | uma vez, em `/sobre`                        |
 | "24 a 48 horas úteis"      | `/contacto` e o estado de sucesso do formulário |
-| "Falar connosco"           | o botão fixo da navegação e o do rodapé; nos CTA dentro das páginas, varia |
+| "Falar connosco"           | **só** o botão fixo da navegação — o do rodapé desapareceu com o fecho novo, e o CTA de lá é "Começar a conversa"; nos CTA dentro das páginas, varia |
 
 ## Metadata
 
@@ -309,6 +325,25 @@ da Política de Privacidade. Três regras:
   cria a aparência de cumprimento, que é o pior dos dois mundos, porque o
   consumidor que clica não encontra a entidade.
 
+## O rodapé é o fecho do site
+
+Setembro de 2026. O rodapé deixou de ser a caixa de links que vem depois do
+conteúdo: é **o fim do percurso**, e é igual nas seis páginas — a `Curva` para o
+laranja, o convite (`components/Fecho.tsx`), e por baixo, no mesmo ground, a
+navegação, as redes e o legal. A forma e o movimento estão no `docs/04`; o que é
+de marca fica aqui:
+
+- **Um convite, um CTA.** Antes eram dois títulos de convite e dois botões para
+  `/contacto` seguidos — o do `home/Fecho` e o do rodapé. Se acrescentares um
+  segundo CTA a este bloco, estás a reabrir o defeito.
+- **O email e as redes vêm de `lib/site.ts`**, como em todo o lado.
+- **A marca aqui é o símbolo isolado, não o lockup.** O "+" do `Lockup` é sempre
+  `--primary` (`docs/03`), e sobre o ground laranja isso deixa de ser um logótipo
+  e passa a ser um buraco no "D". O `Logo` pinta em `currentColor` — é a variante
+  que o `docs/03` já prevê para fundos onde o laranja não se lê.
+- **O Livro de Reclamações continua no rodapé**, pela mesma razão de sempre: tem
+  de estar em todas as páginas sem ser preciso procurar.
+
 ## Ao alterar este documento
 
 | Se mudares…                                      | Faz também                                                                                                                                           |
@@ -326,6 +361,7 @@ da Política de Privacidade. Três regras:
 | passar a haver sede ou sociedade constituída     | `lib/site.ts`, o `address` em `components/JsonLd.tsx`, e a identificação (designação social, NIF, morada) em `app/privacidade/page.tsx` — no mesmo PR |
 | passar a haver selo oficial do Livro de Reclamações | põe o ficheiro em `public/`, troca o texto pelo selo em `components/Footer.tsx` — descarregado da plataforma, nunca redesenhado                    |
 | a forma de escrever o nome                       | `docs/03` (o lockup) e o `aria-label` em `components/Wordmark.tsx`                                                                                   |
+| o convite do fecho (título, subtítulo ou CTA)    | `components/Fecho.tsx` — é o único convite do site, e a forma dele está no `docs/04`. Se o puseres a dizer o mesmo que outro CTA da página, é o defeito do #73 outra vez |
 | o tom de voz                                     | revê `components/Hero.tsx`, `app/sobre/page.tsx` e os `blurb` em `lib/services.ts`                                                                   |
 | a morada, o telefone ou qualquer dado da empresa | `lib/site.ts` **e** `components/JsonLd.tsx` — os dados estruturados dizem ao Google quem é a DevPlus, e uma divergência ali é pior do que a ausência |
 | criares uma zona interna, fechada por login      | mantém-na fora de `app/sitemap.ts` e põe-na no `disallow` de `app/robots.ts` — não é conteúdo, e o que lá está atrás do login são dados de clientes. Ver `docs/07` |
@@ -339,3 +375,25 @@ a partir do `layout`), as perguntas frequentes (em `/servicos`) e, em cada caso 
 estudo, o trabalho mais o rasto de navegação. Todos os campos vêm de `lib/site.ts`
 e de `lib/projects.ts` — **não escrevas valores à mão neste ficheiro**, é a mesma
 regra do resto do doc. Depois de mexer, passa o output pelo Rich Results Test.
+
+## Home de outubro de 2026
+
+O hero mantém "Web design que soma ao teu negócio" num único h1 visível. A
+navegação passa a destacar o destino ativo e usa "Vamos conversar" no CTA. O
+convite do rodapé mantém texto e destino, com a escala `home-heading` e uma
+régua a separar os contactos, sem criar outro fecho.
+
+## O Instagram com o perfil
+
+Outubro de 2026. Onde o site identifica a conta — navegação (a partir de
+1280px), menu do telemóvel, portfólio, contacto e rodapé — o Instagram aparece
+como "Instagram · @devplus.pt". O perfil sai do próprio `href` em `socials`
+(`perfil()` em `lib/site.ts`), e o link é o `components/InstagramLink.tsx`.
+Nunca se escreve o endereço nem o nome à mão.
+
+### Revisão visual das interiores
+
+A política mantém integralmente texto, contactos e data; recebeu apenas
+índice de âncoras para navegação e acabamento mate estático. O contacto mantém
+`ContactForm`, validação e envio reais; o fundo acetinado é decorativo e não
+recebe interatividade. Os dados continuam todos em `lib/site.ts`.

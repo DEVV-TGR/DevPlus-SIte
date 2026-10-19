@@ -21,7 +21,7 @@ export function Testimonials() {
     <Section top={false}>
       <Container>
         <Reveal>
-          <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+          <h2 className="t-seccao font-display font-titulo">
             O que dizem de nós
           </h2>
         </Reveal>

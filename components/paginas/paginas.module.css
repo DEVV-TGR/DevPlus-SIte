@@ -1,0 +1,449 @@
+/* docs: docs/04-componentes-e-padroes.md · docs/10-materiais-atelier.md
+   Estilos locais das páginas interiores. Só tokens de app/globals.css. */
+
+/* ── Ambiente ────────────────────────────────────────────────────────────
+   O AtelierBackdrop pinta o seu próprio ground. Dentro de uma secção
+   `isolate` ele ficava por cima do "+" do `Cruz` (camada `fixed z-0`) e
+   apagava o primeiro tramo do gesto nas capas. Por isso vive aqui, numa
+   camada negativa, em secções **sem fundo próprio**: o ambiente fica por
+   baixo do "+", e o conteúdo, em fluxo, por cima dos dois. */
+.ambiente {
+  position: absolute;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+}
+
+/* Cada página corta o mesmo bitmap de outra maneira: a família repete-se,
+   o enquadramento não. */
+.margens {
+  mask-image: linear-gradient(
+    to right,
+    #000 0%,
+    #000 14%,
+    transparent 34%,
+    transparent 66%,
+    #000 86%,
+    #000 100%
+  );
+}
+
+.espelho {
+  transform: scaleX(-1);
+}
+
+.topo {
+  mask-image: linear-gradient(to bottom, #000 0%, #000 45%, transparent 100%);
+}
+
+/* ── Colunas do acordeão ─────────────────────────────────────────────────
+   Alumínio escovado, como os cartões do processo (docs/10): anodizado escuro
+   no tema escuro, prata no claro. O grão do escovado vai por cima do
+   gradiente em `soft-light`, a aresta de cima é o chanfro da placa. A coluna
+   aberta sobe um tom e ganha um fio de acento na borda — nada de banho de
+   laranja, que tirava a leitura de metal. */
+.coluna {
+  --muted: var(--aluminio-muted);
+  isolation: isolate;
+  border-color: color-mix(in oklch, var(--aluminio-alto) 60%, var(--aluminio-baixo));
+  background: linear-gradient(
+    176deg,
+    var(--aluminio-alto),
+    var(--aluminio) 45%,
+    var(--aluminio-baixo)
+  );
+  color: var(--ink);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklch, var(--creme) 16%, transparent),
+    inset 0 -1px 0 color-mix(in oklch, var(--bg-deep) 50%, transparent),
+    0 14px 28px -16px color-mix(in oklch, var(--bg-deep) 80%, transparent);
+}
+
+.coluna::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in oklch, var(--creme) 4%, transparent) 0 1px,
+      transparent 1px 3px
+    ),
+    url("/atelier/metal-escovado-v1.webp") center / 720px auto repeat;
+  mix-blend-mode: soft-light;
+  opacity: 0.55;
+}
+
+/* A luz do escovado: uma faixa larga e baixa no topo da coluna aberta. */
+.coluna::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(
+    150% 40% at 40% 0%,
+    color-mix(in oklch, var(--creme) 14%, transparent),
+    transparent 75%
+  );
+  opacity: 0;
+  transition: opacity 420ms ease-out;
+}
+
+.coluna[data-aberta="true"] {
+  border-color: color-mix(in oklch, var(--acento) 45%, var(--aluminio-baixo));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklch, var(--creme) 22%, transparent),
+    inset 0 -1px 0 color-mix(in oklch, var(--bg-deep) 50%, transparent),
+    0 20px 36px -18px color-mix(in oklch, var(--bg-deep) 85%, transparent);
+}
+.coluna[data-aberta="true"]::after {
+  opacity: 1;
+}
+
+.coluna:hover:not([data-aberta="true"]) {
+  border-color: color-mix(in oklch, var(--aluminio-alto) 40%, var(--ink));
+}
+
+:global(html[data-theme="light"]:not([data-area="estudio"])) .coluna {
+  border-color: color-mix(in oklch, var(--aluminio-baixo) 80%, var(--ink));
+  box-shadow:
+    inset 0 1px 0 var(--creme),
+    inset 0 -1px 0 color-mix(in oklch, var(--aluminio-baixo) 70%, var(--ink)),
+    0 14px 28px -18px color-mix(in oklch, var(--ink) 30%, transparent);
+}
+:global(html[data-theme="light"]:not([data-area="estudio"])) .coluna[data-aberta="true"] {
+  border-color: color-mix(in oklch, var(--acento) 55%, var(--aluminio-baixo));
+}
+:global(html[data-theme="light"]:not([data-area="estudio"])) .coluna::after {
+  background: radial-gradient(
+    150% 40% at 40% 0%,
+    color-mix(in oklch, var(--creme) 70%, transparent),
+    transparent 75%
+  );
+}
+
+/* ── Réguas ──────────────────────────────────────────────────────────────
+   Um fio de metal escovado no lugar do `border-t`: claro numa ponta, a
+   apagar-se na outra. */
+.regua {
+  position: relative;
+}
+
+.regua::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    color-mix(in oklch, var(--ink) 55%, transparent),
+    color-mix(in oklch, var(--muted) 30%, transparent) 45%,
+    color-mix(in oklch, var(--border) 60%, transparent)
+  );
+}
+
+.regua::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -1px;
+  width: 2.25rem;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--primary);
+}
+
+/* Contacto partilha a escala principal, mesmo na coluna do formulário. */
+.tituloContacto {
+  font-size: var(--titulo-principal);
+  line-height: var(--titulo-entrelinha);
+  text-wrap: balance;
+}
+
+/* ── Moldura do portfólio ───────────────────────────────────────────────
+   A abertura do bitmap foi medida: x 143–854 e y 109–523 num quadro de
+   1000×667. A capa real fica por baixo do alumínio, meio pixel para dentro
+   de cada aresta, para não se ver o fundo entre a imagem e o metal. */
+.moldura {
+  position: relative;
+  aspect-ratio: 1000 / 667;
+}
+
+.molduraJanela {
+  position: absolute;
+  left: 14%;
+  right: 14.3%;
+  top: 15.9%;
+  bottom: 21.3%;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--surface);
+}
+
+.molduraMetal {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  /* O bitmap tem ~10% de transparência à volta; em desktop a moldura
+     come-a para o lado do intervalo entre colunas, onde não corta nada. */
+  .moldura {
+    margin-inline: -6% -10%;
+  }
+}
+
+/* Entre 1024 e 1279px a margem do contentor é estreita de mais para os 10%
+   da direita: a moldura saía 8px da página e dava scroll lateral. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .moldura {
+    margin-inline: -6% -4%;
+  }
+}
+
+/* ── Carril do telemóvel ─────────────────────────────────────────────────
+   Cartões lado a lado com snap, a mostrar um pedaço do seguinte para se
+   perceber que há mais. Vidro claro no tema claro, grafite no escuro: são as
+   mesmas superfícies da página, sem uma cor própria. */
+.carril {
+  display: grid;
+  gap: 1rem;
+}
+.carrilControlos {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 14px;
+}
+.carrilControlos > span:nth-child(2) {
+  margin-right: auto;
+}
+.carrilControlos button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: color-mix(in oklch, var(--surface) 80%, transparent);
+}
+.carrilControlos button:disabled {
+  opacity: 0.35;
+}
+.carrilPista {
+  display: flex;
+  gap: 0.875rem;
+  margin-inline: -1.5rem;
+  padding: 0.25rem 1.5rem 1rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 1.5rem;
+  scrollbar-width: none;
+}
+.carrilPista::-webkit-scrollbar {
+  display: none;
+}
+.carrilCartao {
+  flex: 0 0 min(84vw, 22rem);
+  scroll-snap-align: start;
+  display: grid;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: color-mix(in oklch, var(--surface) 82%, transparent);
+  box-shadow: 0 18px 36px -24px color-mix(in oklch, var(--bg-deep) 70%, transparent);
+}
+:global(html[data-theme="light"]:not([data-area="estudio"])) .carrilCartao {
+  border-color: color-mix(in oklch, var(--creme) 85%, transparent);
+  box-shadow:
+    inset 0 1px 0 var(--creme),
+    0 18px 36px -22px color-mix(in oklch, var(--forest) 18%, transparent);
+}
+
+/* ── Dispositivos do caso de estudo ──────────────────────────────────────
+   As molduras têm a proporção da janela que tirou a captura: 1440/900 no
+   computador, 390/844 no telemóvel. O scroll é por dentro do ecrã. Em
+   desktop as duas lado a lado; abaixo de 768px uma de cada vez. */
+.dispositivos {
+  display: grid;
+}
+.dispositivosBarra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.dispositivosTroca {
+  display: none;
+}
+.dispositivosPar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 14rem);
+  align-items: end;
+  gap: 1.75rem;
+}
+.dispositivo {
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: color-mix(in oklch, var(--surface) 85%, transparent);
+  box-shadow: 0 24px 48px -28px color-mix(in oklch, var(--bg-deep) 75%, transparent);
+}
+:global(html[data-theme="light"]:not([data-area="estudio"])) .dispositivo {
+  border-color: color-mix(in oklch, var(--creme) 85%, transparent);
+  box-shadow:
+    inset 0 1px 0 var(--creme),
+    0 24px 48px -26px color-mix(in oklch, var(--forest) 22%, transparent);
+}
+.dispositivoTopo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 1.75rem;
+  color: var(--muted);
+  font-size: 14px;
+}
+.dispositivoPontos {
+  position: absolute;
+  left: 0.5rem;
+  display: flex;
+  gap: 4px;
+}
+.dispositivoPontos i {
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+}
+.dispositivo[data-dispositivo="mobile"] .dispositivoPontos {
+  display: none;
+}
+.dispositivoEcra {
+  position: relative;
+  aspect-ratio: 1440 / 900;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 10px;
+  background: var(--bg-deep);
+  scrollbar-width: thin;
+  cursor: pointer;
+}
+.dispositivo[data-dispositivo="mobile"] .dispositivoEcra {
+  aspect-ratio: 390 / 844;
+  border-radius: 14px;
+}
+.dispositivoVazio {
+  display: grid;
+  place-content: center;
+  gap: 0.5rem;
+  height: 100%;
+  padding: 1.5rem;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+}
+.dispositivoVazio strong {
+  color: var(--ink);
+  font-size: 1.1rem;
+}
+@media (max-width: 767px) {
+  .dispositivosTroca {
+    display: inline-flex;
+    justify-self: start;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+    padding: 0.25rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+  }
+  .dispositivosTroca button {
+    min-height: 44px;
+    padding: 0 1rem;
+    border-radius: 999px;
+    font-size: 14px;
+  }
+  .dispositivosTroca button[aria-pressed="true"] {
+    background: var(--ink);
+    color: var(--bg);
+  }
+  .dispositivosPar {
+    grid-template-columns: 1fr;
+  }
+  .dispositivosPar[data-vista="desktop"] .dispositivo[data-dispositivo="mobile"],
+  .dispositivosPar[data-vista="mobile"] .dispositivo[data-dispositivo="desktop"] {
+    display: none;
+  }
+  .dispositivo[data-dispositivo="mobile"] {
+    justify-self: center;
+    width: min(100%, 17rem);
+  }
+}
+
+@media (forced-colors: active) {
+  .ambiente,
+  .coluna::before,
+  .coluna::after,
+  .molduraMetal {
+    display: none;
+  }
+}
+
+/* A voz e as notas pertencem à mesma linha; nunca sobrepor texto absoluto. */
+.voz { display: grid; gap: clamp(3rem, 6vw, 6rem); }
+.vozLinha { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .75fr); gap: clamp(2rem, 7vw, 7rem); align-items: start; }
+.vozTexto { max-width: 34ch; font-size: clamp(1.45rem, 2.5vw, 2.15rem); line-height: 1.4; letter-spacing: -.02em; }
+.vozNotas { display: grid; gap: 2rem; }
+.vozNotas aside { border-top: 1px solid var(--border-strong); padding-top: 1rem; }
+.vozLinha:nth-child(even) > :first-child { order: 2; }
+.vozLinha:nth-child(even) { grid-template-columns: minmax(0, .75fr) minmax(0, 1.15fr); }
+/* Altura animada por Perguntas.tsx, incluindo Safari. Sem fade do texto. */
+.faq { overflow-anchor: none; }
+.faq details { border-top: 1px solid var(--border-strong); }
+.faq summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 64px; padding-block: 1.25rem; cursor: pointer; font-size: 1.125rem; font-weight: 600; list-style: none; transition: color 200ms ease; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary:hover { color: var(--acento); }
+.faq summary svg { flex-shrink: 0; transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1); }
+.faq details[open]:not([data-expanded="false"]) summary svg { transform: rotate(45deg); }
+.faq p { max-width: 65ch; padding-bottom: 1.75rem; color: var(--muted); }
+.carril[data-glass] .carrilPista { padding-block: 1rem 1.75rem; }
+.carril[data-glass] .carrilCartao {
+  border-color: color-mix(in oklch, var(--ink) 18%, transparent);
+  background: linear-gradient(135deg, color-mix(in oklch, var(--creme) 12%, transparent), transparent 45%), color-mix(in oklch, var(--surface) 88%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in oklch, var(--creme) 45%, transparent), 0 20px 30px -22px color-mix(in oklch, var(--forest) 50%, transparent);
+  transform: scale(.96);
+  transform-origin: left center;
+  transition: transform 220ms ease, opacity 220ms ease;
+  opacity: .68;
+}
+.carril[data-glass] .carrilCartao[data-active="true"],
+.carril[data-glass] .carrilCartao:focus-within { transform: none; opacity: 1; }
+.casoNotas { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5rem; }
+@media (max-width: 767px) {
+  .vozLinha, .vozLinha:nth-child(even) { grid-template-columns: 1fr; gap: 1.75rem; }
+  .vozLinha:nth-child(even) > :first-child { order: 0; }
+  .vozNotas { gap: 1.5rem; }
+  .casoNotas { display: flex; gap: 1.5rem; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 1rem; }
+  .casoNotas > * { flex: 0 0 88%; scroll-snap-align: start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .carril[data-glass] .carrilCartao, .faq summary svg { transition: none; }
+}
+
+.politica { display: grid; grid-template-columns: minmax(12rem, .65fr) minmax(0, 1.6fr); gap: clamp(2rem, 6vw, 6rem); }
+.politica nav { position: sticky; top: 7rem; align-self: start; display: grid; }
+.politica nav a { display: flex; align-items: center; min-height: 44px; padding-block: .5rem; color: var(--muted); border-bottom: 1px solid var(--border); font-size: .875rem; }
+.politica nav a:hover { color: var(--ink); }
+@media (max-width: 767px) {
+  .politica { grid-template-columns: 1fr; }
+  .politica nav { position: static; display: flex; gap: .75rem; overflow-x: auto; padding-bottom: .5rem; }
+  .politica nav a { flex: 0 0 auto; border: 1px solid var(--border-strong); border-radius: 999px; padding-inline: 1rem; }
+}

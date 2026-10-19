@@ -18,6 +18,10 @@ export type Project = {
   services: string[];
   /** Qual das cores da marca tinge a capa deste projeto. */
   accent: "primary" | "accent";
+  /** Fora do site sem sair do catálogo: some do portfólio, da home, do
+   *  sitemap e do "próximo projeto", e o endereço redireciona para
+   *  `/portfolio` (`next.config.ts`). Tirar o campo devolve-o. Ver docs/06. */
+  oculto?: boolean;
   /** "em-curso" mostra a etiqueta no card e no caso de estudo. */
   status: "em-curso" | "concluido";
   /** Capa do card, em /public/capas. Sem imagem, cai na forma gerada em CSS. */
@@ -29,16 +33,87 @@ export type Project = {
 };
 
 /**
- * O primeiro da lista é o projeto em destaque na página inicial (card grande).
+ * O catálogo alimenta o portfólio; a seleção da home vive em HOME_PROJECT_SLUGS.
  * A cor de capa alterna entre `primary` e `accent` — ver docs/06.
  */
-export const projects: Project[] = [
+const catalogo: Project[] = [
+  {
+    slug: "cafe-preguica",
+    name: "Café Preguiça",
+    client: "Café Preguiça — Cocktails & Snacks",
+    category: "Café & cocktail bar",
+    year: "2026",
+    updatedAt: "2026-10-16",
+    status: "concluido",
+    url: "https://cafepreguica.pt",
+    image: "/capas/cafe-preguica.jpg",
+    imageAlt:
+      "Site do Café Preguiça, com a identidade da casa e a apresentação dos cocktails e snacks.",
+    summary:
+      "Da mesa à ementa, por QR code ou NFC. Um site com a personalidade da casa e um painel para a equipa gerir a carta.",
+    services: [
+      "Web Design",
+      "Desenvolvimento",
+      "Menus & Ecrãs Digitais",
+      "Painel de Gestão",
+    ],
+    accent: "primary",
+    overview:
+      "O Café Preguiça, em Ermesinde, precisava de levar a identidade do espaço para o digital e tornar a carta acessível a quem já está à mesa. A equipa precisava também de autonomia para atualizar produtos e preços sem depender de alterações ao código.",
+    contribution:
+      "Desenhámos e desenvolvemos o site em português e inglês, com uma apresentação própria dos cocktails e snacks. Criámos a ementa digital e o painel que permite à equipa gerir a carta. Nas mesas, os suportes com QR codes e NFC abrem a ementa: basta ler o código com a câmara ou aproximar um telemóvel compatível. Os acessos por mesa podem ser acompanhados no painel, ligando a experiência no espaço à ferramenta de gestão.",
+  },
+  {
+    slug: "cafe-avenida",
+    name: "Café Avenida",
+    // Oculto a 19 de outubro, por pedido do utilizador (docs/06).
+    oculto: true,
+    client: "Café Avenida",
+    category: "Café & restauração",
+    year: "2026",
+    updatedAt: "2026-10-16",
+    status: "concluido",
+    url: "https://cafe-avenida.vercel.app",
+    image: "/capas/cafe-avenida.jpg",
+    imageAlt:
+      "Página inicial do Café Avenida, com fotografia do espaço e acesso à ementa.",
+    summary:
+      "Uma casa com presença própria na web. Site e ementa em três línguas, acessíveis no telemóvel por QR code.",
+    services: ["Web Design", "Desenvolvimento", "Menus & Ecrãs Digitais"],
+    accent: "accent",
+    overview:
+      "O Café Avenida, em Alpendurada, precisava de um site que apresentasse o espaço, mostrasse as sugestões da casa e desse acesso simples à ementa, tanto antes da visita como à mesa.",
+    contribution:
+      "Criámos o site com fotografias do espaço, galeria, sugestões, localização e horário com indicação de aberto ou fechado. A ementa está disponível em português, inglês e francês, organizada por categorias e preparada para consulta no telemóvel. Os QR codes nas mesas dão acesso direto à carta, e as imagens otimizadas mantêm a navegação leve.",
+  },
+  {
+    slug: "damira",
+    name: "Confeitaria Damira",
+    client: "Confeitaria Damira",
+    category: "Loja online · Confeitaria",
+    year: "2026",
+    updatedAt: "2026-10-19",
+    status: "em-curso",
+    // Desenho, não fotografia: a loja ainda não está no ar (docs/06).
+    image: "/capas/damira-20261019.jpg",
+    imageAlt:
+      "Desenho da loja online da Confeitaria Damira num telemóvel, ao lado do painel do balcão num tablet e do painel da gerência num portátil.",
+    summary:
+      "Uma loja online para encomendar, com um painel para o balcão preparar os pedidos e outro para a gerência gerir a casa.",
+    services: ["Web Design", "Desenvolvimento", "Painel de Gestão"],
+    accent: "primary",
+    overview:
+      "A Confeitaria Damira, em Ermesinde, junta pastelaria, padaria e cozinha. Quer receber encomendas online sem perder o fio no balcão, e ter num só sítio os produtos, os preços e o que se vende.",
+    contribution:
+      "Estamos a desenvolver três peças ligadas entre si: a loja online, onde o cliente escolhe e encomenda; o painel do balcão, onde cada pedido entra e se acompanha até ser levantado; e o painel da gerência, para mudar produtos e preços e ver as vendas. Ainda não está no ar."
+  },
   {
     slug: "taskuinha-do-pirata",
     name: "Taskuinha do Pirata",
     client: "Rumoceano — Taskuinha",
     category: "Taberna de petiscos",
     year: "2026",
+    updatedAt: "2026-10-19",
     status: "concluido",
     url: "https://taskuinhapirata.pt",
     image: "/capas/taskuinha-do-pirata.jpg",
@@ -56,7 +131,7 @@ export const projects: Project[] = [
     overview:
       "A Taskuinha do Pirata é uma taberna à beira-mar em Vila Chã, decorada de alto a baixo: barris na fachada a soletrar o nome, tecto de tábuas turquesa com um mural de nau em tempestade e um esqueleto pirata sentado à porta. O pedido do dono foi só um, e não era sobre design — o site não podia parecer uma coisa à parte do restaurante. Quem entrasse tinha de sentir que já estava dentro da casa. E como a porta dá para o Caminho de Santiago, metade de quem chega no Verão não fala português.",
     contribution:
-      "Desenhámos e desenvolvemos o site de raiz, com a casa real como referência: madeira, pergaminho e letra de tabuleta, num tema nocturno único, com fotografias do espaço por trás de cada secção. A ementa completa vive numa página só, e o site inteiro fala quatro línguas — português, inglês, francês e espanhol — cada uma com o seu endereço, para se poder enviar a um amigo. Do mesmo desenho saiu a ementa impressa, pronta a entregar na gráfica. O painel de gestão, para a casa mudar pratos e preços sem nos ligar, está em desenvolvimento.",
+      "Desenhámos e desenvolvemos o site de raiz, com a casa real como referência: madeira, pergaminho e letra de tabuleta, num tema nocturno único, com fotografias do espaço por trás de cada secção. A ementa completa vive numa página só, e o site inteiro fala quatro línguas — português, inglês, francês e espanhol — cada uma com o seu endereço, para se poder enviar a um amigo. Do mesmo desenho saiu a ementa impressa, pronta a entregar na gráfica. Criámos também o painel de gestão, onde a casa muda pratos, preços e horário sem nos ligar.",
   },
   {
     slug: "imperio-auto-concept",
@@ -64,6 +139,7 @@ export const projects: Project[] = [
     client: "Império Auto Concept",
     category: "Stand automóvel",
     year: "2026",
+    updatedAt: "2026-10-19",
     status: "concluido",
     url: "https://www.imperioautoconcept.com",
     image: "/capas/imperio-auto-concept.jpg",
@@ -76,43 +152,7 @@ export const projects: Project[] = [
     overview:
       "O Império Auto Concept vende automóveis e queria deixar de depender dos portais de classificados para mostrar o stock. O desafio era ter um site próprio, onde cada viatura tem a sua página, e que a equipa conseguisse manter atualizado sem nos ligar de cada vez que entra ou sai um carro.",
     contribution:
-      "Desenhámos e desenvolvemos o site de raiz, com base de dados própria: cada viatura tem a sua página, e quem chega filtra o stock por marca, modelo e combustível sem sair da página inicial. O painel de gestão, que deixa a equipa publicar novos anúncios, editar os que já existem, gerir as fotografias de cada viatura e retirar do site o que já foi vendido — tudo sem tocar em código —, está em desenvolvimento.",
-  },
-  {
-    slug: "mira-mar",
-    name: "Mira Mar",
-    client: "Mira Mar",
-    category: "Restaurante",
-    year: "2026",
-    status: "em-curso",
-    image: "/capas/mira-mar.jpg",
-    imageAlt:
-      "Página inicial do Mira Mar, com o nome do restaurante sobre uma fotografia da praia e acessos rápidos à ementa, take away e pool bar.",
-    summary:
-      "Uma página que apresenta o restaurante e ementas digitais que a equipa muda e programa sozinha, com QR codes na sala e na explanada.",
-    services: ["Landing Page", "Menu Digital", "Painel de Gestão", "QR Code"],
-    accent: "accent",
-    overview:
-      "O Mira Mar, em Angeiras, queria uma presença online que fizesse duas coisas ao mesmo tempo: apresentar o restaurante a quem ainda não o conhece e substituir a ementa impressa por uma versão digital sempre atualizada.",
-    contribution:
-      "Estamos a construir uma landing page com todas as secções numa só página — sobre, fotos, localização e as avaliações do Google — com acesso direto à ementa, ao take away e ao pool bar, e disponível em mais do que um idioma. Numa área separada ficam as ementas: a do dia, os menus e a da explanada. O painel de gestão permite à equipa criar, editar, apagar e programar os menus diários com antecedência. Os QR codes, em suportes na sala e colados nas mesas da explanada, levam o cliente diretamente à ementa digital.",
-  },
-  {
-    slug: "a-barraquinha-nova",
-    name: "A Barraquinha Nova",
-    client: "A Barraquinha Nova",
-    category: "Restauração",
-    year: "2026",
-    status: "em-curso",
-    // Falta a capa: foto da televisão no espaço a passar a ementa (ver docs/06).
-    summary:
-      "A ementa no telemóvel por QR code e numa televisão dentro do espaço, em loop. Muda-se uma vez e muda nas duas, sem reimprimir nada.",
-    services: ["Menu Digital", "Ecrã Digital"],
-    accent: "primary",
-    overview:
-      "A Barraquinha Nova, na Praia da Granja, servia a ementa em papel e reimprimia-a sempre que mudava um preço ou faltava um prato. Queria uma ementa digital fácil de manter e visível também para quem já está sentado à mesa.",
-    contribution:
-      "Estamos a implementar o menu digital e a instalar uma televisão dentro do espaço a passar a ementa em loop, sincronizada com o mesmo menu. Uma alteração feita uma vez chega ao telemóvel do cliente e ao ecrã da sala ao mesmo tempo.",
+      "Desenhámos e desenvolvemos o site de raiz, com base de dados própria: cada viatura tem a sua página, e quem chega filtra o stock por marca, modelo e combustível sem sair da página inicial. O painel de gestão deixa a equipa publicar novos anúncios, editar os que já existem, gerir as fotografias de cada viatura e marcar o que já foi vendido — tudo sem tocar em código.",
   },
   {
     slug: "jsk",
@@ -156,6 +196,244 @@ export const projects: Project[] = [
   },
 ];
 
+/**
+ * Os casos em tópicos curtos — "o que era preciso" e "o que fizemos" —, que é
+ * o que a página do caso mostra desde outubro de 2026, por pedido do
+ * utilizador. Resumem o `overview` e o `contribution` de cada projeto sem
+ * acrescentar nada: as pendências (sites em
+ * construção) continuam ditas. O texto longo fica no catálogo. Ver docs/06.
+ */
+export const notasDoCaso: Record<string, { preciso: string[]; feito: string[] }> = {
+  "cafe-preguica": {
+    preciso: [
+      "Levar a identidade da casa para o digital.",
+      "Dar autonomia à equipa para atualizar a carta.",
+    ],
+    feito: [
+      "Site em português e inglês.",
+      "Ementa digital e painel de gestão.",
+      "QR code e NFC nas mesas.",
+    ],
+  },
+  "cafe-avenida": {
+    preciso: [
+      "Apresentar o espaço e as sugestões da casa.",
+      "Facilitar o acesso à ementa antes e durante a visita.",
+    ],
+    feito: [
+      "Site com galeria, localização e horário.",
+      "Ementa em português, inglês e francês.",
+      "QR codes nas mesas.",
+    ],
+  },
+  "taskuinha-do-pirata": {
+    preciso: [
+      "Trazer a decoração da taberna para o site.",
+      "Receber quem chega sem falar português.",
+    ],
+    feito: [
+      "Design inspirado na casa real.",
+      "Site e ementa em quatro línguas.",
+      "Ementa impressa e painel de gestão.",
+    ],
+  },
+  "imperio-auto-concept": {
+    preciso: [
+      "Mostrar o stock num site próprio.",
+      "Dar uma página a cada viatura.",
+    ],
+    feito: [
+      "Pesquisa por marca, modelo e combustível.",
+      "Base de dados e páginas de viaturas.",
+      "Painel de gestão para o stock e as fotos.",
+    ],
+  },
+  "jsk": {
+    preciso: [
+      "Organizar várias áreas de negócio.",
+      "Manter a navegação clara ao crescer.",
+    ],
+    feito: [
+      "Design e desenvolvimento de raiz.",
+      "Serviços com linguagem visual comum.",
+      "Preparado para velocidade e pesquisa.",
+    ],
+  },
+  "antonio-home-repair": {
+    preciso: [
+      "Criar presença online própria.",
+      "Facilitar contactos a partir do telemóvel.",
+    ],
+    feito: [
+      "Identidade, design e desenvolvimento.",
+      "Serviços organizados e contactos em destaque.",
+      "Otimização para mobile e pesquisa local.",
+    ],
+  },
+};
+
+/**
+ * Uma peça mostrada em cartão no caso de estudo: imagem, título e **uma frase**.
+ * `desenho` é um plano (SVG, sem fundo), `captura` é um print real. Ver docs/06.
+ */
+export type Peca = {
+  titulo: string;
+  texto: string;
+  tipo: "desenho" | "captura";
+  imagem: { src: string; width: number; height: number };
+};
+
+/**
+ * O que um projeto **ainda em desenvolvimento** vai ter, em desenhos — para
+ * quem não tem endereço nem captura, e não pode mostrar fotografias. Um
+ * trabalho por entregar não se explica em parágrafos. Os desenhos saem de
+ * `scripts/desenhar-damira.mjs`.
+ */
+export const pecasDoCaso: Record<string, Peca[]> = {
+  "damira": [
+    {
+      titulo: "Loja online",
+      texto: "O cliente escolhe, junta ao cesto e encomenda, do telemóvel ou do computador.",
+      tipo: "desenho",
+      imagem: { src: "/projetos/damira/loja.svg", width: 380, height: 680 },
+    },
+    {
+      titulo: "Painel do balcão",
+      texto: "Cada pedido entra na hora e passa de “por preparar” a “pronto” com um toque.",
+      tipo: "desenho",
+      imagem: { src: "/projetos/damira/balcao.svg", width: 840, height: 620 },
+    },
+    {
+      titulo: "Painel da gerência",
+      texto: "Produtos, preços e horários num só sítio, com as vendas à vista.",
+      tipo: "desenho",
+      imagem: { src: "/projetos/damira/gerencia.svg", width: 980, height: 640 },
+    },
+  ],
+};
+
+/**
+ * O painel de gestão por dentro: prints reais, tirados em 19 de outubro de
+ * 2026 com a conta da DevPlus, cortados sem nomes de pessoas nem sessões.
+ * Servidos de `public/projetos/<slug>/`. A primeira peça vai a toda a largura
+ * quando são três. Ver docs/06.
+ */
+export const painelDoCaso: Record<string, Peca[]> = {
+  "cafe-preguica": [
+    {
+      titulo: "O painel da casa",
+      texto: "A carta, as leituras das mesas e a newsletter, à vista assim que se entra.",
+      tipo: "captura",
+      imagem: { src: "/projetos/cafe-preguica/painel-inicio.webp", width: 1400, height: 712 },
+    },
+    {
+      titulo: "A ementa",
+      texto: "Preços, pratos novos e o que acabou, mudados pela equipa sem nos ligar.",
+      tipo: "captura",
+      imagem: { src: "/projetos/cafe-preguica/painel-ementa.webp", width: 1400, height: 1000 },
+    },
+    {
+      titulo: "As mesas",
+      texto: "Quantas vezes cada mesa abriu a carta por QR ou NFC, e a que horas.",
+      tipo: "captura",
+      imagem: { src: "/projetos/cafe-preguica/painel-mesas.webp", width: 1380, height: 812 },
+    },
+  ],
+  "taskuinha-do-pirata": [
+    {
+      titulo: "A ementa",
+      texto: "Pratos e preços mudam-se aqui, categoria a categoria.",
+      tipo: "captura",
+      imagem: { src: "/projetos/taskuinha-do-pirata/painel-ementa.webp", width: 880, height: 770 },
+    },
+    {
+      titulo: "A casa",
+      texto: "Horário, telefone e morada atualizados pela casa, sem tocar em código.",
+      tipo: "captura",
+      imagem: { src: "/projetos/taskuinha-do-pirata/painel-horario.webp", width: 880, height: 595 },
+    },
+  ],
+  "imperio-auto-concept": [
+    {
+      titulo: "As viaturas",
+      texto: "Todo o stock numa lista, com o estado e o preço de cada carro.",
+      tipo: "captura",
+      imagem: { src: "/projetos/imperio-auto-concept/painel-viaturas.webp", width: 1124, height: 580 },
+    },
+    {
+      titulo: "As fotos",
+      texto: "Carregam-se, ordenam-se e escolhe-se a capa de cada anúncio.",
+      tipo: "captura",
+      imagem: { src: "/projetos/imperio-auto-concept/painel-fotos.webp", width: 840, height: 600 },
+    },
+    {
+      titulo: "A ficha",
+      texto: "Marca, preço, quilómetros e o resto da ficha, num formulário só.",
+      tipo: "captura",
+      imagem: { src: "/projetos/imperio-auto-concept/painel-ficha.webp", width: 840, height: 600 },
+    },
+  ],
+};
+
+export type Captura = { src: string; width: number; height: number };
+
+/**
+ * Capturas de página inteira dos sites publicados, em computador (1440px) e
+ * telemóvel (390px), servidas de `public/casos/`. **Não são sites vivos**: no
+ * caso de estudo percorrem-se por scroll dentro de uma moldura, e um clique
+ * abre o `url` original. Só existem para projetos com `url` — a Damira ainda
+ * não tem endereço, e não se inventa captura.
+ * As capturas são verificadas até ao rodapé; páginas com animações usam
+ * a apresentação estática original quando disponível. Ver docs/06.
+ */
+export const capturas: Record<string, { desktop: Captura; mobile: Captura }> = {
+  "cafe-preguica": {
+    desktop: { src: "/casos/cafe-preguica-desktop-20261019.webp", width: 1440, height: 8367 },
+    mobile: { src: "/casos/cafe-preguica-mobile-20261019.webp", width: 390, height: 9547 },
+  },
+  "cafe-avenida": {
+    desktop: { src: "/casos/cafe-avenida-desktop-20261019.webp", width: 1440, height: 5226 },
+    mobile: { src: "/casos/cafe-avenida-mobile-20261019.webp", width: 390, height: 5469 },
+  },
+  "taskuinha-do-pirata": {
+    desktop: { src: "/casos/taskuinha-do-pirata-desktop-20261019.webp", width: 1440, height: 7263 },
+    mobile: { src: "/casos/taskuinha-do-pirata-mobile-20261019.webp", width: 390, height: 8452 },
+  },
+  "imperio-auto-concept": {
+    desktop: { src: "/casos/imperio-auto-concept-desktop-20261019.webp", width: 1440, height: 4331 },
+    mobile: { src: "/casos/imperio-auto-concept-mobile-20261019.webp", width: 390, height: 5718 },
+  },
+  "jsk": {
+    desktop: { src: "/casos/jsk-desktop-20261019.webp", width: 1440, height: 4381 },
+    mobile: { src: "/casos/jsk-mobile-20261019.webp", width: 390, height: 7145 },
+  },
+  "antonio-home-repair": {
+    desktop: { src: "/casos/antonio-home-repair-desktop-20261019.webp", width: 1440, height: 3534 },
+    mobile: { src: "/casos/antonio-home-repair-mobile-20261019.webp", width: 390, height: 3739 },
+  },
+};
+
+/** O que o site mostra: o catálogo sem os projetos ocultos. */
+export const projects: Project[] = catalogo.filter((p) => !p.oculto);
+/** Os slugs ocultos: `next.config.ts` redireciona-os, temporariamente, para `/portfolio`. */
+export const slugsOcultos: string[] = catalogo.filter((p) => p.oculto).map((p) => p.slug);
+
 export function getProject(slug: string): Project | undefined {
   return projects.find((p) => p.slug === slug);
 }
+
+/** Seleção editorial da home, independente da ordem do catálogo completo. */
+export const HOME_PROJECT_SLUGS = [
+  "cafe-preguica",
+  "cafe-avenida",
+  "jsk",
+  "antonio-home-repair",
+  "imperio-auto-concept",
+  "taskuinha-do-pirata",
+  "damira",
+] as const;
+export const homeProjects: Project[] = HOME_PROJECT_SLUGS.flatMap((slug) => {
+  const project = catalogo.find((p) => p.slug === slug);
+  if (!project) throw new Error(`Projeto da home inexistente: ${slug}`);
+  return project.oculto ? [] : [project];
+});

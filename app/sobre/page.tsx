@@ -1,8 +1,15 @@
+/** docs: docs/04-componentes-e-padroes.md · docs/10-materiais-atelier.md */
+import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
+import { MaterialGround } from "@/components/atelier/MaterialGround";
 import { Reveal } from "@/components/Reveal";
-import { PageHero } from "@/components/PageHero";
+import { Capa } from "@/components/paginas/Capa";
+import { Cruz, POSTOS_PAGINA } from "@/components/home/Cruz";
+import { Curva } from "@/components/home/Curva";
+import { atelierAssets } from "@/components/atelier/assets";
 import { site } from "@/lib/site";
+import styles from "@/components/paginas/paginas.module.css";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
@@ -55,91 +62,85 @@ const beliefs: [string, string][] = [
   ],
 ];
 
+const prose = [
+  "Somos um estúdio pequeno de web design e desenvolvimento. Trabalhamos sobretudo com negócios que já fazem bem aquilo que fazem e só precisam que a internet o mostre — restaurantes, stands, empresas de serviços.",
+  "Quem fala contigo é quem desenha e quem escreve o código. Não há intermediários pelo meio nem modelos prontos a preencher.",
+  "E não te deixamos sozinho quando o site fica no ar: o alojamento e o suporte ficam connosco. Se alguma coisa falhar, não tens de andar à procura de quem resolve.",
+];
+const notes = [...values, ...differentiators];
+
 export default function SobrePage() {
   return (
     <>
-      <PageHero
+      <Cruz postos={POSTOS_PAGINA} />
+
+      <Capa
+        id="sobre-capa"
+        ambiente="espelho"
         eyebrow="Sobre"
-        title="Estúdio pequeno, projetos poucos, atenção toda."
+        title={<>Estúdio pequeno, projetos poucos, <em>atenção toda.</em></>}
         intro={`A ${site.name} nasceu de uma ideia simples: a maior parte dos sites podia ser bem melhor. Existimos para acrescentar o que lhes falta.`}
       />
+      <Curva forma="a" de="var(--verde)" cor="var(--bg-deep)" ground="verde" />
 
-      <Section>
+      <Section className="relative isolate capitulo-fundo">
+        <MaterialGround finish="satin" />
         <Container>
-          <div className="grid gap-12 lg:grid-cols-12">
-            <Reveal className="lg:col-span-7">
-              <div className="space-y-5 text-lg text-muted">
-                <p>
-                  Somos um estúdio pequeno de web design e desenvolvimento.
-                  Trabalhamos sobretudo com negócios que já fazem bem aquilo que
-                  fazem e só precisam que a internet o mostre — restaurantes,
-                  stands, empresas de serviços.
-                </p>
-                <p>
-                  Quem fala contigo é quem desenha e quem escreve o código. Não
-                  há intermediários pelo meio nem modelos prontos a preencher.
-                  E não te deixamos sozinho quando o site fica no ar: o
-                  alojamento e o suporte ficam connosco.
-                </p>
+          <div className={styles.voz}>
+            {prose.map((text, i) => (
+              <div className={styles.vozLinha} key={text}>
+                <Reveal><p className={styles.vozTexto}>{text}</p></Reveal>
+                <div className={styles.vozNotas}>
+                  {notes.slice(i * 2, i * 2 + 2).map(([title, body]) => (
+                    <aside key={title}>
+                      <h2 className="t-cartao font-display">{title}</h2>
+                      <p className="mt-2 text-sm text-muted">{body}</p>
+                    </aside>
+                  ))}
+                </div>
               </div>
-            </Reveal>
-
-            <Reveal className="lg:col-span-5" delay={0.08}>
-              <div className="flex flex-col divide-y divide-border">
-                {values.map(([title, blurb]) => (
-                  <div key={title} className="py-5 first:pt-0">
-                    <h2 className="font-display text-lg">{title}</h2>
-                    <p className="mt-1.5 text-sm text-muted">{blurb}</p>
-                  </div>
-                ))}
-              </div>
-            </Reveal>
+            ))}
           </div>
         </Container>
       </Section>
+      <Curva forma="b" de="var(--bg-deep)" cor="var(--bg)" />
 
-      {/* PORQUÊ A DEVPLUS — veio da homepage, que passou a dar o lugar ao
-          trabalho feito e aos testemunhos. Ver docs/04. */}
-      <Section top={false}>
+      <Section className="relative isolate capitulo-base">
+        <MaterialGround finish="metal" />
         <Container>
-          <Reveal>
-            <div className="rounded-2xl border border-border bg-surface p-8 sm:p-12">
-              <h2 className="max-w-md font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                Porquê a {site.name}
-              </h2>
-              <div className="mt-10 grid gap-8 sm:grid-cols-3">
-                {differentiators.map(([title, blurb], i) => (
-                  <Reveal key={title} delay={i * 0.06}>
-                    <div>
-                      <span
-                        aria-hidden
-                        className="block h-px w-10 bg-primary"
-                      />
-                      <h3 className="mt-4 font-display text-lg">{title}</h3>
-                      <p className="mt-2 text-sm text-muted">{blurb}</p>
-                    </div>
-                  </Reveal>
-                ))}
+          {/* O INTERVALO
+              A peça de precisão vive aqui, entre a voz e as crenças, e não na
+              capa: a capa já tem o ambiente, e a figura que pousa ao lado do
+              título é o gesto da página inicial. Fica à esquerda, o título
+              assenta à direita — a única página interior com o objeto desse
+              lado. É ilustração, não uma fotografia do estúdio. */}
+          <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-6 lg:grid-cols-12 lg:gap-10">
+            <Reveal className="lg:col-span-6">
+              <div aria-hidden className="mx-auto w-[min(90%,26rem)] lg:mx-0 lg:w-full lg:pr-[6%]">
+                <Image
+                  src={atelierAssets.precision.src}
+                  alt=""
+                  width={atelierAssets.precision.width}
+                  height={atelierAssets.precision.height}
+                  sizes="(min-width: 1024px) 34rem, 90vw"
+                  loading="lazy"
+                  className="h-auto w-full"
+                />
               </div>
-            </div>
-          </Reveal>
-        </Container>
-      </Section>
-
-      <Section top={false}>
-        <Container>
-          <Reveal>
-            <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-              Em que acreditamos
-            </h2>
-          </Reveal>
+            </Reveal>
+            <Reveal className="lg:col-span-5 lg:col-start-8">
+              <h2 className="interior-heading max-w-[14ch] font-display font-titulo">
+                Em que <em>acreditamos.</em>
+              </h2>
+            </Reveal>
+          </div>
           {/* Sem cards e sem 01/02/03: não é uma sequência — são três coisas
               em que se acredita ao mesmo tempo, e numerá-las era decoração.
               Fica uma lista assumida, com o peso na frase e não na caixa. */}
           <dl className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-3">
             {beliefs.map(([title, blurb]) => (
               <Reveal key={title}>
-                <div className="border-t border-border pt-5">
+                <div className={`${styles.regua} pt-5`}>
                   <dt className="font-display text-2xl tracking-tight">
                     {title}
                   </dt>

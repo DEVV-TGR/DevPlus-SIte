@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DevPlus &middot; Taskuinha do Pirata</title>
+<meta name="description" content="Um site que veste a decoração da taberna e põe a ementa em quatro línguas, para quem chega pela praia e pelo Caminho de Santiago.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231a1613'/><path d='M34.5 0H65.5V34.5H100V65.5H65.5V100H34.5V65.5H0V34.5H34.5Z' fill='%23F2762B'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="scrollcraft.css">
+<link rel="stylesheet" href="estilo.css">
+<link rel="stylesheet" href="paginas.css">
+</head>
+<body>
+
+<span data-sc-progress></span>
+<div class="sc-grain" aria-hidden="true"></div>
+
+<a class="marca" href="index.html">DevPlus</a>
+<nav class="nav" aria-label="Navegação principal">
+  <a href="index.html" class="nav__voltar">Início</a>
+  <a href="servicos.html">Serviços</a>
+  <a href="portfolio.html" aria-current="page">Portfólio</a>
+  <a href="sobre.html">Sobre</a>
+  <a href="contacto.html">Contacto</a>
+</nav>
+
+<div class="folio" aria-hidden="true">
+  <span class="folio__n" id="folio-n">00</span>
+  <span class="folio__t" id="folio-t">Capa</span>
+</div>
+
+<div class="cruz" aria-hidden="true">
+  <svg viewBox="0 0 100 100"><path d="M34.5 0H65.5V34.5H100V65.5H65.5V100H34.5V65.5H0V34.5H34.5Z"/></svg>
+</div>
+
+<main>
+
+  <script>
+    /* Os postos seguem duas regras que a homepage não precisou de ter, porque
+       lá o "+" vive quase sempre sobre imagem ou sobre vazio:
+
+       1. **Grande só onde não há texto corrido** — nos extremos, que é onde a
+          página tem título ou fecho. A meio, onde se lê, nunca passa de 0,6.
+       2. **Nunca 45°.** Um "+" rodado a meio caminho é um X, e um X grande e
+          cinzento por cima do trabalho lê-se como um botão de fechar. */
+    window.CRUZ_POSTOS = [
+      { p: 0.00, s: 1.6, x: 36, y: -22, r: 8, c: '#F2762B' },
+      { p: 0.40, s: 0.5, x: 44, y: 24, r: 0, c: '#8a7b6d' },
+      { p: 0.76, s: 0.55, x: 46, y: -22, r: 6, c: '#F2762B' },
+      { p: 1.00, s: 1.3, x: 40, y: 30, r: 0, c: '#F2762B' }
+    ];
+  </script>
+
+  <!-- ══ 0 · A CAPA ════════════════════════════════════════════════════
+       A capa a sangrar, com o nome por cima. É o único sítio do site onde
+       uma fotografia ocupa o ecrã todo: aqui o assunto é o trabalho, e o
+       trabalho vê-se. -->
+  <section class="cap" data-sc-act="pin" data-sc-span="1.8" data-cap="0" data-cap-nome="Taskuinha do Pirata">
+    <div class="cap__ground" style="background:#1a1613"></div>
+    <div data-sc-stage>
+      <div class="obraCapa">
+        <div class="obraCapa__img" data-sc-parallax="-0.18">
+          <img src="assets/capa-taskuinha.jpg" alt="Página inicial da Taskuinha do Pirata, com o nome em letra de tabuleta sobre a fotografia da fachada da taberna à noite e um esqueleto pirata sentado num baú a beber uma cerveja." width="1200" height="750">
+        </div>
+        <div class="obraCapa__texto" data-sc-cue="0 0.9 0">
+          <p class="capa__et">Taberna de petiscos &middot; 2026</p>
+          <h1>Taskuinha do Pirata</h1>
+          <p class="obraCapa__facto">Um site que veste a decoração da taberna e põe a ementa em quatro línguas, para quem chega pela praia e pelo Caminho de Santiago.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 1 · O CASO ════════════════════════════════════════════════════
+       O texto corre e a ficha fica. Numa leitura desta dimensão, a ficha
+       fixa é o que impede que se perca de quem é o projeto a meio do
+       segundo parágrafo. -->
+  <section class="cap sc-section" data-sc-act="flow" data-cap="1" data-cap-nome="O caso">
+    <div class="cap__ground" style="background:#100e0c"></div>
+    <div class="caso">
+      <div>
+        <div class="caso__bloco" data-sc-in>
+          <h2>O que era preciso</h2>
+          <p>A Taskuinha do Pirata é uma taberna à beira-mar em Vila Chã, decorada de alto a baixo: barris na fachada a soletrar o nome, tecto de tábuas turquesa com um mural de nau em tempestade e um esqueleto pirata sentado à porta. O pedido do dono foi só um, e não era sobre design — o site não podia parecer uma coisa à parte do restaurante. Quem entrasse tinha de sentir que já estava dentro da casa. E como a porta dá para o Caminho de Santiago, metade de quem chega no Verão não fala português.</p>
+        </div>
+        <div class="caso__bloco" data-sc-in>
+          <h2>O que fizemos</h2>
+          <p>Desenhámos e desenvolvemos o site de raiz, com a casa real como referência: madeira, pergaminho e letra de tabuleta, num tema nocturno único, com fotografias do espaço por trás de cada secção. A ementa completa vive numa página só, e o site inteiro fala quatro línguas — português, inglês, francês e espanhol — cada uma com o seu endereço, para se poder enviar a um amigo. Do mesmo desenho saiu a ementa impressa, pronta a entregar na gráfica. O painel de gestão, para a casa mudar pratos e preços sem nos ligar, está em desenvolvimento.</p>
+        </div>
+        <div class="botoes"><a class="btn btn--cheio" href="https://taskuinhapirata.pt">Visitar o site <span class="btn__seta" aria-hidden="true">&rarr;</span></a><a class="btn btn--linha" href="contacto.html">Quero um assim</a></div>
+      </div>
+      <dl class="ficha">
+        <div><dt>Cliente</dt><dd>Rumoceano — Taskuinha</dd></div>
+        <div><dt>Setor</dt><dd>Taberna de petiscos</dd></div>
+        <div><dt>Ano</dt><dd>2026</dd></div>
+        <div><dt>O que entrou</dt><dd><ul><li>Web Design</li><li>Desenvolvimento</li><li>Menus &amp; Ecrãs Digitais</li><li>Painel de Gestão</li></ul></dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <svg class="curva" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,120 L0,74 C280,26 520,102 780,72 C1040,42 1260,8 1440,44 L1440,120 Z" fill="#1a1613"/>
+  </svg>
+
+  <!-- ══ 2 · O SEGUINTE ════════════════════════════════════════════════
+       Um caso de estudo não acaba num rodapé: acaba no projeto a seguir. -->
+  <section class="cap" data-sc-act="pin" data-sc-span="1.2" data-cap="2" data-cap-nome="O seguinte">
+    <div class="cap__ground" style="background:#1a1613"></div>
+    <div data-sc-stage>
+      <div class="seguinte">
+        <!-- `data-sc-in` e não `data-sc-cue`: o cue abre com o progresso do
+             act, e num fecho pinado isso deixa um ecrã inteiro vazio entre a
+             secção anterior e o momento em que o convite se decide a aparecer.
+             O `in` dispara à entrada, que é quando se quer ler. -->
+        <div data-sc-in>
+          <p class="seguinte__et">Projeto seguinte</p>
+          <h2>Império Auto Concept</h2>
+          <p class="capa__nota" style="margin-inline:auto">Um stand online com página própria para cada viatura e um painel que liberta a equipa dos portais de classificados.</p>
+          <div class="botoes" style="justify-content:center">
+            <a class="btn btn--cheio" href="projeto.html">Ver o caso <span class="btn__seta" aria-hidden="true">&rarr;</span></a>
+            <a class="btn btn--linha" href="portfolio.html">Voltar ao portfólio</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- O rodapé é uma secção sua: dentro de um palco pinado ficava absoluto e
+       não gerava altura, e numa secção flow sobrepunha-se ao que lá estava. -->
+  <section class="cap" data-cap="3" data-cap-nome="Rodapé">
+    <div class="cap__ground" style="background:#1a1613"></div>
+    <div class="sc-wrap">
+      <footer class="foot foot--escuro">
+        <span>DevPlus &middot; devplus.pt</span>
+        <nav aria-label="Navegação do site">
+          <a href="index.html">Início</a><a href="servicos.html">Serviços</a><a href="portfolio.html">Portfólio</a><a href="sobre.html">Sobre</a><a href="contacto.html">Contacto</a>
+        </nav>
+      </footer>
+    </div>
+  </section>
+
+</main>
+
+<script src="scrollcraft.js"></script>
+<script src="paginas.js"></script>
+</body>
+</html>

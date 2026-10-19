@@ -1,13 +1,18 @@
-/** docs: docs/05-servicos.md */
+/** docs: docs/05-servicos.md · docs/04-componentes-e-padroes.md · docs/10-materiais-atelier.md */
+import { MaterialGround } from "@/components/atelier/MaterialGround";
+import { Perguntas } from "@/components/paginas/Perguntas";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
-import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/Reveal";
-import { PageHero } from "@/components/PageHero";
+import { Capa } from "@/components/paginas/Capa";
+import { Cruz, POSTOS_PAGINA } from "@/components/home/Cruz";
+import { Curva } from "@/components/home/Curva";
+import { ServicosAcordeao } from "@/components/paginas/ServicosAcordeao";
+import { PacotesBancada } from "@/components/paginas/PacotesBancada";
 import { FaqJsonLd } from "@/components/JsonLd";
 import { services } from "@/lib/services";
-import { cn } from "@/lib/utils";
+import { packages } from "@/lib/packages";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
@@ -16,45 +21,6 @@ export const metadata = pageMetadata({
   description:
 "Web design, desenvolvimento, menus e ecrãs digitais, painel de gestão, branding e motion. Do primeiro esboço ao dia em que o site fica no ar.",
 });
-
-const packages: {
-  name: string;
-  desc: string;
-  points: string[];
-  featured?: boolean;
-}[] = [
-  {
-    name: "Landing page",
-    desc: "Uma página só, com o que interessa: quem és, o que fazes e como te contactam. Rápida de pôr no ar.",
-    points: [
-      "Página única",
-      "Copy + design",
-      "Formulário de contacto",
-      "Otimizada para SEO",
-    ],
-  },
-  {
-    name: "Website",
-    desc: "O site completo da tua marca, com várias páginas e a mesma linguagem visual em todas.",
-    points: [
-      "Várias páginas",
-      "Design system próprio",
-      "CMS opcional",
-      "Performance + SEO",
-    ],
-    featured: true,
-  },
-  {
-    name: "Loja online",
-    desc: "Uma loja feita para vender: o cliente compra em poucos toques e tu geres os produtos sem ajuda.",
-    points: [
-      "Catálogo + checkout",
-      "Pagamentos",
-      "Gestão de produtos",
-      "Analytics",
-    ],
-  },
-];
 
 /* Veio da homepage, que passou a dar o lugar ao trabalho feito e aos
    testemunhos. Aqui encaixa melhor: a seguir ao que fazemos, antes de por onde
@@ -115,58 +81,56 @@ export default function ServicosPage() {
   return (
     <>
       <FaqJsonLd faqs={faqs} />
-      <PageHero
+      <Cruz postos={POSTOS_PAGINA} />
+
+      <Capa
+        id="servicos-capa"
         eyebrow="Serviços"
-        title="Design, código e as chaves na tua mão."
+        title={<>Design, código e as chaves <em>na tua mão.</em></>}
         intro="Fazemos tudo o que o teu site precisa, da primeira ideia ao dia em que fica no ar. E deixamos-te o painel para seres tu a mandar nele a partir daí."
+        contas={[
+          { n: String(services.length).padStart(2, "0"), label: "serviços" },
+          { n: String(steps.length).padStart(2, "0"), label: "passos" },
+          { n: String(packages.length).padStart(2, "0"), label: "pontos de partida" },
+        ]}
       />
+      <Curva forma="b" de="var(--bg)" cor="var(--bg-deep)" />
 
-      <Section>
-        <Container>
-          <div className="flex flex-col divide-y divide-border">
-            {services.map((s) => (
-              <Reveal key={s.title}>
-                <div className="grid gap-6 py-10 sm:grid-cols-12 sm:py-14">
-                  <div className="sm:col-span-4">
-                    <h2 className="font-display text-2xl tracking-tight sm:text-3xl">
-                      {s.title}
-                    </h2>
-                  </div>
-                  <div className="sm:col-span-8">
-                    <p className="max-w-xl text-muted">{s.blurb}</p>
-                    <ul className="mt-5 flex flex-wrap gap-2">
-                      {s.items.map((it) => (
-                        <li
-                          key={it}
-                          className="rounded-full border border-border px-3 py-1.5 text-sm text-muted"
-                        >
-                          {it}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </Container>
-      </Section>
+      <ServicosAcordeao />
+      <Curva forma="a" de="var(--bg-deep)" cor="var(--bg)" />
 
-      {/* COMO TRABALHAMOS */}
-      <Section top={false}>
+      {/* COMO TRABALHAMOS — os mesmos quatro passos da página inicial e, de
+          propósito, **não** na mesma forma: ali acumulam-se em cards inclinados
+          sobre o título, aqui correm numa linha com os números pousados nela.
+          Mesma informação, forma diferente. É a regra do docs/04. */}
+      <Section className="relative isolate capitulo-base">
+        <MaterialGround finish="crystal" />
         <Container>
           <Reveal>
-            <h2 className="max-w-lg font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-              Como trabalhamos
+            <h2 className="interior-heading max-w-[18ch] font-display font-titulo">
+              Como um projeto <em>corre.</em>
             </h2>
+            <p className="mt-3 max-w-[52ch] text-muted">
+              Quatro passos, sempre os mesmos. Sabes onde estás em cada momento.
+            </p>
           </Reveal>
-          <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="relative mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-10">
+            {/* A linha só existe onde os quatro estão lado a lado: em duas
+                colunas ela ligaria passos que não se seguem. */}
+            <span
+              aria-hidden
+              className="absolute inset-x-0 top-[1.15rem] hidden h-px bg-border-strong lg:block"
+            />
             {steps.map(([n, t, d], i) => (
               <Reveal key={n} delay={i * 0.08}>
-                <div className="border-t border-border pt-5">
-                  <span className="font-display text-sm text-primary">{n}</span>
-                  <h3 className="mt-2 font-display text-xl">{t}</h3>
-                  <p className="mt-2 text-sm text-muted">{d}</p>
+                <div className="relative grid gap-2">
+                  <span className="relative z-[1] grid h-9 w-9 place-items-center rounded-full bg-primary text-sm font-titulo tabular-nums text-primary-ink">
+                    {n}
+                  </span>
+                  <h3 className="t-cartao mt-2 font-display font-titulo">
+                    {t}
+                  </h3>
+                  <p className="text-sm text-muted">{d}</p>
                 </div>
               </Reveal>
             ))}
@@ -174,12 +138,15 @@ export default function ServicosPage() {
         </Container>
       </Section>
 
+      <Curva forma="c" de="var(--bg)" cor="var(--quente)" />
+
       {/* PACKAGES */}
-      <Section top={false}>
+      <Section className="relative isolate capitulo-quente">
+        <MaterialGround finish="satin" />
         <Container>
           <Reveal>
-            <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-              Por onde podemos começar
+            <h2 className="interior-heading font-display font-titulo">
+              Por onde podemos <em>começar.</em>
             </h2>
             <p className="mt-3 max-w-xl text-muted">
               Cada projeto é diferente, mas costuma partir de um destes pontos.
@@ -187,48 +154,7 @@ export default function ServicosPage() {
               acrescentar alguma coisa, falamos antes de fazer.
             </p>
           </Reveal>
-          <div className="mt-10 grid gap-4 lg:grid-cols-3">
-            {packages.map((p, i) => (
-              <Reveal key={p.name} delay={i * 0.06}>
-                <div
-                  className={cn(
-                    "flex h-full flex-col rounded-2xl border p-6",
-                    p.featured
-                      ? "border-primary/60 bg-primary/[0.06]"
-                      : "border-border bg-surface",
-                  )}
-                >
-                  {p.featured ? (
-                    <span className="mb-3 inline-flex w-fit items-center rounded-full bg-primary px-2.5 py-1 text-xs font-medium text-primary-ink">
-                      Mais escolhido
-                    </span>
-                  ) : null}
-                  <h3 className="font-display text-xl">{p.name}</h3>
-                  <p className="mt-2 text-sm text-muted">{p.desc}</p>
-                  <ul className="mt-5 space-y-2 text-sm">
-                    {p.points.map((pt) => (
-                      <li key={pt} className="flex items-start gap-2.5">
-                        <span
-                          aria-hidden
-                          className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent"
-                        />
-                        <span className="text-muted">{pt}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-auto pt-6">
-                    <Button
-                      href="/contacto"
-                      variant={p.featured ? "primary" : "outline"}
-                      className="w-full"
-                    >
-                      Pedir proposta
-                    </Button>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
+          <PacotesBancada />
           <p className="mt-4 text-sm text-muted">
             Nenhum destes é o teu caso?{" "}
             <Link
@@ -242,13 +168,16 @@ export default function ServicosPage() {
         </Container>
       </Section>
 
+      <Curva forma="b" de="var(--quente)" cor="var(--bg)" ground="quente" />
+
       {/* FAQ */}
-      <Section top={false}>
+      <Section className="relative isolate capitulo-base">
+        <MaterialGround finish="matte" />
         <Container>
           <div className="grid gap-10 lg:grid-cols-12">
             <Reveal className="lg:col-span-4">
-              <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                Perguntas frequentes
+              <h2 className="interior-heading font-display font-titulo">
+                Perguntas <em>frequentes.</em>
               </h2>
               <p className="mt-3 text-muted">
                 Ficaste com outra dúvida?{" "}
@@ -261,39 +190,9 @@ export default function ServicosPage() {
               </p>
             </Reveal>
             <div className="lg:col-span-8">
-              <dl className="flex flex-col divide-y divide-border">
-                {faqs.map(([q, a], i) => (
-                  <Reveal key={q} delay={i * 0.04}>
-                    <div className="py-6 first:pt-0">
-                      <dt className="font-display text-lg">{q}</dt>
-                      <dd className="mt-2 text-muted">{a}</dd>
-                    </div>
-                  </Reveal>
-                ))}
-              </dl>
+              <Perguntas items={faqs} />
             </div>
           </div>
-        </Container>
-      </Section>
-
-      <Section top={false}>
-        <Container>
-          <Reveal>
-            <div className="rounded-2xl border border-border bg-surface p-8 text-center sm:p-12">
-              <h2 className="mx-auto max-w-lg font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                Tens um projeto em mente?
-              </h2>
-              <p className="mx-auto mt-3 max-w-md text-muted">
-                Conta-nos o que tens em mente, mesmo que ainda seja só uma
-                ideia. Damos-te notícias depressa.
-              </p>
-              <div className="mt-6 flex justify-center">
-                <Button href="/contacto" variant="primary">
-                  Começar a conversa
-                </Button>
-              </div>
-            </div>
-          </Reveal>
         </Container>
       </Section>
     </>

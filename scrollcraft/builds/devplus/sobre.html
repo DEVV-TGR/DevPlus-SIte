@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DevPlus &middot; Sobre</title>
+<meta name="description" content="Um estúdio pequeno de web design e desenvolvimento. Poucos projetos de cada vez, para dar a cada um a atenção que precisa.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231a1613'/><path d='M34.5 0H65.5V34.5H100V65.5H65.5V100H34.5V65.5H0V34.5H34.5Z' fill='%23F2762B'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="scrollcraft.css">
+<link rel="stylesheet" href="estilo.css">
+<link rel="stylesheet" href="paginas.css">
+</head>
+<body>
+
+<span data-sc-progress></span>
+<div class="sc-grain" aria-hidden="true"></div>
+
+<a class="marca" href="index.html">DevPlus</a>
+<nav class="nav" aria-label="Navegação principal">
+  <a href="index.html" class="nav__voltar">Início</a>
+  <a href="servicos.html">Serviços</a>
+  <a href="portfolio.html">Portfólio</a>
+  <a href="sobre.html" aria-current="page">Sobre</a>
+  <a href="contacto.html">Contacto</a>
+</nav>
+
+<div class="folio" aria-hidden="true">
+  <span class="folio__n" id="folio-n">00</span>
+  <span class="folio__t" id="folio-t">Capa</span>
+</div>
+
+<div class="cruz" aria-hidden="true">
+  <svg viewBox="0 0 100 100"><path d="M34.5 0H65.5V34.5H100V65.5H65.5V100H34.5V65.5H0V34.5H34.5Z"/></svg>
+</div>
+
+<main>
+
+  <script>
+    /* Os postos seguem duas regras que a homepage não precisou de ter, porque
+       lá o "+" vive quase sempre sobre imagem ou sobre vazio:
+
+       1. **Grande só onde não há texto corrido** — nos extremos, que é onde a
+          página tem título ou fecho. A meio, onde se lê, nunca passa de 0,6.
+       2. **Nunca 45°.** Um "+" rodado a meio caminho é um X, e um X grande e
+          cinzento por cima do trabalho lê-se como um botão de fechar. */
+    window.CRUZ_POSTOS = [
+      { p: 0.00, s: 2.0, x: -32, y: -20, r: 0, c: '#F2762B' },
+      { p: 0.40, s: 0.5, x: 40, y: 22, r: 8, c: '#8a7b6d' },
+      { p: 0.76, s: 0.55, x: 42, y: -24, r: 6, c: '#F2762B' },
+      { p: 1.00, s: 1.25, x: 40, y: 30, r: 0, c: '#F2762B' }
+    ];
+  </script>
+
+  <!-- ══ 0 · CAPA ══════════════════════════════════════════════════════ -->
+  <section class="cap" data-sc-act="pin" data-sc-span="1.0" data-cap="0" data-cap-nome="Sobre">
+    <div class="cap__ground" style="background:#1a1613"></div>
+    <div data-sc-stage>
+      <div class="capa">
+        <div data-sc-cue="0 0.9 0">
+          <p class="capa__et">Sobre</p>
+          <h1>Estúdio pequeno, projetos poucos, atenção toda.</h1>
+          <p class="capa__nota">A DevPlus nasceu de uma ideia simples: a maior parte dos sites podia ser bem melhor. Existimos para acrescentar o que lhes falta.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 1 · A VOZ ═════════════════════════════════════════════════════
+       A coluna ao meio e as notas a habitar as margens, alternadas. Um
+       estúdio pequeno a falar de si não precisa de secções: precisa de uma
+       voz, e de notas à margem que não a interrompam. -->
+  <section class="cap sc-section" data-sc-act="flow" data-cap="1" data-cap-nome="Quem somos">
+    <div class="cap__ground" style="background:#100e0c"></div>
+    <div class="voz">
+      <aside class="nota nota--e" style="top:26%" data-sc-in>
+        <h3>Detalhe</h3>
+        <p>Ninguém repara num espaçamento certo. Repara-se sempre num errado. É aí que se vê se alguém teve cuidado.</p>
+      </aside>
+      <aside class="nota nota--d" style="top:42%" data-sc-in>
+        <h3>Rapidez</h3>
+        <p>Um site que demora a abrir perde o cliente antes de lhe mostrar seja o que for. Rapidez não é um extra que se pede.</p>
+      </aside>
+      <aside class="nota nota--e" style="top:60%" data-sc-in>
+        <h3>O site fica nas tuas mãos</h3>
+        <p>Damos-te um painel feito à tua medida. Mudas preços, fotos e textos à hora que te der jeito, sem ligar a ninguém.</p>
+      </aside>
+      <aside class="nota nota--d" style="top:78%" data-sc-in>
+        <h3>Falas sempre com quem faz</h3>
+        <p>Aceitamos poucos projetos de cada vez. Quem te atende é quem desenha e quem escreve o código.</p>
+      </aside>
+      <div class="voz__coluna">
+        <p data-sc-in>Somos um estúdio pequeno de web design e desenvolvimento. Trabalhamos sobretudo com negócios que já fazem bem aquilo que fazem e só precisam que a internet o mostre — restaurantes, stands, empresas de serviços.</p>
+        <p data-sc-in>Quem fala contigo é quem desenha e quem escreve o código. Não há intermediários pelo meio nem modelos prontos a preencher.</p>
+        <p class="tenue" data-sc-in>E não te deixamos sozinho quando o site fica no ar: o alojamento e o suporte ficam connosco. Se alguma coisa falhar, não tens de andar à procura de quem resolve.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 2 · EM QUE ACREDITAMOS ════════════════════════════════════════
+       Sem cards e sem 01/02/03: não é uma sequência, são três coisas em que
+       se acredita ao mesmo tempo. -->
+  <section class="cap sc-section" data-sc-act="flow" data-cap="2" data-cap-nome="Em que acreditamos">
+    <div class="cap__ground" style="background:#100e0c"></div>
+    <div class="sc-wrap sc-stack" data-sc-in style="margin-bottom:clamp(2rem,5vw,3rem)">
+      <h2 class="sc-display sc-display--lg" style="letter-spacing:-.04em;max-width:14ch">Em que acreditamos.</h2>
+    </div>
+    <div class="sc-wrap">
+      <div class="crenca">
+        <div class="crenca__c" data-sc-in>
+          <h3>Nada de modelos prontos</h3>
+          <p>Cada negócio é diferente e o site devia dar por isso. Nunca partimos de um modelo feito, e não vamos começar agora.</p>
+        </div>
+        <div class="crenca__c" data-sc-in>
+          <h3>Menos, mas melhor</h3>
+          <p>Aceitamos poucos projetos ao mesmo tempo. É a única maneira de dar a cada um a atenção que precisa.</p>
+        </div>
+        <div class="crenca__c" data-sc-in>
+          <h3>Feito para durar</h3>
+          <p>Escrevemos o site a pensar em daqui a três anos, não só no dia da entrega. Crescer depois tem de ser fácil.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <svg class="curva" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,120 L0,52 C260,-16 560,104 820,58 C1050,18 1280,4 1440,34 L1440,120 Z" fill="#1a1613"/>
+  </svg>
+
+  <!-- ══ 3 · O CONVITE ═════════════════════════════════════════════════ -->
+  <section class="cap" data-sc-act="pin" data-sc-span="1.2" data-cap="3" data-cap-nome="O convite">
+    <div class="cap__ground" style="background:#1a1613"></div>
+    <div data-sc-stage>
+      <div class="seguinte">
+        <!-- `data-sc-in` e não `data-sc-cue`: o cue abre com o progresso do
+             act, e num fecho pinado isso deixa um ecrã inteiro vazio entre a
+             secção anterior e o momento em que o convite se decide a aparecer.
+             O `in` dispara à entrada, que é quando se quer ler. -->
+        <div data-sc-in>
+          <p class="seguinte__et">Se isto te soa bem</p>
+          <h2>Falamos?</h2>
+          <div class="botoes" style="justify-content:center">
+            <a class="btn btn--cheio" href="contacto.html">Começar a conversa <span class="btn__seta" aria-hidden="true">&rarr;</span></a>
+            <a class="btn btn--linha" href="portfolio.html">Ver o trabalho</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- O rodapé é uma secção sua: dentro de um palco pinado ficava absoluto e
+       não gerava altura, e numa secção flow sobrepunha-se ao que lá estava. -->
+  <section class="cap" data-cap="4" data-cap-nome="Rodapé">
+    <div class="cap__ground" style="background:#1a1613"></div>
+    <div class="sc-wrap">
+      <footer class="foot foot--escuro">
+        <span>DevPlus &middot; devplus.pt</span>
+        <nav aria-label="Navegação do site">
+          <a href="index.html">Início</a><a href="servicos.html">Serviços</a><a href="portfolio.html">Portfólio</a><a href="sobre.html">Sobre</a><a href="contacto.html">Contacto</a>
+        </nav>
+      </footer>
+    </div>
+  </section>
+
+</main>
+
+<script src="scrollcraft.js"></script>
+<script src="paginas.js"></script>
+</body>
+</html>
