@@ -22,7 +22,7 @@ export function CartaoProjeto({
     <li>
       <Link
         href={`/estudio/projetos/${projeto.id}`}
-        className="block rounded-2xl border border-border bg-surface p-5 transition-colors duration-300 hover:border-ink/20"
+        className="block h-full rounded-lg border border-border bg-surface p-5 transition-colors duration-200 hover:border-border-strong hover:bg-surface-2/40"
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">

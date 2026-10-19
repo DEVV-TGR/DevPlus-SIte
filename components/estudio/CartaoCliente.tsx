@@ -1,6 +1,7 @@
 /** docs: docs/07-estudio.md */
 import Link from "next/link";
-import type { Cliente, ProjetoLeve } from "@/lib/estudio/tipos";
+import { Icone } from "@/components/estudio/Icone";
+import { iniciais, type Cliente, type ProjetoLeve } from "@/lib/estudio/tipos";
 
 /* Quantos trabalhos cabem no cartão antes de virar "e mais uns quantos".
    Três é o que deixa os cartões de alturas parecidas na mesma linha sem
@@ -50,14 +51,33 @@ export function CartaoCliente({
           ficava aos degraus. */}
       <Link
         href={`/estudio/clientes/${cliente.id}`}
-        className="block h-full rounded-2xl border border-border bg-surface p-5 transition-colors duration-300 hover:border-ink/20"
+        className="block h-full rounded-lg border border-border bg-surface p-5 transition-colors duration-200 hover:border-border-strong hover:bg-surface-2/40"
       >
-        <h3 className="truncate font-display text-lg font-semibold tracking-tight">
-          {cliente.nome}
-        </h3>
-        <p className="mt-0.5 truncate text-sm text-muted">
-          {cliente.email ?? cliente.telefone ?? "Sem contacto"}
-        </p>
+        <div className="flex items-start gap-3">
+          <span
+            aria-hidden
+            className="grid size-10 flex-none place-items-center rounded-full border border-border-strong bg-surface-2 text-sm font-medium"
+          >
+            {iniciais(cliente.nome)}
+          </span>
+          <div className="min-w-0">
+            <h3 className="truncate font-display text-lg font-semibold tracking-tight">
+              {cliente.nome}
+            </h3>
+            <p className="mt-0.5 flex items-center gap-1.5 truncate text-sm text-muted">
+              {cliente.telefone || cliente.email ? (
+                <Icone
+                  nome={cliente.telefone ? "telefone" : "email"}
+                  tamanho={14}
+                  className="flex-none"
+                />
+              ) : null}
+              <span className="truncate">
+                {cliente.telefone ?? cliente.email ?? "Sem contacto"}
+              </span>
+            </p>
+          </div>
+        </div>
 
         {projetos.length === 0 ? (
           <p className="mt-4 text-xs text-muted">Ainda sem trabalhos.</p>

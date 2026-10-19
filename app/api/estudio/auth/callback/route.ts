@@ -1,6 +1,7 @@
 /** docs: docs/07-estudio.md */
 import { cookies } from "next/headers";
 import { consultaUma } from "@/lib/estudio/db";
+import { anotar } from "@/lib/estudio/entradas";
 import {
   lerUtilizador,
   loginAutorizado,
@@ -63,6 +64,7 @@ export async function GET(request: Request) {
        porque é que não entrou. Não há aqui dado nenhum que não esteja à vista
        na página de perfil da pessoa. */
     console.warn(`[estudio] entrada recusada a @${perfil.login}`);
+    await anotar({ como: "recusada", githubLogin: perfil.login });
     return paraEntrar("naoAutorizado");
   }
 
@@ -81,6 +83,11 @@ export async function GET(request: Request) {
     if (!linha) return paraEntrar("base");
 
     await abrirSessao(Number(linha.id));
+    await anotar({
+      como: "entrou",
+      githubLogin: perfil.login,
+      utilizadorId: Number(linha.id),
+    });
   } catch (erro) {
     console.error("[estudio] falhou abrir a sessão:", erro);
     return paraEntrar("base");

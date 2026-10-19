@@ -697,3 +697,321 @@ export function iniciais(nome: string): string {
   if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
   return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
 }
+
+/* ------------------------------------------------------------- sessões -- */
+
+/** O que pode acontecer à porta do Estúdio. Bate com o `check` da tabela
+ *  `entradas` em `schema.sql`. */
+export type ComoEntrou = "entrou" | "saiu" | "terminada" | "recusada";
+
+/** Uma linha do histórico da aba Sessões. `quando` em milissegundos UTC; a
+ *  página converte para a hora de Lisboa. Não confundir com a `Entrada` de
+ *  dinheiro, lá em cima. */
+export type EntradaNaPorta = {
+  id: number;
+  quando: number;
+  githubLogin: string;
+  /** `null` para quem foi recusado — nunca chegou a estar em `utilizadores`. */
+  nome: string | null;
+  como: ComoEntrou;
+  aparelho: string | null;
+};
+
+/** Um aparelho com sessão aberta neste momento. */
+export type SessaoAberta = {
+  id: number;
+  utilizadorId: number;
+  nome: string;
+  githubLogin: string;
+  aparelho: string | null;
+  criadaEm: number;
+  expiraEm: number;
+};
+
+/* Os instantes da aba Sessões, sempre na hora de Lisboa e não na da máquina
+   da Vercel, que está em UTC: uma entrada às 23:30 de sábado não pode aparecer
+   como domingo. */
+const FUSO = "Europe/Lisbon";
+const HORA = new Intl.DateTimeFormat("pt-PT", { hour: "2-digit", minute: "2-digit", timeZone: FUSO });
+const DIA_LONGO = new Intl.DateTimeFormat("pt-PT", { weekday: "long", day: "numeric", month: "long", timeZone: FUSO });
+const DIA_CURTO = new Intl.DateTimeFormat("pt-PT", { day: "numeric", month: "short", timeZone: FUSO });
+const CHAVE_DO_DIA = new Intl.DateTimeFormat("en-CA", { timeZone: FUSO });
+
+/** `14:05`, em Lisboa. */
+export function formatarHora(quando: number): string {
+  return HORA.format(quando);
+}
+
+/** `14 out.`, em Lisboa. */
+export function formatarDiaCurto(quando: number): string {
+  return DIA_CURTO.format(quando);
+}
+
+/** `2026-10-14`, em Lisboa — só para agrupar por dia. */
+export function chaveDoDia(quando: number): string {
+  return CHAVE_DO_DIA.format(quando);
+}
+
+/** "Hoje", "Ontem", ou "Terça-feira, 13 de outubro". */
+export function nomeDoDia(quando: number, agora: number): string {
+  const dia = chaveDoDia(quando);
+  if (dia === chaveDoDia(agora)) return "Hoje";
+  if (dia === chaveDoDia(agora - 24 * 60 * 60 * 1000)) return "Ontem";
+  const nome = DIA_LONGO.format(quando);
+  return nome.charAt(0).toUpperCase() + nome.slice(1);
+}
+
+/** "Quarta-feira, 14 de outubro" — a data de hoje das boas-vindas. */
+export function hojePorExtenso(agora: number): string {
+  const nome = DIA_LONGO.format(agora);
+  return nome.charAt(0).toUpperCase() + nome.slice(1);
+}
+
+/** O que cada linha do histórico diz, depois do nome. */
+export const FRASE_DA_ENTRADA: Record<ComoEntrou, string> = {
+  entrou: "entrou",
+  saiu: "saiu",
+  terminada: "teve a sessão terminada",
+  recusada: "tentou entrar, mas não está na lista",
+};
+
+/** O mesmo, curto, para a coluna "Como" da tabela do resumo. */
+export const ROTULO_DA_ENTRADA: Record<ComoEntrou, string> = {
+  entrou: "Entrou",
+  saiu: "Saiu",
+  terminada: "Sessão terminada",
+  recusada: "Entrada recusada",
+};
+
+/** O primeiro nome, para as boas-vindas: "Tomás Sobral" → "Tomás". */
+export function primeiroNome(nome: string): string {
+  return nome.trim().split(/\s+/)[0] || nome;
+}
+
+/* --------------------------------------------------------------------------
+   A divisão
+
+   Quanto da margem dos projetos é de cada sócio. As somas vêm feitas da base
+   (`projetosADividir()` em `dados.ts`); aqui só se reparte, e reparte-se em
+   cêntimos para as partes somarem sempre o total — três terços de 100 € não
+   podem dar 99,99 €. Ver "A divisão" no docs/07.
+   -------------------------------------------------------------------------- */
+
+export type Socio = {
+  id: number;
+  nome: string;
+};
+
+/** O que já se pagou a um sócio. */
+export type Levantamento = {
+  id: number;
+  socioId: number;
+  socioNome: string;
+  valor: number;
+  data: string;
+  notas: string | null;
+};
+
+/** Um projeto tal como entra na divisão, com as somas já feitas. */
+export type ProjetoADividir = {
+  id: number;
+  nome: string;
+  clienteNome: string | null;
+  estado: Estado;
+  /** O combinado. `null` = ainda não se combinou. */
+  combinado: number | null;
+  /** O que o cliente já pagou **pelo projeto** — só `pagamentos`. Os
+   *  recebimentos de alojamento e domínio ficam de fora da divisão. */
+  recebido: number;
+  /** Os gastos do projeto que se pagam uma vez. Os que se repetem (o domínio
+   *  que se revende ao cliente) andam com o alojamento, e ficam de fora. */
+  gastos: number;
+  comissao: { socioId: number; pct: number } | null;
+  /** `null` = partes iguais por todos os sócios, que é o caso normal. */
+  partes: { socioId: number; pct: number }[] | null;
+};
+
+/**
+ * Um projeto só está fechado quando foi entregue. Os outros são estimativa: o
+ * dinheiro pode já ter entrado, mas o trabalho ainda pode custar mais, e o
+ * resto pode não vir.
+ */
+export function estaFechado(p: { estado: Estado }): boolean {
+  return p.estado === "entregue";
+}
+
+/**
+ * A margem de um projeto, agora e se tudo correr como combinado.
+ *
+ * `prevista` usa o maior de combinado e recebido: quem pagou mais do que o
+ * combinado pagou mesmo, e um combinado esquecido a zero não pode apagar
+ * dinheiro que já entrou.
+ */
+export function margensDoProjeto(p: ProjetoADividir): {
+  agora: number;
+  prevista: number;
+} {
+  const total = Math.max(p.combinado ?? 0, p.recebido);
+  return {
+    agora: arredondar(p.recebido - p.gastos),
+    prevista: arredondar(total - p.gastos),
+  };
+}
+
+function arredondar(valor: number): number {
+  return Math.round(valor * 100) / 100;
+}
+
+/**
+ * O peso de cada sócio num projeto, em percentagem, pela ordem de `socios`.
+ *
+ * A comissão sai primeiro, para quem arranjou o cliente; o resto divide-se
+ * pelas partes. Sem partes escritas, partes iguais por todos. As partes
+ * escritas **normalizam-se** em vez de se confiar que somam 100: se se apagar
+ * um sócio, as dele vão-se com ele, e os outros ficam com o que sobra em vez
+ * de metade do dinheiro desaparecer da conta.
+ */
+export function pesosDoProjeto(
+  p: Pick<ProjetoADividir, "comissao" | "partes">,
+  socios: Socio[],
+): number[] {
+  if (socios.length === 0) return [];
+
+  const comissao =
+    p.comissao && socios.some((s) => s.id === p.comissao!.socioId)
+      ? p.comissao
+      : null;
+  const resto = 100 - (comissao?.pct ?? 0);
+
+  const escritas = p.partes
+    ? socios.map((s) => p.partes!.find((x) => x.socioId === s.id)?.pct ?? 0)
+    : null;
+  const soma = escritas?.reduce((a, b) => a + b, 0) ?? 0;
+  const partes =
+    escritas && soma > 0
+      ? escritas.map((x) => x / soma)
+      : socios.map(() => 1 / socios.length);
+
+  return socios.map(
+    (s, i) => (comissao?.socioId === s.id ? comissao.pct : 0) + resto * partes[i],
+  );
+}
+
+/**
+ * Reparte um valor pelos pesos, ao cêntimo, e as partes somam sempre o total.
+ *
+ * Cada um fica com o arredondamento para baixo da sua parte, e os cêntimos que
+ * sobram vão, um a um, para quem ficou mais perto de ganhar o cêntimo seguinte
+ * (o método do maior resto). Arredondar cada parte por si dava 33,33 € três
+ * vezes de 100 €, e um cêntimo desaparecia da conta.
+ */
+export function repartir(total: number, pesos: number[]): number[] {
+  const somaPesos = pesos.reduce((a, b) => a + Math.max(b, 0), 0);
+  if (somaPesos === 0) return pesos.map(() => 0);
+
+  const sinal = total < 0 ? -1 : 1;
+  const centimos = Math.round(Math.abs(total) * 100);
+
+  const exatas = pesos.map((p) => (centimos * Math.max(p, 0)) / somaPesos);
+  const partes = exatas.map(Math.floor);
+  let sobra = centimos - partes.reduce((a, b) => a + b, 0);
+
+  const porResto = exatas
+    .map((e, i) => ({ i, resto: e - Math.floor(e) }))
+    .sort((a, b) => b.resto - a.resto);
+
+  for (const { i } of porResto) {
+    if (sobra <= 0) break;
+    partes[i] += 1;
+    sobra -= 1;
+  }
+
+  return partes.map((c) => (sinal * c) / 100);
+}
+
+/** As contas de um sócio, de todos os projetos juntos. */
+export type ContasDoSocio = {
+  socio: Socio;
+  /** A parte da margem dos projetos entregues. É o único número certo. */
+  fechado: number;
+  /** A parte dos custos do estúdio. */
+  custos: number;
+  /** O que já se lhe pagou. */
+  levantado: number;
+  /** `fechado - custos - levantado`. Pode ser negativo: recebeu adiantado. */
+  porPagar: number;
+  /** A parte do que já entrou de projetos ainda por entregar. */
+  emCursoAgora: number;
+  /** A parte desses projetos, se o cliente pagar tudo o que se combinou. */
+  emCursoPrevisto: number;
+};
+
+/** A parte de cada sócio num projeto, pela ordem de `socios`. */
+export function partesDoProjeto(
+  p: ProjetoADividir,
+  socios: Socio[],
+): { agora: number[]; prevista: number[] } {
+  const pesos = pesosDoProjeto(p, socios);
+  const m = margensDoProjeto(p);
+  return { agora: repartir(m.agora, pesos), prevista: repartir(m.prevista, pesos) };
+}
+
+/**
+ * As contas de cada sócio.
+ *
+ * Os custos do estúdio (a Vercel, o domínio, as placas) saem em partes iguais
+ * por todos: é o estúdio inteiro que os paga, haja ou não trabalho de cada um.
+ * Só se abatem ao que está fechado — tirá-los de uma estimativa era descontar
+ * duas vezes no dia em que o projeto fechasse.
+ */
+export function contasDaDivisao(
+  projetos: ProjetoADividir[],
+  socios: Socio[],
+  custosDoEstudio: number,
+  levantamentos: Levantamento[],
+): ContasDoSocio[] {
+  const custos = repartir(
+    custosDoEstudio,
+    socios.map(() => 1),
+  );
+
+  const contas = socios.map((socio, i) => ({
+    socio,
+    fechado: 0,
+    custos: custos[i],
+    levantado: 0,
+    porPagar: 0,
+    emCursoAgora: 0,
+    emCursoPrevisto: 0,
+  }));
+
+  for (const p of projetos) {
+    const { agora, prevista } = partesDoProjeto(p, socios);
+    contas.forEach((c, i) => {
+      if (estaFechado(p)) c.fechado += agora[i];
+      else {
+        c.emCursoAgora += agora[i];
+        c.emCursoPrevisto += prevista[i];
+      }
+    });
+  }
+
+  for (const l of levantamentos) {
+    const c = contas.find((x) => x.socio.id === l.socioId);
+    if (c) c.levantado += l.valor;
+  }
+
+  return contas.map((c) => ({
+    ...c,
+    fechado: arredondar(c.fechado),
+    levantado: arredondar(c.levantado),
+    emCursoAgora: arredondar(c.emCursoAgora),
+    emCursoPrevisto: arredondar(c.emCursoPrevisto),
+    porPagar: arredondar(c.fechado - c.custos - c.levantado),
+  }));
+}
+
+/** "33,33 %" — sem casas decimais quando não as tem. */
+export function formatarPercentagem(valor: number): string {
+  return `${new Intl.NumberFormat("pt-PT", { maximumFractionDigits: 2 }).format(valor)} %`;
+}

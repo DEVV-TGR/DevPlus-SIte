@@ -497,7 +497,8 @@ uma medição a 120 fps sobre um site de referência, registada em
 - **Movimento reduzido deixou de vir de borla.** O `MotionConfig` desarmava as
   animações sozinho; o GSAP não desarma nada. Cada componente que anima **tem de
   verificar** `prefers-reduced-motion` e mostrar o conteúdo sem o animar. A regra
-  de `app/globals.css` continua a tratar do marquee e do spin, que são CSS.
+  de `app/globals.css` continua a tratar do marquee, do spin e da transição do
+  Estúdio (`estudio-*`, ver docs/07), que são CSS.
   **Uma exceção:** o `ProjectsMarquee` transporta conteúdo navegável, e congelá-lo
   deixaria três projetos fora do ecrã sem forma de lá chegar. Aí o componente
   desliga o avanço automático (lê a mesma preferência em JS, porque o movimento é

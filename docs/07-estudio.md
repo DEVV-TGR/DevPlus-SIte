@@ -51,6 +51,73 @@ Em texto corrido escreve-se **Estúdio**, com maiúscula, quando é este sítio.
 | `components/estudio/GraficoCircular.tsx` | os circulares, em SVG escrito à mão  |
 | `lib/estudio/github.ts`       | o OAuth                                         |
 | `components/estudio/`         | os componentes, sobre as primitivas de `ui/`    |
+| `app/estudio/(dentro)/`       | todas as páginas menos a entrada, sob o topo     |
+| `components/estudio/Bloco.tsx` | o cartão, a cabeça dele, o número, o selo, o vazio |
+| `components/estudio/Abas.tsx` | as abas das fichas (`?aba=`)                     |
+| `lib/estudio/entradas.ts`     | anota quem entra, sai e é recusado (aba Sessões) |
+| `lib/estudio/aparelho.ts`     | o `User-Agent` em duas palavras                  |
+
+## A casca: o topo, as secções e a transição
+
+O acabamento vem do painel do Café Preguiça (`DEVV-TGR`, `docs/PAINEL.md` desse
+repositório), que o Tomás pôs como modelo em 2026-10-14 — **a forma, não o
+conteúdo nem as cores**: lá é ouro e Fraunces, aqui são os tokens de docs/02.
+
+**E a razão não é estética: o Estúdio passou a ser usado por quem não o fez,
+e nem todos programam.** Daí as três regras que atravessam todas as páginas:
+
+1. **Cada página diz para que serve**, na frase do `TituloDaPagina`, e **cada
+   cartão diz o que é** — ícone, título, uma frase, e a seta ↗ quando leva a
+   algum lado (`TopoDoBloco`).
+2. **Cada vazio diz o passo seguinte** (`Vazio`). "Sem dados" sozinho deixa quem
+   chegou agora sem saber se partiu alguma coisa.
+3. **Linguagem simples no ecrã.** "Código no GitHub" e não "Repositório",
+   "Endereço do site" e não "Deploy", "Trazer do GitHub" e não "Importar
+   repositórios". Os nomes no código não mudaram (`repoUrl`, `deployUrl`,
+   `importarRepos`) — só o que se lê.
+
+**As fichas têm abas** (`Abas`, com `?aba=` no endereço e uma `lerAba()` em cada
+página a estreitar o valor). A do projeto: Visão geral, Tarefas, Dinheiro e
+Dados; a do cliente: Projetos e Dados. Antes era tudo numa coluna, e para chegar
+às tarefas passava-se por cima de vinte campos. **O apagar vive na última aba,
+Dados**, atrás de um `details` — longe do resto.
+
+**Os cartões têm 14 px de canto** (`rounded-lg`), e não os 28 px do
+`rounded-2xl` que tinham: este projeto redefine o `2xl`, e docs/02 manda os
+cartões ficarem em 16 px ou menos.
+
+- **O grupo `app/estudio/(dentro)/`** tem todas as páginas menos a `entrar`. Não
+  entra no endereço. O layout dele desenha o `Cabecalho`, e como um layout não
+  se desenha outra vez ao navegar, mudar de secção só troca o conteúdo de baixo.
+- **O layout do grupo faz `requerSessao()`, e não é por segurança.** É por causa
+  do `loading.tsx`: com ele, o Next começa a mandar a resposta com 200 antes de a
+  página correr, e um `redirect` só na página chegava a meio do corpo — o
+  `/estudio` sem cookie deixava de dar o 307 que o CI pede. O layout corre antes.
+  **A proteção continua a ser o `requerSessao()` de cada página e de cada
+  ação**: um layout não volta a correr numa navegação do lado do cliente.
+- **Os `Separadores`** (`components/estudio/Separadores.tsx`) são a única peça
+  de cliente da casca — precisam do `usePathname` para saber qual acender, porque
+  o layout não volta a correr. A secção onde se está fica a `primary` cheio com
+  `primary-ink` (o par de 7.26:1 de docs/02). O Resumo só acende em `/estudio`
+  exato; o Importar acende os Projetos. No telemóvel a fila rola de lado e
+  centra a ativa.
+- **O `TituloDaPagina`** é a cabeça de todas as páginas: sobretítulo, título,
+  frase e ações à direita. A seta de voltar só aparece dentro de uma secção (uma
+  ficha volta à lista) — onde os separadores já levam, não há seta.
+- **Os ícones** são os de `components/estudio/Icone.tsx`, escritos à mão no
+  mesmo traço. Nenhum é o "+" da marca, que continua a ser o `Logo`.
+- **A transição** está em `(dentro)/template.tsx` — o `template` monta-se de
+  novo a cada secção, o layout não. O gradiente da marca corre por baixo do topo
+  com o "+" na ponta, e o conteúdo sobe ao aparecer: pouco mais de meio segundo,
+  na curva e nas durações de docs/04.
+  É **CSS** (`estudio-*` em `app/globals.css`) e não Motion, para correr antes da
+  hidratação, e com `backwards` e nunca `both` — um `transform` que ficasse
+  depois do fim tornava o invólucro no contentor de tudo o que fosse `fixed`. O
+  movimento reduzido já está coberto pelo bloco global do `globals.css`.
+- **O `loading.tsx` é o "+" sozinho a rodar**, sem esqueleto de cartões: no
+  Preguiça houve um, e prometia uma forma que não era a que chegava.
+- **As fotografias do GitHub não aparecem no topo** — a CSP (`img-src 'self'`)
+  não as deixa, pela mesma razão do `Responsaveis`. São as iniciais.
 
 ## Quem entra
 
@@ -66,26 +133,52 @@ a gente — transformava uma variável esquecida num Estúdio aberto ao mundo.
 quem já entrou. Nunca se atribui automaticamente a quem está a gravar: quem
 mexe num projeto não é, na maior parte das vezes, quem o está a fazer.
 
+### As Sessões
+
+`/estudio/sessoes`, igual à do painel do Café Preguiça: **os aparelhos com
+sessão aberta**, cada um com Terminar sessão; **a última entrada de cada um**; e
+**tudo o que aconteceu**, por dia, na hora de Lisboa. Pedida em 2026-10-14.
+
+- **O histórico é a tabela `entradas`**, escrita por `lib/estudio/entradas.ts`
+  ao entrar, ao sair, ao terminar uma sessão e quando um login que não está em
+  `ESTUDIO_LOGINS` tenta entrar. Lê-se no `dados.ts` (`listarHistoricoDaPorta`,
+  `sessoesAbertas`).
+- **Anotar nunca impede ninguém de entrar.** O `anotar()` não atira: se a
+  escrita falhar, entra-se na mesma e o erro fica no registo da Vercel.
+- **O aparelho é o `User-Agent` em duas palavras** ("iPhone · Safari",
+  `lib/estudio/aparelho.ts`, trazido do Preguiça). **O IP não se guarda.** As
+  linhas com mais de um ano apagam-se a cada escrita. A política de privacidade
+  diz isto, na secção da ferramenta interna.
+- **Terminar uma sessão apaga-a pelo `id`**, uma coluna que nasceu para isso:
+  o `token_hash` continua a ser a chave, mas não se põe um hash num formulário.
+  Qualquer pessoa do Estúdio termina a de qualquer outra — um telemóvel perdido
+  corta-se de qualquer lado. Se for a deste browser, sai-se.
+- **A confirmação é na própria linha**, sem `confirm()`, como no Preguiça.
+- **O cartão "Sessões recentes" do Resumo falha sozinho**: se a tabela não
+  existir ou a leitura falhar, diz que não deu e o resto do resumo aparece.
+
 ## O dinheiro
 
 `/estudio` é o resumo; a lista de projetos vive em `/estudio/projetos`; e o
-dinheiro tem casa própria em **`/estudio/financas`**, com duas sub-páginas:
+dinheiro tem casa própria em **`/estudio/financas`**, com três sub-páginas:
 
 | Endereço                     | O quê                                              |
 | ---------------------------- | -------------------------------------------------- |
 | `/estudio/financas`          | redireciona para as receitas                        |
 | `/estudio/financas/receitas` | o que está contratado, e tudo o que já entrou       |
 | `/estudio/financas/gastos`   | o custo fixo do estúdio, e tudo o que já saiu       |
+| `/estudio/financas/divisao`  | de quem é a margem dos projetos, e o que já se pagou a cada um |
 | `/estudio/gastos`            | redireciona — era aqui que os gastos viviam         |
 
 Os gastos estiveram em `/estudio/gastos` e o endereço ficou a redirecionar, não
 a dar 404: era um sítio onde se ia todos os dias, e está em marcadores.
 
-A sub-navegação entre as duas é o `components/estudio/SubNavegacao.tsx`, que
+A sub-navegação entre elas é o `components/estudio/SubNavegacao.tsx`, que
 **recebe o separador ativo por prop**. Descobri-lo com o `usePathname` obrigava
-a `"use client"` numa barra de dois links que o servidor já sabe desenhar — é o
-mesmo arranjo do `SeletorDePeriodo`, e as pastilhas são as do `pastilhaFiltro()`
-e não umas novas.
+a `"use client"` numa barra de três links que o servidor já sabe desenhar — é o
+mesmo arranjo do `SeletorDePeriodo`. Tem o desenho dos `Separadores` do topo em
+pequeno, mas a escolhida acende a `surface-2` e não a laranja: duas pastilhas
+laranja seguidas diriam "estás aqui" duas vezes.
 
 **Não se chama "lucro" a nada, e a palavra não aparece na interface.** Receitas
 menos gastos, sem ordenados e sem impostos, é **margem**. Chamar-lhe lucro dava
@@ -227,6 +320,55 @@ esteve. Quem parte a lista é o `agruparPorMes()` de `tipos.ts`, que preserva a
 ordem que recebe de propósito — se um dia a consulta vier baralhada, quer-se que
 isso apareça, não que seja escondido a caminho do ecrã.
 
+### A divisão: de quem é a margem
+
+Pedido do Gonçalo a 2026-10-19: o estúdio é de três pessoas, e a página
+**Finanças › Divisão** diz quanto da margem dos projetos é de cada uma e quanto
+falta pagar-lhe. As regras, todas do pedido:
+
+- **Só conta o trabalho feito uma vez.** A margem de um projeto é o que o
+  cliente pagou **pelo projeto** (`pagamentos`) menos os gastos do projeto que
+  se pagam **uma vez** (`unica`, sem `origem_id`). Alojamentos, domínios e
+  mensalidades ficam de fora — os recebimentos e os gastos que se repetem, dos
+  dois lados, porque um domínio que se revende ao cliente é um gasto do projeto
+  que volta a entrar pela receita de domínio, e contar só um dos lados fazia o
+  projeto parecer pior do que é.
+- **Por defeito, partes iguais por todos os sócios**, e isso não se escreve: um
+  projeto sem linhas em `partes` segue a regra. Só se escrevem as exceções, na
+  aba Dinheiro da ficha ("à medida") — o café Avenida, por exemplo, divide-se
+  só entre o Gonçalo e o Sobral.
+- **A comissão de quem arranjou o cliente sai primeiro**, e o resto divide-se
+  pelas partes. Na Confeitaria Damira são 15 % para o Rodas e o resto a meias.
+  É uma comissão, e não uma parte de 15 %, porque é assim que se fala dela: "este
+  projeto tem comissão para quem o trouxe".
+- **Os custos do estúdio saem em partes iguais por todos** — a Vercel, os
+  domínios, as placas são da empresa inteira. Só se abatem ao que está fechado:
+  tirá-los também de uma estimativa descontava-os duas vezes no dia em que o
+  projeto fechasse. Contam até hoje; uma linha com data no futuro ainda não saiu
+  da conta.
+- **Só os projetos entregues contam para o "falta pagar".** Os outros aparecem
+  à parte, marcados como estimativa, com o que já entrou e o que fica se o
+  cliente pagar tudo. O dinheiro pode já estar na conta, mas o trabalho ainda
+  pode custar mais e o resto pode não vir.
+- **O que já se pagou a cada um vive em `levantamentos`.** Sem isso, a página
+  dizia para sempre o total ganho, e ninguém sabia o que ainda lhe faltava.
+
+**Os sócios são uma tabela à parte de `utilizadores`.** Quem divide não é quem
+entra: há quem esteja na divisão e nunca tenha aberto o Estúdio. E a ordem em
+que entram na tabela é a ordem das colunas da página.
+
+**Reparte-se em cêntimos, pelo maior resto** (`repartir()` em `tipos.ts`). Cada
+parte arredondada por si dava 33,33 € três vezes de 100 €, e um cêntimo
+desaparecia. As somas continuam em SQL; o que se faz em JavaScript é só a
+multiplicação, sobre valores já somados.
+
+**As partes escritas normalizam-se** em vez de se confiar que somam 100 (o
+`pesosDoProjeto()`). Tirar um sócio apaga as partes dele em cascata, e os
+outros ficam com o que sobra em vez de esse dinheiro desaparecer da conta.
+
+**Continua a não se chamar lucro.** É antes de impostos e de ordenados — é
+margem, como no resto do Estúdio.
+
 ### As somas fazem-se todas em SQL
 
 O `pg` devolve `numeric` como texto, e o `number` do JavaScript não é exato.
@@ -324,21 +466,34 @@ e um fundo que se distingue do cartão. Em ecrã largo vão a duas colunas dentr
 da linha, para a altura não crescer com a largura — uma barra de 900 px para
 dizer "6 de 10" é espaço gasto sem nada em troca.
 
-### Três cartões, e o terceiro é teu
+### O resumo é um quadro, e o cartão das tarefas é teu
 
-O saldo do mês diz como está a correr agora; o de sempre diz se o estúdio ganha
-dinheiro. São perguntas diferentes e por isso são dois números lado a lado.
+Desde 2026-10-14 o resumo é um **quadro de cartões**, como o do painel do Café
+Preguiça: as boas-vindas ("Boas, Tomás", a data, "Registar gasto" e "Projeto
+novo") e uma grelha que vai de uma coluna no telemóvel a três no computador. A
+disposição está toda no `grid-template-areas` da página.
 
-**O terceiro é o número de tarefas por fazer de quem está a ver a página**, e é
+**O mês é o cartão-destaque** — o "cartão de crédito" do modelo —, com o
+gradiente da marca escurecido sobre o `bg` (superfície, nunca texto) e o "+" em
+contorno. O texto por cima é `ink`, e o fundo mais claro anda por L 0.37: passa
+os 4.5:1 com folga. O saldo do mês diz como está a correr agora; o de sempre,
+no rodapé do cartão, diz se o estúdio ganha dinheiro. São perguntas diferentes,
+e por isso são dois números.
+
+**O cartão das tarefas mostra quantas são de quem está a ver a página**, e é
 a única coisa do Estúdio que muda consoante quem entra. Todo o resto mostra o
 mesmo a toda a gente, de propósito: somos três e o trabalho é partilhado. Mas
 "o que é que *eu* tenho para fazer" não se responde com um número de toda a
 gente.
 
-**Só o número, e sem cor.** A lista das tarefas está no fundo da mesma página, e
-duas listas iguais no mesmo ecrã não são informação, são ruído. Sem cor
-semântica porque duas tarefas por fazer não são boas nem más — pintar o zero de
-verde era inventar um juízo que não é nosso.
+**O número sem cor**, e por baixo a lista das que estão por fazer em todo o lado
+— no mesmo cartão, e não noutro ao fundo da página. **Cada uma marca-se como
+feita ali mesmo** (`MarcarFeita`, desde 2026-10-15), com a mesma
+`alternarTarefa` da ficha mas com `marcar=feita`: no resumo só há tarefas por
+fazer, e dois cliques seguidos não podem desfazer o primeiro. Editar continua a
+ser só na ficha. Sem cor semântica porque
+duas tarefas por fazer não são boas nem más — pintar o zero de verde era
+inventar um juízo que não é nosso.
 
 **As tarefas sem dono aparecem à parte e não somadas.** São trabalho por
 atribuir, não trabalho de ninguém, e hoje são a maioria. Somá-las ao número de
@@ -348,8 +503,18 @@ tarefas que ninguém vê.
 **Esta é a primeira consulta do resumo filtrada por quem está autenticado.** Até
 aqui a página chamava `requerSessao()` e deitava fora o que ele devolve.
 
-Os dois cartões de saldo levam `justify-center` porque a grelha estica os três à
-altura do mais alto.
+**"Em cima da mesa" ocupa duas linhas ao meio**, porque é a lista mais comprida.
+Cada estado leva à lista de projetos já filtrada (`?estado=`), e **cada projeto
+é um cartãozinho** que se abre todo: o nome, o cliente e a barra com a
+percentagem. **Nos "Em curso" a data de entrega vem em cima, em destaque** — a
+laranja, a vermelho se estiver atrasado, e "Sem data de entrega" quando não há
+prazo, que também é informação.
+
+**O "Por cobrar" é só dos projetos** (desde 2026-10-15). A barra é **a parte já
+paga do total** — 680 € de 1700 € enchem 40% —, a verde, e por baixo "faltam X"
+a laranja. Antes comparava cada dívida com a maior, e um projeto quase pago com
+a maior dívida aparecia de barra cheia, que se lia ao contrário. Os alojamentos
+e domínios vencidos saíram daqui para o "ainda este mês".
 
 ### O resumo é do mês, e a primeira versão não era
 
@@ -362,9 +527,9 @@ Agora responde por ordem: *quanto sobrou este mês e o que tenho para fazer*,
 *onde queremos chegar*, *a quem tenho de cobrar e o que ainda falta acontecer*,
 *de onde veio e para onde foi o dinheiro*, e *o que temos em mãos*.
 
-**E nem tudo é do mês, desde que os circulares ganharam filtro.** O `h1`
-continua a dizer "Este mês" porque é o que a página assume por omissão, e porque
-os saldos, o "por cobrar" e o "ainda este mês" continuam todos a sê-lo. Os dois
+**E nem tudo é do mês, desde que os circulares ganharam filtro.** O cartão-
+destaque diz "Sobrou este mês" porque é o que a página assume por omissão, e
+porque o "por cobrar" e o "ainda este mês" continuam a sê-lo. Os dois
 circulares é que passaram a dizer, no centro da roda, o período que estão a
 mostrar — e foi por isso que o texto do centro deixou de estar escrito dentro do
 componente.
@@ -378,7 +543,10 @@ um número de planeamento, não de tesouraria, e numa página que é toda sobre 
 mês seria o único valor a falar de outra coisa.
 
 **O "ainda este mês"** junta os dois lados na mesma lista, por data: as despesas
-que se repetem e os alojamentos e domínios a receber. Quem converte uma
+que se repetem, os alojamentos e domínios a receber, **e os que já venceram e
+ninguém deu como recebidos** (as `cobrancas`, desde 2026-10-15 — até aí viviam no
+"por cobrar"). No próprio dia do vencimento a próxima ocorrência e a cobrança
+são a mesma data; fica só a primeira. Quem converte uma
 periodicidade numa data é o `proximaOcorrencia()` de `lib/estudio/tipos.ts`, em
 JavaScript e não em SQL — a conta envolve meses de 28 a 31 dias e dias da
 semana, e em SQL ficava ilegível para poupar uma passagem por dez linhas. Um
@@ -409,9 +577,9 @@ agosto *é* o de agosto, e o "ainda este mês" de agosto não o volta a pedir.
 cujo dia já passou continua na lista, com a data a vermelho, até alguém a dar
 como paga. Dantes saía sozinha no dia seguinte, e o dinheiro nunca chegava ao
 saldo. Quem as calcula é o `vencimentosDoMes()` de `tipos.ts`, que dá os
-vencimentos do mês todo (um semanal dá vários). Uma receita atrasada, pelo
-contrário, sai daqui: já está no "por cobrar", com o seu botão, e aparecer nos
-dois sítios era a mesma cobrança duas vezes.
+vencimentos do mês todo (um semanal dá vários). Uma receita atrasada também
+fica, a vermelho, com o seu "Recebido" — é a mesma cobrança que vivia no "por
+cobrar", mudada de sítio para tudo o que se repete estar junto.
 
 ### O circular, e três regras que mudaram o que lá está
 
@@ -629,8 +797,8 @@ guardar, é um acidente à espera de acontecer.
 **O Estúdio não usa `Section`.** É uma exceção assumida a docs/04: o `Section`
 codifica o ritmo do site de marketing (`pt-16 sm:pt-24 lg:pt-32`), que numa
 ferramenta de trabalho é meio ecrã de vazio antes de se ver o primeiro projeto.
-O ritmo do Estúdio está definido uma vez, em `app/estudio/layout.tsx`, e as
-páginas por baixo não escrevem padding nenhum. `Container`, `Button`, `Reveal` e
+O ritmo do Estúdio está definido uma vez, no `<main>` de
+`app/estudio/(dentro)/layout.tsx`, e as páginas por baixo não escrevem padding nenhum. `Container`, `Button`, `Reveal` e
 `cn` usam-se como em todo o lado.
 
 **As alterações ao esquema vivem na secção "Ajustes"** do fim de
@@ -693,8 +861,8 @@ Isto vale para **todas** as funções do projeto, e é o que se quer: a única o
 mexem — são estáticas e continuam a ser servidas do CDN em todo o lado, o que o
 `○` do `npm run build` confirma.
 
-**A sessão era consultada duas vezes por navegação.** O `app/estudio/layout.tsx`
-chama `sessaoAtual()` para o nome no cabeçalho, e a página por baixo chama
+**A sessão era consultada duas vezes por navegação.** O layout
+(hoje `app/estudio/(dentro)/layout.tsx`) chama-a para o nome no cabeçalho, e a página por baixo chama
 `requerSessao()`, que chama `sessaoAtual()` outra vez. Mesmo cookie, mesmo
 render, duas idas à base. Resolve-se com o `cache()` do React à volta da função
 — o âmbito é um render, não uma sessão, por isso ninguém fica com uma sessão
@@ -767,7 +935,13 @@ Três decisões que valem a leitura:
    deixa o `max: 10` de `lib/estudio/db.ts` ser seguro. Cria-a na região mais
    perto do `regions` do `vercel.json` — hoje as duas são Frankfurt, e a secção
    "Porque é que isto esteve lento" explica o que custa separá-las.
-2. **Tabelas:** `node --env-file=.env.local scripts/estudio-migrar.mjs`.
+2. **Tabelas:** `node --env-file=.env.local scripts/estudio-migrar.mjs`. Corre-se
+   outra vez **sempre que a secção "Ajustes" do `schema.sql` mudar, antes do
+   deploy** — o código novo conta com as colunas novas. O de 2026-10-14 (as
+   Sessões) é o caso: sem ele, o `abrirSessao` tenta gravar o `aparelho` numa
+   coluna que não existe e **ninguém entra**. O de 2026-10-19 (a divisão) é
+   outro: sem ele, a aba Dinheiro de **todos** os projetos parte, porque lê as
+   tabelas `socios` e `partes`.
 3. **OAuth App** em <https://github.com/settings/developers>, separador
    **OAuth Apps** (não **GitHub Apps**, que são outra coisa). Os endereços de
    retorno registam-se na secção **Redirect URIs**, e o GitHub aceita até dez por
@@ -827,13 +1001,21 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | os estados                             | `ESTADOS` e `ROTULO_ESTADO` em `tipos.ts`, o `check` do esquema e `COR_ESTADO`/`COR_BARRA`      |
 | quem pode entrar                       | `ESTUDIO_LOGINS` na Vercel e no `.env.local` — nunca a base de dados                            |
 | as regras dos formulários              | só `lib/estudio/validacao.ts`; o formulário e a ação importam-na, nunca copiam                  |
-| uma rota nova em `/estudio`            | acrescenta-a ao teste de fumo em `.github/workflows/ci.yml`                                     |
+| uma rota nova em `/estudio`            | acrescenta-a ao teste de fumo em `.github/workflows/ci.yml`; e dentro de `(dentro)/`, salvo se for de quem ainda não entrou |
+| uma secção do Estúdio                  | `SECCOES` em `components/estudio/Separadores.tsx`, um ícone em `Icone.tsx` se precisar, e o teste de fumo |
+| o `requerSessao()` do layout de `(dentro)` | não o tires enquanto houver `loading.tsx` — o `/estudio` sem cookie passa de 307 a 200 e o CI falha |
+| a transição do Estúdio                 | os `estudio-*` de `app/globals.css`; mantém `backwards`, nunca `both`, e confirma com movimento reduzido |
+| uma aba de uma ficha                   | o `ABAS` e a `lerAba()` da página; acrescenta ao teste de fumo um endereço com `?aba=`           |
+| o que se anota nas Sessões             | `ComoEntrou` em `tipos.ts`, o `check` de `entradas` no `schema.sql`, a frase em `FRASE_DA_ENTRADA` — **e a política de privacidade** |
+| o tempo que o histórico das Sessões dura | o `delete` do `anotar()` em `lib/estudio/entradas.ts` **e** a frase da privacidade que diz "um ano" |
+| um texto que se lê no Estúdio          | linguagem simples — nem toda a gente que lá entra programa; ver "A casca" lá em cima              |
+| o cartão-destaque do resumo            | mede o contraste do `ink` sobre o gradiente outra vez (≥ 4.5:1)                                   |
 | o que a base guarda sobre pessoas      | `app/privacidade/page.tsx` e sobe a "Última atualização" **no mesmo PR**                        |
 | quem aloja a base                      | nomeia-o em `app/privacidade/page.tsx`, na secção "Partilha com terceiros"                      |
 | a decisão de não haver `proxy.ts`      | relê o comentário da CSP em `next.config.ts` antes — a conta muda                                |
 | a `CascaDoSite`                        | confirma que a homepage continua estática (`○`) no output do `npm run build`                    |
 | a periodicidade dos gastos             | `PERIODICIDADES` e `POR_MES` em `tipos.ts`, o `check` do esquema, e o seletor do formulário      |
-| o que conta como custo fixo do estúdio | `app/estudio/gastos/page.tsx` — e confirma que o que sai da conta continua visível algures       |
+| o que conta como custo fixo do estúdio | `app/estudio/(dentro)/financas/gastos/page.tsx` — e confirma que o que sai da conta continua visível algures       |
 | a ordem dos gastos                     | é no `order by` de `listarGastos()`, nunca no componente; o `agruparPorMes()` só parte a lista   |
 | o que um cliente paga por mês          | é na ficha do **projeto** — a do cliente só mostra a soma                                        |
 | onde se escreve o valor combinado      | só o `guardarValorCombinado` — um segundo escritor apaga a coluna com um `set valor = null`       |
@@ -848,6 +1030,9 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | um fragmento `CAMPOS_*` de `dados.ts`  | qualifica-o com o alias e dá esse alias à tabela — o primeiro `join` que o use sem isso rebenta  |
 | para onde vai quem sai                 | `app/api/estudio/auth/sair/route.ts` — é `/`, o site, e o `303` mantém-se                        |
 | o cálculo dos vencimentos              | `vencimentosAte()` em `tipos.ts`; testa fevereiro, um mês de 30 e um `desde` a dia 31           |
+| o que entra na margem de um projeto    | `projetosADividir()` em `dados.ts` — os `pagamentos` e os gastos `unica` sem `origem_id`; nada de recebimentos |
+| como se reparte a divisão              | `pesosDoProjeto()`, `repartir()` e `contasDaDivisao()` em `tipos.ts`; as partes somam sempre o total ao cêntimo |
+| como se dividem os custos do estúdio   | `contasDaDivisao()` em `tipos.ts`, e a frase do topo de `financas/divisao/page.tsx` que o explica |
 | o que conta como dinheiro que entrou   | `resumoDoMes()`, o `case 'recebido'` de `listarObjetivos()`, `entradasDoPeriodo()` **e** `listarEntradas()` — todos somam as duas tabelas |
 | uma rota dentro de `/estudio/financas` | a `SubNavegacao`, o `revalidatePath` das ações do dinheiro **e** o teste de fumo do CI |
 | onde vivem os gastos                   | o `/estudio/gastos` fica a redirecionar — está em marcadores de quem lá ia todos os dias |
@@ -860,7 +1045,7 @@ Trabalho conhecido em falta. Apaga a linha quando estiver feita.
 | o texto do centro de um circular       | é a prop `nota`, nunca escrito lá dentro: os dois gráficos dizem períodos diferentes            |
 | um filtro por `searchParams` numa página | acrescenta um endereço **com o filtro** ao teste de fumo em `.github/workflows/ci.yml`         |
 | uma consulta filtrada pela pessoa       | guarda o retorno de `requerSessao()` — o resumo deitava-o fora até `tarefasPendentesDe()`       |
-| o que aparece em "Em cima da mesa"     | o filtro está em `app/estudio/page.tsx`; a ordem dos grupos vem do `ORDEM` de `dados.ts`        |
+| o que aparece em "Em cima da mesa"     | o filtro está em `app/estudio/(dentro)/page.tsx`; a ordem dos grupos vem do `ORDEM` de `dados.ts`        |
 | a lista de clientes                    | `components/estudio/CartaoCliente.tsx` — cartões, e o nome do trabalho só aparece se diferir do do cliente |
 | quantos objetivos se mostram            | `components/estudio/Objetivos.tsx` — a linha é inteira e o título não se corta                  |
 | o `max` do pool em `lib/estudio/db.ts`  | mede antes e mede depois — o `1` original serializava os `Promise.all`; ver "Porque é que isto esteve lento" |

@@ -2,20 +2,27 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { consulta, consultaUma } from "@/lib/estudio/db";
 import { listarRepos } from "@/lib/estudio/repos";
-import { requerSessao } from "@/lib/estudio/sessao";
+import { anotar } from "@/lib/estudio/entradas";
+import { COOKIE, idDaSessaoAtual, requerSessao } from "@/lib/estudio/sessao";
 import { hojeEmLisboa } from "@/lib/estudio/tipos";
 import {
   eData,
   eEstado,
+  lerPercentagem,
   lerValor,
+  validarDivisao,
   validarGasto,
+  validarLevantamento,
   validarPagamento,
   validarObjetivo,
   validarReceita,
+  validarSocio,
   validarValorCombinado,
+  type ErrosDivisao,
 } from "@/lib/estudio/validacao";
 import {
   campo,
@@ -463,14 +470,23 @@ export async function alternarTarefa(form: FormData): Promise<void> {
   const projetoId = paraId(campo(form.get("projetoId"), 20));
   if (!id || !projetoId) return;
 
+  /* `marcar=feita` vem do resumo, que só mostra as tarefas por fazer: aí é
+     para pôr como feita, e não para trocar — dois cliques seguidos não podem
+     desfazer o primeiro. Sem ele, troca, como na checklist do projeto. */
+  const soFeita = form.get("marcar") === "feita";
+
   /* O `and projeto_id` não é decoração: sem ele, um id de tarefa doutro projeto
      passava aqui na mesma. */
   await consulta(
-    "update tarefas set feita = not feita where id = $1 and projeto_id = $2",
+    soFeita
+      ? "update tarefas set feita = true where id = $1 and projeto_id = $2"
+      : "update tarefas set feita = not feita where id = $1 and projeto_id = $2",
     [id, projetoId],
   );
 
   revalidatePath(`/estudio/projetos/${projetoId}`);
+  /* O resumo também mostra as tarefas por fazer, e marca-as. */
+  revalidatePath("/estudio");
 }
 
 export async function apagarTarefa(form: FormData): Promise<void> {
@@ -1087,4 +1103,228 @@ export async function apagarObjetivo(form: FormData): Promise<void> {
 
   await consulta("delete from objetivos where id = $1", [id]);
   revalidatePath("/estudio");
+}
+
+/* ------------------------------------------------------------- sessões -- */
+
+/**
+ * Terminar a sessão de um aparelho, a partir da aba Sessões — para o telemóvel
+ * que se perdeu ou o computador emprestado.
+ *
+ * Apaga a sessão e anota quem a perdeu, com o aparelho **dela** e não o de quem
+ * carregou no botão. Se for a deste browser, sai-se: o cookie vai, e a próxima
+ * página é a entrada.
+ *
+ * Qualquer pessoa do Estúdio pode terminar a sessão de qualquer outra. Somos
+ * três e confiamos uns nos outros; o que interessa é que um aparelho perdido se
+ * corta de qualquer lado, e não só do do dono.
+ */
+export async function terminarSessao(form: FormData): Promise<void> {
+  await requerSessao();
+
+  const id = paraId(campo(form.get("sessaoId"), 20));
+  if (!id) return;
+
+  const deste = await idDaSessaoAtual();
+
+  const linha = await consultaUma<{
+    github_login: string;
+    utilizador_id: string;
+    aparelho: string | null;
+  }>(
+    `delete from sessoes s
+      using utilizadores u
+      where s.id = $1 and u.id = s.utilizador_id
+      returning u.github_login, s.utilizador_id, s.aparelho`,
+    [id],
+  );
+
+  if (linha) {
+    await anotar({
+      como: "terminada",
+      githubLogin: linha.github_login,
+      utilizadorId: Number(linha.utilizador_id),
+      aparelho: linha.aparelho,
+    });
+  }
+
+  if (id === deste) {
+    (await cookies()).delete(COOKIE);
+    redirect("/estudio/entrar");
+  }
+
+  revalidatePath("/estudio/sessoes");
+}
+
+/* --------------------------------------------------------------------------
+   A divisão
+
+   Quem está na divisão, como se divide cada projeto, e o que já se pagou a
+   cada um. Ver "A divisão" no docs/07.
+   -------------------------------------------------------------------------- */
+
+function revalidarDivisao(projetoId?: number) {
+  revalidatePath("/estudio/financas/divisao");
+  if (projetoId) revalidatePath(`/estudio/projetos/${projetoId}`);
+}
+
+export type EstadoDivisao = { erros?: ErrosDivisao; erro?: string; ok?: boolean };
+
+/**
+ * A comissão e as partes de um projeto, de uma vez.
+ *
+ * "Partes iguais" não escreve linhas: apaga as que houver, e o projeto volta à
+ * regra. Assim um sócio que entre amanhã entra também nos projetos que nunca
+ * fugiram à regra, e só os que foram escritos à mão ficam como estavam.
+ */
+export async function guardarDivisao(
+  _anterior: EstadoDivisao,
+  form: FormData,
+): Promise<EstadoDivisao> {
+  await requerSessao();
+
+  const projetoId = paraId(campo(form.get("projetoId"), 20));
+  if (!projetoId) return { erro: "Projeto não encontrado." };
+
+  /* Os sócios vêm da base e não do formulário: um campo `parte-<id>` de alguém
+     que não existe não pode criar uma parte. */
+  const socios = (await consulta<{ id: string }>("select id from socios")).map(
+    (l) => Number(l.id),
+  );
+
+  const comissaoSocio = campo(form.get("comissaoSocio"), 20);
+  const dados = {
+    comissaoSocio:
+      comissaoSocio && socios.includes(Number(comissaoSocio)) ? comissaoSocio : "",
+    comissaoPct: campo(form.get("comissaoPct"), 10),
+    aMedida: campo(form.get("modo"), 10) === "medida",
+    partes: socios.map((id) => campo(form.get(`parte-${id}`), 10)),
+  };
+
+  const erros = validarDivisao(dados);
+  if (Object.keys(erros).length > 0) return { erros };
+
+  try {
+    await consulta(
+      `update projetos set comissao_socio_id = $2, comissao_pct = $3 where id = $1`,
+      [
+        projetoId,
+        dados.comissaoSocio ? Number(dados.comissaoSocio) : null,
+        dados.comissaoSocio ? lerPercentagem(dados.comissaoPct) : null,
+      ],
+    );
+
+    await consulta("delete from partes where projeto_id = $1", [projetoId]);
+
+    if (dados.aMedida) {
+      await consulta(
+        `insert into partes (projeto_id, socio_id, percentagem)
+         select $1, s, p from unnest($2::bigint[], $3::numeric[]) as t(s, p)`,
+        [
+          projetoId,
+          socios,
+          dados.partes.map((p) => (p.trim() ? lerPercentagem(p) : 0)),
+        ],
+      );
+    }
+  } catch (erro) {
+    console.error("[estudio] falhou guardar a divisão:", erro);
+    return { erro: "Não foi possível guardar. Tenta outra vez." };
+  }
+
+  revalidarDivisao(projetoId);
+  return { ok: true };
+}
+
+export async function criarSocio(
+  _anterior: EstadoDinheiro,
+  form: FormData,
+): Promise<EstadoDinheiro> {
+  await requerSessao();
+
+  const nome = campo(form.get("nome"), LIMITES.nome).trim();
+  const erro = validarSocio(nome);
+  if (erro) return { erros: { nome: erro } };
+
+  try {
+    await consulta("insert into socios (nome) values ($1)", [nome]);
+  } catch (e) {
+    /* 23505 é o `unique` do nome — o mesmo nome duas vezes partia a página em
+       duas colunas iguais, e ninguém sabia qual era qual. */
+    if ((e as { code?: string }).code === "23505")
+      return { erros: { nome: "Já há alguém na divisão com esse nome." } };
+    console.error("[estudio] falhou criar sócio:", e);
+    return { erro: "Não foi possível guardar. Tenta outra vez." };
+  }
+
+  revalidarDivisao();
+  return { ok: true };
+}
+
+/**
+ * Tira alguém da divisão. As partes dele vão-se com ele (e os outros ficam com
+ * o resto, ver `pesosDoProjeto()`); o que já se lhe pagou não deixa — o
+ * `restrict` do esquema recusa, e a página só mostra o botão a quem não tem
+ * nada pago.
+ */
+export async function apagarSocio(form: FormData): Promise<void> {
+  await requerSessao();
+
+  const id = paraId(campo(form.get("id"), 20));
+  if (!id) return;
+
+  try {
+    await consulta("delete from socios where id = $1", [id]);
+  } catch (erro) {
+    console.error("[estudio] falhou apagar sócio:", erro);
+    return;
+  }
+
+  revalidatePath("/estudio/projetos", "layout");
+  revalidarDivisao();
+}
+
+export async function registarLevantamento(
+  _anterior: EstadoDinheiro,
+  form: FormData,
+): Promise<EstadoDinheiro> {
+  await requerSessao();
+
+  const dados = {
+    socio: String(paraId(campo(form.get("socioId"), 20)) ?? ""),
+    valor: campo(form.get("valor"), 20),
+    data: campo(form.get("data"), 10),
+  };
+
+  const erros = validarLevantamento(dados);
+  if (Object.keys(erros).length > 0) return { erros };
+
+  try {
+    await consulta(
+      `insert into levantamentos (socio_id, valor, data, notas)
+       values ($1, $2, $3, $4)`,
+      [
+        Number(dados.socio),
+        lerValor(dados.valor),
+        dados.data,
+        ouNulo(campo(form.get("notas"), LIMITES.nome)),
+      ],
+    );
+  } catch (erro) {
+    console.error("[estudio] falhou registar levantamento:", erro);
+    return { erro: "Não foi possível registar. Tenta outra vez." };
+  }
+
+  revalidarDivisao();
+  return { ok: true };
+}
+
+export async function apagarLevantamento(form: FormData): Promise<void> {
+  await requerSessao();
+
+  const id = paraId(campo(form.get("id"), 20));
+  if (!id) return;
+
+  await consulta("delete from levantamentos where id = $1", [id]);
+  revalidarDivisao();
 }

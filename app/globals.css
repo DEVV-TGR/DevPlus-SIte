@@ -480,6 +480,96 @@ html.js [data-reveal-item] {
   animation: spin-slow 18s linear infinite;
 }
 
+/* ------------------------------------------------------------------
+   A transição do Estúdio — ver docs/07 e `app/estudio/(dentro)/template.tsx`.
+
+   CSS e não Motion: corre antes de o JavaScript chegar, e nada do conteúdo
+   depende dela para aparecer (docs/04). O movimento reduzido já está coberto
+   pelo bloco do fim deste ficheiro, que encurta todas as animações para quase
+   zero — e por isso o risco tem `opacity: 0` de base: sem animação, não se vê.
+
+   `backwards` e nunca `both` no conteúdo: um `transform` que fique depois de a
+   animação acabar faz do invólucro o contentor de tudo o que for `fixed` lá
+   dentro, e um diálogo deixava de se centrar no ecrã.
+
+   A curva é a de docs/04, `[0.22, 1, 0.36, 1]`, e as durações ficam dentro dos
+   0.45–0.6 s de lá. A espera (`loading.tsx`) é a exceção: repete-se, e um quarto
+   de volta a cada 0.9 s é o que se lê como "está a pensar" sem cansar.
+------------------------------------------------------------------- */
+@keyframes estudio-risco {
+  0%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes estudio-risco-corre {
+  from {
+    transform: translateX(-100%);
+  }
+}
+@keyframes estudio-mais-roda {
+  from {
+    transform: rotate(-180deg);
+  }
+}
+@keyframes estudio-entra {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@keyframes estudio-espera {
+  0%,
+  20% {
+    transform: rotate(0deg);
+  }
+  80%,
+  100% {
+    transform: rotate(90deg);
+  }
+}
+.estudio-risco {
+  position: absolute;
+  inset-inline: 0;
+  top: -0.375rem;
+  height: 0.75rem;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  animation: estudio-risco 600ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.estudio-risco__corre {
+  position: absolute;
+  inset: 0;
+  animation: estudio-risco-corre 500ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+/* O gradiente da marca numa linha — docs/02 deixa-o em superfícies e linhas. */
+.estudio-risco__linha {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(50% - 1px);
+  height: 2px;
+  background: var(--grad);
+}
+.estudio-risco__mais {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 0.75rem;
+  height: 0.75rem;
+  color: var(--color-accent);
+  animation: estudio-mais-roda 500ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.estudio-entra {
+  animation: estudio-entra 450ms cubic-bezier(0.22, 1, 0.36, 1) 60ms backwards;
+}
+.estudio-espera {
+  animation: estudio-espera 900ms cubic-bezier(0.22, 1, 0.36, 1) infinite alternate;
+}
+
 /* Lenis smooth scroll (official recommended styles) */
 html.lenis,
 html.lenis body {

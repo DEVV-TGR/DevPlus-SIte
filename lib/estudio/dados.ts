@@ -4,19 +4,25 @@ import { vencimentosAte } from "@/lib/estudio/tipos";
 import type {
   Cliente,
   Cobranca,
+  ComoEntrou,
   ContasProjeto,
+  EntradaNaPorta,
   Estado,
   Gasto,
+  Levantamento,
   Metrica,
   Objetivo,
   Pagamento,
   Periodicidade,
   Periodo,
   Projeto,
+  ProjetoADividir,
   ProjetoLeve,
   Recebimento,
   Receita,
   Reparticao,
+  SessaoAberta,
+  Socio,
   Tarefa,
   TipoReceita,
   Utilizador,
@@ -1142,5 +1148,203 @@ export async function listarObjetivos(): Promise<Objetivo[]> {
     prazo: l.prazo,
     desde: l.desde,
     feito: Number(l.feito),
+  }));
+}
+
+/* ------------------------------------------------------------- sessões -- */
+
+/**
+ * O histórico da porta: quem entrou, saiu, teve a sessão terminada ou foi
+ * recusado, do mais recente para o mais antigo. Quem escreve é
+ * `lib/estudio/entradas.ts`.
+ *
+ * O nome vem de `utilizadores` quando ainda lá está; quem foi recusado não tem
+ * nome, só o login com que tentou.
+ */
+export async function listarHistoricoDaPorta(limite = 300): Promise<EntradaNaPorta[]> {
+  const linhas = await consulta<{
+    id: string;
+    quando: Date;
+    github_login: string;
+    nome: string | null;
+    como: ComoEntrou;
+    aparelho: string | null;
+  }>(
+    `select e.id, e.quando, e.github_login, u.nome, e.como, e.aparelho
+       from entradas e
+       left join utilizadores u on u.id = e.utilizador_id
+      order by e.quando desc, e.id desc
+      limit $1`,
+    [limite],
+  );
+
+  return linhas.map((l) => ({
+    id: Number(l.id),
+    quando: l.quando.getTime(),
+    githubLogin: l.github_login,
+    nome: l.nome,
+    como: l.como,
+    aparelho: l.aparelho,
+  }));
+}
+
+/**
+ * Os aparelhos que podem entrar agora sem passar pelo GitHub — uma linha por
+ * sessão que ainda não expirou. As sessões abertas antes de 2026-10-14 não têm
+ * aparelho anotado, e a página di-lo.
+ */
+export async function sessoesAbertas(): Promise<SessaoAberta[]> {
+  const linhas = await consulta<{
+    id: string;
+    utilizador_id: string;
+    nome: string;
+    github_login: string;
+    aparelho: string | null;
+    criada_em: Date;
+    expira_em: Date;
+  }>(
+    `select s.id, s.utilizador_id, u.nome, u.github_login, s.aparelho,
+            s.criada_em, s.expira_em
+       from sessoes s
+       join utilizadores u on u.id = s.utilizador_id
+      where s.expira_em > now()
+      order by s.criada_em desc`,
+  );
+
+  return linhas.map((l) => ({
+    id: Number(l.id),
+    utilizadorId: Number(l.utilizador_id),
+    nome: l.nome,
+    githubLogin: l.github_login,
+    aparelho: l.aparelho,
+    criadaEm: l.criada_em.getTime(),
+    expiraEm: l.expira_em.getTime(),
+  }));
+}
+
+/* --------------------------------------------------------------------------
+   A divisão
+
+   As somas fazem-se aqui, em SQL, como todas; repartir é em `tipos.ts`. Ver
+   "A divisão" no docs/07.
+   -------------------------------------------------------------------------- */
+
+/** Pela ordem em que entraram na divisão — é a ordem das colunas da página. */
+export async function listarSocios(): Promise<Socio[]> {
+  const linhas = await consulta<{ id: string; nome: string }>(
+    `select id, nome from socios order by id asc`,
+  );
+  return linhas.map((l) => ({ id: Number(l.id), nome: l.nome }));
+}
+
+/**
+ * Os projetos que entram na divisão: os que têm valor combinado ou algum
+ * pagamento. Um projeto sem um nem outro não tem margem para dividir.
+ *
+ * Com `projetoId`, só esse — e mesmo que ainda não tenha dinheiro nenhum, que
+ * é o caso da ficha de um projeto novo.
+ *
+ * Os gastos são só os que se pagam **uma vez** (`unica` e sem `origem_id`). Um
+ * domínio que se revende ao cliente é um gasto do projeto que se repete, e
+ * volta a entrar pela receita de domínio — que também fica de fora. Contar um
+ * sem o outro fazia o projeto parecer pior do que é.
+ */
+export async function projetosADividir(
+  projetoId?: number,
+): Promise<ProjetoADividir[]> {
+  const linhas = await consulta<{
+    id: string;
+    nome: string;
+    cliente_nome: string | null;
+    estado: Estado;
+    valor: string | null;
+    recebido: string;
+    gastos: string;
+    comissao_socio_id: string | null;
+    comissao_pct: string | null;
+    partes: { socioId: number; pct: number }[] | null;
+  }>(
+    `select p.id, p.nome, c.nome as cliente_nome, p.estado, p.valor,
+            coalesce((select sum(pg.valor) from pagamentos pg
+                       where pg.projeto_id = p.id), 0) as recebido,
+            coalesce((select sum(g.valor) from gastos g
+                       where g.projeto_id = p.id
+                         and g.periodicidade = 'unica'
+                         and g.origem_id is null), 0) as gastos,
+            p.comissao_socio_id, p.comissao_pct,
+            (select json_agg(json_build_object('socioId', pt.socio_id,
+                                               'pct', pt.percentagem)
+                             order by pt.socio_id)
+               from partes pt where pt.projeto_id = p.id) as partes
+       from projetos p
+       left join clientes c on c.id = p.cliente_id
+      where case when $1::bigint is null
+                 then p.valor is not null
+                      or exists (select 1 from pagamentos pg
+                                  where pg.projeto_id = p.id)
+                 else p.id = $1::bigint end
+      order by (p.estado = 'entregue') desc, p.nome asc`,
+    [projetoId ?? null],
+  );
+
+  return linhas.map((l) => ({
+    id: Number(l.id),
+    nome: l.nome,
+    clienteNome: l.cliente_nome,
+    estado: l.estado,
+    combinado: l.valor === null ? null : Number(l.valor),
+    recebido: Number(l.recebido),
+    gastos: Number(l.gastos),
+    comissao:
+      l.comissao_socio_id !== null && l.comissao_pct !== null
+        ? { socioId: Number(l.comissao_socio_id), pct: Number(l.comissao_pct) }
+        : null,
+    partes:
+      l.partes?.map((x) => ({
+        socioId: Number(x.socioId),
+        pct: Number(x.pct),
+      })) ?? null,
+  }));
+}
+
+/**
+ * Tudo o que o estúdio já pagou sem ser por um projeto: a Vercel, os
+ * domínios, as placas. Até hoje — uma linha com data no futuro ainda não saiu
+ * da conta.
+ */
+export async function custosDoEstudio(hoje: string): Promise<number> {
+  const linha = await consultaUma<{ total: string }>(
+    `select coalesce(sum(valor), 0) as total
+       from gastos
+      where projeto_id is null and data <= $1::date`,
+    [hoje],
+  );
+  return Number(linha?.total ?? 0);
+}
+
+/** O que já se pagou a cada sócio, do mais recente para o mais antigo. */
+export async function listarLevantamentos(): Promise<Levantamento[]> {
+  const linhas = await consulta<{
+    id: string;
+    socio_id: string;
+    socio_nome: string;
+    valor: string;
+    data: string;
+    notas: string | null;
+  }>(
+    `select l.id, l.socio_id, s.nome as socio_nome, l.valor,
+            to_char(l.data, 'YYYY-MM-DD') as data, l.notas
+       from levantamentos l
+       join socios s on s.id = l.socio_id
+      order by l.data desc, l.id desc`,
+  );
+
+  return linhas.map((l) => ({
+    id: Number(l.id),
+    socioId: Number(l.socio_id),
+    socioNome: l.socio_nome,
+    valor: Number(l.valor),
+    data: l.data,
+    notas: l.notas,
   }));
 }
