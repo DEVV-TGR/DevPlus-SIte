@@ -9,8 +9,8 @@ import { formatarEuros } from "@/lib/estudio/tipos";
 import { cn } from "@/lib/utils";
 
 /**
- * A cabeça das duas páginas das Finanças: o título, os três números do mês e
- * os separadores Receitas · Gastos.
+ * A cabeça das páginas das Finanças: o título, os números do mês e os
+ * separadores Receitas · Gastos · Divisão.
  *
  * Os números são os mesmos nas duas páginas, e de propósito: quem vai registar
  * um gasto quer ver logo quanto já saiu este mês, e quem olha para as receitas

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Abas } from "@/components/estudio/Abas";
 import { BarraProgresso } from "@/components/estudio/BarraProgresso";
+import { DivisaoDoProjeto } from "@/components/estudio/DivisaoDoProjeto";
 import {
   Bloco,
   Numero,
@@ -20,6 +21,7 @@ import { CARTAO } from "@/components/estudio/estilos";
 import { TituloDaPagina } from "@/components/estudio/TituloDaPagina";
 import {
   apagarProjeto,
+  guardarDivisao,
   guardarProjeto,
   guardarReceita,
   guardarValorCombinado,
@@ -31,18 +33,24 @@ import {
   contasDoProjeto,
   listarClientes,
   listarPagamentos,
+  listarSocios,
   listarTarefas,
   listarUtilizadores,
   obterProjeto,
+  projetosADividir,
   recebimentosDoProjeto,
   receitasDoProjeto,
 } from "@/lib/estudio/dados";
 import { requerSessao } from "@/lib/estudio/sessao";
 import {
   emAtraso,
+  estaFechado,
   formatarData,
   formatarEuros,
   hojeEmLisboa,
+  margensDoProjeto,
+  partesDoProjeto,
+  pesosDoProjeto,
 } from "@/lib/estudio/tipos";
 
 /**
@@ -55,7 +63,8 @@ import {
  *
  * - **Visão geral** — como está, quanto falta receber, o que se faz a seguir;
  * - **Tarefas** — a lista inteira, para marcar e acrescentar;
- * - **Dinheiro** — o valor combinado, o que já se recebeu, os alojamentos;
+ * - **Dinheiro** — o valor combinado, o que já se recebeu, os alojamentos e
+ *   a divisão da margem;
  * - **Dados** — o formulário do projeto, e o apagar no fim.
  *
  * A aba vem do endereço (`?aba=`), estreitada pela `lerAba()` aos quatro
@@ -110,6 +119,8 @@ export default async function Projeto({
     receitas,
     cobrancas,
     recebimentos,
+    socios,
+    [aDividir],
   ] = await Promise.all([
     listarTarefas(projeto.id),
     listarClientes(),
@@ -119,6 +130,8 @@ export default async function Projeto({
     receitasDoProjeto(projeto.id),
     cobrancasPorReceber(hoje, projeto.id),
     recebimentosDoProjeto(projeto.id),
+    listarSocios(),
+    projetosADividir(projeto.id),
   ]);
 
   const atrasado = emAtraso(projeto, hoje);
@@ -340,6 +353,22 @@ export default async function Projeto({
               recebimentos={recebimentos}
             />
           </section>
+
+          {/* Por baixo das duas, a toda a largura: é a conta que sai delas — o
+              que entrou pelo projeto menos o que se gastou nele, e de quem é. */}
+          {aDividir ? (
+            <section className={`${CARTAO} lg:col-span-2`}>
+              <DivisaoDoProjeto
+                acao={guardarDivisao}
+                projeto={aDividir}
+                socios={socios}
+                pesos={pesosDoProjeto(aDividir, socios)}
+                margens={margensDoProjeto(aDividir)}
+                {...partesDoProjeto(aDividir, socios)}
+                fechado={estaFechado(aDividir)}
+              />
+            </section>
+          ) : null}
         </div>
       ) : null}
 

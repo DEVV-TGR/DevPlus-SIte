@@ -420,3 +420,73 @@ export function validarObjetivo(dados: {
 
   return erros;
 }
+
+/* ------------------------------------------------------------------------
+   A divisão
+   ------------------------------------------------------------------------ */
+
+/**
+ * Lê uma percentagem escrita por uma pessoa: `15`, `42,5`, `33,33 %`. Pelo
+ * `lerValor()`, para a vírgula valer aqui como vale nos euros.
+ */
+export function lerPercentagem(texto: string): number | null {
+  return lerValor(texto.replace(/%/g, ""));
+}
+
+/** Quanto as partes podem fugir de 100 por causa dos arredondamentos — três
+ *  vezes 33,33 dá 99,99, e isso é "partes iguais", não um erro. */
+const FOLGA_DAS_PARTES = 0.05;
+
+export type ErrosDivisao = Partial<Record<"comissao" | "partes", string>>;
+
+export function validarDivisao(dados: {
+  comissaoSocio: string;
+  comissaoPct: string;
+  aMedida: boolean;
+  partes: string[];
+}): ErrosDivisao {
+  const erros: ErrosDivisao = {};
+
+  if (dados.comissaoSocio) {
+    const pct = lerPercentagem(dados.comissaoPct);
+    if (pct === null || pct <= 0 || pct >= 100)
+      erros.comissao = "Escreve a comissão em percentagem, entre 0 e 100 — por exemplo 15.";
+  } else if (dados.comissaoPct.trim()) {
+    erros.comissao = "Escolhe quem fica com a comissão, ou apaga a percentagem.";
+  }
+
+  if (dados.aMedida) {
+    const valores = dados.partes.map((p) => (p.trim() ? lerPercentagem(p) : 0));
+    if (valores.some((v) => v === null || v < 0 || v > 100))
+      erros.partes = "Cada parte é uma percentagem entre 0 e 100.";
+    else {
+      const soma = valores.reduce<number>((a, b) => a + (b ?? 0), 0);
+      if (Math.abs(soma - 100) > FOLGA_DAS_PARTES)
+        erros.partes = `As partes têm de somar 100 %. Estão a somar ${String(
+          Math.round(soma * 100) / 100,
+        ).replace(".", ",")} %.`;
+    }
+  }
+
+  return erros;
+}
+
+export type ErrosLevantamento = Partial<Record<"socio" | "valor" | "data", string>>;
+
+export function validarLevantamento(dados: {
+  socio: string;
+  valor: string;
+  data: string;
+}): ErrosLevantamento {
+  const erros: ErrosLevantamento = { ...validarPagamento(dados) };
+  if (!dados.socio) erros.socio = "Escolhe a quem se pagou.";
+  if (erros.data) erros.data = "Escolhe a data em que se pagou.";
+  return erros;
+}
+
+export function validarSocio(nome: string): string | undefined {
+  if (!nome.trim()) return "Escreve o nome.";
+  if (nome.length > LIMITES.nome)
+    return `O nome não pode passar dos ${LIMITES.nome} caracteres.`;
+  return undefined;
+}

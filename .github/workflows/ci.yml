@@ -119,6 +119,7 @@ jobs:
           verificar /estudio/clientes                307
           verificar /estudio/financas/receitas       307
           verificar /estudio/financas/gastos         307
+          verificar /estudio/financas/divisao        307
           verificar /estudio/importar                307
           verificar /estudio/sessoes                 307
           verificar /estudio/projetos/novo           307
