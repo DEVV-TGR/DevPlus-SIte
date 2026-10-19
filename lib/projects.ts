@@ -339,33 +339,34 @@ export type Captura = { src: string; width: number; height: number };
  * telemóvel (390px), servidas de `public/casos/`. **Não são sites vivos**: no
  * caso de estudo percorrem-se por scroll dentro de uma moldura, e um clique
  * abre o `url` original. Só existem para projetos com `url` — Damira, Mira Mar
- * e Barraquinha ainda não têm endereço, e não se inventa captura. Sites com
- * animações de entrada podem ter estados intermédios na captura. Ver docs/06.
+ * e Barraquinha ainda não têm endereço, e não se inventa captura.
+ * As capturas são verificadas até ao rodapé; páginas com animações usam
+ * a apresentação estática original quando disponível. Ver docs/06.
  */
 export const capturas: Record<string, { desktop: Captura; mobile: Captura }> = {
   "cafe-preguica": {
-    desktop: { src: "/casos/cafe-preguica-desktop.webp", width: 1440, height: 14754 },
-    mobile: { src: "/casos/cafe-preguica-mobile.webp", width: 390, height: 12312 },
+    desktop: { src: "/casos/cafe-preguica-desktop-20261019.webp", width: 1440, height: 8367 },
+    mobile: { src: "/casos/cafe-preguica-mobile-20261019.webp", width: 390, height: 9547 },
   },
   "cafe-avenida": {
-    desktop: { src: "/casos/cafe-avenida-desktop.webp", width: 1440, height: 5226 },
-    mobile: { src: "/casos/cafe-avenida-mobile.webp", width: 390, height: 5469 },
+    desktop: { src: "/casos/cafe-avenida-desktop-20261019.webp", width: 1440, height: 5226 },
+    mobile: { src: "/casos/cafe-avenida-mobile-20261019.webp", width: 390, height: 5469 },
   },
   "taskuinha-do-pirata": {
-    desktop: { src: "/casos/taskuinha-do-pirata-desktop.webp", width: 1440, height: 7263 },
-    mobile: { src: "/casos/taskuinha-do-pirata-mobile.webp", width: 390, height: 8452 },
+    desktop: { src: "/casos/taskuinha-do-pirata-desktop-20261019.webp", width: 1440, height: 7263 },
+    mobile: { src: "/casos/taskuinha-do-pirata-mobile-20261019.webp", width: 390, height: 8452 },
   },
   "imperio-auto-concept": {
-    desktop: { src: "/casos/imperio-auto-concept-desktop.webp", width: 1440, height: 4331 },
-    mobile: { src: "/casos/imperio-auto-concept-mobile.webp", width: 390, height: 5718 },
+    desktop: { src: "/casos/imperio-auto-concept-desktop-20261019.webp", width: 1440, height: 4331 },
+    mobile: { src: "/casos/imperio-auto-concept-mobile-20261019.webp", width: 390, height: 5718 },
   },
   "jsk": {
-    desktop: { src: "/casos/jsk-desktop.webp", width: 1440, height: 4381 },
-    mobile: { src: "/casos/jsk-mobile.webp", width: 390, height: 7145 },
+    desktop: { src: "/casos/jsk-desktop-20261019.webp", width: 1440, height: 4381 },
+    mobile: { src: "/casos/jsk-mobile-20261019.webp", width: 390, height: 7145 },
   },
   "antonio-home-repair": {
-    desktop: { src: "/casos/antonio-home-repair-desktop.webp", width: 1440, height: 3534 },
-    mobile: { src: "/casos/antonio-home-repair-mobile.webp", width: 390, height: 3739 },
+    desktop: { src: "/casos/antonio-home-repair-desktop-20261019.webp", width: 1440, height: 3534 },
+    mobile: { src: "/casos/antonio-home-repair-mobile-20261019.webp", width: 390, height: 3739 },
   },
 };
 

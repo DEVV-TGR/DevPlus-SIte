@@ -4,10 +4,8 @@
 import { useRef } from "react";
 import {
   gsap,
-  ScrollTrigger,
   useGSAP,
   MOVIMENTO,
-  comPausa,
 } from "@/lib/motion";
 import { MaterialGround } from "@/components/atelier/MaterialGround";
 import { MaterialSurface } from "@/components/atelier/MaterialSurface";
@@ -126,25 +124,26 @@ export function ComoTrabalhamos() {
 
             const percurso = () =>
               Math.max(0, fila.scrollWidth - window.innerWidth);
-            const st = ScrollTrigger.create({
-              trigger: raiz,
-              start: "top top",
-              /* Os 25% de ecrã que aqui sobravam no fim eram a mesma ideia da
-             pausa, escrita à mão e só de um lado. Agora são as duas, e vêm do
-             `MOVIMENTO`. */
-              end: () => `+=${comPausa(percurso()).total}`,
-              pin: palco,
-              scrub: 0.6,
-              invalidateOnRefresh: true,
-              onUpdate: (self) => {
-                const d = percurso();
-                gsap.set(fila, {
-                  x: -comPausa(d).progresso(self.progress) * d,
-                  force3D: true,
-                });
+            // A animação pertence ao ScrollTrigger: scrub não suaviza
+            // gsap.set dentro de onUpdate. Medir só no refresh evita uma
+            // leitura de layout depois de cada escrita de transform.
+            const tween = gsap.to(fila, {
+              x: () => -percurso(),
+              ease: "none",
+              force3D: true,
+              scrollTrigger: {
+                trigger: raiz,
+                start: "top top",
+                end: () => `+=${Math.max(1, percurso())}`,
+                pin: palco,
+                scrub: 0.35,
+                invalidateOnRefresh: true,
               },
             });
-            return () => st.kill();
+            return () => {
+              tween.scrollTrigger?.kill();
+              tween.kill();
+            };
           }
 
           gsap.set(cards, { opacity: 0 });
@@ -155,11 +154,15 @@ export function ComoTrabalhamos() {
           const vw = (n: number) => (window.innerWidth * n) / 100;
           const svh = (n: number) => (palco.clientHeight * n) / 100;
 
-          /* O leque ocupa 180% de ecrã, como sempre ocupou. O que é novo são as
+          /* O leque percorre 140% de ecrã, com
          duas pausas em volta: o título fica sozinho e parado antes de o
          primeiro card chegar, e os quatro ficam parados e inteiros antes de a
          página seguir. */
-          const percurso = () => comPausa(window.innerHeight * 1.8);
+          const percurso = () => {
+            const animacao = window.innerHeight * 1.4;
+            const pausa = window.innerHeight * 0.12;
+            return { total: animacao + pausa * 2, fracao: pausa / (animacao + pausa * 2) };
+          };
           const { fracao } = percurso();
 
           /* O ritmo dos cards está em unidades da timeline, e é o `scrub` que as
@@ -176,7 +179,7 @@ export function ComoTrabalhamos() {
               start: "top top",
               end: () => `+=${percurso().total}`,
               pin: palco,
-              scrub: 0.6,
+              scrub: 0.35,
               invalidateOnRefresh: true,
             },
           });

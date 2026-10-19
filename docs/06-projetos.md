@@ -241,7 +241,7 @@ projeto.
   cliente corre no nosso site; um clique no ecrã abre o `url` original, e um
   arrasto de mais de 8px não conta como clique. As molduras têm a proporção da
   janela que tirou a captura (1440/900 e 390/844), com o scroll por dentro.
-  Sites com animações de entrada podem ter estados intermédios na captura.
+  As capturas são verificadas até ao rodapé, sem estados intermédios de entrada.
 - **Sem endereço, sem captura.** Damira, Mira Mar e Barraquinha não têm `url`:
   mostra-se a capa real quando há, e um aviso no ecrã do telemóvel — nunca uma
   captura ou um URL inventados.
@@ -272,3 +272,21 @@ desktop mantém a sua função de escolha. Fundos: cetim na capa, metal no
 
 Os títulos seguem a escala partilhada de `docs/02`: principais com o mesmo
 tamanho da home, títulos de cartões a 24px. Sem escalas próprias por página.
+
+### Capturas completas revistas — 19 de outubro
+
+Mantêm-se as duas molduras, com uma captura própria da página inicial em
+1440px e 390px, à largura do ecrã e sem esticar a altura. Os metadados de
+`capturas` correspondem às dimensões reais dos WebP em `public/casos/`.
+
+A recolha espera pelas fontes e imagens e percorre a página para carregar
+conteúdo tardio antes da captura completa. Não se juntam screenshots de
+viewports com secções fixas: isso repete cabeçalhos e corta os painéis
+animados. No Preguiça usa-se a apresentação estática original, sem JavaScript:
+o próprio site apresenta todos os conteúdos em fluxo, incluindo os cocktails,
+petiscos, vídeos, avaliações e contactos. Assim não há zonas vazias de pin
+nem o convite de newsletter por cima do trabalho. Não há alteração ao site
+do cliente nem conteúdo inventado para preencher as imagens.
+
+Os nomes dos ficheiros incluem a data da recolha para invalidar as capturas
+antigas na cache de imagens sem depender de parâmetros de query.

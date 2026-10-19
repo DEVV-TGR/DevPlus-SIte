@@ -1298,3 +1298,14 @@ Revisão pedida sobre a preview da Vercel.
   barras verdes a sair dos lados do vídeo. Passou a disco de vidro verde
   (`--accent` misturado no `--ground`) com o "+" recortado lá dentro, a mesma
   figura do disco cobre do herói. Continua a mexer-se com o scroll em desktop.
+
+## Fluidez do processo — 19 de outubro
+
+A translação da fila até 1279px usa um tween ligado ao ScrollTrigger, com
+`scrub: 0.35` e interpolação linear. A medição do percurso ocorre apenas na
+criação/refresh, sem leituras de largura e `gsap.set` a cada atualização.
+O ramo anterior tinha `scrub` sem animação associada: os saltos do scroll
+passavam diretamente à posição. A fila já não tem troços mortos nos extremos.
+Em desktop, o leque conserva as poses e os quatro passos, com 1,4 ecrãs de
+movimento e pausas de 0,12 ecrã; antes consumia 2,5 ecrãs no total, agora 1,64.
+Movimento reduzido mantém a fila nativa e o leque estático.
