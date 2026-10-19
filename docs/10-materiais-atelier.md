@@ -202,3 +202,11 @@ Dentro dele, `text-muted` funciona: o acabamento redefine `--muted` para
 `--aluminio-muted`. As colunas do acordeão da `/servicos` usam a mesma
 receita em `.coluna` (`paginas.module.css`), porque são `<button>` e não
 podem ser um `MaterialSurface`.
+
+### Continuidade nas fronteiras
+
+MaterialGround tem máscara de alfa vertical: as camadas chegam a transparência
+total nas duas extremidades e a presença plena a 7rem (máximo 18% da altura).
+A cor sólida do capítulo fica visível na junção e coincide com os tokens de
+Curva; assim a luz, os planos e o grão não formam uma faixa retangular.
+A máscara própria do rodapé mantém a sua transição superior existente.

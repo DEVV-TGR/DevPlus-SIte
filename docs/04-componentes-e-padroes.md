@@ -1309,3 +1309,20 @@ passavam diretamente à posição. A fila já não tem troços mortos nos extrem
 Em desktop, o leque conserva as poses e os quatro passos, com 1,4 ecrãs de
 movimento e pausas de 0,12 ecrã; antes consumia 2,5 ecrãs no total, agora 1,64.
 Movimento reduzido mantém a fila nativa e o leque estático.
+
+## Junções e perguntas sem saltos — 19 de outubro
+
+As camadas de MaterialGround desvanecem nos 7rem das extremidades (no máximo
+18% da altura) até ao ground sólido, igual ao token da Curva. A textura e os
+planos deixam de terminar numa aresta reta visível. Serviços ganha Curva nas
+passagens base → quente → base em torno dos pacotes.
+
+A FAQ usa `Perguntas.tsx`: mantém details/summary nativos e as respostas do
+array da página, mas anima a altura medida com Web Animations durante 360ms.
+O conteúdo só fecha no fim da animação; não tem fade nem starting-style.
+A pergunta anterior recolhe enquanto a nova expande. Cliques repetidos
+interrompem a animação a partir da altura visível; resize e mudança da
+preferência de movimento terminam a animação. Movimento reduzido é imediato.
+Sem JavaScript, os disclosures nativos continuam funcionais. O refresh de
+ScrollTrigger ocorre após a altura assentar, não a cada frame. Esta receita
+substitui a anterior dependência de interpolate-size e ::details-content.

@@ -235,6 +235,14 @@
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
+  /* As extremidades encontram o ground sólido que a Curva usa. */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    var(--ink) min(7rem, 18%),
+    var(--ink) calc(100% - min(7rem, 18%)),
+    transparent
+  );
 }
 :global(html[data-theme="light"]:not([data-area="estudio"])) .ground {
   --material-edge: color-mix(in oklch, var(--creme) 58%, transparent);

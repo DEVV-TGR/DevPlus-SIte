@@ -1,6 +1,6 @@
 /** docs: docs/05-servicos.md · docs/04-componentes-e-padroes.md · docs/10-materiais-atelier.md */
 import { MaterialGround } from "@/components/atelier/MaterialGround";
-import styles from "@/components/paginas/paginas.module.css";
+import { Perguntas } from "@/components/paginas/Perguntas";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
@@ -138,6 +138,8 @@ export default function ServicosPage() {
         </Container>
       </Section>
 
+      <Curva forma="c" de="var(--bg)" cor="var(--quente)" />
+
       {/* PACKAGES */}
       <Section className="relative isolate capitulo-quente">
         <MaterialGround finish="satin" />
@@ -166,6 +168,8 @@ export default function ServicosPage() {
         </Container>
       </Section>
 
+      <Curva forma="b" de="var(--quente)" cor="var(--bg)" ground="quente" />
+
       {/* FAQ */}
       <Section className="relative isolate capitulo-base">
         <MaterialGround finish="matte" />
@@ -186,14 +190,7 @@ export default function ServicosPage() {
               </p>
             </Reveal>
             <div className="lg:col-span-8">
-              <div className={styles.faq}>
-                {faqs.map(([q, a], i) => (
-                  <details key={q} name="perguntas" open={i === 0}>
-                    <summary>{q}<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden><path d="M4 12h16M12 4v16" /></svg></summary>
-                    <p>{a}</p>
-                  </details>
-                ))}
-              </div>
+              <Perguntas items={faqs} />
             </div>
           </div>
         </Container>

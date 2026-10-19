@@ -190,3 +190,10 @@ demo, os seis serviços de `lib/services.ts` e os três pacotes de
 sozinho. O id é o nome sem acentos (`idInteresse`): `menus-ecras-digitais`,
 `landing-page`. Os botões "Pedir proposta" (pacotes) e "Falar sobre isto"
 (serviços) abrem o contacto com o assunto já escolhido (`contactoCom`).
+
+### Apresentação das perguntas
+
+`Perguntas.tsx` recebe o mesmo array usado pelo FaqJsonLd; o texto e os
+compromissos comerciais mantêm-se. A abertura e o fecho animam a altura,
+incluindo no Safari, conforme docs/04. As mudanças de ground à entrada e
+saída dos pacotes usam Curva, em continuidade com os materiais das secções.
