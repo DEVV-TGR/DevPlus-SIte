@@ -49,7 +49,7 @@ ficheiro; importa-os. Se precisas de um dado novo, acrescenta-o lá.
 | `domain` / `url`  | devplus.pt / https://devplus.pt             |
 | `email`           | support@devplus.pt                          |
 | `emailFrom`       | Site DevPlus <formulario@send.devplus.pt>   |
-| `tagline`         | Estúdio de Web Design & Desenvolvimento     |
+| `tagline`         | Feito à medida para o teu negócio.          |
 | `city`            | Porto                                       |
 | `locale` / `lang` | pt_PT / pt-PT                               |
 
@@ -191,6 +191,11 @@ uma destas, procura no repositório quantas vezes já lá está:
 
 ## Metadata
 
+O título global usa uma promessa próxima, em vez da designação corporativa
+do estúdio. A tagline vive em `lib/site.ts`; `fullTitle` junta-lhe a marca
+para o título da homepage e os cartões de partilha, incluindo o texto alternativo.
+A descrição mantém os serviços concretos para contextualizar o que fazemos.
+
 **A metadata de uma página faz-se com `pageMetadata()`, de `lib/seo.ts`.** Não se
 escreve um objeto `metadata` à mão, e não se escrevem títulos literais — o
 título, a `description` e o `path` entram uma vez e saem no `<title>`, no
@@ -242,6 +247,13 @@ A lição não é "não te esqueças do `openGraph`" — foi exatamente isso que
 
 O cartão social global vive em `app/opengraph-image.tsx`, mas o `alt` e o `size`
 vêm de `lib/seo.ts` — a rota consome-os, não os define. Ver `docs/03`.
+
+Desde 20/10/2026, a rota serve a arte glossy aprovada em
+`public/social/banner-glossy-20261020.png`, a 1200×630. O texto na imagem é
+“A tua próxima presença digital.”, com “digital” destacado, e
+“Feita à medida para somar.”. O domínio e o monograma estão incorporados
+na arte aprovada: se a identidade em `lib/site.ts` mudar, substituir também
+este bitmap. O título textual de partilha continua a derivar da tagline.
 
 ## Sitemap
 

@@ -91,7 +91,7 @@ O mesmo desenho existe em quatro sítios, por razões técnicas. **Não é descu
 | `components/Lockup.tsx`   | importa `D_PATH` + `LOCKUP.plusPath` | é o logótipo, e o único que pode importar |
 | `components/Logo.tsx`     | importa `PLUS_PATH`                  | o "+" isolado, para o favicon e o motivo  |
 | `app/icon.png` + `.ico`   | bitmap, gerado de `Dev+-icone-2000`  | é o ícone do browser, não executa nada    |
-| `app/opengraph-image.tsx` | dois `<path>` sem `<g>`              | o Satori é frágil com transforms          |
+| `app/opengraph-image.tsx` | bitmap glossy aprovado em `public/social/` | preserva a composição aprovada em 20/10/2026 |
 
 O ícone do browser deixou de ser vetorial em agosto de 2026: o `app/icon.svg`
 foi substituído por dois bitmaps. É a única renderização que **não** deriva de
@@ -174,7 +174,7 @@ nav e no rodapé.
 ## Tamanhos e área de proteção
 
 - **Lockup, mínimo**: 20px de altura. Abaixo disso a contra-forma do "D" fecha.
-- **Nav e rodapé**: 24px (`h-6`). **Cartão social**: 56px.
+- **Nav e rodapé**: 24px (`h-6`). **Cartão social**: monograma incorporado na arte aprovada.
 - **"+" isolado**: **Motivo de fundo**, até ~600px.
 - **Ícone do browser**: 16/32/48 no `.ico`, 512 no `icon.png` (ver acima).
 - **Área de proteção**: metade da largura da barra do "+" (≈100/1000 da altura
@@ -191,5 +191,5 @@ nav e no rodapé.
 | a cor do "+"                                  | nada aqui: vem de `--primary` (ver `docs/02`)                                                                                      |
 | a cor do "D"                                  | nada aqui: é `currentColor`, vem de quem chama                                                                                     |
 | o que a nav mostra (logótipo vs nome escrito) | `components/Wordmark.tsx` e o seu `aria-label`                                                                                     |
-| o tamanho do lockup no cartão social          | `app/opengraph-image.tsx` (a altura passa por `LOCKUP.ratio`)                                                                      |
+| o tamanho do lockup no cartão social          | substitui a arte aprovada em `public/social/` e confirma `/opengraph-image`                                                                      |
 | o motivo de fundo do Hero                     | `components/Hero.tsx` (opacidade, duração, posição)                                                                                |
