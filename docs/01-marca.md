@@ -49,7 +49,7 @@ ficheiro; importa-os. Se precisas de um dado novo, acrescenta-o lá.
 | `domain` / `url`  | devplus.pt / https://devplus.pt             |
 | `email`           | support@devplus.pt                          |
 | `emailFrom`       | Site DevPlus <formulario@send.devplus.pt>   |
-| `tagline`         | Estúdio de Web Design & Desenvolvimento     |
+| `tagline`         | Feito à medida para o teu negócio.          |
 | `city`            | Porto                                       |
 | `locale` / `lang` | pt_PT / pt-PT                               |
 
@@ -190,6 +190,11 @@ uma destas, procura no repositório quantas vezes já lá está:
 | "Falar connosco"           | **só** o botão fixo da navegação — o do rodapé desapareceu com o fecho novo, e o CTA de lá é "Começar a conversa"; nos CTA dentro das páginas, varia |
 
 ## Metadata
+
+O título global usa uma promessa próxima, em vez da designação corporativa
+do estúdio. A tagline vive em `lib/site.ts`; `fullTitle` junta-lhe a marca
+para o título da homepage e os cartões de partilha, incluindo o texto alternativo.
+A descrição mantém os serviços concretos para contextualizar o que fazemos.
 
 **A metadata de uma página faz-se com `pageMetadata()`, de `lib/seo.ts`.** Não se
 escreve um objeto `metadata` à mão, e não se escrevem títulos literais — o

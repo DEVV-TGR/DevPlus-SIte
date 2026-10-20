@@ -13,7 +13,7 @@ export const site = {
    *  é a identidade de envio verificada no Resend. Vive num subdomínio para não
    *  colidir com o SPF do webmail em `devplus.pt`. Ver docs/04. */
   emailFrom: "Site DevPlus <formulario@send.devplus.pt>",
-  tagline: "Estúdio de Web Design & Desenvolvimento",
+  tagline: "Feito à medida para o teu negócio.",
   description:
     "Sites, menus digitais e plataformas feitos à medida do teu negócio — com um painel de gestão para mudares preços, fotos e textos sem ligar a ninguém.",
   /** Não há sede nem morada: o estúdio está a começar e trabalha à distância.
