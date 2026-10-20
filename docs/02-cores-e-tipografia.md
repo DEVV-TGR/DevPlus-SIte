@@ -115,11 +115,11 @@ passa; `primary-ink/70` dá 4.31:1 e falha por pouco. É por isso que a regra do
 Há ficheiros que **não conseguem ler CSS custom properties** e por isso têm os
 valores à mão:
 
-- `app/opengraph-image.tsx` — é gerado pelo Satori, fora do browser;
+- `public/social/banner-glossy-20261020.png` — arte glossy aprovada, com cores e reflexos incorporados;
 - `app/icon.png` e `app/favicon.ico` — são bitmaps, as cores estão nos pixels.
 
-Os equivalentes estão registados em **`lib/brand.ts` → `BRAND_HEX`**, que o
-`opengraph-image.tsx` importa. Desde que o `app/icon.svg` foi substituído pelos
+Os equivalentes estão registados em **`lib/brand.ts` → `BRAND_HEX`**, para renderizações programáticas. O
+`opengraph-image.tsx` passou a renderizar o bitmap aprovado em 20/10/2026. Desde que o `app/icon.svg` foi substituído pelos
 bitmaps, já não há nenhum ficheiro de código com hex literal — o que resta são
 os pixels, que ninguém consegue rever num diff.
 

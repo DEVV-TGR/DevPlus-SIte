@@ -248,6 +248,13 @@ A lição não é "não te esqueças do `openGraph`" — foi exatamente isso que
 O cartão social global vive em `app/opengraph-image.tsx`, mas o `alt` e o `size`
 vêm de `lib/seo.ts` — a rota consome-os, não os define. Ver `docs/03`.
 
+Desde 20/10/2026, a rota serve a arte glossy aprovada em
+`public/social/banner-glossy-20261020.png`, a 1200×630. O texto na imagem é
+“A tua próxima presença digital.”, com “digital” destacado, e
+“Feita à medida para somar.”. O domínio e o monograma estão incorporados
+na arte aprovada: se a identidade em `lib/site.ts` mudar, substituir também
+este bitmap. O título textual de partilha continua a derivar da tagline.
+
 ## Sitemap
 
 `app/sitemap.ts` lista as seis páginas fixas e um caso de estudo por projeto, com
